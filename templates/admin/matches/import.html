@@ -1,0 +1,12 @@
+{% extends "admin/base_site.html" %}
+{% load i18n %}
+
+{% block content %}
+<h1>{% trans "Import matches" %} — {{ competition.name }}</h1>
+<p>{% blocktrans with name=competition.name %}This action will call api-sports.io to sync all matches for competition <strong>{{ name }}</strong> (current season).{% endblocktrans %}</p>
+<form method="post">
+  {% csrf_token %}
+  <input type="submit" value="{% trans "Run sync" %}" class="button">
+  <a href="/admin/matches/competition/{{ competition.pk }}/change/" class="button" style="margin-left: 1rem;">{% trans "Cancel" %}</a>
+</form>
+{% endblock %}

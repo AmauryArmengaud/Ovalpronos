@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Scoring rules" %} — Oval'Pronos{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-12 col-md-10 col-lg-8">
+
+    <h1 class="mb-1">{% trans "Crouch, bind, set" %}</h1>
+    <p class="text-muted mb-5">{% trans "How does the scoring system work?" %}</p>
+
+    {# Scoring tiers #}
+    <h2 class="h5 mb-3">{% trans "Scoring tiers" %}</h2>
+    <div class="row g-3 mb-5">
+
+      <div class="col-12 col-sm-6 col-lg-3">
+        <div class="card text-center p-3 h-100">
+          <div class="fw-bold mb-1" style="color: var(--color-badge-exact); font-size: 1.5rem;">👑</div>
+          <div class="fw-bold">{% trans "Exact score" %}</div>
+          <div class="text-muted small mt-1">{% trans "Odds × 3" %}</div>
+        </div>
+      </div>
+
+      <div class="col-12 col-sm-6 col-lg-3">
+        <div class="card text-center p-3 h-100">
+          <div class="fw-bold mb-1" style="color: var(--color-badge-gap); font-size: 1.5rem;">🎯</div>
+          <div class="fw-bold">{% trans "Good gap" %}</div>
+          <div class="text-muted small mt-1">{% trans "Odds × 2" %}</div>
+        </div>
+      </div>
+
+      <div class="col-12 col-sm-6 col-lg-3">
+        <div class="card text-center p-3 h-100">
+          <div class="fw-bold mb-1" style="color: var(--color-badge-win); font-size: 1.5rem;">✓</div>
+          <div class="fw-bold">{% trans "Correct winner" %}</div>
+          <div class="text-muted small mt-1">{% trans "Odds × 1" %}</div>
+        </div>
+      </div>
+
+      <div class="col-12 col-sm-6 col-lg-3">
+        <div class="card text-center p-3 h-100">
+          <div class="fw-bold mb-1" style="color: var(--color-badge-miss); font-size: 1.5rem;">✗</div>
+          <div class="fw-bold">{% trans "Missed" %}</div>
+          <div class="text-muted small mt-1">0 {% trans "point" %}</div>
+        </div>
+      </div>
+
+    </div>
+
+    {# Cotes explanation #}
+    <h2 class="h5 mb-3">{% trans "Odds" %}</h2>
+    <p class="text-muted mb-4">
+      {% trans "Odds are based on Unibet odds (multiplied by 10 to avoid decimals). A match with high odds on the winner scores more points, but you take more risk." %}
+    </p>
+
+    {# Example #}
+    <h2 class="h5 mb-3">{% trans "Example" %}</h2>
+    <p class="text-muted mb-3">
+      {% trans "Clermont — Perpignan, Perpignan odds: 63 (= 6.3 at Unibet), good gap threshold: 3 pts" %}
+    </p>
+    <div class="card mb-5">
+      <div class="table-responsive">
+        <table class="table mb-0 align-middle">
+          <thead>
+            <tr>
+              <th>{% trans "Prediction" %}</th>
+              <th>{% trans "Actual score" %}</th>
+              <th>{% trans "Result" %}</th>
+              <th class="text-end">{% trans "Points" %}</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>17 — 22</td>
+              <td>17 — 22</td>
+              <td><span style="color: var(--color-badge-exact);">👑 {% trans "Exact score" %}</span></td>
+              <td class="text-end fw-bold">189</td>
+            </tr>
+            <tr>
+              <td>15 — 22</td>
+              <td>17 — 22</td>
+              <td><span style="color: var(--color-badge-gap);">🎯 {% trans "Good gap" %}</span></td>
+              <td class="text-end fw-bold">126</td>
+            </tr>
+            <tr>
+              <td>14 — 25</td>
+              <td>17 — 22</td>
+              <td><span style="color: var(--color-badge-win);">✓ {% trans "Correct winner" %}</span></td>
+              <td class="text-end fw-bold">63</td>
+            </tr>
+            <tr>
+              <td>20 — 10</td>
+              <td>17 — 22</td>
+              <td><span style="color: var(--color-badge-miss);">✗ {% trans "Missed" %}</span></td>
+              <td class="text-end fw-bold">0</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    {# Draw rule #}
+    <h2 class="h5 mb-3">{% trans "Draw rule" %}</h2>
+    <p class="text-muted mb-0">
+      {% trans "If the match ends in a draw, only a draw prediction (gap of 0) scores points. Predicting any winner counts as a miss." %}
+    </p>
+
+  </div>
+</div>
+{% endblock %}

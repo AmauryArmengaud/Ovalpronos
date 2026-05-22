@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Predictions" %} — Oval'Pronos{% endblock %}
+
+{% block content %}
+<h1 class="mb-4">{% trans "Predictions" %}</h1>
+
+{# ── Tab filter ──────────────────────────────────────────────────────── #}
+<div class="segment-control mb-4">
+  <a class="segment-control__item {% if active_tab == 'upcoming' %}active{% endif %}"
+     href="?tab=upcoming">{% trans "Upcoming" %}</a>
+  <a class="segment-control__item {% if active_tab == 'live' %}active{% endif %}"
+     href="?tab=live">{% if has_live_matches %}<span class="segment-control__live-dot"></span>{% endif %}{% trans "Live" %}</a>
+  <a class="segment-control__item {% if active_tab == 'past' %}active{% endif %}"
+     href="?tab=past">{% trans "Past" %}</a>
+</div>
+
+{% if not competitions_data %}
+  <p class="text-muted">{% trans "No matches available." %}</p>
+{% endif %}
+
+{% for competition, rounds in competitions_data %}
+  {% for round_name, match_items in rounds %}
+    {% for item in match_items %}
+      {% include "partials/match_card.html" with match=item.match prediction=item.prediction %}
+    {% endfor %}
+  {% endfor %}
+{% endfor %}
+{% endblock %}

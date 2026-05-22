@@ -1,0 +1,623 @@
+# Oval'Pronos — French translations
+# Copyright (C) 2026 Oval'Pronos
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Oval'Pronos\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-05-21 16:51+0200\n"
+"PO-Revision-Date: 2026-05-21 17:00+0200\n"
+"Last-Translator: Oval'Pronos\n"
+"Language-Team: French\n"
+"Language: fr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+#: apps/accounts/forms.py:8 apps/accounts/models.py:17
+msgid "Email address"
+msgstr "Adresse e-mail"
+
+#: apps/accounts/forms.py:9
+msgid "First name"
+msgstr "Prénom"
+
+#: apps/accounts/forms.py:10
+msgid "Last name"
+msgstr "Nom de famille"
+
+#: apps/accounts/forms.py:14 apps/accounts/models.py:24
+msgid "Display name"
+msgstr "Pseudo affiché"
+
+#: apps/accounts/forms.py:15
+msgid "Public nickname shown in rankings. Defaults to your username."
+msgstr "Pseudo public affiché dans le classement. Par défaut, c'est ton nom d'utilisateur."
+
+#: apps/accounts/models.py:32
+msgid "Profile picture"
+msgstr "Photo de profil"
+
+#: apps/accounts/models.py:42
+msgid "Favourite team"
+msgstr "Équipe favorite"
+
+#: apps/accounts/models.py:46
+msgid "User"
+msgstr "Utilisateur"
+
+#: apps/accounts/models.py:47
+msgid "Users"
+msgstr "Utilisateurs"
+
+#: apps/matches/models.py:14 apps/matches/models.py:60
+#: apps/matches/models.py:110
+msgid "API ID"
+msgstr "ID API"
+
+#: apps/matches/models.py:16
+msgid "Name"
+msgstr "Nom"
+
+#: apps/matches/models.py:19
+msgid "Short code"
+msgstr "Code court"
+
+#: apps/matches/models.py:20
+msgid "e.g. TOP14, CHAMP_CUP, SIX_NATIONS"
+msgstr "Ex : TOP14, CHAMP_CUP, SIX_NATIONS"
+
+#: apps/matches/models.py:22
+msgid "Country / Zone"
+msgstr "Pays / Zone"
+
+#: apps/matches/models.py:23 apps/matches/models.py:70
+msgid "Logo URL"
+msgstr "URL du logo"
+
+#: apps/matches/models.py:26
+msgid "Season"
+msgstr "Saison"
+
+#: apps/matches/models.py:27
+msgid "e.g. 2024-2025"
+msgstr "Ex : 2024-2025"
+
+#: apps/matches/models.py:31
+msgid "Active competition"
+msgstr "Compétition active"
+
+#: apps/matches/models.py:36
+msgid "Scoring system"
+msgstr "Système de points"
+
+#: apps/matches/models.py:37
+msgid "COTES = odds-based, FIXED = flat points"
+msgstr "COTES = basé sur les cotes, FIXED = points fixes"
+
+#: apps/matches/models.py:41
+msgid "Good gap threshold (pts)"
+msgstr "Seuil bon écart (pts)"
+
+#: apps/matches/models.py:45 apps/matches/models.py:116
+msgid "Competition"
+msgstr "Compétition"
+
+#: apps/matches/models.py:46
+msgid "Competitions"
+msgstr "Compétitions"
+
+#: apps/matches/models.py:62
+msgid "Slug"
+msgstr "Slug"
+
+#: apps/matches/models.py:63
+msgid "Full name"
+msgstr "Nom complet"
+
+#: apps/matches/models.py:67
+msgid "Short name"
+msgstr "Nom court"
+
+#: apps/matches/models.py:68
+msgid "e.g. STA, ASM, LOU"
+msgstr "Ex : STA, ASM, LOU"
+
+#: apps/matches/models.py:71
+msgid "Country"
+msgstr "Pays"
+
+#: apps/matches/models.py:74
+msgid "Team"
+msgstr "Équipe"
+
+#: apps/matches/models.py:75
+msgid "Teams"
+msgstr "Équipes"
+
+#: apps/matches/models.py:101
+msgid "Scheduled"
+msgstr "Planifié"
+
+#: apps/matches/models.py:102
+msgid "In play"
+msgstr "En cours"
+
+#: apps/matches/models.py:103
+msgid "Finished"
+msgstr "Terminé"
+
+#: apps/matches/models.py:104
+msgid "Postponed"
+msgstr "Reporté"
+
+#: apps/matches/models.py:105 apps/predictions/models.py:19
+#: templates/partials/match_card.html:26
+msgid "Cancelled"
+msgstr "Annulé"
+
+#: apps/matches/models.py:122
+msgid "Home team"
+msgstr "Équipe domicile"
+
+#: apps/matches/models.py:128
+msgid "Away team"
+msgstr "Équipe extérieur"
+
+#: apps/matches/models.py:135
+msgid "Round"
+msgstr "Journée / Tour"
+
+#: apps/matches/models.py:136
+msgid "e.g. R12, Semi-final"
+msgstr "Ex : J12, Demi-finale"
+
+#: apps/matches/models.py:138
+msgid "Kickoff date and time"
+msgstr "Date et heure du coup d'envoi"
+
+#: apps/matches/models.py:139
+msgid "Venue"
+msgstr "Stade"
+
+#: apps/matches/models.py:146
+msgid "Status"
+msgstr "Statut"
+
+#: apps/matches/models.py:148 templates/partials/match_card.html:94
+msgid "Home score"
+msgstr "Score domicile"
+
+#: apps/matches/models.py:149 templates/partials/match_card.html:104
+msgid "Away score"
+msgstr "Score extérieur"
+
+#: apps/matches/models.py:150
+msgid "Home odds (×10)"
+msgstr "Cote domicile (×10)"
+
+#: apps/matches/models.py:151
+msgid "Draw odds (×10)"
+msgstr "Cote nul (×10)"
+
+#: apps/matches/models.py:152
+msgid "Away odds (×10)"
+msgstr "Cote extérieur (×10)"
+
+#: apps/matches/models.py:159 apps/predictions/models.py:32
+msgid "Match"
+msgstr "Match"
+
+#: apps/matches/models.py:160
+msgid "Matches"
+msgstr "Matchs"
+
+#: apps/predictions/models.py:15 templates/matches/rules.html:20
+#: templates/matches/rules.html:77
+msgid "Exact score"
+msgstr "Score exact"
+
+#: apps/predictions/models.py:16 templates/matches/rules.html:28
+#: templates/matches/rules.html:83
+msgid "Good gap"
+msgstr "Bon écart"
+
+#: apps/predictions/models.py:17 templates/matches/rules.html:36
+#: templates/matches/rules.html:89
+msgid "Correct winner"
+msgstr "Bon vainqueur"
+
+#: apps/predictions/models.py:18 templates/matches/rules.html:44
+#: templates/matches/rules.html:95
+msgid "Missed"
+msgstr "Raté"
+
+#: apps/predictions/models.py:26 templates/rankings/index.html:19
+msgid "Player"
+msgstr "Joueur"
+
+#: apps/predictions/models.py:35
+msgid "Predicted home score"
+msgstr "Score prédit domicile"
+
+#: apps/predictions/models.py:36
+msgid "Predicted away score"
+msgstr "Score prédit extérieur"
+
+#: apps/predictions/models.py:38
+msgid "Points earned"
+msgstr "Points gagnés"
+
+#: apps/predictions/models.py:44
+msgid "Result type"
+msgstr "Type de résultat"
+
+#: apps/predictions/models.py:51 templates/matches/rules.html:67
+msgid "Prediction"
+msgstr "Pronostic"
+
+#: apps/predictions/models.py:52 templates/base.html:38 templates/base.html:77
+#: templates/predictions/index.html:4 templates/predictions/index.html:7
+#: templates/rankings/index.html:21
+msgid "Predictions"
+msgstr "Pronos"
+
+#: templates/404.html:10
+msgid "This page kicked into touch."
+msgstr "Cette page a botté en touche."
+
+#: templates/404.html:11
+msgid "The page you're looking for doesn't exist or has been moved."
+msgstr "La page que tu cherches n'existe pas ou a été déplacée."
+
+#: templates/404.html:13
+msgid "Back to home"
+msgstr "Retour à l'accueil"
+
+#: templates/accounts/emails/password_reset_email.html:2
+msgid "You requested a password reset for your Oval'Pronos account."
+msgstr "Tu as demandé la réinitialisation du mot de passe de ton compte Oval'Pronos."
+
+#: templates/accounts/emails/password_reset_email.html:4
+msgid "Click the link below to set a new password:"
+msgstr "Clique sur le lien ci-dessous pour définir un nouveau mot de passe :"
+
+#: templates/accounts/emails/password_reset_email.html:7
+msgid "If you didn't request this, you can safely ignore this email."
+msgstr "Si tu n'es pas à l'origine de cette demande, ignore simplement cet e-mail."
+
+#: templates/accounts/login.html:4 templates/accounts/login.html:11
+#: templates/accounts/login.html:58
+#: templates/accounts/password_reset_complete.html:19
+#: templates/accounts/register.html:59 templates/base.html:61
+#: templates/base.html:97 templates/matches/home.html:18
+msgid "Log in"
+msgstr "Se connecter"
+
+#: templates/accounts/login.html:68 templates/accounts/password_reset.html:11
+msgid "Forgot your password?"
+msgstr "Mot de passe oublié ?"
+
+#: templates/accounts/login.html:72
+msgid "No account yet?"
+msgstr "Pas encore de compte ?"
+
+#: templates/accounts/login.html:74 templates/base.html:64
+#: templates/base.html:101 templates/matches/home.html:17
+msgid "Sign up"
+msgstr "S'inscrire"
+
+#: templates/accounts/password_reset.html:4
+msgid "Password reset"
+msgstr "Réinitialisation du mot de passe"
+
+#: templates/accounts/password_reset.html:15
+msgid "Enter your email address and we'll send you a link to reset your password."
+msgstr "Saisis ton adresse e-mail et nous t'enverrons un lien pour réinitialiser ton mot de passe."
+
+#: templates/accounts/password_reset.html:40
+msgid "Send reset link"
+msgstr "Envoyer le lien"
+
+#: templates/accounts/password_reset.html:49
+#: templates/accounts/password_reset_done.html:22
+msgid "Back to login"
+msgstr "Retour à la connexion"
+
+#: templates/accounts/password_reset_complete.html:4
+msgid "Password changed"
+msgstr "Mot de passe modifié"
+
+#: templates/accounts/password_reset_complete.html:11
+msgid "Password changed!"
+msgstr "Mot de passe modifié !"
+
+#: templates/accounts/password_reset_complete.html:16
+msgid "Your password has been changed successfully. You can now log in."
+msgstr "Ton mot de passe a été modifié avec succès. Tu peux maintenant te connecter."
+
+#: templates/accounts/password_reset_confirm.html:4
+#: templates/accounts/password_reset_confirm.html:11
+msgid "New password"
+msgstr "Nouveau mot de passe"
+
+#: templates/accounts/password_reset_confirm.html:62
+msgid "Change my password"
+msgstr "Changer mon mot de passe"
+
+#: templates/accounts/password_reset_confirm.html:69
+msgid "This reset link is invalid or has expired. Please make a new request."
+msgstr "Ce lien de réinitialisation est invalide ou a expiré. Veuillez faire une nouvelle demande."
+
+#: templates/accounts/password_reset_confirm.html:73
+msgid "New request"
+msgstr "Nouvelle demande"
+
+#: templates/accounts/password_reset_done.html:4
+msgid "Email sent"
+msgstr "E-mail envoyé"
+
+#: templates/accounts/password_reset_done.html:11
+msgid "Email sent!"
+msgstr "E-mail envoyé !"
+
+#: templates/accounts/password_reset_done.html:16
+msgid ""
+"If an account is associated with this email address, you will receive a "
+"reset link."
+msgstr ""
+"Si un compte est associé à cette adresse e-mail, tu vas recevoir un lien "
+"de réinitialisation."
+
+#: templates/accounts/password_reset_done.html:19
+msgid "Check your inbox (and spam folder if needed)."
+msgstr "Vérifie ta boîte de réception (et tes spams si nécessaire)."
+
+#: templates/accounts/register.html:4
+msgid "Register"
+msgstr "Inscription"
+
+#: templates/accounts/register.html:11
+msgid "Create an account"
+msgstr "Créer un compte"
+
+#: templates/accounts/register.html:48
+msgid "Create my account"
+msgstr "Créer mon compte"
+
+#: templates/accounts/register.html:57
+msgid "Already have an account?"
+msgstr "Déjà inscrit ?"
+
+#: templates/admin/matches/import.html:5
+msgid "Import matches"
+msgstr "Importer les matchs"
+
+#: templates/admin/matches/import.html:6
+#, python-format
+msgid ""
+"This action will call api-sports.io to sync all matches for competition "
+"<strong>%(name)s</strong> (current season)."
+msgstr ""
+"Cette action va appeler api-sports.io pour synchroniser tous les matchs de la "
+"compétition <strong>%(name)s</strong> (saison en cours)."
+
+#: templates/admin/matches/import.html:9
+msgid "Run sync"
+msgstr "Lancer la synchronisation"
+
+#: templates/admin/matches/import.html:10
+msgid "Cancel"
+msgstr "Annuler"
+
+#: templates/base.html:41 templates/base.html:81
+#: templates/rankings/index.html:4 templates/rankings/index.html:9
+msgid "Rankings"
+msgstr "Classement"
+
+#: templates/base.html:44 templates/base.html:85
+msgid "Rules"
+msgstr "Règles"
+
+#: templates/base.html:56 templates/base.html:91
+msgid "Log out"
+msgstr "Déconnexion"
+
+#: templates/base.html:126 templates/matches/home.html:12
+msgid "Tu sais pas plaquer, viens pronostiquer"
+msgstr "Tu sais pas plaquer, viens pronostiquer"
+
+#: templates/matches/home.html:5
+msgid "Rugby predictions"
+msgstr "Pronostics rugby"
+
+#: templates/matches/home.html:13
+msgid "The first rugby predictions app is here!"
+msgstr "La première appli de pronostics rugby est disponible !"
+
+#: templates/matches/home.html:14
+msgid ""
+"Week after week, predict unlikely scores and rack up points against your "
+"friends."
+msgstr ""
+"Journée après journée, prédis des scores improbables et marque des points "
+"face à tes potes."
+
+#: templates/matches/home.html:15
+msgid "Don't wait any longer — sign up to join us."
+msgstr "Alors n'hésite plus, inscris-toi pour nous rejoindre."
+
+#: templates/matches/home.html:31
+msgid "Oval'Pronos — simple and fun"
+msgstr "Oval'Pronos, c'est simple et c'est drôle"
+
+#: templates/matches/home.html:32
+msgid "You don't need to be a rugby expert to play!"
+msgstr "Pas besoin d'être un crack du rugby pour jouer !"
+
+#: templates/matches/home.html:33
+msgid "Every week, make predictions with friends and get live results."
+msgstr "Chaque semaine, tu pronostiques avec tes potes et tu as les résultats en direct."
+
+#: templates/matches/home.html:40
+msgid "Predict matches"
+msgstr "Pronostique tes matchs"
+
+#: templates/matches/home.html:41
+msgid ""
+"The odds system rewards risk-takers. The more precise your prediction, the "
+"more points you earn."
+msgstr ""
+"Le système de cotes récompense les prises de risque. Plus ton pronostic "
+"est précis, plus tu marques de points."
+
+#: templates/matches/home.html:42
+msgid ""
+"Create or join a private league with your invite code and challenge your "
+"friends."
+msgstr ""
+"Crée ou rejoins une ligue privée avec ton code d'invitation et affronte "
+"tes amis."
+
+#: templates/matches/rules.html:4
+msgid "Scoring rules"
+msgstr "Règles du jeu"
+
+#: templates/matches/rules.html:10
+msgid "Crouch, bind, set"
+msgstr "Flexion, liez, jeu"
+
+#: templates/matches/rules.html:11
+msgid "How does the scoring system work?"
+msgstr "Comment fonctionne le système de points ?"
+
+#: templates/matches/rules.html:14
+msgid "Scoring tiers"
+msgstr "Le barème"
+
+#: templates/matches/rules.html:21
+msgid "Odds × 3"
+msgstr "Cote × 3"
+
+#: templates/matches/rules.html:29
+msgid "Odds × 2"
+msgstr "Cote × 2"
+
+#: templates/matches/rules.html:37
+msgid "Odds × 1"
+msgstr "Cote × 1"
+
+#: templates/matches/rules.html:45
+msgid "point"
+msgstr "point"
+
+#: templates/matches/rules.html:52
+msgid "Odds"
+msgstr "Les cotes"
+
+#: templates/matches/rules.html:54
+msgid ""
+"Odds are based on Unibet odds (multiplied by 10 to avoid decimals). A match "
+"with high odds on the winner scores more points, but you take more risk."
+msgstr ""
+"Les cotes sont basées sur les cotes Unibet (multipliées par 10 pour éviter "
+"les décimales). Un match avec une forte cote sur le vainqueur rapporte plus "
+"de points, mais tu prends plus de risque."
+
+#: templates/matches/rules.html:58
+msgid "Example"
+msgstr "Exemple"
+
+#: templates/matches/rules.html:60
+msgid ""
+"Clermont — Perpignan, Perpignan odds: 63 (= 6.3 at Unibet), good gap "
+"threshold: 3 pts"
+msgstr ""
+"Clermont — Perpignan, cote Perpignan : 63 (= 6,3 chez Unibet), seuil bon "
+"écart : 3 pts"
+
+#: templates/matches/rules.html:68
+msgid "Actual score"
+msgstr "Score réel"
+
+#: templates/matches/rules.html:69
+msgid "Result"
+msgstr "Résultat"
+
+#: templates/matches/rules.html:70 templates/rankings/index.html:20
+msgid "Points"
+msgstr "Points"
+
+#: templates/matches/rules.html:104
+msgid "Draw rule"
+msgstr "Cas du match nul"
+
+#: templates/matches/rules.html:106
+msgid ""
+"If the match ends in a draw, only a draw prediction (gap of 0) scores "
+"points. Predicting any winner counts as a miss."
+msgstr ""
+"Si le match se termine sur un score nul, seul un pronostic de nul (écart de "
+"0) est valide pour marquer des points. Pronostiquer n'importe quel vainqueur "
+"compte comme raté."
+
+#: templates/partials/match_card.html:59 templates/partials/match_card.html:70
+msgid "No prediction"
+msgstr "Pas de prono"
+
+#: templates/partials/match_card.html:68 templates/partials/match_card.html:71
+msgid "Locked"
+msgstr "Verrouillé"
+
+#: templates/partials/match_card.html:76
+msgid "Odds coming soon"
+msgstr "Cotes à venir"
+
+#: templates/partials/match_card.html:133
+msgid "Home"
+msgstr "Domicile"
+
+#: templates/partials/match_card.html:134
+msgid "Draw"
+msgstr "Nul"
+
+#: templates/partials/match_card.html:135
+msgid "Away"
+msgstr "Extérieur"
+
+#: templates/predictions/index.html:12
+msgid "Upcoming"
+msgstr "À venir"
+
+#: templates/predictions/index.html:14
+msgid "Live"
+msgstr "En direct"
+
+#: templates/predictions/index.html:16
+msgid "Past"
+msgstr "Passés"
+
+#: templates/predictions/index.html:20
+msgid "No matches available."
+msgstr "Aucun match disponible."
+
+#: templates/rankings/index.html:23
+msgid "Exact"
+msgstr "Exact"
+
+#: templates/rankings/index.html:26
+msgid "Gap"
+msgstr "Écart"
+
+#: templates/rankings/index.html:29
+msgid "Winner"
+msgstr "Vainqueur"
+
+#: templates/rankings/index.html:45
+msgid "You"
+msgstr "Vous"
+
+#: templates/rankings/index.html:68
+msgid "No scores yet. Points appear after matches finish."
+msgstr "Aucun score pour le moment. Les points s'affichent après la fin des matchs."

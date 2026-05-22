@@ -1,0 +1,17 @@
+name: Sync Matches
+
+on:
+  schedule:
+    - cron: '0 */2 * * *'        # Every 2 hours
+    - cron: '*/15 * * * 6,0'     # Every 15 min on Sat/Sun
+  workflow_dispatch:              # Manual trigger
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger sync endpoint
+        run: |
+          curl -X POST "${{ secrets.APP_URL }}/api/sync-scores/" \
+            -H "Authorization: Bearer ${{ secrets.SYNC_SECRET_TOKEN }}" \
+            --fail --silent --show-error

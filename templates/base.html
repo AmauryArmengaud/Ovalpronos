@@ -1,0 +1,136 @@
+{% load i18n %}
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Oval'Pronos{% endblock %}</title>
+  <!-- Barlow font -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <!-- Bootstrap 5 -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Tabler Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.31.0/tabler-icons.min.css" rel="stylesheet">
+  <!-- App CSS -->
+  <link rel="stylesheet" href="{% static 'css/main.css' %}">
+  {% block extra_head %}{% endblock %}
+</head>
+<body>
+
+<!-- Navbar (desktop) -->
+<nav class="navbar navbar-expand-lg navbar-light">
+  <div class="container">
+    <!-- Mobile: logo centré, pas de hamburger -->
+    <a class="navbar-brand mx-auto d-lg-none" href="{% url 'matches:home' %}">
+      <img src="{% static 'img/logo.svg' %}" alt="Oval'Pronos" height="40">
+    </a>
+    <!-- Desktop: logo à gauche -->
+    <a class="navbar-brand d-none d-lg-block" href="{% url 'matches:home' %}">
+      <img src="{% static 'img/logo.svg' %}" alt="Oval'Pronos" height="48">
+    </a>
+    <div class="collapse navbar-collapse" id="navbarMain">
+      <ul class="navbar-nav me-auto">
+        {% if user.is_authenticated %}
+        <li class="nav-item">
+          <a class="nav-link nav-link-dark" href="{% url 'predictions:index' %}">{% trans "Predictions" %}</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link nav-link-dark" href="{% url 'rankings:index' %}">{% trans "Rankings" %}</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link nav-link-dark" href="{% url 'matches:rules' %}">{% trans "Rules" %}</a>
+        </li>
+        {% endif %}
+      </ul>
+      <ul class="navbar-nav align-items-center gap-2">
+        {% if user.is_authenticated %}
+          <li class="nav-item">
+            <span class="nav-link nav-link-dark fw-semibold">{{ user.get_display_name }}</span>
+          </li>
+          <li class="nav-item">
+            <form method="post" action="{% url 'accounts:logout' %}" class="d-inline">
+              {% csrf_token %}
+              <button type="submit" class="btn btn-accent btn-sm">{% trans "Log out" %}</button>
+            </form>
+          </li>
+        {% else %}
+          <li class="nav-item">
+            <a class="btn btn-accent btn-navbar" href="{% url 'accounts:login' %}">{% trans "Log in" %}</a>
+          </li>
+          <li class="nav-item">
+            <a class="btn btn-accent btn-navbar" href="{% url 'accounts:register' %}">{% trans "Sign up" %}</a>
+          </li>
+        {% endif %}
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<!-- Bottom nav (mobile only) -->
+<nav class="mobile-bottom-nav d-lg-none">
+  {% if user.is_authenticated %}
+    <a class="mobile-bottom-nav__item {% block nav_active_predictions %}{% endblock %}" href="{% url 'predictions:index' %}">
+      <img src="{% static 'img/icons/predictions.svg' %}" alt="" class="mobile-bottom-nav__icon">
+      <span>{% trans "Predictions" %}</span>
+    </a>
+    <a class="mobile-bottom-nav__item {% block nav_active_rankings %}{% endblock %}" href="{% url 'rankings:index' %}">
+      <img src="{% static 'img/icons/rankings.svg' %}" alt="" class="mobile-bottom-nav__icon">
+      <span>{% trans "Rankings" %}</span>
+    </a>
+    <a class="mobile-bottom-nav__item {% block nav_active_rules %}{% endblock %}" href="{% url 'matches:rules' %}">
+      <img src="{% static 'img/icons/rules.svg' %}" alt="" class="mobile-bottom-nav__icon">
+      <span>{% trans "Rules" %}</span>
+    </a>
+    <form method="post" action="{% url 'accounts:logout' %}" class="mobile-bottom-nav__item">
+      {% csrf_token %}
+      <button type="submit" class="mobile-bottom-nav__logout-btn">
+        <img src="{% static 'img/icons/logout.svg' %}" alt="" class="mobile-bottom-nav__icon">
+        <span>{% trans "Log out" %}</span>
+      </button>
+    </form>
+  {% else %}
+    <a class="mobile-bottom-nav__item" href="{% url 'accounts:login' %}">
+      <img src="{% static 'img/icons/profile.svg' %}" alt="" class="mobile-bottom-nav__icon">
+      <span>{% trans "Log in" %}</span>
+    </a>
+    <a class="mobile-bottom-nav__item" href="{% url 'accounts:register' %}">
+      <img src="{% static 'img/icons/logout.svg' %}" alt="" class="mobile-bottom-nav__icon">
+      <span>{% trans "Sign up" %}</span>
+    </a>
+  {% endif %}
+</nav>
+
+<!-- Flash messages -->
+{% if messages %}
+<div class="container mt-3 messages">
+  {% for message in messages %}
+    <div class="alert alert-{{ message.tags|default:'info' }} alert-dismissible fade show" role="alert">
+      {{ message }}
+      <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+  {% endfor %}
+</div>
+{% endif %}
+
+<!-- Main content -->
+<main class="container my-4">
+  {% block content %}{% endblock %}
+</main>
+
+<!-- Footer -->
+<footer class="footer py-3 mt-auto">
+  <div class="container text-center">
+    <small>{% trans "Tu sais pas plaquer, viens pronostiquer" %} &mdash; Oval'Pronos {% now "Y" %}</small>
+  </div>
+</footer>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<!-- HTMX -->
+<script src="https://unpkg.com/htmx.org@2.0.4/dist/htmx.min.js"></script>
+{% block extra_js %}{% endblock %}
+</body>
+</html>

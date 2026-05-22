@@ -1,0 +1,172 @@
+{% load i18n static match_tags %}
+<div class="card mb-3" id="match-card-{{ match.pk }}">
+  <div class="card-body">
+
+    {# ── Teams row ─────────────────────────────────────────────────────── #}
+    <div class="d-flex align-items-center justify-content-between">
+
+      {# Home team #}
+      <div class="text-center" style="width: 38%">
+        <img src="{% static 'img/teams/' %}{{ match.home_team.slug }}.png"
+             alt="{{ match.home_team.name }}"
+             style="height: 44px; width: auto; max-width: 72px; object-fit: contain;"
+             onerror="this.style.display='none'">
+        <div class="fw-semibold small mt-1">{{ match.home_team.short_name|default:match.home_team.name }}</div>
+      </div>
+
+      {# ── Centre: state-dependent content ────────────────────────────── #}
+      <div class="text-center" style="width: 24%">
+
+        {% if match.status == 'CANCELLED' %}
+          {# State: cancelled #}
+          <span class="badge rounded-pill"
+                style="background: #adb5bd; color: #fff; font-size: 0.85rem; padding: 0.4em 0.75em;">
+            ✗
+          </span>
+          <div class="text-muted small mt-1">{% trans "Cancelled" %}</div>
+
+        {% elif match.status == 'FINISHED' %}
+          {# State: finished — real score + points badge #}
+          <div class="fw-bold" style="font-size: 1.15rem; letter-spacing: 0.03em;">
+            {{ match.home_score }} – {{ match.away_score }}
+          </div>
+          {% if prediction %}
+            <div class="small text-muted mt-1">
+              {{ prediction.predicted_home_score }}–{{ prediction.predicted_away_score }}
+            </div>
+            {% if prediction.result_type == 'EXACT' %}
+              <span class="badge rounded-pill mt-1 px-2"
+                    style="background: var(--color-badge-exact); color: var(--color-text); font-size: 0.75rem;">
+                👑 {{ prediction.points_earned }} pts
+              </span>
+              <div class="small fw-semibold mt-1" style="color: var(--color-badge-exact);">{% trans "Exact score" %}</div>
+            {% elif prediction.result_type == 'GAP' %}
+              <span class="badge rounded-pill mt-1 px-2"
+                    style="background: var(--color-badge-gap); color: var(--color-text-on-primary); font-size: 0.75rem;">
+                🎯 {{ prediction.points_earned }} pts
+              </span>
+              <div class="small fw-semibold mt-1" style="color: var(--color-badge-gap);">{% trans "Good gap" %}</div>
+            {% elif prediction.result_type == 'WIN' %}
+              <span class="badge rounded-pill mt-1 px-2"
+                    style="background: var(--color-badge-win); color: var(--color-text); font-size: 0.75rem;">
+                ✓ {{ prediction.points_earned }} pts
+              </span>
+              <div class="small fw-semibold mt-1" style="color: var(--color-badge-win);">{% trans "Correct winner" %}</div>
+            {% elif prediction.result_type == 'MISS' %}
+              <span class="badge rounded-pill mt-1 px-2"
+                    style="background: var(--color-badge-miss); color: #fff; font-size: 0.75rem;">
+                ✗ 0 pts
+              </span>
+              <div class="small fw-semibold mt-1" style="color: var(--color-badge-miss);">{% trans "Missed" %}</div>
+            {% endif %}
+          {% else %}
+            <div class="text-muted small mt-1">{% trans "No prediction" %}</div>
+          {% endif %}
+
+        {% elif match.is_locked %}
+          {# State: locked (match started, not yet finished) #}
+          {% if prediction %}
+            <div class="fw-semibold" style="font-size: 1.1rem;">
+              {{ prediction.predicted_home_score }}–{{ prediction.predicted_away_score }}
+            </div>
+          {% endif %}
+          <span class="badge rounded-pill mt-1"
+                style="background: rgba(43,52,103,0.12); color: var(--color-text); font-size: 0.72rem;">
+            🔒 {% trans "Locked" %}
+          </span>
+
+        {% elif not match.has_odds %}
+          {# State: no odds yet #}
+          <div class="text-muted small" style="font-size: 0.78rem;">{% trans "Odds coming soon" %}</div>
+
+        {% else %}
+          {# State: open — editable form #}
+          {% if match.closes_soon %}
+            <div class="mb-1" style="font-size: 0.72rem; color: var(--color-accent); font-weight: 600;">
+              ⏰ {% trans "Closes soon" %}
+            </div>
+          {% endif %}
+          <form hx-post="{% url 'predictions:submit' match.pk %}"
+                hx-trigger="change[this.querySelector('[name=home]').value !== '' && this.querySelector('[name=away]').value !== '']"
+                hx-swap="outerHTML"
+                hx-target="#match-card-{{ match.pk }}">
+            {% csrf_token %}
+            <div class="d-flex align-items-center justify-content-center gap-1">
+              <input type="number"
+                     name="home"
+                     min="0"
+                     max="200"
+                     value="{{ prediction.predicted_home_score|default:'' }}"
+                     class="form-control form-control-sm text-center p-1"
+                     style="width: 48px;"
+                     hx-disabled-elt="this"
+                     aria-label="{% trans 'Home score' %}">
+              <span class="fw-bold text-muted">–</span>
+              <input type="number"
+                     name="away"
+                     min="0"
+                     max="200"
+                     value="{{ prediction.predicted_away_score|default:'' }}"
+                     class="form-control form-control-sm text-center p-1"
+                     style="width: 48px;"
+                     hx-disabled-elt="this"
+                     aria-label="{% trans 'Away score' %}">
+            </div>
+          </form>
+
+          {# Potential points when prediction is entered #}
+          {% if prediction and prediction.predicted_cote %}
+            {% with pp=prediction.potential_points %}
+            <div class="mt-2 d-flex justify-content-center gap-2" style="font-size: 0.7rem; line-height: 1.3;">
+              <span style="color: var(--color-badge-exact);" title="{% trans 'Exact score' %}">
+                👑 {{ pp.exact }}
+              </span>
+              <span style="color: var(--color-badge-gap);" title="{% trans 'Good gap' %}">
+                🎯 {{ pp.gap }}
+              </span>
+              <span style="color: var(--color-badge-win);" title="{% trans 'Correct winner' %}">
+                ✓ {{ pp.win }}
+              </span>
+            </div>
+            {% endwith %}
+          {% endif %}
+
+        {% endif %}
+      </div>
+      {# end centre #}
+
+      {# Away team #}
+      <div class="text-center" style="width: 38%">
+        <img src="{% static 'img/teams/' %}{{ match.away_team.slug }}.png"
+             alt="{{ match.away_team.name }}"
+             style="height: 44px; width: auto; max-width: 72px; object-fit: contain;"
+             onerror="this.style.display='none'">
+        <div class="fw-semibold small mt-1">{{ match.away_team.short_name|default:match.away_team.name }}</div>
+      </div>
+
+    </div>
+    {# end teams row #}
+
+    {# ── Cotes bar ───────────────────────────────────────────────────── #}
+    {% if match.has_odds and match.status != 'FINISHED' and match.status != 'CANCELLED' %}
+    <div class="d-flex mt-3 rounded-2 overflow-hidden" style="background: rgba(43,52,103,0.06);">
+      <div class="text-center flex-fill py-2" style="border-right: 1px solid rgba(43,52,103,0.1);">
+        <div style="font-size: 0.85rem; font-weight: 700; color: var(--color-primary);">{{ match.cote_home|format_cote }}</div>
+      </div>
+      <div class="text-center flex-fill py-2" style="border-right: 1px solid rgba(43,52,103,0.1);">
+        <div style="font-size: 0.85rem; font-weight: 700; color: var(--color-primary);">{{ match.cote_draw|format_cote }}</div>
+      </div>
+      <div class="text-center flex-fill py-2">
+        <div style="font-size: 0.85rem; font-weight: 700; color: var(--color-primary);">{{ match.cote_away|format_cote }}</div>
+      </div>
+    </div>
+    {% endif %}
+
+    {# ── Footer: competition, round, datetime ───────────────────────── #}
+    <div class="d-flex justify-content-between mt-2 text-muted" style="font-size: 0.78rem;">
+      <span>{{ match.competition.name }}{% if match.round %} — {{ match.round }}{% endif %}</span>
+      <span>{{ match.datetime|date:"d/m H:i" }}</span>
+    </div>
+
+  </div>
+</div>

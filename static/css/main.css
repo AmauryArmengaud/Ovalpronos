@@ -1,0 +1,329 @@
+/* ─── CSS Variables ─────────────────────────────────────────────────────── */
+:root {
+  --color-primary: #2B3467;
+  --color-light: #BAD7E9;
+  --color-background: #FCFFF9;
+  --color-accent: #EB455F;
+  --color-badge-exact: #F5C542;
+  --color-badge-gap: #9334B6;
+  --color-badge-win: #A8E063;
+  --color-badge-miss: #FF2E2E;
+  --color-text-on-primary: #FCFFF9;
+  --color-text: #2B3467;
+}
+
+/* ─── Base ──────────────────────────────────────────────────────────────── */
+body {
+  background: var(--color-background);
+  color: var(--color-text);
+  font-family: 'Barlow', sans-serif;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+main {
+  flex: 1;
+}
+
+/* ─── Navbar ────────────────────────────────────────────────────────────── */
+.navbar {
+  background: var(--color-background);
+  border-bottom: 1px solid rgba(43, 52, 103, 0.08);
+  padding-top: 0.75rem;
+  padding-bottom: 0.75rem;
+}
+
+.navbar-brand img {
+  height: 48px;
+  width: auto;
+}
+
+.nav-link-dark {
+  color: var(--color-primary) !important;
+  font-weight: 500;
+  opacity: 0.85;
+}
+
+.nav-link-dark:hover,
+.nav-link-dark.active {
+  opacity: 1;
+}
+
+.navbar-toggler {
+  border-color: var(--color-primary);
+}
+
+/* ─── Buttons ───────────────────────────────────────────────────────────── */
+.btn-primary {
+  background: var(--color-accent);
+  border-color: var(--color-accent);
+  color: var(--color-text-on-primary);
+}
+
+.btn-primary:hover {
+  background: var(--color-accent);
+  border-color: var(--color-accent);
+  color: var(--color-text-on-primary);
+  filter: brightness(0.9);
+}
+
+.btn-accent {
+  background: var(--color-accent);
+  border-color: var(--color-accent);
+  color: var(--color-text-on-primary);
+  border-radius: 0.375rem;
+  padding: 0.375rem 1rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-decoration: none;
+  display: inline-block;
+}
+
+.btn-accent:hover {
+  color: var(--color-text-on-primary);
+  filter: brightness(0.9);
+}
+
+.btn-navbar {
+  padding: 0.5rem 1.25rem;
+  font-size: 0.95rem;
+}
+
+.btn-hero {
+  padding: 0.65rem 2rem;
+  font-size: 1.1rem;
+  border-radius: 0.5rem;
+}
+
+.btn-outline-accent {
+  background: transparent;
+  border: 2px solid var(--color-accent);
+  color: var(--color-accent);
+  border-radius: 0.5rem;
+  padding: 0.65rem 2rem;
+  font-size: 1.1rem;
+  font-weight: 600;
+  text-decoration: none;
+  display: inline-block;
+}
+
+.btn-outline-accent:hover {
+  background: var(--color-accent);
+  color: white;
+}
+
+/* ─── Hero Section ──────────────────────────────────────────────────────── */
+.hero-title {
+  font-size: clamp(2rem, 5vw, 3.25rem);
+  font-weight: 800;
+  color: var(--color-primary);
+  line-height: 1.15;
+}
+
+.hero-body {
+  font-size: 1.05rem;
+  color: #333;
+  line-height: 1.7;
+}
+
+/* ─── Feature Sections ──────────────────────────────────────────────────── */
+.feature-section {
+  border-top: 1px solid rgba(43, 52, 103, 0.08);
+}
+
+.feature-title {
+  font-size: clamp(1.75rem, 4vw, 2.5rem);
+  font-weight: 800;
+  color: var(--color-primary);
+  line-height: 1.2;
+}
+
+.feature-body {
+  font-size: 1rem;
+  color: #444;
+  line-height: 1.7;
+}
+
+.feature-mascot {
+  max-width: 220px;
+  width: 100%;
+  display: block;
+  margin: 0 auto;
+}
+
+.feature-badge-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  align-items: flex-end;
+}
+
+.comp-badge {
+  display: inline-block;
+  padding: 0.6rem 1.5rem;
+  border-radius: 2rem;
+  font-weight: 700;
+  font-size: 1rem;
+  color: white;
+}
+
+.comp-badge.top14 {
+  background: var(--color-primary);
+}
+
+.comp-badge.champions {
+  background: var(--color-accent);
+}
+
+.comp-badge.sixnations {
+  background: #1a7f37;
+}
+
+/* ─── Footer ────────────────────────────────────────────────────────────── */
+.footer {
+  background: var(--color-primary);
+  color: var(--color-text-on-primary);
+  margin-top: auto;
+}
+
+/* ─── Mobile bottom nav ─────────────────────────────────────────────────── */
+.mobile-bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 64px;
+  background: var(--color-accent);
+  border-top: none;
+  display: flex;
+  align-items: stretch;
+  z-index: 1030;
+  box-shadow: 0 -2px 12px rgba(0, 0, 0, 0.15);
+}
+
+.mobile-bottom-nav__item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  text-decoration: none;
+  color: var(--color-text-on-primary);
+  opacity: 0.75;
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  transition: opacity 0.15s;
+}
+
+.mobile-bottom-nav__item:hover,
+.mobile-bottom-nav__item.active {
+  opacity: 1;
+  color: var(--color-text-on-primary);
+}
+
+.mobile-bottom-nav__icon {
+  width: 26px;
+  height: 26px;
+  object-fit: contain;
+  filter: brightness(0) invert(1);
+}
+
+.mobile-bottom-nav__logout-btn {
+  background: none;
+  border: none;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  color: inherit;
+  font-size: inherit;
+  font-weight: inherit;
+  letter-spacing: inherit;
+  cursor: pointer;
+  width: 100%;
+  height: 100%;
+  justify-content: center;
+}
+
+/* Décaler le footer et le main pour laisser la place au bottom nav */
+@media (max-width: 991.98px) {
+  body {
+    padding-bottom: 64px;
+  }
+  .footer {
+    display: none;
+  }
+}
+
+/* ─── Segment control ───────────────────────────────────────────────────── */
+.segment-control {
+  display: inline-flex;
+  background: rgba(43, 52, 103, 0.07);
+  border-radius: 12px;
+  padding: 4px;
+  gap: 2px;
+}
+
+.segment-control__item {
+  padding: 0.45rem 1.25rem;
+  border-radius: 9px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-primary);
+  text-decoration: none;
+  opacity: 0.55;
+  transition: background 0.18s, opacity 0.18s, box-shadow 0.18s;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+}
+
+.segment-control__item:hover {
+  opacity: 0.8;
+  color: var(--color-primary);
+}
+
+.segment-control__item.active {
+  background: #fff;
+  opacity: 1;
+  color: var(--color-primary);
+  box-shadow: 0 1px 6px rgba(43, 52, 103, 0.12);
+}
+
+.segment-control__live-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--color-accent);
+  display: inline-block;
+  animation: live-pulse 1.6s ease-in-out infinite;
+}
+
+@keyframes live-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%       { opacity: 0.4; transform: scale(0.75); }
+}
+
+/* ─── Flash messages ────────────────────────────────────────────────────── */
+.messages .alert {
+  border-radius: 0.5rem;
+}
+
+/* ─── Cards ─────────────────────────────────────────────────────────────── */
+.card {
+  border: none;
+  box-shadow: 0 2px 12px rgba(43, 52, 103, 0.08);
+  border-radius: 0.75rem;
+}
+
+.card-header {
+  background: var(--color-primary);
+  color: var(--color-text-on-primary);
+  border-radius: 0.75rem 0.75rem 0 0 !important;
+  font-weight: 600;
+}

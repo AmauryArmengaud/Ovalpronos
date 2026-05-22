@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Rankings" %} — Oval'Pronos{% endblock %}
+
+{% block content %}
+<div class="d-flex align-items-center mb-4 gap-3">
+  <i class="ti ti-trophy" style="font-size: 2rem; color: var(--color-badge-exact);"></i>
+  <h1 class="mb-0">{% trans "Rankings" %}</h1>
+</div>
+
+{% if leaderboard %}
+<div class="card">
+  <div class="table-responsive">
+    <table class="table table-hover mb-0 align-middle">
+      <thead>
+        <tr>
+          <th style="width: 3rem">#</th>
+          <th>{% trans "Player" %}</th>
+          <th class="text-end">{% trans "Points" %}</th>
+          <th class="text-end d-none d-md-table-cell">{% trans "Predictions" %}</th>
+          <th class="text-end d-none d-md-table-cell">
+            <span style="color: var(--color-badge-exact);">{% trans "Exact" %}</span>
+          </th>
+          <th class="text-end d-none d-md-table-cell">
+            <span style="color: var(--color-badge-gap);">{% trans "Gap" %}</span>
+          </th>
+          <th class="text-end d-none d-md-table-cell">
+            <span style="color: var(--color-badge-win);">{% trans "Winner" %}</span>
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for entry in leaderboard %}
+        <tr {% if entry.is_current_user %}style="background: rgba(186, 215, 233, 0.25); font-weight: 600;"{% endif %}>
+          <td>
+            {% if entry.rank == 1 %}🥇
+            {% elif entry.rank == 2 %}🥈
+            {% elif entry.rank == 3 %}🥉
+            {% else %}{{ entry.rank }}{% endif %}
+          </td>
+          <td>
+            {{ entry.user.get_display_name }}
+            {% if entry.is_current_user %}
+              <span class="badge ms-1" style="background: var(--color-primary); color: var(--color-text-on-primary); font-size: 0.65rem;">{% trans "You" %}</span>
+            {% endif %}
+          </td>
+          <td class="text-end fw-bold">{{ entry.total_points }}</td>
+          <td class="text-end d-none d-md-table-cell text-muted">{{ entry.count_predictions }}</td>
+          <td class="text-end d-none d-md-table-cell">
+            <span style="color: var(--color-badge-exact);">{{ entry.count_exact }}</span>
+          </td>
+          <td class="text-end d-none d-md-table-cell">
+            <span style="color: var(--color-badge-gap);">{{ entry.count_gap }}</span>
+          </td>
+          <td class="text-end d-none d-md-table-cell">
+            <span style="color: var(--color-badge-win);">{{ entry.count_win }}</span>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% else %}
+<div class="text-center text-muted py-5">
+  <i class="ti ti-clock mb-3" style="font-size: 3rem; color: var(--color-light);"></i>
+  <p>{% trans "No scores yet. Points appear after matches finish." %}</p>
+</div>
+{% endif %}
+{% endblock %}

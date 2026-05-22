@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% load static %}
+
+{% block title %}Oval'Pronos — {% trans "Rugby predictions" %}{% endblock %}
+
+{% block content %}
+
+{# Hero #}
+<div class="row py-5">
+  <div class="col-12 col-lg-8">
+    <h1 class="hero-title mb-4">{% trans "Tu sais pas plaquer, viens pronostiquer" %}</h1>
+    <p class="hero-body mb-3">{% trans "The first rugby predictions app is here!" %}</p>
+    <p class="hero-body mb-3">{% trans "Week after week, predict unlikely scores and rack up points against your friends." %}</p>
+    <p class="hero-body mb-5">{% trans "Don't wait any longer — sign up to join us." %}</p>
+    <div class="d-flex gap-3 flex-wrap">
+      <a href="{% url 'accounts:register' %}" class="btn btn-accent btn-hero">{% trans "Sign up" %}</a>
+      <a href="{% url 'accounts:login' %}" class="btn btn-outline-accent btn-hero">{% trans "Log in" %}</a>
+    </div>
+  </div>
+</div>
+
+{# Feature 1 — image left, text right #}
+<div class="row align-items-center py-5 feature-section">
+  <div class="col-12 col-md-5">
+    <div class="feature-image-placeholder">
+      <img src="{% static 'img/boar-mascot.png' %}" alt="Mascotte Oval'Pronos" class="feature-mascot">
+    </div>
+  </div>
+  <div class="col-12 col-md-7 text-md-end">
+    <h2 class="feature-title mb-4">{% trans "Oval'Pronos — simple and fun" %}</h2>
+    <p class="feature-body mb-3">{% trans "You don't need to be a rugby expert to play!" %}</p>
+    <p class="feature-body">{% trans "Every week, make predictions with friends and get live results." %}</p>
+  </div>
+</div>
+
+{# Feature 2 — text left, image right #}
+<div class="row align-items-center py-5 feature-section">
+  <div class="col-12 col-md-7">
+    <h2 class="feature-title mb-4">{% trans "Predict matches" %}</h2>
+    <p class="feature-body mb-3">{% trans "The odds system rewards risk-takers. The more precise your prediction, the more points you earn." %}</p>
+    <p class="feature-body">{% trans "Create or join a private league with your invite code and challenge your friends." %}</p>
+  </div>
+  <div class="col-12 col-md-5 text-end">
+    <div class="feature-badge-stack">
+      <div class="comp-badge top14">Top 14</div>
+      <div class="comp-badge champions">Champions Cup</div>
+      <div class="comp-badge sixnations">6 Nations</div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

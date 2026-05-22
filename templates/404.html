@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}404 — Oval'Pronos{% endblock %}
+
+{% block content %}
+<div class="text-center py-5">
+  <div style="font-size: 5rem;">🏉</div>
+  <h1 class="display-4 fw-bold mt-3" style="color: var(--color-primary);">404</h1>
+  <p class="lead mb-2">{% trans "This page kicked into touch." %}</p>
+  <p class="text-muted mb-4">{% trans "The page you're looking for doesn't exist or has been moved." %}</p>
+  <a href="/" class="btn btn-primary px-4">
+    <i class="ti ti-home me-2"></i>{% trans "Back to home" %}
+  </a>
+</div>
+{% endblock %}

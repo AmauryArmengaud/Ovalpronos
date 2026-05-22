@@ -1,0 +1,28 @@
+# Framework principal
+Django==5.1.4
+
+# Base de données
+psycopg2-binary==2.9.10
+dj-database-url==2.3.0
+
+# Variables d'environnement
+python-decouple==3.8
+
+# Serveur WSGI pour la production (Render)
+gunicorn==23.0.0
+
+# Requêtes HTTP (appels api-sports.io)
+requests==2.32.3
+
+# Gestion des assets statiques
+whitenoise==6.8.2
+
+# Formulaires améliorés
+django-crispy-forms==2.3
+crispy-bootstrap5==2024.10
+
+# Traitement des images (requis pour ImageField)
+Pillow==12.2.0
+
+# Timezone
+pytz==2024.2

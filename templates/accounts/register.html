@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Register" %} — Oval'Pronos{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-12 col-sm-10 col-md-8 col-lg-6">
+    <div class="card">
+      <div class="card-header text-center py-3">
+        <h4 class="mb-0"><i class="ti ti-user-plus me-2"></i>{% trans "Create an account" %}</h4>
+      </div>
+      <div class="card-body p-4">
+        <form method="post">
+          {% csrf_token %}
+
+          {% for field in form %}
+            <div class="mb-3">
+              <label for="{{ field.id_for_label }}" class="form-label fw-500">
+                {{ field.label }}
+              </label>
+              <input
+                type="{{ field.field.widget.input_type }}"
+                name="{{ field.html_name }}"
+                id="{{ field.id_for_label }}"
+                class="form-control{% if field.errors %} is-invalid{% endif %}"
+                {% if field.value %}value="{{ field.value }}"{% endif %}
+                {% if field.field.required %}required{% endif %}
+                {% if forloop.first %}autofocus{% endif %}
+              >
+              {% if field.help_text %}
+                <div class="form-text text-muted">{{ field.help_text }}</div>
+              {% endif %}
+              {% for error in field.errors %}
+                <div class="invalid-feedback">{{ error }}</div>
+              {% endfor %}
+            </div>
+          {% endfor %}
+
+          {% if form.non_field_errors %}
+            <div class="alert alert-danger">
+              {% for error in form.non_field_errors %}{{ error }}{% endfor %}
+            </div>
+          {% endif %}
+
+          <div class="d-grid mt-4">
+            <button type="submit" class="btn btn-primary btn-lg">
+              {% trans "Create my account" %}
+            </button>
+          </div>
+        </form>
+
+        <hr class="my-4">
+
+        <div class="text-center">
+          <p class="mb-0">
+            {% trans "Already have an account?" %}
+            <a href="{% url 'accounts:login' %}" class="fw-600 text-decoration-none">
+              {% trans "Log in" %}
+            </a>
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
