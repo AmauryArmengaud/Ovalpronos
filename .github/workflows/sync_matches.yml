@@ -14,4 +14,4 @@ jobs:
         run: |
           curl -X POST "${{ secrets.APP_URL }}/api/sync-scores/" \
             -H "Authorization: Bearer ${{ secrets.SYNC_SECRET_TOKEN }}" \
-            --fail --silent --show-error
+            --fail --silent --show-error --max-time 60
