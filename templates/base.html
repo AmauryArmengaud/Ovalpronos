@@ -48,7 +48,7 @@
       <ul class="navbar-nav align-items-center gap-2">
         {% if user.is_authenticated %}
           <li class="nav-item">
-            <span class="nav-link nav-link-dark fw-semibold">{{ user.get_display_name }}</span>
+            <a class="nav-link nav-link-dark fw-semibold" href="{% url 'accounts:profile' %}">{{ user.get_display_name }}</a>
           </li>
           <li class="nav-item">
             <form method="post" action="{% url 'accounts:logout' %}" class="d-inline">
@@ -83,6 +83,10 @@
     <a class="mobile-bottom-nav__item {% block nav_active_rules %}{% endblock %}" href="{% url 'matches:rules' %}">
       <img src="{% static 'img/icons/rules.svg' %}" alt="" class="mobile-bottom-nav__icon">
       <span>{% trans "Rules" %}</span>
+    </a>
+    <a class="mobile-bottom-nav__item {% block nav_active_profile %}{% endblock %}" href="{% url 'accounts:profile' %}">
+      <img src="{% static 'img/icons/profile.svg' %}" alt="" class="mobile-bottom-nav__icon">
+      <span>{% trans "Profile" %}</span>
     </a>
     <form method="post" action="{% url 'accounts:logout' %}" class="mobile-bottom-nav__item">
       {% csrf_token %}

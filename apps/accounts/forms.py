@@ -4,6 +4,17 @@ from django.utils.translation import gettext_lazy as _
 from .models import CustomUser
 
 
+class ProfileForm(forms.ModelForm):
+    class Meta:
+        model = CustomUser
+        fields = ('display_name', 'avatar', 'favorite_team')
+        labels = {
+            'display_name': _("Display name"),
+            'avatar': _("Profile picture"),
+            'favorite_team': _("Favourite team"),
+        }
+
+
 class RegistrationForm(UserCreationForm):
     email = forms.EmailField(required=True, label=_("Email address"))
     first_name = forms.CharField(max_length=30, required=True, label=_("First name"))

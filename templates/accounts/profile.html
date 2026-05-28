@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% load static %}
+
+{% block title %}{% trans "Profile" %} — Oval'Pronos{% endblock %}
+{% block nav_active_profile %}active{% endblock %}
+
+{% block content %}
+<div class="d-flex align-items-center justify-content-between mb-4">
+  <h1 class="mb-0">{{ user.get_display_name }}</h1>
+  <a href="{% url 'accounts:profile_edit' %}" class="btn btn-outline-secondary btn-sm">
+    <i class="ti ti-pencil me-1"></i>{% trans "Edit" %}
+  </a>
+</div>
+
+{# ── Avatar + favorite team ──────────────────────────────────────────── #}
+<div class="d-flex align-items-center gap-3 mb-4">
+  {% if user.avatar %}
+    <img src="{{ user.avatar.url }}" alt="" class="rounded-circle" width="64" height="64" style="object-fit:cover;">
+  {% else %}
+    <div class="rounded-circle bg-secondary d-flex align-items-center justify-content-center text-white fw-bold"
+         style="width:64px;height:64px;font-size:1.5rem;">
+      {{ user.get_display_name|first|upper }}
+    </div>
+  {% endif %}
+  <div>
+    <div class="text-muted small">@{{ user.username }}</div>
+    {% if user.favorite_team %}
+      <div class="d-flex align-items-center gap-2 mt-1">
+        <img src="{% static 'img/teams/' %}{{ user.favorite_team.slug }}.png"
+             alt="{{ user.favorite_team.name }}" width="20" height="20"
+             style="object-fit:contain;"
+             onerror="this.style.display='none'">
+        <span class="small">{{ user.favorite_team.name }}</span>
+      </div>
+    {% endif %}
+  </div>
+</div>
+
+{# ── Stats cards ─────────────────────────────────────────────────────── #}
+<div class="row g-3 mb-4">
+  <div class="col-6 col-md-3">
+    <div class="card text-center h-100">
+      <div class="card-body py-3">
+        <div class="fs-2 fw-bold text-accent">{{ stats.total_points }}</div>
+        <div class="small text-muted">{% trans "Points" %}</div>
+      </div>
+    </div>
+  </div>
+  <div class="col-6 col-md-3">
+    <div class="card text-center h-100">
+      <div class="card-body py-3">
+        <div class="fs-2 fw-bold">{% if rank %}#{{ rank }}{% else %}—{% endif %}</div>
+        <div class="small text-muted">{% trans "Rank" %}</div>
+      </div>
+    </div>
+  </div>
+  <div class="col-6 col-md-3">
+    <div class="card text-center h-100">
+      <div class="card-body py-3">
+        <div class="fs-2 fw-bold text-success">{{ stats.count_exact }}</div>
+        <div class="small text-muted">{% trans "Exact" %}</div>
+      </div>
+    </div>
+  </div>
+  <div class="col-6 col-md-3">
+    <div class="card text-center h-100">
+      <div class="card-body py-3">
+        <div class="fs-2 fw-bold text-warning">{{ stats.count_gap }}</div>
+        <div class="small text-muted">{% trans "Gap" %}</div>
+      </div>
+    </div>
+  </div>
+  <div class="col-6 col-md-3">
+    <div class="card text-center h-100">
+      <div class="card-body py-3">
+        <div class="fs-2 fw-bold text-info">{{ stats.count_win }}</div>
+        <div class="small text-muted">{% trans "Winner" %}</div>
+      </div>
+    </div>
+  </div>
+  <div class="col-6 col-md-3">
+    <div class="card text-center h-100">
+      <div class="card-body py-3">
+        <div class="fs-2 fw-bold text-danger">{{ stats.count_miss }}</div>
+        <div class="small text-muted">{% trans "Missed" %}</div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

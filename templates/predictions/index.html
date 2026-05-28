@@ -21,8 +21,21 @@
 {% endif %}
 
 {% for competition, rounds in competitions_data %}
-  {% for round_name, match_items in rounds %}
-    {% for item in match_items %}
+  {% for round in rounds %}
+    <div class="d-flex align-items-center justify-content-between mb-2 mt-3">
+      <h6 class="mb-0 text-muted">{{ competition.name }} — {{ round.name }}</h6>
+      {% if active_tab == 'upcoming' %}
+        <span class="small text-muted">{{ round.predicted }}/{{ round.total }}</span>
+      {% endif %}
+    </div>
+    {% if active_tab == 'upcoming' %}
+      <div class="progress mb-3" style="height:4px;">
+        <div class="progress-bar bg-accent"
+             style="width:{% if round.total %}{% widthratio round.predicted round.total 100 %}{% else %}0{% endif %}%">
+        </div>
+      </div>
+    {% endif %}
+    {% for item in round.items %}
       {% include "partials/match_card.html" with match=item.match prediction=item.prediction %}
     {% endfor %}
   {% endfor %}

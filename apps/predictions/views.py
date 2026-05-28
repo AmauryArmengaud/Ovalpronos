@@ -48,10 +48,18 @@ class PredictionsView(LoginRequiredMixin, TemplateView):
                 'prediction': user_predictions.get(match.pk),
             })
 
-        # Convert to sorted list of (competition, [(round, [match_items])])
+        # Convert to sorted list of (competition, [round_dicts])
         competitions_data = []
         for competition, rounds in grouped.items():
-            rounds_data = [(round_name, items) for round_name, items in rounds.items()]
+            rounds_data = [
+                {
+                    'name': round_name,
+                    'items': items,
+                    'total': len(items),
+                    'predicted': sum(1 for item in items if item['prediction'] is not None),
+                }
+                for round_name, items in rounds.items()
+            ]
             competitions_data.append((competition, rounds_data))
 
         ctx['competitions_data'] = competitions_data
