@@ -3,7 +3,7 @@ from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 from apps.matches.admin_views import CompetitionImportView
-from apps.matches.views import sync_scores_api
+from apps.matches.views import sync_scores_api, notify_deadline_reminders_api, notify_results_summary_api
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -14,6 +14,8 @@ urlpatterns = [
     path('rankings/', include('apps.rankings.urls', namespace='rankings')),
     path('leagues/', include('apps.leagues.urls', namespace='leagues')),
     path('api/sync-scores/', sync_scores_api),
+    path('api/notify/deadline-reminders/', notify_deadline_reminders_api),
+    path('api/notify/results-summary/', notify_results_summary_api),
 ]
 
 if settings.DEBUG:

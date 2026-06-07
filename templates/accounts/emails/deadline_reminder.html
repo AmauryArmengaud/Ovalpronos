@@ -1,0 +1,15 @@
+{% load i18n %}{% autoescape off %}
+Salut {{ user.get_display_name }} !
+
+Les matchs de {{ competition_name }} — Journée {{ round_label }} approchent à grands pas.
+Tu n'as pas encore soumis de pronostic pour cette journée ({{ match_count }} match{% if match_count > 1 %}s{% endif %}).
+
+Premier coup d'envoi : {{ first_kickoff|date:"l d F à H\hi" }}
+
+Dépêche-toi, les pronos ferment au coup de sifflet !
+
+👉 Accède à tes pronos : {{ site_url }}/predictions/
+
+— L'équipe Oval'Pronos
+"Tu sais pas plaquer, viens pronostiquer"
+{% endautoescape %}

@@ -185,6 +185,76 @@ def sync_competition_matches(competition_code):
     return created_count, updated_count
 
 
+def refresh_user_scores_for_match(match):
+    """
+    Refresh the global and per-competition UserScore cache for all users
+    who have a scored prediction on this match.
+    Called at the end of _calculate_points_for_match().
+    """
+    from apps.rankings.models import UserScore
+    from apps.predictions.models import Prediction
+    from django.db.models import Sum, Count, Q
+    from django.contrib.auth import get_user_model
+
+    User = get_user_model()
+
+    affected_user_ids = list(
+        Prediction.objects
+        .filter(match=match, points_earned__isnull=False)
+        .values_list('user_id', flat=True)
+        .distinct()
+    )
+    if not affected_user_ids:
+        return
+
+    for user in User.objects.filter(pk__in=affected_user_ids):
+        base_qs = Prediction.objects.filter(user=user, points_earned__isnull=False)
+
+        # Global scope (competition=None, league=None)
+        agg = base_qs.aggregate(
+            total=Sum('points_earned'),
+            total_count=Count('pk'),
+            exact=Count('pk', filter=Q(result_type='EXACT')),
+            gap=Count('pk', filter=Q(result_type='GAP')),
+            win=Count('pk', filter=Q(result_type='WIN')),
+        )
+        UserScore.objects.update_or_create(
+            user=user,
+            competition=None,
+            league=None,
+            defaults={
+                'points': agg['total'] or 0,
+                'prediction_count': agg['total_count'],
+                'exact_count': agg['exact'],
+                'gap_count': agg['gap'],
+                'win_count': agg['win'],
+            }
+        )
+
+        # Per-competition scope
+        agg_comp = base_qs.filter(match__competition=match.competition).aggregate(
+            total=Sum('points_earned'),
+            total_count=Count('pk'),
+            exact=Count('pk', filter=Q(result_type='EXACT')),
+            gap=Count('pk', filter=Q(result_type='GAP')),
+            win=Count('pk', filter=Q(result_type='WIN')),
+        )
+        UserScore.objects.update_or_create(
+            user=user,
+            competition=match.competition,
+            league=None,
+            defaults={
+                'points': agg_comp['total'] or 0,
+                'prediction_count': agg_comp['total_count'],
+                'exact_count': agg_comp['exact'],
+                'gap_count': agg_comp['gap'],
+                'win_count': agg_comp['win'],
+            }
+        )
+
+    logger.info(f"UserScore refreshed for {len(affected_user_ids)} user(s) — {match}")
+
+
 def _calculate_points_for_match(match):
     """
     Déclenche le calcul des points pour tous les pronostics d'un match terminé.
@@ -198,6 +268,7 @@ def _calculate_points_for_match(match):
             result_type='CANCELLED'
         )
         logger.info(f"Match annulé — {Prediction.objects.filter(match=match).count()} pronostic(s) remboursés")
+        refresh_user_scores_for_match(match)
         return
 
     if not match.has_odds:
@@ -219,6 +290,7 @@ def _calculate_points_for_match(match):
 
     if count > 0:
         logger.info(f"Points calculés pour {count} pronostic(s) — {match}")
+        refresh_user_scores_for_match(match)
 
 
 def sync_all_competitions():

@@ -1,0 +1,39 @@
+name: Email Notifications
+
+on:
+  schedule:
+    - cron: '0 10 * * *'   # Daily at 10:00 UTC — checks for rounds starting ~24h later
+  workflow_dispatch:
+    inputs:
+      command:
+        description: 'Command to run: deadline_reminders or results_summary'
+        required: true
+        default: 'deadline_reminders'
+      competition_id:
+        description: 'Competition DB ID (results_summary only)'
+        required: false
+        default: ''
+      round_label:
+        description: 'Round label, e.g. "26" (results_summary only)'
+        required: false
+        default: ''
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send deadline reminders (scheduled)
+        if: github.event_name == 'schedule' || inputs.command == 'deadline_reminders'
+        run: |
+          curl -X POST "${{ secrets.APP_URL }}/api/notify/deadline-reminders/" \
+            -H "Authorization: Bearer ${{ secrets.SYNC_SECRET_TOKEN }}" \
+            --fail --silent --show-error --max-time 60
+
+      - name: Send results summary (manual)
+        if: github.event_name == 'workflow_dispatch' && inputs.command == 'results_summary'
+        run: |
+          curl -X POST "${{ secrets.APP_URL }}/api/notify/results-summary/" \
+            -H "Authorization: Bearer ${{ secrets.SYNC_SECRET_TOKEN }}" \
+            -H "Content-Type: application/json" \
+            -d '{"competition_id": "${{ inputs.competition_id }}", "round": "${{ inputs.round_label }}"}' \
+            --fail --silent --show-error --max-time 60

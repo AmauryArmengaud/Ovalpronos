@@ -28,6 +28,7 @@ INSTALLED_APPS = [
     'django.contrib.humanize',  # Pour les filtres de template (pluralize, etc.)
 
     # Packages tiers
+    'anymail',
     'crispy_forms',
     'crispy_bootstrap5',
 
@@ -145,7 +146,8 @@ RUGBY_SEASON = config('RUGBY_SEASON', default='2025')
 
 
 # ─── Email ────────────────────────────────────────────────────────────────────
-# Dev: print emails to terminal. Prod: Ionos SMTP.
+# Dev: console backend (EMAIL_BACKEND env var unset).
+# Prod: set EMAIL_BACKEND=anymail.backends.brevo.EmailBackend + BREVO_API_KEY.
 EMAIL_BACKEND = config(
     'EMAIL_BACKEND',
     default='django.core.mail.backends.console.EmailBackend'
@@ -156,4 +158,8 @@ EMAIL_USE_TLS = True
 EMAIL_HOST_USER = config('EMAIL_HOST_USER', default='noreply@ovalpronos.com')
 EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', default='')
 DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default="Oval'Pronos <noreply@ovalpronos.com>")
+
+ANYMAIL = {
+    'BREVO_API_KEY': config('BREVO_API_KEY', default=''),
+}
 

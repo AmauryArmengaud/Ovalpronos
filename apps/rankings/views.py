@@ -1,37 +1,25 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import TemplateView
-from django.db.models import Sum, Count, Q
-from apps.predictions.models import Prediction
-from django.contrib.auth import get_user_model
-
-User = get_user_model()
+from apps.rankings.models import UserScore
 
 
-def _build_leaderboard(queryset, current_user_pk):
-    """Annotate a user queryset with stats and return a ranked list."""
-    users = (
-        queryset
-        .filter(predictions__points_earned__isnull=False)
-        .annotate(
-            total_points=Sum('predictions__points_earned'),
-            count_predictions=Count('predictions'),
-            count_exact=Count('predictions', filter=Q(predictions__result_type='EXACT')),
-            count_gap=Count('predictions', filter=Q(predictions__result_type='GAP')),
-            count_win=Count('predictions', filter=Q(predictions__result_type='WIN')),
-        )
-        .order_by('-total_points', '-count_exact', '-count_gap')
+def _build_leaderboard(score_qs, current_user_pk):
+    """Build a ranked list from a UserScore queryset."""
+    scores = list(
+        score_qs.select_related('user')
+        .order_by('-points', '-exact_count', '-gap_count')
     )
     ranked = []
-    for rank, user in enumerate(users, start=1):
+    for rank, score in enumerate(scores, start=1):
         ranked.append({
             'rank': rank,
-            'user': user,
-            'total_points': user.total_points or 0,
-            'count_predictions': user.count_predictions,
-            'count_exact': user.count_exact,
-            'count_gap': user.count_gap,
-            'count_win': user.count_win,
-            'is_current_user': user.pk == current_user_pk,
+            'user': score.user,
+            'total_points': score.points,
+            'count_predictions': score.prediction_count,
+            'count_exact': score.exact_count,
+            'count_gap': score.gap_count,
+            'count_win': score.win_count,
+            'is_current_user': score.user_id == current_user_pk,
         })
     return ranked
 
@@ -42,10 +30,10 @@ class RankingsView(LoginRequiredMixin, TemplateView):
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
 
-        ctx['leaderboard'] = _build_leaderboard(User.objects.all(), self.request.user.pk)
+        global_qs = UserScore.objects.filter(competition=None, league=None)
+        ctx['leaderboard'] = _build_leaderboard(global_qs, self.request.user.pk)
         ctx['user_leagues'] = self.request.user.leagues.all()
 
-        # League tab: show selected league leaderboard
         league_pk = self.request.GET.get('league')
         selected_league = None
         league_leaderboard = []
@@ -53,9 +41,11 @@ class RankingsView(LoginRequiredMixin, TemplateView):
             from apps.leagues.models import League
             try:
                 selected_league = self.request.user.leagues.get(pk=league_pk)
-                league_leaderboard = _build_leaderboard(
-                    selected_league.members.all(), self.request.user.pk
+                member_ids = selected_league.members.values_list('pk', flat=True)
+                league_qs = UserScore.objects.filter(
+                    competition=None, league=None, user_id__in=member_ids
                 )
+                league_leaderboard = _build_leaderboard(league_qs, self.request.user.pk)
             except League.DoesNotExist:
                 pass
 

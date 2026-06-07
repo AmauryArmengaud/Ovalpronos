@@ -1,0 +1,17 @@
+{% load i18n %}{% autoescape off %}
+Salut {{ user.get_display_name }} !
+
+Les résultats de {{ competition_name }} — Journée {{ round_label }} sont tombés.
+Tu as marqué {{ round_points }} point{% if round_points > 1 %}s{% endif %} cette journée.
+
+Détail de tes pronos :
+{% for p in predictions %}
+  {{ p.match.home_team.short_name|default:p.match.home_team.name }} {{ p.predicted_home_score }}-{{ p.predicted_away_score }} {{ p.match.away_team.short_name|default:p.match.away_team.name }}
+  Score réel : {{ p.match.home_score }}-{{ p.match.away_score }} — {{ p.points_earned }} pt{% if p.points_earned != 1 %}s{% endif %} ({{ p.get_result_type_display }})
+{% endfor %}
+
+👉 Voir le classement complet : {{ site_url }}/rankings/
+
+— L'équipe Oval'Pronos
+"Tu sais pas plaquer, viens pronostiquer"
+{% endautoescape %}
