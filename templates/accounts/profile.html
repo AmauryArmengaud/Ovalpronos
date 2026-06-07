@@ -39,7 +39,7 @@
 
 {# ── Stats cards ─────────────────────────────────────────────────────── #}
 <div class="row g-3 mb-4">
-  <div class="col-6 col-md-3">
+  <div class="col-6 col-md-4">
     <div class="card text-center h-100">
       <div class="card-body py-3">
         <div class="fs-2 fw-bold text-accent">{{ stats.total_points }}</div>
@@ -47,7 +47,7 @@
       </div>
     </div>
   </div>
-  <div class="col-6 col-md-3">
+  <div class="col-6 col-md-4">
     <div class="card text-center h-100">
       <div class="card-body py-3">
         <div class="fs-2 fw-bold">{% if rank %}#{{ rank }}{% else %}—{% endif %}</div>
@@ -55,34 +55,34 @@
       </div>
     </div>
   </div>
-  <div class="col-6 col-md-3">
+  <div class="col-6 col-md-4">
     <div class="card text-center h-100">
       <div class="card-body py-3">
-        <div class="fs-2 fw-bold text-success">{{ stats.count_exact }}</div>
+        <div class="fs-2 fw-bold match-badge-label-exact">{{ stats.count_exact }}</div>
         <div class="small text-muted">{% trans "Exact" %}</div>
       </div>
     </div>
   </div>
-  <div class="col-6 col-md-3">
+  <div class="col-6 col-md-4">
     <div class="card text-center h-100">
       <div class="card-body py-3">
-        <div class="fs-2 fw-bold text-warning">{{ stats.count_gap }}</div>
+        <div class="fs-2 fw-bold match-badge-label-gap">{{ stats.count_gap }}</div>
         <div class="small text-muted">{% trans "Gap" %}</div>
       </div>
     </div>
   </div>
-  <div class="col-6 col-md-3">
+  <div class="col-6 col-md-4">
     <div class="card text-center h-100">
       <div class="card-body py-3">
-        <div class="fs-2 fw-bold text-info">{{ stats.count_win }}</div>
+        <div class="fs-2 fw-bold match-badge-label-win">{{ stats.count_win }}</div>
         <div class="small text-muted">{% trans "Winner" %}</div>
       </div>
     </div>
   </div>
-  <div class="col-6 col-md-3">
+  <div class="col-6 col-md-4">
     <div class="card text-center h-100">
       <div class="card-body py-3">
-        <div class="fs-2 fw-bold text-danger">{{ stats.count_miss }}</div>
+        <div class="fs-2 fw-bold match-badge-label-miss">{{ stats.count_miss }}</div>
         <div class="small text-muted">{% trans "Missed" %}</div>
       </div>
     </div>
@@ -105,6 +105,7 @@
 {% if leagues %}
   <div class="row g-2">
     {% for league in leagues %}
+
     <div class="col-12 col-md-6">
       <div class="card">
         <div class="card-body py-2 d-flex align-items-center justify-content-between gap-3">
@@ -116,13 +117,21 @@
             <span class="badge font-monospace" style="background: var(--color-surface-raised); color: var(--color-text-secondary); letter-spacing: 0.1em;">
               {{ league.invite_code }}
             </span>
+            <button type="button"
+                    class="copy-code-btn btn btn-outline-secondary btn-sm py-0 px-1"
+                    data-code="{{ league.invite_code }}"
+                    title="{% trans 'Copy code' %}">
+              <i class="ti ti-copy" style="font-size: 0.85rem;"></i>
+            </button>
             {% if league.creator != user %}
-            <form method="post" action="{% url 'leagues:leave' league.pk %}" onsubmit="return confirm('{% trans "Leave this league?" %}')">
-              {% csrf_token %}
-              <button type="submit" class="btn btn-outline-danger btn-sm py-0 px-1" title="{% trans 'Leave' %}">
-                <i class="ti ti-logout" style="font-size: 0.85rem;"></i>
-              </button>
-            </form>
+            <button type="button"
+                    class="btn btn-outline-danger btn-sm py-0 px-1 league-leave-btn"
+                    data-url="{% url 'leagues:leave' league.pk %}"
+                    data-name="{{ league.name }}"
+                    title="{% trans 'Leave' %}"
+                    data-bs-toggle="modal" data-bs-target="#leaveModal">
+              <i class="ti ti-logout" style="font-size: 0.85rem;"></i>
+            </button>
             {% endif %}
           </div>
         </div>
@@ -133,4 +142,46 @@
 {% else %}
   <p class="text-muted small">{% trans "You are not in any league yet." %}</p>
 {% endif %}
+
+{# ── Account actions ──────────────────────────────────────────────── #}
+<div class="d-flex align-items-center justify-content-between mt-4 pt-3" style="border-top: 1px solid rgba(43,52,103,0.08);">
+  <a href="{% url 'matches:rules' %}" class="text-muted small text-decoration-none">
+    <i class="ti ti-info-circle me-1"></i>{% trans "Rules" %}
+  </a>
+  <form method="post" action="{% url 'accounts:logout' %}">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-outline-secondary btn-sm">
+      <i class="ti ti-logout me-1"></i>{% trans "Log out" %}
+    </button>
+  </form>
+</div>
+
+{# Leave confirmation modal (shared across all leagues) #}
+<div class="modal fade" id="leaveModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-sm modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-body text-center py-4">
+        <i class="ti ti-logout mb-2" style="font-size: 2rem; color: var(--color-accent);"></i>
+        <p class="mb-1 fw-semibold">{% trans "Leave this league?" %}</p>
+        <p class="text-muted small mb-4" id="leaveModalName"></p>
+        <div class="d-flex gap-2 justify-content-center">
+          <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">{% trans "Cancel" %}</button>
+          <form id="leaveModalForm" method="post">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger btn-sm">{% trans "Leave" %}</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% block extra_js %}
+<script>
+  document.getElementById('leaveModal').addEventListener('show.bs.modal', function(e) {
+    var btn = e.relatedTarget;
+    document.getElementById('leaveModalForm').action = btn.dataset.url;
+    document.getElementById('leaveModalName').textContent = btn.dataset.name;
+  });
+</script>
+{% endblock %}
 {% endblock %}

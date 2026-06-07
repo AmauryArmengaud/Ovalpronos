@@ -10,13 +10,13 @@
           <th class="text-end">{% trans "Points" %}</th>
           <th class="text-end d-none d-md-table-cell">{% trans "Predictions" %}</th>
           <th class="text-end d-none d-md-table-cell">
-            <span style="color: var(--color-badge-exact);">{% trans "Exact" %}</span>
+            <span class="match-badge-label-exact">{% trans "Exact" %}</span>
           </th>
           <th class="text-end d-none d-md-table-cell">
-            <span style="color: var(--color-badge-gap);">{% trans "Gap" %}</span>
+            <span class="match-badge-label-gap">{% trans "Gap" %}</span>
           </th>
           <th class="text-end d-none d-md-table-cell">
-            <span style="color: var(--color-badge-win);">{% trans "Winner" %}</span>
+            <span class="match-badge-label-win">{% trans "Winner" %}</span>
           </th>
         </tr>
       </thead>
@@ -32,19 +32,19 @@
           <td>
             {{ entry.user.get_display_name }}
             {% if entry.is_current_user %}
-              <span class="badge ms-1" style="background: var(--color-primary); color: var(--color-text-on-primary); font-size: 0.65rem;">{% trans "You" %}</span>
+              <span class="badge badge-you ms-1">{% trans "You" %}</span>
             {% endif %}
           </td>
           <td class="text-end fw-bold">{{ entry.total_points }}</td>
           <td class="text-end d-none d-md-table-cell text-muted">{{ entry.count_predictions }}</td>
           <td class="text-end d-none d-md-table-cell">
-            <span style="color: var(--color-badge-exact);">{{ entry.count_exact }}</span>
+            <span class="match-badge-label-exact">{{ entry.count_exact }}</span>
           </td>
           <td class="text-end d-none d-md-table-cell">
-            <span style="color: var(--color-badge-gap);">{{ entry.count_gap }}</span>
+            <span class="match-badge-label-gap">{{ entry.count_gap }}</span>
           </td>
           <td class="text-end d-none d-md-table-cell">
-            <span style="color: var(--color-badge-win);">{{ entry.count_win }}</span>
+            <span class="match-badge-label-win">{{ entry.count_win }}</span>
           </td>
         </tr>
         {% endfor %}
@@ -54,7 +54,7 @@
 </div>
 {% else %}
 <div class="text-center text-muted py-5">
-  <i class="ti ti-clock mb-3" style="font-size: 3rem; color: var(--color-light);"></i>
+  <i class="ti ti-clock mb-3" style="font-size: 3rem; color: var(--color-icon-muted);"></i>
   <p>{% trans "No scores yet. Points appear after matches finish." %}</p>
 </div>
 {% endif %}

@@ -17,7 +17,18 @@
 </div>
 
 {% if not competitions_data %}
-  <p class="text-muted">{% trans "No matches available." %}</p>
+  <div class="text-center text-muted py-5">
+    {% if active_tab == 'upcoming' %}
+      <i class="ti ti-calendar mb-3" style="font-size: 3rem; color: var(--color-icon-muted);"></i>
+      <p>{% trans "No upcoming matches yet. Fixtures are added weekly." %}</p>
+    {% elif active_tab == 'live' %}
+      <i class="ti ti-player-play mb-3" style="font-size: 3rem; color: var(--color-icon-muted);"></i>
+      <p>{% trans "No matches in progress right now." %}</p>
+    {% else %}
+      <i class="ti ti-history mb-3" style="font-size: 3rem; color: var(--color-icon-muted);"></i>
+      <p>{% trans "Your past predictions will appear here." %}</p>
+    {% endif %}
+  </div>
 {% endif %}
 
 {% for competition, rounds in competitions_data %}

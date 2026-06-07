@@ -88,13 +88,6 @@
       <img src="{% static 'img/icons/profile.svg' %}" alt="" class="mobile-bottom-nav__icon">
       <span>{% trans "Profile" %}</span>
     </a>
-    <form method="post" action="{% url 'accounts:logout' %}" class="mobile-bottom-nav__item">
-      {% csrf_token %}
-      <button type="submit" class="mobile-bottom-nav__logout-btn">
-        <img src="{% static 'img/icons/logout.svg' %}" alt="" class="mobile-bottom-nav__icon">
-        <span>{% trans "Log out" %}</span>
-      </button>
-    </form>
   {% else %}
     <a class="mobile-bottom-nav__item" href="{% url 'accounts:login' %}">
       <img src="{% static 'img/icons/profile.svg' %}" alt="" class="mobile-bottom-nav__icon">
@@ -135,6 +128,18 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <!-- HTMX -->
 <script src="https://unpkg.com/htmx.org@2.0.4/dist/htmx.min.js"></script>
+<script>
+  /* Copy invite code buttons */
+  document.addEventListener('click', function(e) {
+    var btn = e.target.closest('.copy-code-btn');
+    if (!btn) return;
+    navigator.clipboard.writeText(btn.dataset.code).then(function() {
+      var icon = btn.querySelector('i');
+      icon.className = 'ti ti-check';
+      setTimeout(function() { icon.className = 'ti ti-copy'; }, 1500);
+    });
+  });
+</script>
 {% block extra_js %}{% endblock %}
 </body>
 </html>

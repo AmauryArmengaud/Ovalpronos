@@ -1,15 +1,40 @@
 /* ─── CSS Variables ─────────────────────────────────────────────────────── */
 :root {
-  --color-primary: #2B3467;
-  --color-light: #BAD7E9;
-  --color-background: #FCFFF9;
-  --color-accent: #EB455F;
-  --color-badge-exact: #F5C542;
-  --color-badge-gap: #9334B6;
-  --color-badge-win: #A8E063;
-  --color-badge-miss: #FF2E2E;
-  --color-text-on-primary: #FCFFF9;
-  --color-text: #2B3467;
+  /* Brand */
+  --color-primary:          #2B3467;
+  --color-background:       #FCFFF9;
+  --color-accent:           #EB455F;
+  --color-brand-rugby:      #1a7f37;
+
+  /* Text */
+  --color-text:             #404771;     /* body text — distinct from brand primary */
+  --color-text-on-primary:  #FCFFF9;
+  --color-text-body:        #3d3d3d;     /* prose / feature copy */
+  --color-text-secondary:   rgba(43, 52, 103, 0.55);
+
+  /* Surfaces */
+  --color-surface-raised:   rgba(43, 52, 103, 0.06);
+  --color-light:            #BAD7E9;     /* legacy — prefer --color-icon-muted for icons */
+  --color-icon-muted:       rgba(43, 52, 103, 0.28);
+
+  /* Result badges — ordered best to worst */
+  --color-badge-exact:      #F5C542;     /* gold — best outcome */
+  --color-badge-exact-text: #705500;     /* dark amber — legible on cream/white */
+  --color-badge-gap:        #8B35A8;     /* muted purple — dark enough for bg and text */
+  --color-badge-win:        #A8E063;     /* lime green — badge background */
+  --color-badge-win-text:   #2d6b0e;     /* dark green — legible on cream/white */
+  --color-badge-miss:       rgba(43, 52, 103, 0.10);  /* neutral — subdued, no points */
+  --color-badge-miss-text:  rgba(43, 52, 103, 0.50);
+
+  /* Type scale */
+  --text-sm:   0.875rem;
+  --text-xs:   0.75rem;
+  --text-2xs:  0.65rem;
+
+  /* Radius scale */
+  --radius-sm:   0.375rem;
+  --radius-md:   0.75rem;
+  --radius-pill: 100rem;
 }
 
 /* ─── Base ──────────────────────────────────────────────────────────────── */
@@ -55,6 +80,18 @@ main {
 }
 
 /* ─── Buttons ───────────────────────────────────────────────────────────── */
+
+/* Unified 0.5rem radius across all button variants used in the app */
+.btn-primary,
+.btn-outline-secondary,
+.btn-outline-danger,
+.btn-danger,
+.btn-accent,
+.btn-hero,
+.btn-outline-accent {
+  border-radius: 0.5rem;
+}
+
 .btn-primary {
   background: var(--color-accent);
   border-color: var(--color-accent);
@@ -72,7 +109,6 @@ main {
   background: var(--color-accent);
   border-color: var(--color-accent);
   color: var(--color-text-on-primary);
-  border-radius: 0.375rem;
   padding: 0.375rem 1rem;
   font-size: 0.9rem;
   font-weight: 600;
@@ -93,14 +129,12 @@ main {
 .btn-hero {
   padding: 0.65rem 2rem;
   font-size: 1.1rem;
-  border-radius: 0.5rem;
 }
 
 .btn-outline-accent {
   background: transparent;
   border: 2px solid var(--color-accent);
   color: var(--color-accent);
-  border-radius: 0.5rem;
   padding: 0.65rem 2rem;
   font-size: 1.1rem;
   font-weight: 600;
@@ -110,8 +144,12 @@ main {
 
 .btn-outline-accent:hover {
   background: var(--color-accent);
-  color: white;
+  color: var(--color-text-on-primary);
 }
+
+/* ─── Utilities ─────────────────────────────────────────────────────────── */
+.text-accent { color: var(--color-accent); }
+.bg-accent   { background-color: var(--color-accent); }
 
 /* ─── Hero Section ──────────────────────────────────────────────────────── */
 .hero-title {
@@ -123,7 +161,7 @@ main {
 
 .hero-body {
   font-size: 1.05rem;
-  color: #333;
+  color: var(--color-text-body);
   line-height: 1.7;
 }
 
@@ -141,7 +179,7 @@ main {
 
 .feature-body {
   font-size: 1rem;
-  color: #444;
+  color: var(--color-text-body);
   line-height: 1.7;
 }
 
@@ -162,23 +200,15 @@ main {
 .comp-badge {
   display: inline-block;
   padding: 0.6rem 1.5rem;
-  border-radius: 2rem;
+  border-radius: var(--radius-pill);
   font-weight: 700;
   font-size: 1rem;
   color: white;
 }
 
-.comp-badge.top14 {
-  background: var(--color-primary);
-}
-
-.comp-badge.champions {
-  background: var(--color-accent);
-}
-
-.comp-badge.sixnations {
-  background: #1a7f37;
-}
+.comp-badge.top14     { background: var(--color-primary); }
+.comp-badge.champions { background: var(--color-accent); }
+.comp-badge.sixnations { background: var(--color-brand-rugby); }
 
 /* ─── Footer ────────────────────────────────────────────────────────────── */
 .footer {
@@ -194,7 +224,7 @@ main {
   left: 0;
   right: 0;
   height: 64px;
-  background: var(--color-accent);
+  background: var(--color-primary);
   border-top: none;
   display: flex;
   align-items: stretch;
@@ -211,8 +241,8 @@ main {
   gap: 3px;
   text-decoration: none;
   color: var(--color-text-on-primary);
-  opacity: 0.75;
-  font-size: 0.65rem;
+  opacity: 0.72;
+  font-size: var(--text-2xs);
   font-weight: 600;
   letter-spacing: 0.02em;
   transition: opacity 0.15s;
@@ -231,24 +261,6 @@ main {
   filter: brightness(0) invert(1);
 }
 
-.mobile-bottom-nav__logout-btn {
-  background: none;
-  border: none;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 3px;
-  color: inherit;
-  font-size: inherit;
-  font-weight: inherit;
-  letter-spacing: inherit;
-  cursor: pointer;
-  width: 100%;
-  height: 100%;
-  justify-content: center;
-}
-
 /* Décaler le footer et le main pour laisser la place au bottom nav */
 @media (max-width: 991.98px) {
   body {
@@ -263,15 +275,15 @@ main {
 .segment-control {
   display: inline-flex;
   background: rgba(43, 52, 103, 0.07);
-  border-radius: 12px;
+  border-radius: var(--radius-md);
   padding: 4px;
   gap: 2px;
 }
 
 .segment-control__item {
   padding: 0.45rem 1.25rem;
-  border-radius: 9px;
-  font-size: 0.875rem;
+  border-radius: calc(var(--radius-md) - 0.25rem);
+  font-size: var(--text-sm);
   font-weight: 600;
   color: var(--color-primary);
   text-decoration: none;
@@ -289,7 +301,7 @@ main {
 }
 
 .segment-control__item.active {
-  background: #fff;
+  background: var(--color-background);
   opacity: 1;
   color: var(--color-primary);
   box-shadow: 0 1px 6px rgba(43, 52, 103, 0.12);
@@ -309,21 +321,160 @@ main {
   50%       { opacity: 0.4; transform: scale(0.75); }
 }
 
+/* ─── HTMX save indicator ───────────────────────────────────────────────── */
+.save-form.htmx-request input[type="number"] {
+  opacity: 0.4;
+  transition: opacity 0.15s;
+}
+
 /* ─── Flash messages ────────────────────────────────────────────────────── */
 .messages .alert {
-  border-radius: 0.5rem;
+  border-radius: var(--radius-sm);
 }
 
 /* ─── Cards ─────────────────────────────────────────────────────────────── */
 .card {
   border: none;
   box-shadow: 0 2px 12px rgba(43, 52, 103, 0.08);
-  border-radius: 0.75rem;
+  border-radius: var(--radius-md);
 }
 
 .card-header {
   background: var(--color-primary);
   color: var(--color-text-on-primary);
-  border-radius: 0.75rem 0.75rem 0 0 !important;
+  border-radius: var(--radius-md) var(--radius-md) 0 0 !important;
   font-weight: 600;
+}
+
+/* Left-accent variant — pseudo-element preserves rounded corners */
+.card-left-accent {
+  position: relative;
+}
+
+.card-left-accent::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  background: var(--color-primary);
+  border-radius: var(--radius-md) 0 0 var(--radius-md);
+}
+
+/* ─── Match card ────────────────────────────────────────────────────────── */
+.match-score {
+  font-size: 1.15rem;
+  letter-spacing: 0.03em;
+  font-weight: 700;
+}
+
+.match-predicted-score {
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.match-card-footer {
+  font-size: var(--text-xs);
+}
+
+.match-closes-soon {
+  font-size: var(--text-2xs);
+  color: var(--color-accent);
+  font-weight: 600;
+}
+
+.match-no-odds {
+  font-size: var(--text-xs);
+}
+
+.match-microcopy {
+  font-size: var(--text-2xs);
+}
+
+.match-potential-points {
+  font-size: 0.7rem;
+  line-height: 1.3;
+}
+
+.match-potential-preview {
+  font-size: var(--text-2xs);
+  opacity: 0.55;
+}
+
+/* Odds bar */
+.match-odds-label {
+  font-size: var(--text-2xs);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--color-text-secondary);
+}
+
+.match-odds-bar {
+  background: var(--color-surface-raised);
+}
+
+.match-odds-col {
+  border-right: 1px solid rgba(43, 52, 103, 0.1);
+}
+
+.match-odds-col:last-child {
+  border-right: none;
+}
+
+.match-odds-value {
+  font-size: var(--text-sm);
+  font-weight: 700;
+  color: var(--color-primary);
+}
+
+/* Result badges */
+.badge-result {
+  font-size: var(--text-xs);
+}
+
+.badge-result-exact {
+  background: var(--color-badge-exact);
+  color: var(--color-text);
+}
+
+.badge-result-gap {
+  background: var(--color-badge-gap);
+  color: var(--color-text-on-primary);
+}
+
+.badge-result-win {
+  background: var(--color-badge-win);
+  color: var(--color-text);
+}
+
+.badge-result-miss {
+  background: var(--color-badge-miss);
+  color: var(--color-badge-miss-text);
+}
+
+.badge-result-cancelled {
+  background: rgba(43, 52, 103, 0.12);
+  color: var(--color-text-secondary);
+  font-size: var(--text-sm);
+  padding: 0.4em 0.75em;
+}
+
+.badge-result-locked {
+  background: rgba(43, 52, 103, 0.12);
+  color: var(--color-text);
+  font-size: var(--text-2xs);
+}
+
+/* Result badge labels — darker shades for legibility on cream/white backgrounds */
+.match-badge-label-exact { color: var(--color-badge-exact-text); }
+.match-badge-label-gap   { color: var(--color-badge-gap); }
+.match-badge-label-win   { color: var(--color-badge-win-text); }
+.match-badge-label-miss  { color: var(--color-badge-miss-text); }
+
+/* "You" badge in leaderboards */
+.badge-you {
+  background: var(--color-primary);
+  color: var(--color-text-on-primary);
+  font-size: var(--text-2xs);
 }

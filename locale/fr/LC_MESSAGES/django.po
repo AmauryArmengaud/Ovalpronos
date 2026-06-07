@@ -793,6 +793,34 @@ msgstr "Général"
 msgid "Manage leagues"
 msgstr "Gérer mes ligues"
 
+#: templates/partials/match_card.html
+msgid "Fill both scores to save"
+msgstr "Remplis les deux scores pour enregistrer"
+
+#: templates/partials/match_card.html
+msgid "Closes in"
+msgstr "Ferme dans"
+
+#: templates/partials/match_card.html
+msgid "Predictions close at kickoff"
+msgstr "Les pronos ferment au coup d'envoi"
+
+#: templates/predictions/index.html
+msgid "No upcoming matches yet. Fixtures are added weekly."
+msgstr "Pas de matchs à venir. Les rencontres sont ajoutées chaque semaine."
+
+#: templates/predictions/index.html
+msgid "No matches in progress right now."
+msgstr "Aucun match en cours pour l'instant."
+
+#: templates/predictions/index.html
+msgid "Your past predictions will appear here."
+msgstr "Tes pronos passés s'afficheront ici."
+
+#: templates/leagues/detail.html templates/leagues/list.html templates/accounts/profile.html
+msgid "Copy code"
+msgstr "Copier le code"
+
 #~ msgid "Home"
 #~ msgstr "Domicile"
 

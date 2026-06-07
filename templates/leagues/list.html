@@ -31,9 +31,17 @@
             </h5>
             <span class="text-muted small">{{ league.members.count }} {% trans "members" %}</span>
           </div>
-          <span class="badge fs-6 font-monospace" style="background: var(--color-surface-raised); color: var(--color-text-secondary); letter-spacing: 0.1em;">
-            {{ league.invite_code }}
-          </span>
+          <div class="d-flex align-items-center gap-2">
+            <span class="badge fs-6 font-monospace" style="background: var(--color-surface-raised); color: var(--color-text-secondary); letter-spacing: 0.1em;">
+              {{ league.invite_code }}
+            </span>
+            <button type="button"
+                    class="copy-code-btn btn btn-outline-secondary btn-sm py-0 px-1"
+                    data-code="{{ league.invite_code }}"
+                    title="{% trans 'Copy code' %}">
+              <i class="ti ti-copy" style="font-size: 0.85rem;"></i>
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -41,7 +49,7 @@
   </div>
 {% else %}
   <div class="text-center text-muted py-5">
-    <i class="ti ti-users-group mb-3" style="font-size: 3rem; color: var(--color-light);"></i>
+    <i class="ti ti-users-group mb-3" style="font-size: 3rem; color: var(--color-icon-muted);"></i>
     <p>{% trans "You are not in any league yet." %}</p>
     <div class="d-flex gap-2 justify-content-center mt-3">
       <a href="{% url 'leagues:join' %}" class="btn btn-outline-secondary">{% trans "Join a league" %}</a>
