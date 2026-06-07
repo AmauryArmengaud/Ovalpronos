@@ -88,4 +88,49 @@
     </div>
   </div>
 </div>
+
+{# ── Leagues ──────────────────────────────────────────────────────── #}
+<div class="d-flex align-items-center justify-content-between mb-3 mt-2">
+  <h5 class="mb-0">{% trans "My Leagues" %}</h5>
+  <div class="d-flex gap-2">
+    <a href="{% url 'leagues:join' %}" class="btn btn-outline-secondary btn-sm">
+      <i class="ti ti-door-enter me-1"></i>{% trans "Join" %}
+    </a>
+    <a href="{% url 'leagues:create' %}" class="btn btn-primary btn-sm">
+      <i class="ti ti-plus me-1"></i>{% trans "Create" %}
+    </a>
+  </div>
+</div>
+
+{% if leagues %}
+  <div class="row g-2">
+    {% for league in leagues %}
+    <div class="col-12 col-md-6">
+      <div class="card">
+        <div class="card-body py-2 d-flex align-items-center justify-content-between gap-3">
+          <div>
+            <a href="{% url 'leagues:detail' league.pk %}" class="fw-semibold text-decoration-none">{{ league.name }}</a>
+            <div class="text-muted small">{{ league.members.count }} {% trans "members" %}</div>
+          </div>
+          <div class="d-flex align-items-center gap-2">
+            <span class="badge font-monospace" style="background: var(--color-surface-raised); color: var(--color-text-secondary); letter-spacing: 0.1em;">
+              {{ league.invite_code }}
+            </span>
+            {% if league.creator != user %}
+            <form method="post" action="{% url 'leagues:leave' league.pk %}" onsubmit="return confirm('{% trans "Leave this league?" %}')">
+              {% csrf_token %}
+              <button type="submit" class="btn btn-outline-danger btn-sm py-0 px-1" title="{% trans 'Leave' %}">
+                <i class="ti ti-logout" style="font-size: 0.85rem;"></i>
+              </button>
+            </form>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+{% else %}
+  <p class="text-muted small">{% trans "You are not in any league yet." %}</p>
+{% endif %}
 {% endblock %}

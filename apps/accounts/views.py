@@ -36,6 +36,7 @@ class ProfileView(LoginRequiredMixin, TemplateView):
 
         ctx['stats'] = stats
         ctx['rank'] = rank
+        ctx['leagues'] = user.leagues.all()
         return ctx
 
 

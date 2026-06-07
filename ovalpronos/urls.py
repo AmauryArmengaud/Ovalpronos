@@ -12,6 +12,7 @@ urlpatterns = [
     path('accounts/', include('apps.accounts.urls', namespace='accounts')),
     path('predictions/', include('apps.predictions.urls', namespace='predictions')),
     path('rankings/', include('apps.rankings.urls', namespace='rankings')),
+    path('leagues/', include('apps.leagues.urls', namespace='leagues')),
     path('api/sync-scores/', sync_scores_api),
 ]
 
