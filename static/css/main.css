@@ -224,7 +224,7 @@ main {
   left: 0;
   right: 0;
   height: 64px;
-  background: var(--color-primary);
+  background: var(--color-accent);
   border-top: none;
   display: flex;
   align-items: stretch;
