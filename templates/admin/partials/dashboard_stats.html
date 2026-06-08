@@ -1,0 +1,43 @@
+<div class="oval-stat-cards">
+
+  <div class="oval-stat-card">
+    <div class="oval-stat-card__icon oval-stat-card__icon--ok">
+      <i class="ti ti-users"></i>
+    </div>
+    <div>
+      <div class="oval-stat-card__value">{{ users_active }}</div>
+      <div class="oval-stat-card__label">Joueurs actifs</div>
+    </div>
+  </div>
+
+  <div class="oval-stat-card">
+    <div class="oval-stat-card__icon">
+      <i class="ti ti-calendar-event"></i>
+    </div>
+    <div>
+      <div class="oval-stat-card__value">{{ upcoming_matches }}</div>
+      <div class="oval-stat-card__label">Matchs cette semaine</div>
+    </div>
+  </div>
+
+  <div class="oval-stat-card">
+    <div class="oval-stat-card__icon {% if matches_no_odds %}oval-stat-card__icon--warn{% endif %}">
+      <i class="ti ti-alert-triangle"></i>
+    </div>
+    <div>
+      <div class="oval-stat-card__value">{{ matches_no_odds }}</div>
+      <div class="oval-stat-card__label">Matchs sans cotes</div>
+    </div>
+  </div>
+
+  <div class="oval-stat-card">
+    <div class="oval-stat-card__icon {% if unscored_predictions %}oval-stat-card__icon--alert{% endif %}">
+      <i class="ti ti-clipboard-list"></i>
+    </div>
+    <div>
+      <div class="oval-stat-card__value">{{ unscored_predictions }}</div>
+      <div class="oval-stat-card__label">Pronos non calculés</div>
+    </div>
+  </div>
+
+</div>

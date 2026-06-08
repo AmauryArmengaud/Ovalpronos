@@ -1,0 +1,73 @@
+{% extends "admin/base_site.html" %}
+{% load i18n log admin_extras %}
+
+{% block content_title %}<h1>Dashboard</h1>{% endblock %}
+
+{% block content %}
+{% dashboard_stats %}
+
+{% get_admin_log 5 as admin_log for_user user %}
+
+<div style="display:grid;grid-template-columns:1fr;gap:1rem;">
+  <div style="display:grid;grid-template-columns:2fr 1fr;gap:1rem;align-items:start;">
+
+    <div>
+      {% for app in app_list %}
+      <div class="module">
+        <table style="width:100%;border-collapse:collapse;">
+          <caption>{{ app.name }}</caption>
+          <tbody>
+            {% for model in app.models %}
+            <tr class="row{% cycle '1' '2' %}">
+              <td style="padding:8px 12px;">
+                {% if model.admin_url %}
+                  <a href="{{ model.admin_url }}">{{ model.name }}</a>
+                {% else %}
+                  {{ model.name }}
+                {% endif %}
+              </td>
+              <td style="padding:8px 12px;text-align:right;">
+                {% if model.add_url %}
+                  <a href="{{ model.add_url }}" class="button" style="font-size:0.75rem;padding:3px 10px;">
+                    <i class="ti ti-plus"></i> {% trans "Add" %}
+                  </a>
+                {% endif %}
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% endfor %}
+    </div>
+
+    <div class="module">
+      <table style="width:100%;border-collapse:collapse;">
+        <caption>{% trans "Recent actions" %}</caption>
+        <tbody>
+          {% if admin_log %}
+            {% for entry in admin_log %}
+            <tr class="row{% cycle '1' '2' %}">
+              <td style="padding:8px 12px;font-size:0.85rem;">
+                {% if entry.is_addition %}<i class="ti ti-plus" style="color:var(--color-brand-rugby)"></i>{% endif %}
+                {% if entry.is_change %}<i class="ti ti-pencil" style="color:var(--color-primary)"></i>{% endif %}
+                {% if entry.is_deletion %}<i class="ti ti-trash" style="color:var(--color-accent)"></i>{% endif %}
+                {% if entry.get_admin_url %}
+                  <a href="{{ entry.get_admin_url }}">{{ entry.object_repr }}</a>
+                {% else %}
+                  {{ entry.object_repr }}
+                {% endif %}
+                <span style="display:block;color:var(--color-text-secondary);font-size:0.75rem;">{{ entry.content_type }}</span>
+              </td>
+            </tr>
+            {% endfor %}
+          {% else %}
+            <tr><td style="padding:10px 12px;color:var(--color-text-secondary);font-size:0.85rem;">{% trans "No recent actions." %}</td></tr>
+          {% endif %}
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+</div>
+{% endblock %}

@@ -3,6 +3,7 @@ from django.utils.decorators import method_decorator
 from django.views import View
 from django.shortcuts import get_object_or_404, redirect, render
 from django.contrib import messages
+from django.urls import reverse
 from .models import Competition
 from .services import sync_competition_matches
 
@@ -20,4 +21,4 @@ class CompetitionImportView(View):
             request,
             f"Sync terminée pour {competition.name} : {created} créés, {updated} mis à jour."
         )
-        return redirect(f'/admin/matches/competition/{competition_id}/change/')
+        return redirect(reverse('admin:matches_competition_change', args=[competition_id]))

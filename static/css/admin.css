@@ -1,0 +1,332 @@
+/* ─── Oval'Pronos Admin — Django admin overrides ────────────────────────────
+   CSS variables come from main.css (loaded before this file).
+   This file only handles Django admin–specific selectors.
+   ─────────────────────────────────────────────────────────────────────────── */
+
+/* ─── Font ───────────────────────────────────────────────────────────────── */
+body,
+input,
+select,
+textarea,
+button,
+.button {
+  font-family: 'Barlow', sans-serif;
+}
+
+/* ─── Header ─────────────────────────────────────────────────────────────── */
+#header {
+  background: var(--color-primary);
+  color: var(--color-text-on-primary);
+  padding: 10px 20px;
+  box-shadow: 0 2px 8px rgba(43, 52, 103, 0.25);
+}
+
+#branding h1 {
+  color: var(--color-text-on-primary);
+  font-weight: 700;
+  font-size: 1.1rem;
+}
+
+#branding h1 a,
+#branding h1 a:link,
+#branding h1 a:visited {
+  color: var(--color-text-on-primary);
+}
+
+#user-tools,
+#user-tools a,
+#user-tools a:link,
+#user-tools a:visited {
+  color: rgba(252, 255, 249, 0.8);
+  font-size: 0.85rem;
+}
+
+#user-tools a:hover {
+  color: var(--color-text-on-primary);
+}
+
+/* ─── Breadcrumbs ────────────────────────────────────────────────────────── */
+div.breadcrumbs {
+  background: var(--color-surface-raised);
+  color: var(--color-text);
+  border-bottom: 1px solid var(--color-border, rgba(43,52,103,0.12));
+  font-size: 0.85rem;
+}
+
+div.breadcrumbs a,
+div.breadcrumbs a:link {
+  color: var(--color-primary);
+}
+
+/* ─── Body ───────────────────────────────────────────────────────────────── */
+html,
+body {
+  background: var(--color-background);
+  color: var(--color-text);
+}
+
+/* ─── Links ──────────────────────────────────────────────────────────────── */
+a:link,
+a:visited {
+  color: var(--color-primary);
+}
+
+a:hover,
+a:focus {
+  color: var(--color-accent);
+}
+
+/* ─── Module / section headers ───────────────────────────────────────────── */
+.module h2,
+.module caption,
+.inline-group h2,
+#changelist-filter h2,
+table caption {
+  background: var(--color-primary);
+  color: var(--color-text-on-primary);
+  font-family: 'Barlow', sans-serif;
+  font-weight: 700;
+  font-size: 0.78rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  padding: 8px 12px;
+  border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+}
+
+.module {
+  border: 1px solid rgba(43, 52, 103, 0.12);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  box-shadow: 0 1px 4px rgba(43, 52, 103, 0.06);
+}
+
+/* ─── Buttons ────────────────────────────────────────────────────────────── */
+.button,
+input[type="submit"],
+input[type="button"],
+.submit-row input,
+a.button {
+  background: var(--color-accent) !important;
+  border-color: var(--color-accent) !important;
+  color: white !important;
+  border-radius: var(--radius-sm) !important;
+  font-family: 'Barlow', sans-serif;
+  font-weight: 600;
+  font-size: 0.875rem;
+  padding: 6px 14px;
+  transition: filter 0.15s;
+}
+
+.button:hover,
+input[type="submit"]:hover {
+  filter: brightness(0.9);
+}
+
+.button.cancel-link {
+  background: transparent !important;
+  border-color: rgba(43, 52, 103, 0.2) !important;
+  color: var(--color-primary) !important;
+}
+
+a.deletelink {
+  background: transparent !important;
+  border-color: var(--color-accent) !important;
+  color: var(--color-accent) !important;
+}
+
+.submit-row {
+  background: var(--color-surface-raised);
+  border-top: 1px solid rgba(43, 52, 103, 0.1);
+  border-radius: 0 0 var(--radius-sm) var(--radius-sm);
+  padding: 10px 14px;
+}
+
+/* ─── Sidebar (Django 3.1+) ──────────────────────────────────────────────── */
+#nav-sidebar,
+#nav-sidebar .sticky {
+  background: var(--color-primary);
+}
+
+.nav-sidebar a,
+.nav-sidebar a:link,
+.nav-sidebar a:visited {
+  color: rgba(252, 255, 249, 0.75);
+  font-size: 0.875rem;
+}
+
+.nav-sidebar a:hover,
+.nav-sidebar a:focus {
+  color: var(--color-text-on-primary);
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius-sm);
+}
+
+.nav-sidebar .current-app .section:link,
+.nav-sidebar .current-app .section:visited {
+  color: var(--color-text-on-primary);
+  font-weight: 700;
+  border-left: 3px solid var(--color-accent);
+}
+
+.nav-sidebar .selected a,
+.nav-sidebar .selected a:link {
+  color: var(--color-text-on-primary);
+  font-weight: 600;
+  background: rgba(235, 69, 95, 0.18);
+  border-radius: var(--radius-sm);
+}
+
+#nav-sidebar input[type="search"] {
+  border: 1px solid rgba(252, 255, 249, 0.25);
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--color-text-on-primary);
+  border-radius: var(--radius-sm);
+}
+
+#nav-sidebar input[type="search"]::placeholder {
+  color: rgba(252, 255, 249, 0.5);
+}
+
+/* ─── Filter sidebar ─────────────────────────────────────────────────────── */
+#changelist-filter {
+  background: var(--color-background);
+  border-left: 1px solid rgba(43, 52, 103, 0.1);
+}
+
+#changelist-filter h3 {
+  color: var(--color-primary);
+  font-weight: 700;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+#changelist-filter li.selected a {
+  color: var(--color-accent);
+  font-weight: 600;
+}
+
+/* ─── Tables ─────────────────────────────────────────────────────────────── */
+thead th {
+  background: var(--color-surface-raised);
+  color: var(--color-primary);
+  font-weight: 700;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  border-bottom: 2px solid rgba(43, 52, 103, 0.12);
+}
+
+thead th a:link,
+thead th a:visited {
+  color: var(--color-primary);
+}
+
+tr.row1 { background: #fff; }
+tr.row2 { background: rgba(43, 52, 103, 0.025); }
+tr:hover td { background: rgba(235, 69, 95, 0.04); }
+tr.selected td { background: rgba(235, 69, 95, 0.08) !important; }
+
+/* ─── Checkboxes ─────────────────────────────────────────────────────────── */
+input[type="checkbox"] {
+  accent-color: var(--color-accent);
+}
+
+/* ─── Messages ───────────────────────────────────────────────────────────── */
+ul.messagelist li {
+  background: #fff;
+  border-left: 4px solid var(--color-accent);
+  border-radius: var(--radius-sm);
+  padding: 8px 12px;
+  margin-bottom: 6px;
+  font-size: 0.9rem;
+}
+
+ul.messagelist li.success { border-left-color: var(--color-brand-rugby); }
+ul.messagelist li.warning { border-left-color: #ffc107; }
+ul.messagelist li.error   { border-left-color: var(--color-accent); }
+
+/* ─── Dashboard stat cards ───────────────────────────────────────────────── */
+.oval-stat-cards {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin-bottom: 1.5rem;
+}
+
+@media (min-width: 768px) {
+  .oval-stat-cards { grid-template-columns: repeat(4, 1fr); }
+}
+
+.oval-stat-card {
+  background: #fff;
+  border: 1px solid rgba(43, 52, 103, 0.1);
+  border-radius: var(--radius-md);
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  box-shadow: 0 1px 4px rgba(43, 52, 103, 0.06);
+}
+
+.oval-stat-card__icon {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-raised);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-size: 1.25rem;
+  color: var(--color-primary);
+}
+
+.oval-stat-card__icon--warn  { background: rgba(235, 69, 95, 0.1);  color: var(--color-accent); }
+.oval-stat-card__icon--alert { background: rgba(235, 69, 95, 0.15); color: var(--color-accent); }
+.oval-stat-card__icon--ok    { background: rgba(26, 127, 55, 0.1);  color: var(--color-brand-rugby); }
+
+.oval-stat-card__value {
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: var(--color-primary);
+  line-height: 1;
+}
+
+.oval-stat-card__label {
+  font-size: 0.72rem;
+  color: var(--color-text-secondary);
+  font-weight: 500;
+  margin-top: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ─── Forms ──────────────────────────────────────────────────────────────── */
+.form-row label,
+label {
+  color: var(--color-primary);
+  font-weight: 600;
+  font-size: 0.875rem;
+}
+
+input[type="text"]:focus,
+input[type="email"]:focus,
+input[type="number"]:focus,
+select:focus,
+textarea:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 2px rgba(43, 52, 103, 0.15);
+}
+
+/* ─── Badge helper (used in admin format_html) ───────────────────────────── */
+.badge-admin {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: var(--radius-sm);
+  font-size: 0.75rem;
+  font-weight: 600;
+  font-family: 'Barlow', sans-serif;
+}
