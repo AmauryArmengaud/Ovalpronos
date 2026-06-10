@@ -4,6 +4,10 @@ Prediction scoring service.
 calculate_points(prediction, match) -> (int, str) | None
 
 Returns a tuple (points_earned, result_type) or None if preconditions are not met.
+
+Odds convention: cote_home/draw/away are stored as integers = real odds × 10
+(e.g. Unibet 6.30 → stored as 63). The stored integer is used as-is in the
+scoring formula — no division by 10 is applied.
 """
 
 
@@ -51,7 +55,7 @@ def calculate_points(prediction, match):
     use_fixed = (competition.scoring_system == 'FIXED')
 
     def pts(multiplier):
-        """Return points: cote × multiplier (COTES) or flat value (FIXED)."""
+        """Return points: stored_cote × multiplier (COTES mode). stored_cote = real odds × 10, used as-is."""
         if use_fixed:
             # FIXED: 3→5, 2→3, 1→1, 0→0
             fixed_map = {3: 5, 2: 3, 1: 1, 0: 0}

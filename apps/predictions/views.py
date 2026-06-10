@@ -50,16 +50,24 @@ class PredictionsView(LoginRequiredMixin, TemplateView):
 
         # Convert to sorted list of (competition, [round_dicts])
         competitions_data = []
-        for competition, rounds in grouped.items():
-            rounds_data = [
-                {
+        for comp_idx, (competition, rounds) in enumerate(grouped.items(), start=1):
+            rounds_data = []
+            for round_idx, (round_name, items) in enumerate(rounds.items(), start=1):
+                items_with_odds    = [i for i in items if i['match'].has_odds]
+                items_without_odds = [i for i in items if not i['match'].has_odds]
+                rounds_data.append({
                     'name': round_name,
+                    'collapse_id': f'no-odds-{comp_idx}-{round_idx}',
                     'items': items,
+                    'items_with_odds': items_with_odds,
+                    'items_without_odds': items_without_odds,
+                    'total_with_odds': len(items_with_odds),
+                    'predicted_with_odds': sum(
+                        1 for i in items_with_odds if i['prediction'] is not None
+                    ),
                     'total': len(items),
-                    'predicted': sum(1 for item in items if item['prediction'] is not None),
-                }
-                for round_name, items in rounds.items()
-            ]
+                    'predicted': sum(1 for i in items if i['prediction'] is not None),
+                })
             competitions_data.append((competition, rounds_data))
 
         ctx['competitions_data'] = competitions_data

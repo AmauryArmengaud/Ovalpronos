@@ -32,23 +32,59 @@
 {% endif %}
 
 {% for competition, rounds in competitions_data %}
+
+  {# ── Competition chip — once per competition group ────────────────────── #}
+  <div class="comp-divider-chip{% if not forloop.first %} mt-4{% endif %}">{{ competition.name }}</div>
+
   {% for round in rounds %}
-    <div class="d-flex align-items-center justify-content-between mb-2 mt-3">
-      <h6 class="mb-0 text-muted">{{ competition.name }} — {{ round.name }}</h6>
-      {% if active_tab == 'upcoming' %}
-        <span class="small text-muted">{{ round.predicted }}/{{ round.total }}</span>
-      {% endif %}
-    </div>
+
     {% if active_tab == 'upcoming' %}
-      <div class="progress mb-3" style="height:4px;">
-        <div class="progress-bar bg-accent"
-             style="width:{% if round.total %}{% widthratio round.predicted round.total 100 %}{% else %}0{% endif %}%">
+
+      {# ── Progress bar (odds-only count, no labels) ──────────────────── #}
+      <div class="d-flex align-items-center gap-2 mb-3{% if not forloop.first %} mt-3{% endif %}">
+        <div class="progress flex-grow-1" style="height:4px;">
+          <div class="progress-bar bg-accent"
+               style="width:{% if round.total_with_odds %}{% widthratio round.predicted_with_odds round.total_with_odds 100 %}{% else %}0{% endif %}%">
+          </div>
         </div>
+        {% if round.total_with_odds %}
+          <span class="small text-muted flex-shrink-0">{{ round.predicted_with_odds }}/{{ round.total_with_odds }}</span>
+        {% endif %}
       </div>
+
+      {# ── Matches with odds ──────────────────────────────────────────── #}
+      {% for item in round.items_with_odds %}
+        {% include "partials/match_card.html" with match=item.match prediction=item.prediction %}
+      {% endfor %}
+
+      {# ── Collapse toggle for no-odds matches ────────────────────────── #}
+      {% if round.items_without_odds %}
+        <div class="text-center mb-2 mt-1">
+          <button class="btn-no-odds-toggle"
+                  type="button"
+                  data-bs-toggle="collapse"
+                  data-bs-target="#{{ round.collapse_id }}"
+                  aria-expanded="false"
+                  aria-controls="{{ round.collapse_id }}">
+            <i class="ti ti-chevron-down collapse-chevron me-1"></i>{% blocktrans count n=round.items_without_odds|length %}See {{ n }} match without odds{% plural %}See {{ n }} matches without odds{% endblocktrans %}
+          </button>
+        </div>
+        <div class="collapse" id="{{ round.collapse_id }}">
+          {% for item in round.items_without_odds %}
+            {% include "partials/match_card.html" with match=item.match prediction=item.prediction %}
+          {% endfor %}
+        </div>
+      {% endif %}
+
+    {% else %}
+
+      {# ── Live / Past: show all items unchanged ──────────────────────── #}
+      {% for item in round.items %}
+        {% include "partials/match_card.html" with match=item.match prediction=item.prediction %}
+      {% endfor %}
+
     {% endif %}
-    {% for item in round.items %}
-      {% include "partials/match_card.html" with match=item.match prediction=item.prediction %}
-    {% endfor %}
+
   {% endfor %}
 {% endfor %}
 {% endblock %}
