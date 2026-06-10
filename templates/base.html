@@ -139,6 +139,18 @@
       setTimeout(function() { icon.className = 'ti ti-copy'; }, 1500);
     });
   });
+
+  /* Share invite link buttons */
+  document.addEventListener('click', function(e) {
+    var btn = e.target.closest('.share-link-btn');
+    if (!btn) return;
+    var url = window.location.origin + '/leagues/join/?code=' + btn.dataset.code;
+    navigator.clipboard.writeText(url).then(function() {
+      var icon = btn.querySelector('i');
+      icon.className = 'ti ti-check';
+      setTimeout(function() { icon.className = 'ti ti-share'; }, 1500);
+    });
+  });
 </script>
 {% block extra_js %}{% endblock %}
 </body>

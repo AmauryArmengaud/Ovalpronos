@@ -36,7 +36,8 @@ class LeagueCreateView(LoginRequiredMixin, CreateView):
 class LeagueJoinView(LoginRequiredMixin, View):
     def get(self, request):
         from django.shortcuts import render
-        return render(request, 'leagues/join.html')
+        code = request.GET.get('code', '').strip().upper()
+        return render(request, 'leagues/join.html', {'initial_code': code})
 
     def post(self, request):
         code = request.POST.get('invite_code', '').strip().upper()
