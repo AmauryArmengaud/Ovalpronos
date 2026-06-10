@@ -338,44 +338,32 @@ msgid "Points"
 msgstr "Points"
 
 #: apps/rankings/models.py:37
-#, fuzzy
-#| msgid "Predictions"
 msgid "Predictions scored"
-msgstr "Pronos"
+msgstr "Pronos comptabilisés"
 
 #: apps/rankings/models.py:38
-#, fuzzy
-#| msgid "Exact score"
 msgid "Exact scores"
-msgstr "Score exact"
+msgstr "Scores exacts"
 
 #: apps/rankings/models.py:39
-#, fuzzy
-#| msgid "Good gap"
 msgid "Good gaps"
-msgstr "Bon écart"
+msgstr "Bons écarts"
 
 #: apps/rankings/models.py:40
-#, fuzzy
-#| msgid "Correct winner"
 msgid "Correct winners"
-msgstr "Bon vainqueur"
+msgstr "Bons vainqueurs"
 
 #: apps/rankings/models.py:41 templates/accounts/profile.html:54
 msgid "Rank"
 msgstr "Rang"
 
 #: apps/rankings/models.py:44
-#, fuzzy
-#| msgid "Home score"
 msgid "User score"
-msgstr "Score domicile"
+msgstr "Score joueur"
 
 #: apps/rankings/models.py:45
-#, fuzzy
-#| msgid "Home score"
 msgid "User scores"
-msgstr "Score domicile"
+msgstr "Scores joueurs"
 
 #: templates/404.html:10
 msgid "This page kicked into touch."
@@ -599,17 +587,15 @@ msgstr "Déjà inscrit ?"
 
 #: templates/admin/index.html:32
 msgid "Add"
-msgstr ""
+msgstr "Ajouter"
 
 #: templates/admin/index.html:46
 msgid "Recent actions"
-msgstr ""
+msgstr "Actions récentes"
 
 #: templates/admin/index.html:65
-#, fuzzy
-#| msgid "No prediction"
 msgid "No recent actions."
-msgstr "Pas de prono"
+msgstr "Aucune action récente."
 
 #: templates/admin/matches/import.html:5
 msgid "Import matches"
@@ -656,6 +642,14 @@ msgstr "Retour"
 #: templates/leagues/detail.html:40
 msgid "Share this code to invite friends"
 msgstr "Partage ce code pour inviter des amis"
+
+#: templates/leagues/detail.html:43
+msgid "Copy invite link"
+msgstr "Copier le lien d'invitation"
+
+#: templates/leagues/detail.html:45
+msgid "Copy link"
+msgstr "Copier le lien"
 
 #: templates/leagues/detail.html:77 templates/rankings/_table.html:35
 msgid "You"
