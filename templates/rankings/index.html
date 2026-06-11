@@ -2,34 +2,30 @@
 {% load i18n %}
 
 {% block title %}{% trans "Rankings" %} — Oval'Pronos{% endblock %}
+{% block nav_active_rankings %}active{% endblock %}
 
 {% block content %}
-<div class="d-flex align-items-center mb-4 gap-3">
-  <i class="ti ti-trophy" style="font-size: 2rem; color: var(--color-badge-exact);"></i>
-  <h1 class="mb-0">{% trans "Rankings" %}</h1>
-</div>
+<h1 class="mb-4">{% trans "Rankings" %}</h1>
 
-{# Tabs #}
-<ul class="nav nav-tabs mb-4" hx-boost="true">
-  <li class="nav-item">
-    <a class="nav-link {% if active_tab == 'global' %}active{% endif %}" href="{% url 'rankings:index' %}">
+{# Tabs — scrollable on mobile #}
+<div class="nav-tabs-scroll-wrapper mb-2">
+  <div class="segment-control" hx-boost="true">
+    <a class="segment-control__item {% if active_tab == 'global' %}active{% endif %}" href="{% url 'rankings:index' %}">
       {% trans "Global" %}
     </a>
-  </li>
-  {% for league in user_leagues %}
-  <li class="nav-item">
-    <a class="nav-link {% if selected_league.pk == league.pk %}active{% endif %}"
+    {% for league in user_leagues %}
+    <a class="segment-control__item {% if selected_league.pk == league.pk %}active{% endif %}"
        href="{% url 'rankings:index' %}?league={{ league.pk }}">
       {{ league.name }}
     </a>
-  </li>
-  {% endfor %}
-  <li class="nav-item ms-auto">
-    <a class="nav-link text-muted small" href="{% url 'leagues:list' %}">
-      <i class="ti ti-users me-1"></i>{% trans "Manage leagues" %}
-    </a>
-  </li>
-</ul>
+    {% endfor %}
+  </div>
+</div>
+<div class="text-end mb-3">
+  <a class="text-muted small" href="{% url 'leagues:list' %}">
+    <i class="ti ti-users me-1"></i>{% trans "Manage leagues" %}
+  </a>
+</div>
 
 {% if active_tab == 'global' %}
   {% with entries=leaderboard %}
@@ -41,4 +37,13 @@
   {% endwith %}
 {% endif %}
 
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  var row = document.getElementById('current-user-row');
+  if (row) {
+    row.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+</script>
 {% endblock %}

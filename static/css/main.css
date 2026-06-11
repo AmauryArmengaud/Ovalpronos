@@ -150,6 +150,7 @@ main {
 /* ─── Utilities ─────────────────────────────────────────────────────────── */
 .text-accent { color: var(--color-accent); }
 .bg-accent   { background-color: var(--color-accent); }
+.page-header-icon { font-size: 2rem; }
 
 /* ─── Hero Section ──────────────────────────────────────────────────────── */
 .hero-title {
@@ -524,3 +525,12 @@ main {
 [aria-expanded="true"] .collapse-chevron {
   transform: rotate(180deg);
 }
+
+/* ─── Rankings segment scroll ────────────────────────────────────────────── */
+.nav-tabs-scroll-wrapper {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+.nav-tabs-scroll-wrapper::-webkit-scrollbar { display: none; }
+.nav-tabs-scroll-wrapper .segment-control { display: flex; }

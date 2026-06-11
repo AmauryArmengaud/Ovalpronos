@@ -22,7 +22,7 @@
       </thead>
       <tbody>
         {% for entry in entries %}
-        <tr {% if entry.is_current_user %}style="background: rgba(186, 215, 233, 0.25); font-weight: 600;"{% endif %}>
+        <tr {% if entry.is_current_user %}id="current-user-row" style="background: rgba(186, 215, 233, 0.25); font-weight: 600;"{% endif %}>
           <td>
             {% if entry.rank == 1 %}🥇
             {% elif entry.rank == 2 %}🥈
@@ -34,6 +34,11 @@
             {% if entry.is_current_user %}
               <span class="badge badge-you ms-1">{% trans "You" %}</span>
             {% endif %}
+            <div class="d-md-none mt-1 d-flex gap-2 flex-wrap">
+              <span class="match-badge-label-exact" style="font-size: var(--text-xs);">{{ entry.count_exact }}</span>
+              <span class="match-badge-label-gap" style="font-size: var(--text-xs);">{{ entry.count_gap }}</span>
+              <span class="match-badge-label-win" style="font-size: var(--text-xs);">{{ entry.count_win }}</span>
+            </div>
           </td>
           <td class="text-end fw-bold">{{ entry.total_points }}</td>
           <td class="text-end d-none d-md-table-cell text-muted">{{ entry.count_predictions }}</td>
