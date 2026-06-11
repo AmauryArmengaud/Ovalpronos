@@ -40,17 +40,17 @@
 
     {% if active_tab == 'upcoming' %}
 
-      {# ── Progress bar (odds-only count, no labels) ──────────────────── #}
+      {# ── Progress bar (odds-only count, only shown when round has odds) ── #}
+      {% if round.total_with_odds %}
       <div class="d-flex align-items-center gap-2 mb-3{% if not forloop.first %} mt-3{% endif %}">
         <div class="progress flex-grow-1" style="height:4px;">
           <div class="progress-bar bg-accent"
-               style="width:{% if round.total_with_odds %}{% widthratio round.predicted_with_odds round.total_with_odds 100 %}{% else %}0{% endif %}%">
+               style="width:{% widthratio round.predicted_with_odds round.total_with_odds 100 %}%">
           </div>
         </div>
-        {% if round.total_with_odds %}
-          <span class="small text-muted flex-shrink-0">{{ round.predicted_with_odds }}/{{ round.total_with_odds }}</span>
-        {% endif %}
+        <span class="small text-muted flex-shrink-0">{{ round.predicted_with_odds }}/{{ round.total_with_odds }}</span>
       </div>
+      {% endif %}
 
       {# ── Matches with odds ──────────────────────────────────────────── #}
       {% for item in round.items_with_odds %}
