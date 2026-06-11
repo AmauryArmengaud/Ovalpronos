@@ -48,19 +48,18 @@ class PredictionsView(LoginRequiredMixin, TemplateView):
                 'prediction': user_predictions.get(match.pk),
             })
 
-        # Convert to sorted list of (competition, [round_dicts])
+        # Convert to sorted list of competition dicts
         competitions_data = []
         for comp_idx, (competition, rounds) in enumerate(grouped.items(), start=1):
             rounds_data = []
-            for round_idx, (round_name, items) in enumerate(rounds.items(), start=1):
+            no_odds_by_round = []
+            for round_name, items in rounds.items():
                 items_with_odds    = [i for i in items if i['match'].has_odds]
                 items_without_odds = [i for i in items if not i['match'].has_odds]
                 rounds_data.append({
                     'name': round_name,
-                    'collapse_id': f'no-odds-{comp_idx}-{round_idx}',
                     'items': items,
                     'items_with_odds': items_with_odds,
-                    'items_without_odds': items_without_odds,
                     'total_with_odds': len(items_with_odds),
                     'predicted_with_odds': sum(
                         1 for i in items_with_odds if i['prediction'] is not None
@@ -68,7 +67,15 @@ class PredictionsView(LoginRequiredMixin, TemplateView):
                     'total': len(items),
                     'predicted': sum(1 for i in items if i['prediction'] is not None),
                 })
-            competitions_data.append((competition, rounds_data))
+                if items_without_odds:
+                    no_odds_by_round.append({'round_name': round_name, 'items': items_without_odds})
+            competitions_data.append({
+                'competition': competition,
+                'rounds': rounds_data,
+                'no_odds_items': no_odds_by_round,
+                'no_odds_count': sum(len(r['items']) for r in no_odds_by_round),
+                'no_odds_collapse_id': f'no-odds-comp-{comp_idx}',
+            })
 
         ctx['competitions_data'] = competitions_data
         ctx['active_tab'] = tab
