@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.db.models import Count
 from django.urls import reverse
-from django.utils.html import format_html
+from django.utils.html import format_html, mark_safe
 
 from .models import Competition, Match, Team
 
@@ -151,8 +151,8 @@ class MatchAdmin(admin.ModelAdmin):
     @admin.display(description='Cotes', boolean=False)
     def has_odds_badge(self, obj):
         if obj.has_odds:
-            return format_html('<span style="color:#28a745">&#10003;</span>')
-        return format_html('<span style="color:#ffc107">&#9888;</span>')
+            return mark_safe('<span style="color:#28a745">&#10003;</span>')
+        return mark_safe('<span style="color:#ffc107">&#9888;</span>')
 
     @admin.display(description='Pronos', ordering='_prediction_count')
     def prediction_count(self, obj):
