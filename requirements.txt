@@ -1,5 +1,5 @@
 # Framework principal
-Django==5.1.4
+Django==6.0.6
 
 # Base de données
 psycopg2-binary==2.9.10
