@@ -11,7 +11,10 @@
              alt="{{ match.home_team.name }}"
              style="height: 44px; width: auto; max-width: 72px; object-fit: contain;"
              onerror="this.style.display='none'">
-        <div class="fw-semibold small mt-1">{{ match.home_team.short_name|default:match.home_team.name }}</div>
+        <div class="fw-semibold small mt-1">
+          <span class="d-none d-sm-inline">{{ match.home_team.name }}</span>
+          <span class="d-sm-none">{{ match.home_team.short_name|default:match.home_team.name }}</span>
+        </div>
       </div>
 
       {# ── Centre: state-dependent content ────────────────────────────── #}
@@ -135,7 +138,10 @@
              alt="{{ match.away_team.name }}"
              style="height: 44px; width: auto; max-width: 72px; object-fit: contain;"
              onerror="this.style.display='none'">
-        <div class="fw-semibold small mt-1">{{ match.away_team.short_name|default:match.away_team.name }}</div>
+        <div class="fw-semibold small mt-1">
+          <span class="d-none d-sm-inline">{{ match.away_team.name }}</span>
+          <span class="d-sm-none">{{ match.away_team.short_name|default:match.away_team.name }}</span>
+        </div>
       </div>
 
     </div>
