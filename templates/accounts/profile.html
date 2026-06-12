@@ -118,10 +118,10 @@
               {{ league.invite_code }}
             </span>
             <button type="button"
-                    class="share-link-btn btn btn-outline-secondary btn-sm py-0 px-1"
+                    class="share-link-btn btn btn-outline-secondary btn-sm py-0 px-2"
                     data-code="{{ league.invite_code }}"
-                    title="{% trans 'Copy link' %}">
-              <i class="ti ti-send" style="font-size: 0.85rem;"></i>
+                    title="{% trans 'Copy invite link' %}">
+              <i class="ti ti-share" style="font-size: 0.85rem;"></i>
             </button>
             {% if league.creator != user %}
             <button type="button"
