@@ -5,6 +5,8 @@ from django.utils import timezone
 from django.views import View
 from django.views.generic import TemplateView
 
+from django.db.models.functions import TruncDate
+
 from apps.matches.models import Competition, Match
 from .models import Prediction
 
@@ -28,17 +30,23 @@ class PredictionsView(LoginRequiredMixin, TemplateView):
             matches = Match.objects.filter(
                 competition_id__in=user_competition_ids,
                 status__in=['SCHEDULED', 'POSTPONED'],
-            ).select_related('competition', 'home_team', 'away_team').order_by('datetime')
+            ).select_related('competition', 'home_team', 'away_team').annotate(
+                match_date=TruncDate('datetime')
+            ).order_by('match_date', 'competition__name', 'datetime')
         elif tab == 'live':
             matches = Match.objects.filter(
                 competition_id__in=user_competition_ids,
                 status='IN_PLAY',
-            ).select_related('competition', 'home_team', 'away_team').order_by('datetime')
+            ).select_related('competition', 'home_team', 'away_team').annotate(
+                match_date=TruncDate('datetime')
+            ).order_by('match_date', 'competition__name', 'datetime')
         else:  # past
             matches = Match.objects.filter(
                 competition_id__in=user_competition_ids,
                 status__in=['FINISHED', 'CANCELLED'],
-            ).select_related('competition', 'home_team', 'away_team').order_by('-datetime')
+            ).select_related('competition', 'home_team', 'away_team').annotate(
+                match_date=TruncDate('datetime')
+            ).order_by('-match_date', 'competition__name', 'datetime')
 
         match_ids = list(matches.values_list('pk', flat=True))
         user_predictions = {
