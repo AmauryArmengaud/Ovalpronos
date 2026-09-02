@@ -294,11 +294,10 @@ def _calculate_points_for_match(match):
 
 
 def sync_all_competitions():
-    from apps.matches.models import Competition
     total_created = 0
     total_updated = 0
-    for competition in Competition.objects.filter(is_active=True):
-        created, updated = sync_competition_matches(competition.code)
+    for code in settings.RUGBY_COMPETITIONS:
+        created, updated = sync_competition_matches(code)
         total_created += created
         total_updated += updated
     return total_created, total_updated
