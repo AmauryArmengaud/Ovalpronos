@@ -1,3 +1,9 @@
+import urllib.request
+import urllib.parse
+import json
+
+from django.conf import settings
+from django.contrib import messages
 from django.contrib.auth import views as auth_views
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Count, Q, Sum
@@ -50,8 +56,41 @@ class ProfileEditView(LoginRequiredMixin, UpdateView):
         return self.request.user
 
 
+def _verify_turnstile(token, remote_ip):
+    data = urllib.parse.urlencode({
+        'secret': settings.TURNSTILE_SECRET_KEY,
+        'response': token,
+        'remoteip': remote_ip,
+    }).encode()
+    req = urllib.request.Request(
+        'https://challenges.cloudflare.com/turnstile/v0/siteverify',
+        data=data,
+    )
+    with urllib.request.urlopen(req, timeout=5) as resp:
+        return json.loads(resp.read()).get('success', False)
+
+
 class RegisterView(CreateView):
     model = CustomUser
     form_class = RegistrationForm
     template_name = 'accounts/register.html'
     success_url = reverse_lazy('accounts:login')
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx['turnstile_site_key'] = settings.TURNSTILE_SITE_KEY
+        return ctx
+
+    def post(self, request, *args, **kwargs):
+        token = request.POST.get('cf-turnstile-response', '')
+        try:
+            ok = _verify_turnstile(token, request.META.get('REMOTE_ADDR', ''))
+        except Exception:
+            ok = False
+        if not ok:
+            from django.utils.translation import gettext as _
+            messages.error(request, _("CAPTCHA verification failed. Please try again."))
+            self.object = None
+            form = self.get_form()
+            return self.form_invalid(form)
+        return super().post(request, *args, **kwargs)

@@ -3,6 +3,10 @@
 
 {% block title %}{% trans "Register" %} — Oval'Pronos{% endblock %}
 
+{% block extra_head %}
+<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+{% endblock %}
+
 {% block content %}
 <div class="row justify-content-center">
   <div class="col-12 col-sm-10 col-md-8 col-lg-6">
@@ -42,6 +46,8 @@
               {% for error in form.non_field_errors %}{{ error }}{% endfor %}
             </div>
           {% endif %}
+
+          <div class="cf-turnstile mb-3" data-sitekey="{{ turnstile_site_key }}"></div>
 
           <div class="d-grid mt-4">
             <button type="submit" class="btn btn-primary btn-lg">

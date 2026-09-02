@@ -131,13 +131,20 @@ CRISPY_ALLOWED_TEMPLATE_PACKS = 'bootstrap5'
 CRISPY_TEMPLATE_PACK = 'bootstrap5'
 
 
+# ─── Cloudflare Turnstile (CAPTCHA anti-bot) ────────────────────────────────
+# Générer des clés sur https://dash.cloudflare.com/ → Turnstile
+# Les clés de test ci-dessous fonctionnent en dev (toujours valides).
+TURNSTILE_SITE_KEY = config('TURNSTILE_SITE_KEY', default='1x00000000000000000000AA')
+TURNSTILE_SECRET_KEY = config('TURNSTILE_SECRET_KEY', default='1x0000000000000000000000000000000AA')
+
+
 # ─── API Rugby (rugby-live-data via RapidAPI) ────────────────────────────────
 RAPIDAPI_KEY = config('RAPIDAPI_KEY', default='')
 SYNC_SECRET_TOKEN = config('SYNC_SECRET_TOKEN', default='')
 
 # Compétitions à synchroniser (IDs rugby-live-data sur RapidAPI)
 RUGBY_COMPETITIONS = {
-    'TOP14': {'id': 1230, 'name': 'Top 14', 'country': 'France', 'season': 2026},
+    'TOP14': {'id': 1230, 'name': 'Top 14', 'country': 'France', 'season': 2027},
     #'CHAMPIONS_CUP': {'id': 1236, 'name': 'Champions Cup', 'country': 'Europe', 'season': 2025},
     #'SIX_NATIONS': {'id': 180, 'name': '6 Nations', 'country': 'World', 'season': 2025},
 }
