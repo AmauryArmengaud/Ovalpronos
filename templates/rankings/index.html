@@ -8,22 +8,22 @@
 <h1 class="mb-4">{% trans "Rankings" %}</h1>
 
 {# ── Tabs ────────────────────────────────────────────────────────────── #}
-<div class="nav-tabs-scroll-wrapper mb-2">
-  <div class="segment-control" hx-boost="true">
-    <a class="segment-control__item {% if active_tab == 'global' %}active{% endif %}"
-       href="{% url 'rankings:index' %}">
-      {% trans "Global" %}
-    </a>
-    {% for league in user_leagues %}
-    <a class="segment-control__item {% if selected_league.pk == league.pk %}active{% endif %}"
-       href="{% url 'rankings:index' %}?league={{ league.pk }}">
-      {{ league.name }}
-    </a>
-    {% endfor %}
+<div class="d-flex align-items-center gap-3 mb-4">
+  <div class="nav-tabs-scroll-wrapper flex-grow-1">
+    <div class="segment-control" hx-boost="true">
+      <a class="segment-control__item {% if active_tab == 'global' %}active{% endif %}"
+         href="{% url 'rankings:index' %}">
+        {% trans "Global" %}
+      </a>
+      {% for league in user_leagues %}
+      <a class="segment-control__item {% if selected_league.pk == league.pk %}active{% endif %}"
+         href="{% url 'rankings:index' %}?league={{ league.pk }}">
+        {{ league.name }}
+      </a>
+      {% endfor %}
+    </div>
   </div>
-</div>
-<div class="text-end mb-3">
-  <a class="text-muted small" href="{% url 'leagues:list' %}">
+  <a class="text-muted small flex-shrink-0" href="{% url 'leagues:list' %}">
     <i class="ti ti-users me-1"></i>{% trans "Manage leagues" %}
   </a>
 </div>
