@@ -70,6 +70,27 @@ def _verify_turnstile(token, remote_ip):
         return json.loads(resp.read()).get('success', False)
 
 
+class LoginView(auth_views.LoginView):
+    template_name = 'accounts/login.html'
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx['turnstile_site_key'] = settings.TURNSTILE_SITE_KEY
+        return ctx
+
+    def post(self, request, *args, **kwargs):
+        token = request.POST.get('cf-turnstile-response', '')
+        try:
+            ok = _verify_turnstile(token, request.META.get('REMOTE_ADDR', ''))
+        except Exception:
+            ok = False
+        if not ok:
+            from django.utils.translation import gettext as _
+            messages.error(request, _("CAPTCHA verification failed. Please try again."))
+            return self.form_invalid(self.get_form())
+        return super().post(request, *args, **kwargs)
+
+
 class RegisterView(CreateView):
     model = CustomUser
     form_class = RegistrationForm
