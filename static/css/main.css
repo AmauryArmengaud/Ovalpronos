@@ -481,7 +481,7 @@ main {
 }
 
 /* ─── Rankings: competition filter chips ──────────────────────────────── */
-.badge-comp {
+.badge.badge-comp {
   background: var(--color-surface-raised);
   color: var(--color-text-secondary);
   font-size: var(--text-xs);
@@ -489,11 +489,11 @@ main {
   text-decoration: none;
   padding: 0.35rem 0.75rem;
 }
-.badge-comp:hover {
+.badge.badge-comp:hover {
   background: var(--color-border);
   color: var(--color-text-primary);
 }
-.badge-comp-active {
+.badge.badge-comp-active {
   background: var(--color-primary);
   color: var(--color-text-on-primary);
   font-size: var(--text-xs);
