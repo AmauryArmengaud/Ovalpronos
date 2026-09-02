@@ -16,7 +16,17 @@
      href="?tab=past">{% trans "Past" %}</a>
 </div>
 
-{% if not competitions_data %}
+{% if no_leagues %}
+  <div class="text-center text-muted py-5">
+    <i class="ti ti-users-group mb-3" style="font-size: 3rem; color: var(--color-icon-muted);"></i>
+    <p class="fw-semibold">{% trans "Join or create a league to start predicting." %}</p>
+    <p class="small">{% trans "Leagues are tied to specific competitions. Your predictions will count toward your league's leaderboard." %}</p>
+    <div class="d-flex gap-2 justify-content-center mt-3">
+      <a href="{% url 'leagues:join' %}" class="btn btn-outline-secondary">{% trans "Join a league" %}</a>
+      <a href="{% url 'leagues:create' %}" class="btn btn-primary">{% trans "Create a league" %}</a>
+    </div>
+  </div>
+{% elif not items and not items_without_odds %}
   <div class="text-center text-muted py-5">
     {% if active_tab == 'upcoming' %}
       <i class="ti ti-calendar mb-3" style="font-size: 3rem; color: var(--color-icon-muted);"></i>
@@ -29,66 +39,58 @@
       <p>{% trans "Your past predictions will appear here." %}</p>
     {% endif %}
   </div>
-{% endif %}
+{% else %}
 
-{% for comp_data in competitions_data %}
-
-  {# ── Competition chip — once per competition group ────────────────────── #}
-  <div class="comp-divider-chip{% if not forloop.first %} mt-4{% endif %}">{{ comp_data.competition.name }}</div>
-
-  {% for round in comp_data.rounds %}
-
-    {% if active_tab == 'upcoming' %}
-
-      {# ── Progress bar (odds-only count, only shown when round has odds) ── #}
-      {% if round.total_with_odds %}
-      <div class="d-flex align-items-center gap-2 mb-3{% if not forloop.first %} mt-3{% endif %}">
-        <div class="progress flex-grow-1" style="height:4px;">
-          <div class="progress-bar bg-accent"
-               style="width:{% widthratio round.predicted_with_odds round.total_with_odds 100 %}%">
-          </div>
-        </div>
-        <span class="small text-muted flex-shrink-0">{{ round.predicted_with_odds }}/{{ round.total_with_odds }}</span>
+  {# ── Progress bar (upcoming only) ──────────────────────────────────── #}
+  {% if active_tab == 'upcoming' and total_with_odds %}
+  <div class="d-flex align-items-center gap-2 mb-4">
+    <div class="progress flex-grow-1" style="height:4px;">
+      <div class="progress-bar bg-accent"
+           style="width:{% widthratio predicted_with_odds total_with_odds 100 %}%">
       </div>
-      {% endif %}
-
-      {# ── Matches with odds ──────────────────────────────────────────── #}
-      {% for item in round.items_with_odds %}
-        {% include "partials/match_card.html" with match=item.match prediction=item.prediction %}
-      {% endfor %}
-
-    {% else %}
-
-      {# ── Live / Past: show all items unchanged ──────────────────────── #}
-      {% for item in round.items %}
-        {% include "partials/match_card.html" with match=item.match prediction=item.prediction %}
-      {% endfor %}
-
-    {% endif %}
-
-  {% endfor %}
-
-  {# ── Single competition-level collapse for all no-odds matches ───────── #}
-  {% if active_tab == 'upcoming' and comp_data.no_odds_items %}
-    <div class="text-center mb-2 mt-2">
-      <button class="btn-no-odds-toggle"
-              type="button"
-              data-bs-toggle="collapse"
-              data-bs-target="#{{ comp_data.no_odds_collapse_id }}"
-              aria-expanded="false"
-              aria-controls="{{ comp_data.no_odds_collapse_id }}">
-        <i class="ti ti-chevron-down collapse-chevron me-1"></i>{% blocktrans count n=comp_data.no_odds_count %}See {{ n }} match without odds{% plural %}See {{ n }} matches without odds{% endblocktrans %}
-      </button>
     </div>
-    <div class="collapse" id="{{ comp_data.no_odds_collapse_id }}">
-      {% for round_data in comp_data.no_odds_items %}
-        <p class="text-center text-muted small mb-2 mt-3">{{ round_data.round_name }}</p>
-        {% for item in round_data.items %}
-          {% include "partials/match_card.html" with match=item.match prediction=item.prediction %}
-        {% endfor %}
-      {% endfor %}
-    </div>
+    <span class="small text-muted flex-shrink-0">{{ predicted_with_odds }}/{{ total_with_odds }}</span>
+  </div>
   {% endif %}
 
-{% endfor %}
+  {# ── Flat chronological list ────────────────────────────────────────── #}
+  {% for item in items %}
+    {% ifchanged item.match.competition_id %}
+    <div class="comp-divider-chip{% if not forloop.first %} mt-4{% endif %}">{{ item.match.competition.name }}</div>
+    {% endifchanged %}
+    {% include "partials/match_card.html" with match=item.match prediction=item.prediction %}
+  {% endfor %}
+
+  {# ── Matches without odds (collapsed) ──────────────────────────────── #}
+  {% if items_without_odds %}
+  <div class="text-center mb-2 mt-2">
+    <button class="btn-no-odds-toggle"
+            type="button"
+            data-bs-toggle="collapse"
+            data-bs-target="#no-odds-collapse"
+            aria-expanded="false"
+            aria-controls="no-odds-collapse">
+      <i class="ti ti-chevron-down collapse-chevron me-1"></i>{% blocktrans count n=items_without_odds|length %}See {{ n }} match without odds{% plural %}See {{ n }} matches without odds{% endblocktrans %}
+    </button>
+  </div>
+  <div class="collapse" id="no-odds-collapse">
+    {% for item in items_without_odds %}
+      {% ifchanged item.match.competition_id %}
+      <div class="comp-divider-chip{% if not forloop.first %} mt-4{% endif %}">{{ item.match.competition.name }}</div>
+      {% endifchanged %}
+      {% include "partials/match_card.html" with match=item.match prediction=item.prediction %}
+    {% endfor %}
+  </div>
+  {% endif %}
+
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  var row = document.getElementById('current-user-row');
+  if (row) {
+    row.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+</script>
 {% endblock %}

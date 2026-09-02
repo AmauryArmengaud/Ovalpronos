@@ -28,8 +28,18 @@
           <div>
             <h5 class="mb-1">
               <a href="{% url 'leagues:detail' league.pk %}" class="text-decoration-none">{{ league.name }}</a>
+              {% if not league.is_active %}<span class="badge text-bg-secondary ms-1">{% trans "Ended" %}</span>{% endif %}
             </h5>
             <span class="text-muted small">{{ league.members.count }} {% trans "members" %}</span>
+            {% with comps=league.competitions.all %}
+            {% if comps %}
+            <div class="d-flex flex-wrap gap-1 mt-1">
+              {% for comp in comps %}
+              <span class="badge" style="background: var(--color-surface-raised); color: var(--color-text-secondary); font-size: var(--text-xs);">{{ comp.name }}</span>
+              {% endfor %}
+            </div>
+            {% endif %}
+            {% endwith %}
           </div>
           <div class="d-flex align-items-center gap-2">
             <span class="badge fs-6 font-monospace" style="background: var(--color-surface-raised); color: var(--color-text-secondary); letter-spacing: 0.1em;">

@@ -27,6 +27,12 @@ class Competition(models.Model):
         default=True,
         verbose_name=_("Active competition")
     )
+    end_date = models.DateField(
+        null=True,
+        blank=True,
+        verbose_name=_("End date"),
+        help_text=_("Run 'deactivate_ended_competitions' to auto-set is_active=False after this date."),
+    )
     scoring_system = models.CharField(
         max_length=10,
         default='COTES',

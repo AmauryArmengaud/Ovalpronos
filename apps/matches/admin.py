@@ -53,9 +53,9 @@ class UpcomingMatchFilter(admin.SimpleListFilter):
 
 @admin.register(Competition)
 class CompetitionAdmin(admin.ModelAdmin):
-    list_display = ('name', 'code', 'season', 'scoring_system', 'good_gap_pts', 'is_active', 'match_count', 'sync_button')
+    list_display = ('name', 'code', 'season', 'scoring_system', 'good_gap_pts', 'is_active', 'end_date', 'match_count', 'sync_button')
     list_filter = ('is_active', 'season', 'scoring_system')
-    list_editable = ('scoring_system', 'good_gap_pts', 'is_active')
+    list_editable = ('scoring_system', 'good_gap_pts', 'is_active', 'end_date')
     search_fields = ('name', 'code')
     actions = ['sync_competition_action', 'recalculate_all_scores_action']
 

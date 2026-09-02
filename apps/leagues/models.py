@@ -29,7 +29,16 @@ class League(models.Model):
         related_name='leagues',
         verbose_name=_("Members"),
     )
+    competitions = models.ManyToManyField(
+        'matches.Competition',
+        related_name='leagues',
+        verbose_name=_("Competitions"),
+    )
     created_at = models.DateTimeField(auto_now_add=True)
+
+    @property
+    def is_active(self):
+        return self.competitions.filter(is_active=True).exists()
 
     class Meta:
         verbose_name = _("League")

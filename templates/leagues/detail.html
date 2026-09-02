@@ -48,6 +48,18 @@
   </div>
 </div>
 
+{% with comps=league_competitions %}
+{% if comps %}
+<div class="d-flex flex-wrap gap-2 mb-4">
+  {% for comp in comps %}
+  <span class="badge" style="background: var(--color-surface-raised); color: var(--color-text-secondary);">
+    {{ comp.name }}
+  </span>
+  {% endfor %}
+</div>
+{% endif %}
+{% endwith %}
+
 {# Leaderboard #}
 {% if leaderboard %}
 <div class="card">

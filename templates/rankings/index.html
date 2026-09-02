@@ -10,9 +10,12 @@
 {# Tabs — scrollable on mobile #}
 <div class="nav-tabs-scroll-wrapper mb-2">
   <div class="segment-control" hx-boost="true">
-    <a class="segment-control__item {% if active_tab == 'global' %}active{% endif %}" href="{% url 'rankings:index' %}">
-      {% trans "Global" %}
+    {% for tab in comp_tabs %}
+    <a class="segment-control__item {% if active_tab == 'comp' and selected_comp.pk == tab.competition.pk %}active{% endif %}"
+       href="{% url 'rankings:index' %}?comp={{ tab.competition.pk }}">
+      {{ tab.competition.name }}
     </a>
+    {% endfor %}
     {% for league in user_leagues %}
     <a class="segment-control__item {% if selected_league.pk == league.pk %}active{% endif %}"
        href="{% url 'rankings:index' %}?league={{ league.pk }}">
@@ -27,8 +30,8 @@
   </a>
 </div>
 
-{% if active_tab == 'global' %}
-  {% with entries=leaderboard %}
+{% if active_tab == 'comp' %}
+  {% with entries=active_leaderboard %}
     {% include "rankings/_table.html" %}
   {% endwith %}
 {% else %}

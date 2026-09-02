@@ -1,5 +1,3 @@
-from collections import defaultdict
-
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpResponseBadRequest, HttpResponseForbidden
 from django.shortcuts import get_object_or_404, render
@@ -7,7 +5,7 @@ from django.utils import timezone
 from django.views import View
 from django.views.generic import TemplateView
 
-from apps.matches.models import Match
+from apps.matches.models import Competition, Match
 from .models import Prediction
 
 
@@ -18,68 +16,52 @@ class PredictionsView(LoginRequiredMixin, TemplateView):
         ctx = super().get_context_data(**kwargs)
         tab = self.request.GET.get('tab', 'upcoming')
 
+        user_competition_ids = list(
+            Competition.objects.filter(
+                is_active=True,
+                leagues__members=self.request.user,
+            ).distinct().values_list('pk', flat=True)
+        )
+        ctx['no_leagues'] = not self.request.user.leagues.filter(competitions__is_active=True).exists()
+
         if tab == 'upcoming':
             matches = Match.objects.filter(
-                status__in=['SCHEDULED', 'POSTPONED']
+                competition_id__in=user_competition_ids,
+                status__in=['SCHEDULED', 'POSTPONED'],
             ).select_related('competition', 'home_team', 'away_team').order_by('datetime')
         elif tab == 'live':
             matches = Match.objects.filter(
-                status='IN_PLAY'
+                competition_id__in=user_competition_ids,
+                status='IN_PLAY',
             ).select_related('competition', 'home_team', 'away_team').order_by('datetime')
         else:  # past
             matches = Match.objects.filter(
-                status__in=['FINISHED', 'CANCELLED']
+                competition_id__in=user_competition_ids,
+                status__in=['FINISHED', 'CANCELLED'],
             ).select_related('competition', 'home_team', 'away_team').order_by('-datetime')
 
-        # Build predictions dict for current user
         match_ids = list(matches.values_list('pk', flat=True))
         user_predictions = {
             p.match_id: p
-            for p in Prediction.objects.filter(
-                user=self.request.user, match_id__in=match_ids
-            )
+            for p in Prediction.objects.filter(user=self.request.user, match_id__in=match_ids)
         }
 
-        # Group matches by competition then round
-        grouped = defaultdict(lambda: defaultdict(list))
-        for match in matches:
-            grouped[match.competition][match.round].append({
-                'match': match,
-                'prediction': user_predictions.get(match.pk),
-            })
+        items = [{'match': m, 'prediction': user_predictions.get(m.pk)} for m in matches]
 
-        # Convert to sorted list of competition dicts
-        competitions_data = []
-        for comp_idx, (competition, rounds) in enumerate(grouped.items(), start=1):
-            rounds_data = []
-            no_odds_by_round = []
-            for round_name, items in rounds.items():
-                items_with_odds    = [i for i in items if i['match'].has_odds]
-                items_without_odds = [i for i in items if not i['match'].has_odds]
-                rounds_data.append({
-                    'name': round_name,
-                    'items': items,
-                    'items_with_odds': items_with_odds,
-                    'total_with_odds': len(items_with_odds),
-                    'predicted_with_odds': sum(
-                        1 for i in items_with_odds if i['prediction'] is not None
-                    ),
-                    'total': len(items),
-                    'predicted': sum(1 for i in items if i['prediction'] is not None),
-                })
-                if items_without_odds:
-                    no_odds_by_round.append({'round_name': round_name, 'items': items_without_odds})
-            competitions_data.append({
-                'competition': competition,
-                'rounds': rounds_data,
-                'no_odds_items': no_odds_by_round,
-                'no_odds_count': sum(len(r['items']) for r in no_odds_by_round),
-                'no_odds_collapse_id': f'no-odds-comp-{comp_idx}',
-            })
-
-        ctx['competitions_data'] = competitions_data
+        if tab == 'upcoming':
+            items_with_odds = [i for i in items if i['match'].has_odds]
+            items_without_odds = [i for i in items if not i['match'].has_odds]
+            ctx['total_with_odds'] = len(items_with_odds)
+            ctx['predicted_with_odds'] = sum(1 for i in items_with_odds if i['prediction'] is not None)
+            ctx['items'] = items_with_odds
+            ctx['items_without_odds'] = items_without_odds
+        else:
+            ctx['items'] = items
+            ctx['items_without_odds'] = []
         ctx['active_tab'] = tab
-        ctx['has_live_matches'] = Match.objects.filter(status='IN_PLAY').exists()
+        ctx['has_live_matches'] = Match.objects.filter(
+            competition_id__in=user_competition_ids, status='IN_PLAY'
+        ).exists()
         return ctx
 
 

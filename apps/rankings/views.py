@@ -1,6 +1,9 @@
 from django.contrib.auth import get_user_model
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.db.models import Sum
 from django.views.generic import TemplateView
+
+from apps.matches.models import Competition
 from apps.rankings.models import UserScore
 
 User = get_user_model()
@@ -37,12 +40,33 @@ class RankingsView(LoginRequiredMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
-
-        global_qs = UserScore.objects.filter(competition=None, league=None)
         all_users = User.objects.filter(is_active=True)
-        ctx['leaderboard'] = _build_leaderboard(global_qs, all_users, self.request.user.pk)
-        ctx['user_leagues'] = self.request.user.leagues.all()
+        competitions = list(Competition.objects.filter(is_active=True))
 
+        comp_tabs = []
+        for comp in competitions:
+            comp_qs = UserScore.objects.filter(competition=comp, league=None)
+            eligible_users = User.objects.filter(
+                is_active=True, leagues__competitions=comp
+            ).distinct()
+            comp_tabs.append({
+                'competition': comp,
+                'leaderboard': _build_leaderboard(comp_qs, eligible_users, self.request.user.pk),
+            })
+        ctx['comp_tabs'] = comp_tabs
+
+        comp_pk = self.request.GET.get('comp')
+        selected_comp = None
+        if comp_pk:
+            selected_comp = next((t['competition'] for t in comp_tabs if str(t['competition'].pk) == comp_pk), None)
+        if selected_comp is None and comp_tabs:
+            selected_comp = comp_tabs[0]['competition']
+        ctx['selected_comp'] = selected_comp
+        ctx['active_leaderboard'] = next(
+            (t['leaderboard'] for t in comp_tabs if t['competition'] == selected_comp), []
+        )
+
+        ctx['user_leagues'] = self.request.user.leagues.filter(competitions__is_active=True).distinct()
         league_pk = self.request.GET.get('league')
         selected_league = None
         league_leaderboard = []
@@ -51,15 +75,39 @@ class RankingsView(LoginRequiredMixin, TemplateView):
             try:
                 selected_league = self.request.user.leagues.get(pk=league_pk)
                 member_ids = selected_league.members.values_list('pk', flat=True)
-                league_qs = UserScore.objects.filter(
-                    competition=None, league=None, user_id__in=member_ids
+                league_comp_ids = selected_league.competitions.values_list('pk', flat=True)
+                agg = (
+                    UserScore.objects
+                    .filter(competition__in=league_comp_ids, league=None, user_id__in=member_ids)
+                    .values('user_id')
+                    .annotate(
+                        total=Sum('points'),
+                        total_count=Sum('prediction_count'),
+                        exact=Sum('exact_count'),
+                        gap=Sum('gap_count'),
+                        win=Sum('win_count'),
+                    )
                 )
+                agg_by_user = {row['user_id']: row for row in agg}
                 league_members = User.objects.filter(pk__in=member_ids)
-                league_leaderboard = _build_leaderboard(league_qs, league_members, self.request.user.pk)
+                for user in league_members:
+                    row = agg_by_user.get(user.pk)
+                    league_leaderboard.append({
+                        'user': user,
+                        'total_points': row['total'] if row else 0,
+                        'count_predictions': row['total_count'] if row else 0,
+                        'count_exact': row['exact'] if row else 0,
+                        'count_gap': row['gap'] if row else 0,
+                        'count_win': row['win'] if row else 0,
+                    })
+                league_leaderboard.sort(key=lambda e: (-e['total_points'], -e['count_exact'], -e['count_gap']))
+                for rank, entry in enumerate(league_leaderboard, start=1):
+                    entry['rank'] = rank
+                    entry['is_current_user'] = entry['user'].pk == self.request.user.pk
             except League.DoesNotExist:
                 pass
 
         ctx['selected_league'] = selected_league
         ctx['league_leaderboard'] = league_leaderboard
-        ctx['active_tab'] = 'league' if selected_league else 'global'
+        ctx['active_tab'] = 'league' if selected_league else 'comp'
         return ctx

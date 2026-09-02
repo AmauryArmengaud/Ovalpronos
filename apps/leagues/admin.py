@@ -8,7 +8,7 @@ class LeagueAdmin(admin.ModelAdmin):
     list_filter = ['created_at']
     search_fields = ['name', 'invite_code', 'creator__username']
     readonly_fields = ['invite_code', 'created_at']
-    filter_horizontal = ['members']
+    filter_horizontal = ['members', 'competitions']
     actions = ['reset_invite_code']
 
     def member_count(self, obj):

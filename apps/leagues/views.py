@@ -1,3 +1,4 @@
+from django import forms
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib import messages
 from django.db.models import Count, Q, Sum
@@ -6,8 +7,21 @@ from django.urls import reverse_lazy
 from django.utils.translation import gettext_lazy as _
 from django.views.generic import CreateView, TemplateView, View
 
+from apps.matches.models import Competition
 from apps.predictions.models import Prediction
 from .models import League
+
+
+class LeagueCreateForm(forms.ModelForm):
+    competitions = forms.ModelMultipleChoiceField(
+        queryset=Competition.objects.filter(is_active=True),
+        widget=forms.CheckboxSelectMultiple,
+        label=_("Competitions"),
+    )
+
+    class Meta:
+        model = League
+        fields = ['name', 'competitions']
 
 
 class LeagueListView(LoginRequiredMixin, TemplateView):
@@ -15,13 +29,13 @@ class LeagueListView(LoginRequiredMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
-        ctx['leagues'] = self.request.user.leagues.all()
+        ctx['leagues'] = self.request.user.leagues.prefetch_related('competitions').all()
         return ctx
 
 
 class LeagueCreateView(LoginRequiredMixin, CreateView):
     model = League
-    fields = ['name']
+    form_class = LeagueCreateForm
     template_name = 'leagues/create.html'
     success_url = reverse_lazy('leagues:list')
 
@@ -70,14 +84,27 @@ class LeagueDetailView(LoginRequiredMixin, TemplateView):
         league = self.get_object()
 
         members = league.members.all()
+        competition_ids = league.competitions.values_list('pk', flat=True)
         leaderboard = (
             members
-            .filter(predictions__points_earned__isnull=False)
+            .filter(
+                predictions__points_earned__isnull=False,
+                predictions__match__competition_id__in=competition_ids,
+            )
             .annotate(
                 total_points=Sum('predictions__points_earned'),
-                count_exact=Count('predictions', filter=Q(predictions__result_type='EXACT')),
-                count_gap=Count('predictions', filter=Q(predictions__result_type='GAP')),
-                count_win=Count('predictions', filter=Q(predictions__result_type='WIN')),
+                count_exact=Count('predictions', filter=Q(
+                    predictions__result_type='EXACT',
+                    predictions__match__competition_id__in=competition_ids,
+                )),
+                count_gap=Count('predictions', filter=Q(
+                    predictions__result_type='GAP',
+                    predictions__match__competition_id__in=competition_ids,
+                )),
+                count_win=Count('predictions', filter=Q(
+                    predictions__result_type='WIN',
+                    predictions__match__competition_id__in=competition_ids,
+                )),
             )
             .order_by('-total_points', '-count_exact', '-count_gap')
         )
@@ -96,6 +123,7 @@ class LeagueDetailView(LoginRequiredMixin, TemplateView):
 
         ctx['league'] = league
         ctx['leaderboard'] = ranked
+        ctx['league_competitions'] = league.competitions.all()
         ctx['is_creator'] = league.creator == self.request.user
         return ctx
 

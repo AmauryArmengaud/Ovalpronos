@@ -145,7 +145,8 @@ SYNC_SECRET_TOKEN = config('SYNC_SECRET_TOKEN', default='')
 # Compétitions à synchroniser (IDs rugby-live-data sur RapidAPI)
 RUGBY_COMPETITIONS = {
     'TOP14': {'id': 1230, 'name': 'Top 14', 'country': 'France', 'season': 2027},
-    #'CHAMPIONS_CUP': {'id': 1236, 'name': 'Champions Cup', 'country': 'Europe', 'season': 2025},
+    'CHAMPIONS_CUP': {'id': 1464, 'name': 'Champions Cup', 'country': 'Europe', 'season': 2027},
+    'CHALLENGE_CUP': {'id': 1470, 'name': 'Challenge Cup', 'country': 'Europe', 'season': 2027},
     #'SIX_NATIONS': {'id': 180, 'name': '6 Nations', 'country': 'World', 'season': 2025},
 }
 # Fallback season used if a competition config has no 'season' key.
