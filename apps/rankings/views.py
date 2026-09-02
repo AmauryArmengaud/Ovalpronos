@@ -40,33 +40,12 @@ class RankingsView(LoginRequiredMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
-        all_users = User.objects.filter(is_active=True)
+
         competitions = list(Competition.objects.filter(is_active=True))
-
-        comp_tabs = []
-        for comp in competitions:
-            comp_qs = UserScore.objects.filter(competition=comp, league=None)
-            eligible_users = User.objects.filter(
-                is_active=True, leagues__competitions=comp
-            ).distinct()
-            comp_tabs.append({
-                'competition': comp,
-                'leaderboard': _build_leaderboard(comp_qs, eligible_users, self.request.user.pk),
-            })
-        ctx['comp_tabs'] = comp_tabs
-
-        comp_pk = self.request.GET.get('comp')
-        selected_comp = None
-        if comp_pk:
-            selected_comp = next((t['competition'] for t in comp_tabs if str(t['competition'].pk) == comp_pk), None)
-        if selected_comp is None and comp_tabs:
-            selected_comp = comp_tabs[0]['competition']
-        ctx['selected_comp'] = selected_comp
-        ctx['active_leaderboard'] = next(
-            (t['leaderboard'] for t in comp_tabs if t['competition'] == selected_comp), []
-        )
-
+        ctx['competitions'] = competitions
         ctx['user_leagues'] = self.request.user.leagues.filter(competitions__is_active=True).distinct()
+
+        # League tab
         league_pk = self.request.GET.get('league')
         selected_league = None
         league_leaderboard = []
@@ -107,7 +86,26 @@ class RankingsView(LoginRequiredMixin, TemplateView):
             except League.DoesNotExist:
                 pass
 
+        # Global tab: optional competition filter via ?comp=<pk>
+        selected_comp = None
+        if not selected_league:
+            comp_pk = self.request.GET.get('comp')
+            if comp_pk:
+                selected_comp = next((c for c in competitions if str(c.pk) == comp_pk), None)
+            if selected_comp:
+                eligible_users = User.objects.filter(
+                    is_active=True, leagues__competitions=selected_comp
+                ).distinct()
+                score_qs = UserScore.objects.filter(competition=selected_comp, league=None)
+            else:
+                eligible_users = User.objects.filter(
+                    is_active=True, leagues__competitions__is_active=True
+                ).distinct()
+                score_qs = UserScore.objects.filter(competition=None, league=None)
+            ctx['active_leaderboard'] = _build_leaderboard(score_qs, eligible_users, self.request.user.pk)
+
         ctx['selected_league'] = selected_league
         ctx['league_leaderboard'] = league_leaderboard
-        ctx['active_tab'] = 'league' if selected_league else 'comp'
+        ctx['selected_comp'] = selected_comp
+        ctx['active_tab'] = 'league' if selected_league else 'global'
         return ctx

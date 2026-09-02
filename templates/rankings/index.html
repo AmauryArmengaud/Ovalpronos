@@ -7,15 +7,13 @@
 {% block content %}
 <h1 class="mb-4">{% trans "Rankings" %}</h1>
 
-{# Tabs — scrollable on mobile #}
+{# ── Tabs ────────────────────────────────────────────────────────────── #}
 <div class="nav-tabs-scroll-wrapper mb-2">
   <div class="segment-control" hx-boost="true">
-    {% for tab in comp_tabs %}
-    <a class="segment-control__item {% if active_tab == 'comp' and selected_comp.pk == tab.competition.pk %}active{% endif %}"
-       href="{% url 'rankings:index' %}?comp={{ tab.competition.pk }}">
-      {{ tab.competition.name }}
+    <a class="segment-control__item {% if active_tab == 'global' %}active{% endif %}"
+       href="{% url 'rankings:index' %}">
+      {% trans "Global" %}
     </a>
-    {% endfor %}
     {% for league in user_leagues %}
     <a class="segment-control__item {% if selected_league.pk == league.pk %}active{% endif %}"
        href="{% url 'rankings:index' %}?league={{ league.pk }}">
@@ -30,7 +28,24 @@
   </a>
 </div>
 
-{% if active_tab == 'comp' %}
+{# ── Competition filter chips (global tab only) ───────────────────────── #}
+{% if active_tab == 'global' and competitions %}
+<div class="d-flex flex-wrap gap-2 mb-4">
+  <a href="{% url 'rankings:index' %}"
+     class="badge rounded-pill {% if not selected_comp %}badge-comp-active{% else %}badge-comp{% endif %}">
+    {% trans "All" %}
+  </a>
+  {% for comp in competitions %}
+  <a href="{% url 'rankings:index' %}?comp={{ comp.pk }}"
+     class="badge rounded-pill {% if selected_comp.pk == comp.pk %}badge-comp-active{% else %}badge-comp{% endif %}">
+    {{ comp.name }}
+  </a>
+  {% endfor %}
+</div>
+{% endif %}
+
+{# ── Leaderboard ──────────────────────────────────────────────────────── #}
+{% if active_tab == 'global' %}
   {% with entries=active_leaderboard %}
     {% include "rankings/_table.html" %}
   {% endwith %}

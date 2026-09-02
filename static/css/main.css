@@ -480,6 +480,28 @@ main {
   font-size: var(--text-2xs);
 }
 
+/* ─── Rankings: competition filter chips ──────────────────────────────── */
+.badge-comp {
+  background: var(--color-surface-raised);
+  color: var(--color-text-secondary);
+  font-size: var(--text-xs);
+  font-weight: 600;
+  text-decoration: none;
+  padding: 0.35rem 0.75rem;
+}
+.badge-comp:hover {
+  background: var(--color-border);
+  color: var(--color-text-primary);
+}
+.badge-comp-active {
+  background: var(--color-primary);
+  color: var(--color-text-on-primary);
+  font-size: var(--text-xs);
+  font-weight: 600;
+  text-decoration: none;
+  padding: 0.35rem 0.75rem;
+}
+
 /* ─── Predictions: competition divider chip ────────────────────────────── */
 .comp-divider-chip {
   display: inline-flex;

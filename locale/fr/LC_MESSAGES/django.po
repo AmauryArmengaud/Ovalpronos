@@ -5,7 +5,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Oval'Pronos\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-02 20:52+0200\n"
+"POT-Creation-Date: 2026-09-02 21:20+0200\n"
 "PO-Revision-Date: 2026-05-21 17:00+0200\n"
 "Last-Translator: Oval'Pronos\n"
 "Language-Team: French\n"
@@ -895,16 +895,24 @@ msgstr "Aucun match en cours pour l'instant."
 msgid "Your past predictions will appear here."
 msgstr "Tes pronos passés s'afficheront ici."
 
-#: templates/predictions/index.html:90
+#: templates/predictions/index.html:73
 #, python-format
 msgid "See %(n)s match without odds"
 msgid_plural "See %(n)s matches without odds"
 msgstr[0] "Voir %(n)s match sans cote"
 msgstr[1] "Voir %(n)s matchs sans cote"
 
-#: templates/rankings/index.html:29
+#: templates/rankings/index.html:15
+msgid "Global"
+msgstr "Général"
+
+#: templates/rankings/index.html:27
 msgid "Manage leagues"
 msgstr "Gérer mes ligues"
+
+#: templates/rankings/index.html:36
+msgid "All"
+msgstr "Toutes"
 
 #~ msgid ""
 #~ "League is automatically deactivated after this date. Leave blank for no "
@@ -912,9 +920,6 @@ msgstr "Gérer mes ligues"
 #~ msgstr ""
 #~ "La ligue est automatiquement désactivée après cette date. Laisser vide "
 #~ "pour aucune expiration."
-
-#~ msgid "Global"
-#~ msgstr "Général"
 
 #~ msgid "Closes soon"
 #~ msgstr "Ferme bientôt"
