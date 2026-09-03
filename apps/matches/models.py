@@ -71,7 +71,6 @@ class Team(models.Model):
         verbose_name=_("Short name"),
         help_text=_("e.g. STA, ASM, LOU")
     )
-    logo_url = models.URLField(blank=True, verbose_name=_("Logo URL"))
     country = models.CharField(max_length=100, blank=True, verbose_name=_("Country"))
 
     class Meta:

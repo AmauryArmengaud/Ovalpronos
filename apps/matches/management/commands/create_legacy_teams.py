@@ -44,15 +44,12 @@ class Command(BaseCommand):
         created = updated = skipped = 0
 
         for external_id, name, short_name, slug, country, legacy_filename in TEAMS:
-            # Copy logo if a legacy file exists
-            logo_url = ""
             if legacy_filename:
                 src = LEGACY_DIR / legacy_filename
                 dest_filename = f"{slug}.png"
                 dest = STATIC_TEAMS_DIR / dest_filename
                 if src.exists():
                     shutil.copy2(src, dest)
-                    logo_url = f"/static/img/teams/{dest_filename}"
                 else:
                     self.stdout.write(self.style.WARNING(
                         f"  Logo not found: {src}"
@@ -65,7 +62,6 @@ class Command(BaseCommand):
                     "short_name": short_name,
                     "slug": slug,
                     "country": country,
-                    "logo_url": logo_url,
                 },
             )
 
