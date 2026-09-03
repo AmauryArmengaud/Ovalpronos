@@ -60,6 +60,7 @@ TEAM_OVERRIDES = {
     4967:  {'slug': 'perpignan',  'short_name': 'PER'},  # USAP
     131:   {'slug': 'bordeaux',   'short_name': 'UBB'},  # Union Bordeaux-Bègles
     14717: {'slug': 'montauban',  'short_name': 'USM'},  # US Montauban
+    1322:  {'slug': 'vannes',     'short_name': 'RCV'}, # RC Vannes
     17:    {'slug': 'tbc',        'short_name': 'TBC'},  # À définir
 }
 
