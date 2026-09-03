@@ -669,6 +669,12 @@ ul.messagelist li.error   { border-left-color: var(--color-accent); }
   margin-top: 3px;
 }
 
+a:hover .oval-stat-card {
+  border-color: var(--color-primary);
+  box-shadow: 0 2px 10px rgba(43, 52, 103, 0.14);
+  transition: box-shadow 0.15s, border-color 0.15s;
+}
+
 /* ─── Badge helper (admin format_html) ───────────────────────────────────── */
 .badge-admin {
   display: inline-block;

@@ -20,7 +20,8 @@
     </div>
   </div>
 
-  <div class="oval-stat-card">
+  <a href="/admin/matches/match/?upcoming=no_odds" style="text-decoration:none;color:inherit;">
+  <div class="oval-stat-card" style="cursor:pointer;">
     <div class="oval-stat-card__icon {% if matches_no_odds %}oval-stat-card__icon--warn{% endif %}">
       <i class="ti ti-alert-triangle"></i>
     </div>
@@ -29,6 +30,7 @@
       <div class="oval-stat-card__label">Matchs sans cotes</div>
     </div>
   </div>
+  </a>
 
   <div class="oval-stat-card">
     <div class="oval-stat-card__icon {% if unscored_predictions %}oval-stat-card__icon--alert{% endif %}">
