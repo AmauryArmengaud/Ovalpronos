@@ -1,0 +1,28 @@
+name: Update Odds
+
+on:
+  schedule:
+    - cron: '0 7 * * 1'   # Lundi 07:00 UTC (09:00 Paris)
+  workflow_dispatch:
+
+jobs:
+  update-odds:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: pip install anthropic requests
+
+      - name: Run odds updater
+        env:
+          APP_URL: ${{ secrets.APP_URL }}
+          SYNC_SECRET_TOKEN: ${{ secrets.SYNC_SECRET_TOKEN }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: python .github/scripts/update_odds.py
