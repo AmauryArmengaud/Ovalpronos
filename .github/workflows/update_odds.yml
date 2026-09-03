@@ -2,7 +2,7 @@ name: Update Odds
 
 on:
   schedule:
-    - cron: '0 7 * * 1'   # Lundi 07:00 UTC (09:00 Paris)
+    - cron: '0 10 * * 2'   # Mardi 10:00 UTC (12:00 Paris)
   workflow_dispatch:
 
 jobs:
