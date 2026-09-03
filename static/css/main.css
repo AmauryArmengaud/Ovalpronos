@@ -364,6 +364,12 @@ main {
 }
 
 /* ─── Match card ────────────────────────────────────────────────────────── */
+
+/* Layout classes — replace previous inline styles, enable mobile overrides */
+.match-team-col    { width: 38%; }
+.match-center-col  { width: 24%; }
+.match-score-input { width: 48px; }
+
 .match-score {
   font-size: 1.15rem;
   letter-spacing: 0.03em;
@@ -558,4 +564,42 @@ main {
   scrollbar-width: none;
 }
 .nav-tabs-scroll-wrapper::-webkit-scrollbar { display: none; }
-.nav-tabs-scroll-wrapper .segment-control { display: flex; }
+.nav-tabs-scroll-wrapper .segment-control {
+  display: flex;
+  width: 100%;
+}
+/* Items fill equally when content fits; min-width prevents squishing when many tabs scroll */
+.nav-tabs-scroll-wrapper .segment-control .segment-control__item {
+  flex: 1;
+  justify-content: center;
+  min-width: max-content;
+}
+
+/* ─── Mobile XS fixes (< 576px) ─────────────────────────────────────────── */
+@media (max-width: 575.98px) {
+  /* Tighter horizontal padding so teams have more room */
+  .match-card-body {
+    padding: 0.75rem 0.625rem;
+  }
+
+  /* Wider center col fixes score input overflow (24% → 30%) */
+  .match-center-col {
+    width: 30%;
+  }
+
+  /* Compensate: team cols shrink from 38% → 35% */
+  .match-team-col {
+    width: 35%;
+  }
+
+  /* Inputs slightly narrower to fit in the wider center col:
+     44 + 4 (gap-1) + 44 + ~10 (dash) = 102px < 112px (30% of 375px) */
+  .match-score-input {
+    width: 44px;
+  }
+
+  /* Hide sub-pixel potential-points preview — unreadable on mobile */
+  .match-potential-preview {
+    display: none;
+  }
+}

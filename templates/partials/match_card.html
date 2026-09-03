@@ -1,12 +1,12 @@
 {% load i18n static match_tags %}
 <div class="card mb-3" id="match-card-{{ match.pk }}">
-  <div class="card-body">
+  <div class="card-body match-card-body">
 
     {# ── Teams row ─────────────────────────────────────────────────────── #}
     <div class="d-flex align-items-center justify-content-between">
 
       {# Home team #}
-      <div class="text-center" style="width: 38%">
+      <div class="text-center match-team-col">
         <img src="{% static 'img/teams/' %}{{ match.home_team.slug }}.png"
              alt="{{ match.home_team.name }}"
              style="height: 44px; width: auto; max-width: 72px; object-fit: contain;"
@@ -18,7 +18,7 @@
       </div>
 
       {# ── Centre: state-dependent content ────────────────────────────── #}
-      <div class="text-center" style="width: 24%">
+      <div class="text-center match-center-col">
 
         {% if match.status == 'CANCELLED' %}
           {# State: cancelled #}
@@ -92,8 +92,7 @@
                      min="0"
                      max="200"
                      value="{{ prediction.predicted_home_score|default:'' }}"
-                     class="form-control form-control-sm text-center p-1"
-                     style="width: 48px;"
+                     class="form-control form-control-sm text-center p-1 match-score-input"
                      hx-disabled-elt="this"
                      aria-label="{% trans 'Home score' %}">
               <span class="fw-bold text-muted">–</span>
@@ -102,8 +101,7 @@
                      min="0"
                      max="200"
                      value="{{ prediction.predicted_away_score|default:'' }}"
-                     class="form-control form-control-sm text-center p-1"
-                     style="width: 48px;"
+                     class="form-control form-control-sm text-center p-1 match-score-input"
                      hx-disabled-elt="this"
                      aria-label="{% trans 'Away score' %}">
             </div>
@@ -133,7 +131,7 @@
       {# end centre #}
 
       {# Away team #}
-      <div class="text-center" style="width: 38%">
+      <div class="text-center match-team-col">
         <img src="{% static 'img/teams/' %}{{ match.away_team.slug }}.png"
              alt="{{ match.away_team.name }}"
              style="height: 44px; width: auto; max-width: 72px; object-fit: contain;"

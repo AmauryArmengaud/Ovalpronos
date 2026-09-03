@@ -24,7 +24,7 @@
     </div>
   </div>
   <a class="text-muted small flex-shrink-0" href="{% url 'leagues:list' %}">
-    <i class="ti ti-users me-1"></i>{% trans "Manage leagues" %}
+    <i class="ti ti-users me-1"></i><span class="d-sm-none">{% trans "Leagues" %}</span><span class="d-none d-sm-inline">{% trans "Manage leagues" %}</span>
   </a>
 </div>
 
