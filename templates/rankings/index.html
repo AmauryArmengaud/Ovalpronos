@@ -30,17 +30,19 @@
 
 {# ── Competition filter chips (global tab only) ───────────────────────── #}
 {% if active_tab == 'global' and competitions %}
-<div class="d-flex flex-wrap gap-2 mb-4">
-  <a href="{% url 'rankings:index' %}"
-     class="badge rounded-pill {% if not selected_comp %}badge-comp-active{% else %}badge-comp{% endif %}">
-    {% trans "All" %}
-  </a>
-  {% for comp in competitions %}
-  <a href="{% url 'rankings:index' %}?comp={{ comp.pk }}"
-     class="badge rounded-pill {% if selected_comp.pk == comp.pk %}badge-comp-active{% else %}badge-comp{% endif %}">
-    {{ comp.name }}
-  </a>
-  {% endfor %}
+<div class="nav-tabs-scroll-wrapper mb-4">
+  <div class="d-flex gap-2">
+    <a href="{% url 'rankings:index' %}"
+       class="badge rounded-pill {% if not selected_comp %}badge-comp-active{% else %}badge-comp{% endif %}">
+      {% trans "All" %}
+    </a>
+    {% for comp in competitions %}
+    <a href="{% url 'rankings:index' %}?comp={{ comp.pk }}"
+       class="badge rounded-pill {% if selected_comp.pk == comp.pk %}badge-comp-active{% else %}badge-comp{% endif %}">
+      {{ comp.name }}
+    </a>
+    {% endfor %}
+  </div>
 </div>
 {% endif %}
 

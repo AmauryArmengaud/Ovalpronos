@@ -566,7 +566,8 @@ main {
 .nav-tabs-scroll-wrapper::-webkit-scrollbar { display: none; }
 .nav-tabs-scroll-wrapper .segment-control {
   display: flex;
-  width: 100%;
+  min-width: 100%;
+  width: max-content;
 }
 /* Items fill equally when content fits; min-width prevents squishing when many tabs scroll */
 .nav-tabs-scroll-wrapper .segment-control .segment-control__item {
