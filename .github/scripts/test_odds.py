@@ -1,17 +1,19 @@
 """
-Test script — vérifie que Claude trouve bien des côtes Unibet.
-Usage : ANTHROPIC_API_KEY=sk-... python .github/scripts/test_odds.py
+Test script — vérifie que Gemini trouve bien des côtes de paris sportifs.
+Usage : GOOGLE_API_KEY=... python .github/scripts/test_odds.py
 Pas besoin que Django tourne.
 """
 import os
 import sys
 import json
+from datetime import datetime
 
-import anthropic
+from google import genai
+from google.genai import types
 
-ANTHROPIC_API_KEY = os.environ.get('ANTHROPIC_API_KEY')
-if not ANTHROPIC_API_KEY:
-    print("Erreur : variable ANTHROPIC_API_KEY manquante.")
+GOOGLE_API_KEY = os.environ.get('GOOGLE_API_KEY')
+if not GOOGLE_API_KEY:
+    print("Erreur : variable GOOGLE_API_KEY manquante.")
     sys.exit(1)
 
 # Top 14 2026-2027 — Journée 1
@@ -83,86 +85,92 @@ TEST_MATCHES = [
 
 # --- Identique au script de prod ---
 
-from datetime import datetime
 n = len(TEST_MATCHES)
-lines = [f"Trouve les cotes 1N2 pour ces {n} matchs de rugby. Tu dois en couvrir {n} sur {n}.\n"]
+lines = [f"Trouve les cotes 1N2 pour ces {n} matchs de rugby.\n"]
 for m in TEST_MATCHES:
     dt = datetime.fromisoformat(m['datetime']).strftime('%d/%m/%Y')
     home = f"{m['home_team']} ({m['home_team_short']})"
     away = f"{m['away_team']} ({m['away_team_short']})"
     lines.append(f"- match_id={m['match_id']} : {home} vs {away} ({m['competition']}, le {dt})")
 lines.append(
-    f"\nAvant d'appeler submit_odds, vérifie que tu as bien {n} entrées. "
-    "Si des matchs manquent, fais des recherches supplémentaires ciblées sur ces matchs spécifiques."
+    f"\nObjectif : couvrir les {n} matchs. Si après tes recherches ciblées certains manquent encore, "
+    "soumets quand même les cotes trouvées — ne reste pas bloqué sur un match introuvable."
 )
 user_message = "\n".join(lines)
 
-submit_odds_tool = {
-    "name": "submit_odds",
-    "description": (
+submit_odds_declaration = types.FunctionDeclaration(
+    name="submit_odds",
+    description=(
         "Soumet les cotes trouvées pour les matchs de rugby. Appelle cet outil une seule fois. "
         "N'inclure que les matchs pour lesquels tu as trouvé les 3 cotes (1, N, 2) réelles et vérifiées. "
         "Cotes converties en entiers : cote_décimale × 10 arrondie. Ex: 1.85 → 19, 3.50 → 35."
     ),
-    "input_schema": {
-        "type": "object",
-        "properties": {
-            "odds": {
-                "type": "array",
-                "items": {
-                    "type": "object",
-                    "properties": {
-                        "match_id": {"type": "integer"},
-                        "cote_home": {"type": "integer", "minimum": 11, "maximum": 500},
-                        "cote_draw": {"type": "integer", "minimum": 11, "maximum": 500},
-                        "cote_away": {"type": "integer", "minimum": 11, "maximum": 500},
+    parameters=types.Schema(
+        type=types.Type.OBJECT,
+        properties={
+            "odds": types.Schema(
+                type=types.Type.ARRAY,
+                items=types.Schema(
+                    type=types.Type.OBJECT,
+                    properties={
+                        "match_id": types.Schema(type=types.Type.INTEGER),
+                        "cote_home": types.Schema(type=types.Type.INTEGER, minimum=11, maximum=500),
+                        "cote_draw": types.Schema(type=types.Type.INTEGER, minimum=11, maximum=500),
+                        "cote_away": types.Schema(type=types.Type.INTEGER, minimum=11, maximum=500),
                     },
-                    "required": ["match_id", "cote_home", "cote_draw", "cote_away"],
-                },
-            }
+                    required=["match_id", "cote_home", "cote_draw", "cote_away"],
+                ),
+            )
         },
-        "required": ["odds"],
-    },
-}
-
-print("Appel Claude API en cours...\n")
-client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
-response = client.messages.create(
-    model="claude-sonnet-4-6",
-    max_tokens=4096,
-    tools=[
-        {"type": "web_search_20250305", "name": "web_search"},
-        submit_odds_tool,
-    ],
-    system=(
-        "Tu es un assistant spécialisé dans la collecte de cotes de paris sportifs rugby. "
-        "Stratégie de recherche en deux temps :\n"
-        "1. Commence par rechercher toutes les cotes d'une journée en une seule requête sur un agrégateur "
-        "(rugbyscope.fr, ruedesjoueurs.com, wincomparator.com ou oddschecker.com).\n"
-        "2. Pour chaque match dont les 3 cotes (1, N, 2) sont encore manquantes après l'étape 1, "
-        "fais une recherche ciblée : '<équipe domicile> <équipe extérieure> cotes rugby bookmaker'.\n"
-        "Utilise n'importe quel bookmaker reconnu (Unibet, Betclic, Winamax, PMU, ZEbet, Betway, etc.). "
-        "N'inclus un match dans submit_odds QUE si tu as trouvé ses 3 cotes réelles et vérifiées. "
-        "Ne jamais inventer ou estimer des cotes. Appelle submit_odds exactement une fois."
+        required=["odds"],
     ),
-    messages=[{"role": "user", "content": user_message}],
 )
 
-# Affiche tous les blocs pour voir ce que Claude a fait
-print("=== Réponse brute de Claude ===")
-for block in response.content:
-    if block.type == 'text':
-        print(f"[text] {block.text}")
-    elif block.type == 'tool_use':
-        print(f"[tool_use] {block.name}")
-        print(json.dumps(block.input, indent=2, ensure_ascii=False))
+system_instruction = (
+    "Tu es un assistant spécialisé dans la collecte de cotes de paris sportifs rugby. "
+    "Stratégie de recherche en deux temps :\n"
+    "1. Commence par rechercher toutes les cotes d'une journée en une seule requête sur un agrégateur "
+    "(rugbyscope.fr, ruedesjoueurs.com, wincomparator.com ou oddschecker.com).\n"
+    "2. Pour chaque match dont les 3 cotes (1, N, 2) sont encore manquantes après l'étape 1, "
+    "fais une recherche ciblée : '<équipe domicile> <équipe extérieure> cotes rugby bookmaker'.\n"
+    "Utilise n'importe quel bookmaker reconnu (Unibet, Betclic, Winamax, PMU, ZEbet, Betway, etc.). "
+    "N'inclus un match dans submit_odds QUE si tu as trouvé ses 3 cotes réelles et vérifiées. "
+    "Ne jamais inventer ou estimer des cotes. Appelle submit_odds exactement une fois."
+)
+
+print("Appel Gemini API en cours...\n")
+client = genai.Client(api_key=GOOGLE_API_KEY)
+response = client.models.generate_content(
+    model="gemini-2.5-flash",
+    contents=user_message,
+    config=types.GenerateContentConfig(
+        system_instruction=system_instruction,
+        tools=[
+            types.Tool(google_search=types.GoogleSearch()),
+            types.Tool(function_declarations=[submit_odds_declaration]),
+        ],
+        temperature=0.1,
+    ),
+)
+
+# Affiche les function calls
+print("=== Réponse brute de Gemini ===")
+if response.function_calls:
+    for call in response.function_calls:
+        print(f"[function_call] {call.name}")
+        print(json.dumps(dict(call.args), indent=2, ensure_ascii=False))
+else:
+    print("[aucun function call]")
+    if response.text:
+        print(response.text)
 
 # Extrait submit_odds
 odds_payload = None
-for block in response.content:
-    if block.type == 'tool_use' and block.name == 'submit_odds':
-        odds_payload = block.input
-        break
+if response.function_calls:
+    for call in response.function_calls:
+        if call.name == "submit_odds":
+            odds_payload = dict(call.args)
+            break
 
 print("\n=== Résultat final ===")
 if not odds_payload or not odds_payload.get('odds'):
@@ -176,4 +184,4 @@ else:
         a = entry['cote_away'] / 10
         print(f"  {label} — dom: {h:.2f}  nul: {d:.2f}  ext: {a:.2f}")
 
-print(f"\nUsage tokens : input={response.usage.input_tokens}, output={response.usage.output_tokens}")
+print(f"\nUsage tokens : input={response.usage_metadata.prompt_token_count}, output={response.usage_metadata.candidates_token_count}")
