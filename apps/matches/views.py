@@ -167,6 +167,61 @@ def update_odds_api(request):
 
 @csrf_exempt
 @require_POST
+def notify_missing_odds_api(request):
+    if not _check_bearer(request):
+        return JsonResponse({'error': 'Unauthorized'}, status=401)
+
+    import datetime as dt
+    from django.contrib.auth import get_user_model
+    from django.core.mail import EmailMultiAlternatives
+    from .models import Match
+
+    now = timezone.now()
+    cutoff = now + dt.timedelta(days=14)
+
+    missing = list(
+        Match.objects
+        .filter(
+            status__in=[Match.STATUS_SCHEDULED, Match.STATUS_POSTPONED],
+            datetime__gt=now,
+            datetime__lte=cutoff,
+            is_hidden=False,
+            cote_home__isnull=True,
+        )
+        .select_related('home_team', 'away_team', 'competition')
+        .order_by('datetime')
+    )
+
+    if not missing:
+        return JsonResponse({'missing': 0, 'sent': 0})
+
+    lines = [f"Oval'Pronos — {len(missing)} match(s) sans côtes dans les 14 prochains jours :\n"]
+    for m in missing:
+        local_dt = m.datetime.astimezone(timezone.get_current_timezone())
+        lines.append(f"  - {m.home_team.name} vs {m.away_team.name} ({m.competition.name}, {local_dt.strftime('%d/%m %Hh%M')})")
+
+    body = "\n".join(lines)
+    admins = list(get_user_model().objects.filter(is_superuser=True, email__gt='').values_list('email', flat=True))
+
+    sent = 0
+    if admins:
+        msg = EmailMultiAlternatives(
+            subject=f"[Oval'Pronos] {len(missing)} match(s) sans côtes",
+            body=body,
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            to=admins,
+        )
+        try:
+            msg.send()
+            sent = 1
+        except Exception:
+            pass
+
+    return JsonResponse({'missing': len(missing), 'sent': sent})
+
+
+@csrf_exempt
+@require_POST
 def notify_results_summary_api(request):
     if not _check_bearer(request):
         return JsonResponse({'error': 'Unauthorized'}, status=401)

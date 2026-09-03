@@ -3,7 +3,7 @@ from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 from apps.matches.admin_views import CompetitionImportView
-from apps.matches.views import sync_scores_api, notify_deadline_reminders_api, notify_results_summary_api, has_live_matches_api, upcoming_matches_api, update_odds_api
+from apps.matches.views import sync_scores_api, notify_deadline_reminders_api, notify_results_summary_api, has_live_matches_api, upcoming_matches_api, update_odds_api, notify_missing_odds_api
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -19,6 +19,7 @@ urlpatterns = [
     path('api/has-live-matches/', has_live_matches_api),
     path('api/upcoming-matches/', upcoming_matches_api),
     path('api/update-odds/', update_odds_api),
+    path('api/notify/missing-odds/', notify_missing_odds_api),
 ]
 
 if settings.DEBUG:

@@ -107,3 +107,16 @@ result = update_resp.json()
 print(f"Mis à jour : {result['updated']}")
 if result['skipped']:
     print(f"Ignorés : {result['skipped']}")
+
+# Step 5 — notify admins if matches still have no odds
+notify_resp = requests.post(
+    f'{APP_URL}/api/notify/missing-odds/',
+    headers=auth_headers,
+    timeout=30,
+)
+notify_resp.raise_for_status()
+notify_result = notify_resp.json()
+if notify_result['missing']:
+    print(f"Alerte : {notify_result['missing']} match(s) toujours sans côtes — email envoyé aux admins.")
+else:
+    print("Tous les matchs à venir ont des côtes.")
