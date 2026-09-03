@@ -43,13 +43,14 @@
 
   {# ── Progress bar (upcoming only) ──────────────────────────────────── #}
   {% if active_tab == 'upcoming' and total_with_odds %}
-  <div class="d-flex align-items-center gap-2 mb-4">
+  <div class="d-flex align-items-center gap-2 prediction-progress-sticky">
     <div class="progress flex-grow-1" style="height:4px;">
-      <div class="progress-bar bg-accent"
-           style="width:{% widthratio predicted_with_odds total_with_odds 100 %}%">
+      <div class="progress-bar bg-accent prediction-progress-bar"
+           style="width:{% widthratio predicted_with_odds total_with_odds 100 %}%"
+           data-total="{{ total_with_odds }}">
       </div>
     </div>
-    <span class="small text-muted flex-shrink-0">{{ predicted_with_odds }}/{{ total_with_odds }}</span>
+    <span class="small text-muted flex-shrink-0 prediction-progress-counter">{{ predicted_with_odds }}/{{ total_with_odds }}</span>
   </div>
   {% endif %}
 
@@ -104,32 +105,75 @@
     return null;
   }
 
+  function findPrevCardAwayInput(fromInput) {
+    var currentCard = fromInput.closest('[id^="match-card-"]');
+    var allCards = Array.from(document.querySelectorAll('[id^="match-card-"]'));
+    var idx = allCards.indexOf(currentCard);
+    for (var i = idx - 1; i >= 0; i--) {
+      var prev = allCards[i].querySelector('input[name="away"]');
+      if (prev) return prev;
+    }
+    return null;
+  }
+
+  function focusInput(input) {
+    input.focus();
+    input.select();
+  }
+
+  // Auto-advance when 2 digits typed
+  document.addEventListener('input', function(e) {
+    var input = e.target;
+    if (!input.matches('.match-score-input')) return;
+    if (String(input.value).length < 2) return;
+    if (input.name === 'home') {
+      focusInput(input.closest('form').querySelector('[name="away"]'));
+    } else {
+      var nextHome = findNextCardHomeInput(input);
+      if (nextHome) focusInput(nextHome);
+    }
+  });
+
+  // Enter/Tab navigation + Backspace on empty field goes back
   document.addEventListener('keydown', function(e) {
     var input = e.target;
     if (!input.matches('.match-score-input')) return;
 
-    if (e.key === 'Enter') {
+    if (e.key === 'Backspace' && input.value === '') {
+      e.preventDefault();
+      if (input.name === 'away') {
+        focusInput(input.closest('form').querySelector('[name="home"]'));
+      } else {
+        var prevAway = findPrevCardAwayInput(input);
+        if (prevAway) focusInput(prevAway);
+      }
+    } else if (e.key === 'Enter') {
       e.preventDefault();
       if (input.name === 'home') {
-        var away = input.closest('form').querySelector('[name="away"]');
-        away.focus();
-        away.select();
+        focusInput(input.closest('form').querySelector('[name="away"]'));
       } else {
-        var nextHome = findNextCardHomeInput(input);
-        if (nextHome) {
-          nextHome.focus();
-          nextHome.select();
-          nextHome.closest('.card').scrollIntoView({ behavior: 'smooth', block: 'center' });
-        }
+        var nextHomeEnter = findNextCardHomeInput(input);
+        if (nextHomeEnter) focusInput(nextHomeEnter);
       }
     } else if (e.key === 'Tab' && !e.shiftKey && input.name === 'away') {
-      var nextHome = findNextCardHomeInput(input);
-      if (nextHome) {
+      var nextHomeTab = findNextCardHomeInput(input);
+      if (nextHomeTab) {
         e.preventDefault();
-        nextHome.focus();
-        nextHome.select();
+        focusInput(nextHomeTab);
       }
     }
+  });
+
+  // Update progress bar after each card save
+  document.body.addEventListener('htmx:afterSwap', function(e) {
+    if (!e.target.id || !e.target.id.startsWith('match-card-')) return;
+    var bar = document.querySelector('.prediction-progress-bar');
+    var counter = document.querySelector('.prediction-progress-counter');
+    if (!bar || !counter) return;
+    var total = parseInt(bar.dataset.total);
+    var predicted = document.querySelectorAll('.match-potential-points').length;
+    bar.style.width = (predicted / total * 100) + '%';
+    counter.textContent = predicted + '/' + total;
   });
 </script>
 {% endblock %}

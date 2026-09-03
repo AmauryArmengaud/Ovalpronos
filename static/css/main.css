@@ -557,6 +557,16 @@ main {
   transform: rotate(180deg);
 }
 
+/* ─── Predictions progress bar (sticky) ─────────────────────────────────── */
+.prediction-progress-sticky {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: var(--color-background);
+  padding: 0.5rem 0;
+  margin-bottom: 1rem;
+}
+
 /* ─── Rankings segment scroll ────────────────────────────────────────────── */
 .nav-tabs-scroll-wrapper {
   overflow-x: auto;
