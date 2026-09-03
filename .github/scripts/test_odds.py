@@ -83,8 +83,6 @@ TEST_MATCHES = [
     },
 ]
 
-# --- Identique au script de prod ---
-
 n = len(TEST_MATCHES)
 lines = [f"Trouve les cotes 1N2 pour ces {n} matchs de rugby.\n"]
 for m in TEST_MATCHES:
@@ -141,7 +139,7 @@ system_instruction = (
 print("Appel Gemini API en cours...\n")
 client = genai.Client(api_key=GOOGLE_API_KEY)
 response = client.models.generate_content(
-    model="gemini-2.5-flash",
+    model="gemini-2.0-flash",
     contents=user_message,
     config=types.GenerateContentConfig(
         system_instruction=system_instruction,
@@ -153,23 +151,12 @@ response = client.models.generate_content(
     ),
 )
 
-# Affiche les function calls
-print("=== Réponse brute de Gemini ===")
-if response.function_calls:
-    for call in response.function_calls:
-        print(f"[function_call] {call.name}")
-        print(json.dumps(dict(call.args), indent=2, ensure_ascii=False))
-else:
-    print("[aucun function call]")
-    if response.text:
-        print(response.text)
-
 # Extrait submit_odds
 odds_payload = None
 if response.function_calls:
     for call in response.function_calls:
         if call.name == "submit_odds":
-            odds_payload = dict(call.args)
+            odds_payload = call.args
             break
 
 print("\n=== Résultat final ===")

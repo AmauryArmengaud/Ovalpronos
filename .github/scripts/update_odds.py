@@ -67,7 +67,7 @@ submit_odds_declaration = types.FunctionDeclaration(
 
 client = genai.Client(api_key=GOOGLE_API_KEY)
 response = client.models.generate_content(
-    model="gemini-2.5-flash",
+    model="gemini-2.0-flash",
     contents=user_message,
     config=types.GenerateContentConfig(
         system_instruction=(
