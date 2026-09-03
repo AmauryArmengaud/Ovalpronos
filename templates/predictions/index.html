@@ -92,5 +92,44 @@
   if (row) {
     row.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
   }
+
+  function findNextCardHomeInput(fromInput) {
+    var currentCard = fromInput.closest('[id^="match-card-"]');
+    var allCards = Array.from(document.querySelectorAll('[id^="match-card-"]'));
+    var idx = allCards.indexOf(currentCard);
+    for (var i = idx + 1; i < allCards.length; i++) {
+      var next = allCards[i].querySelector('input[name="home"]');
+      if (next) return next;
+    }
+    return null;
+  }
+
+  document.addEventListener('keydown', function(e) {
+    var input = e.target;
+    if (!input.matches('.match-score-input')) return;
+
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      if (input.name === 'home') {
+        var away = input.closest('form').querySelector('[name="away"]');
+        away.focus();
+        away.select();
+      } else {
+        var nextHome = findNextCardHomeInput(input);
+        if (nextHome) {
+          nextHome.focus();
+          nextHome.select();
+          nextHome.closest('.card').scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+      }
+    } else if (e.key === 'Tab' && !e.shiftKey && input.name === 'away') {
+      var nextHome = findNextCardHomeInput(input);
+      if (nextHome) {
+        e.preventDefault();
+        nextHome.focus();
+        nextHome.select();
+      }
+    }
+  });
 </script>
 {% endblock %}

@@ -94,6 +94,7 @@
                      value="{{ prediction.predicted_home_score|default:'' }}"
                      class="form-control form-control-sm text-center p-1 match-score-input"
                      hx-disabled-elt="this"
+                     enterkeyhint="next"
                      aria-label="{% trans 'Home score' %}">
               <span class="fw-bold text-muted">–</span>
               <input type="number"
@@ -103,6 +104,7 @@
                      value="{{ prediction.predicted_away_score|default:'' }}"
                      class="form-control form-control-sm text-center p-1 match-score-input"
                      hx-disabled-elt="this"
+                     enterkeyhint="next"
                      aria-label="{% trans 'Away score' %}">
             </div>
             <div class="htmx-indicator text-center mt-1">
