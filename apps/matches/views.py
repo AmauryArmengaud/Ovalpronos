@@ -4,7 +4,8 @@ from django.shortcuts import redirect
 from django.views.generic import TemplateView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.decorators.csrf import csrf_exempt
-from django.views.decorators.http import require_POST
+from django.utils import timezone
+from django.views.decorators.http import require_POST, require_GET
 from django.http import JsonResponse
 from django.conf import settings
 
@@ -37,6 +38,28 @@ def sync_scores_api(request):
     from .services import sync_all_competitions
     created, updated = sync_all_competitions()
     return JsonResponse({'created': created, 'updated': updated})
+
+
+@csrf_exempt
+@require_GET
+def has_live_matches_api(request):
+    if not _check_bearer(request):
+        return JsonResponse({'error': 'Unauthorized'}, status=401)
+
+    from .models import Match
+    from django.db.models import Q
+    import datetime as dt
+
+    now = timezone.now()
+    window_start = now - dt.timedelta(hours=2)
+    terminal = [Match.STATUS_FINISHED, Match.STATUS_CANCELLED, Match.STATUS_POSTPONED]
+
+    live = Match.objects.filter(
+        Q(status=Match.STATUS_IN_PLAY)
+        | (Q(datetime__lte=now) & Q(datetime__gte=window_start) & ~Q(status__in=terminal))
+    ).exists()
+
+    return JsonResponse({'live': live})
 
 
 @csrf_exempt
