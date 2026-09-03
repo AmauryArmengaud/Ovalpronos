@@ -151,7 +151,7 @@ def update_odds_api(request):
             continue
 
         cotes = [cote_home, cote_draw, cote_away]
-        if not all(isinstance(c, int) and 11 <= c <= 500 for c in cotes):
+        if not all(isinstance(c, int) and 10 <= c <= 1000 for c in cotes):
             skipped.append({'match_id': match_id, 'reason': 'invalid_odds'})
             continue
 

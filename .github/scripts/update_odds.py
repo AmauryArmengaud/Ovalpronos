@@ -12,6 +12,34 @@ GOOGLE_API_KEY = os.environ['GOOGLE_API_KEY']
 
 auth_headers = {'Authorization': f'Bearer {SYNC_SECRET_TOKEN}'}
 
+submit_odds_tool = types.FunctionDeclaration(
+    name="submit_odds",
+    description=(
+        "Soumet les cotes trouvées pour les matchs de rugby. Appelle cet outil une seule fois. "
+        "N'inclure que les matchs pour lesquels tu as trouvé les 3 cotes (1, N, 2) réelles et vérifiées. "
+        "Cotes converties en entiers : cote_décimale × 10 arrondie. Ex: 1.85 → 19, 3.50 → 35."
+    ),
+    parameters=types.Schema(
+        type=types.Type.OBJECT,
+        properties={
+            "odds": types.Schema(
+                type=types.Type.ARRAY,
+                items=types.Schema(
+                    type=types.Type.OBJECT,
+                    properties={
+                        "match_id": types.Schema(type=types.Type.INTEGER),
+                        "cote_home": types.Schema(type=types.Type.INTEGER, description="Cote équipe domicile * 10"),
+                        "cote_draw": types.Schema(type=types.Type.INTEGER, description="Cote match nul * 10"),
+                        "cote_away": types.Schema(type=types.Type.INTEGER, description="Cote équipe extérieure * 10"),
+                    },
+                    required=["match_id", "cote_home", "cote_draw", "cote_away"],
+                ),
+            )
+        },
+        required=["odds"],
+    ),
+)
+
 # Step 1 — fetch upcoming matches
 resp = requests.get(f'{APP_URL}/api/upcoming-matches/', headers=auth_headers, timeout=30)
 resp.raise_for_status()
@@ -37,77 +65,63 @@ lines.append(
 )
 user_message = "\n".join(lines)
 
-submit_odds_declaration = types.FunctionDeclaration(
-    name="submit_odds",
-    description=(
-        "Soumet les cotes trouvées pour les matchs de rugby. Appelle cet outil une seule fois. "
-        "N'inclure que les matchs pour lesquels tu as trouvé les 3 cotes (1, N, 2) réelles et vérifiées. "
-        "Cotes converties en entiers : cote_décimale × 10 arrondie. Ex: 1.85 → 19, 3.50 → 35."
+config = types.GenerateContentConfig(
+    system_instruction=(
+        "Tu es un assistant spécialisé dans la collecte de cotes de paris sportifs rugby. "
+        "Stratégie de recherche :\n"
+        "1. Recherche les cotes 1N2 des matchs demandés sur des bookmakers ou agrégateurs (Betclic, Winamax, Unibet, RueDesJoueurs, etc.).\n"
+        "2. Pour CHAQUE match où tu trouves les cotes, prépare l'entrée.\n"
+        "3. Ne jamais inventer ou estimer des cotes.\n"
+        "4. OBLIGATOIRE : Tu DOIS terminer en appelant la fonction `submit_odds` avec la liste des cotes trouvées, même si certains matchs manquent."
     ),
-    parameters=types.Schema(
-        type=types.Type.OBJECT,
-        properties={
-            "odds": types.Schema(
-                type=types.Type.ARRAY,
-                items=types.Schema(
-                    type=types.Type.OBJECT,
-                    properties={
-                        "match_id": types.Schema(type=types.Type.INTEGER),
-                        "cote_home": types.Schema(type=types.Type.INTEGER, minimum=11, maximum=500),
-                        "cote_draw": types.Schema(type=types.Type.INTEGER, minimum=11, maximum=500),
-                        "cote_away": types.Schema(type=types.Type.INTEGER, minimum=11, maximum=500),
-                    },
-                    required=["match_id", "cote_home", "cote_draw", "cote_away"],
-                ),
-            )
-        },
-        required=["odds"],
+    tools=[
+        types.Tool(
+            google_search=types.GoogleSearch(),
+            function_declarations=[submit_odds_tool],
+        )
+    ],
+    tool_config=types.ToolConfig(
+        include_server_side_tool_invocations=True
     ),
+    temperature=0.1,
 )
 
 client = genai.Client(api_key=GOOGLE_API_KEY)
-response = client.models.generate_content(
-    model="gemini-2.0-flash",
-    contents=user_message,
-    config=types.GenerateContentConfig(
-        system_instruction=(
-            "Tu es un assistant spécialisé dans la collecte de cotes de paris sportifs rugby. "
-            "Stratégie de recherche en deux temps :\n"
-            "1. Commence par rechercher toutes les cotes d'une journée en une seule requête sur un agrégateur "
-            "(rugbyscope.fr, ruedesjoueurs.com, wincomparator.com ou oddschecker.com).\n"
-            "2. Pour chaque match dont les 3 cotes (1, N, 2) sont encore manquantes après l'étape 1, "
-            "fais une recherche ciblée : '<équipe domicile> <équipe extérieure> cotes rugby bookmaker'.\n"
-            "Utilise n'importe quel bookmaker reconnu (Unibet, Betclic, Winamax, PMU, ZEbet, Betway, etc.). "
-            "N'inclus un match dans submit_odds QUE si tu as trouvé ses 3 cotes réelles et vérifiées. "
-            "Ne jamais inventer ou estimer des cotes. Appelle submit_odds exactement une fois."
-        ),
-        tools=[
-            types.Tool(google_search=types.GoogleSearch()),
-            types.Tool(function_declarations=[submit_odds_declaration]),
-        ],
-        temperature=0.1,
-    ),
-)
+chat = client.chats.create(model="gemini-3.6-flash", config=config)
+response = chat.send_message(user_message)
 
-# Step 3 — extract submit_odds call
+# Step 3 — extract submit_odds call from chat history
 odds_payload = None
-if response.function_calls:
-    for call in response.function_calls:
-        if call.name == "submit_odds":
-            odds_payload = dict(call.args)
+for message in reversed(chat.get_history()):
+    if message.role == "model" and message.parts:
+        for part in message.parts:
+            if part.function_call and part.function_call.name == "submit_odds":
+                odds_payload = part.function_call.args
+                break
+        if odds_payload:
             break
 
 if not odds_payload or not odds_payload.get('odds'):
     print("Gemini n'a trouvé aucune cote. Aucune mise à jour.")
     sys.exit(0)
 
-print(f"Cotes trouvées pour {len(odds_payload['odds'])} match(s).")
+# Normalise les cotes en int (Gemini peut renvoyer des floats)
+odds_list = [
+    {
+        'match_id': int(e['match_id']),
+        'cote_home': int(e['cote_home']),
+        'cote_draw': int(e['cote_draw']),
+        'cote_away': int(e['cote_away']),
+    }
+    for e in odds_payload['odds']
+]
+print(f"Cotes trouvées pour {len(odds_list)} match(s).")
 
 # Step 4 — POST to Django
 update_resp = requests.post(
     f'{APP_URL}/api/update-odds/',
     headers={**auth_headers, 'Content-Type': 'application/json'},
-    json=odds_payload,
+    json={'odds': odds_list},
     timeout=30,
 )
 update_resp.raise_for_status()
