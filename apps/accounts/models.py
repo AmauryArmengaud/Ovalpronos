@@ -42,6 +42,12 @@ class CustomUser(AbstractUser):
         verbose_name=_("Favourite team")
     )
 
+    last_reminder_sent = models.DateTimeField(
+        null=True,
+        blank=True,
+        verbose_name=_("Last reminder sent"),
+    )
+
     class Meta:
         verbose_name = _("User")
         verbose_name_plural = _("Users")

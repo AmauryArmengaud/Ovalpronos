@@ -12,92 +12,116 @@ from django.utils import timezone
 logger = logging.getLogger(__name__)
 
 
+_MONTHS_FR = ['jan.', 'fév.', 'mars', 'avr.', 'mai', 'juin', 'juil.', 'août', 'sept.', 'oct.', 'nov.', 'déc.']
+_DAYS_FR = ['Lun.', 'Mar.', 'Mer.', 'Jeu.', 'Ven.', 'Sam.', 'Dim.']
+
+
+def _format_kickoff(dt):
+    """Format a datetime as 'Sam. 14 sept. à 17h00' in French."""
+    import datetime
+    local_dt = dt.astimezone(timezone.get_current_timezone())
+    day = _DAYS_FR[local_dt.weekday()]
+    month = _MONTHS_FR[local_dt.month - 1]
+    return f"{day} {local_dt.day} {month} à {local_dt.strftime('%Hh%M')}"
+
+
 def send_deadline_reminders():
     """
-    Send a prediction reminder to users who have submitted 0 predictions for
-    the upcoming round. "Upcoming" = matches starting in the next 22–26 hours.
+    Send a weekly prediction reminder via Brevo template #1.
+
+    Triggered when the earliest upcoming match (with odds, not locked) starts
+    in the next 22–26 hours. Each user receives at most one reminder per 6 days.
+    The email lists all upcoming matches the user hasn't predicted yet.
 
     Returns the number of emails sent.
     """
     import datetime
     from django.contrib.auth import get_user_model
+    from anymail.message import AnymailMessage
     from apps.matches.models import Match
+    from apps.predictions.models import Prediction
 
     User = get_user_model()
-
     now = timezone.now()
     window_start = now + datetime.timedelta(hours=22)
     window_end = now + datetime.timedelta(hours=26)
 
-    upcoming_matches = Match.objects.filter(
-        status=Match.STATUS_SCHEDULED,
-        datetime__gte=window_start,
-        datetime__lte=window_end,
-    ).select_related('competition', 'home_team', 'away_team')
-
-    if not upcoming_matches.exists():
-        logger.info("send_deadline_reminders: no matches in window, nothing to send.")
+    # Check if the first upcoming match (with odds) falls in the 22–26h window
+    first_upcoming = (
+        Match.objects
+        .filter(
+            status=Match.STATUS_SCHEDULED,
+            datetime__gt=now,
+            cote_home__isnull=False,
+            cote_draw__isnull=False,
+            cote_away__isnull=False,
+        )
+        .order_by('datetime')
+        .first()
+    )
+    if not first_upcoming or not (window_start <= first_upcoming.datetime <= window_end):
+        logger.info("send_deadline_reminders: first upcoming match not in window, nothing to send.")
         return 0
 
-    # Group by (competition, round)
-    rounds = (
-        upcoming_matches
-        .values('competition', 'competition__name', 'round')
-        .distinct()
+    # All upcoming matches with odds (not yet locked)
+    all_upcoming = (
+        Match.objects
+        .filter(status=Match.STATUS_SCHEDULED, datetime__gt=now)
+        .select_related('competition', 'home_team', 'away_team')
+        .order_by('datetime')
     )
+    all_upcoming_ids = list(all_upcoming.values_list('pk', flat=True))
+
+    site_url = settings.SITE_URL.rstrip('/')
+    predictions_url = f"{site_url}/predictions/"
+    cooldown = datetime.timedelta(days=6)
 
     sent = 0
-    for r in rounds:
-        competition_id = r['competition']
-        competition_name = r['competition__name']
-        round_label = r['round']
+    for user in User.objects.filter(is_active=True, email__gt=''):
+        # Once-per-week guard
+        if user.last_reminder_sent and (now - user.last_reminder_sent) < cooldown:
+            continue
 
-        round_matches = upcoming_matches.filter(
-            competition_id=competition_id,
-            round=round_label,
-        )
-        match_ids = list(round_matches.values_list('pk', flat=True))
-
-        # Users who have at least one prediction in this round
-        from apps.predictions.models import Prediction
-        users_with_predictions = (
+        # Matches this user hasn't predicted yet
+        predicted_ids = set(
             Prediction.objects
-            .filter(match_id__in=match_ids)
-            .values_list('user_id', flat=True)
-            .distinct()
+            .filter(user=user, match_id__in=all_upcoming_ids)
+            .values_list('match_id', flat=True)
         )
+        user_matches = [m for m in all_upcoming if m.pk not in predicted_ids]
 
-        # All active users minus those who already predicted
-        recipients = User.objects.filter(
-            is_active=True,
-            email__gt='',  # non-empty email
-        ).exclude(pk__in=users_with_predictions)
+        if not user_matches:
+            continue
 
-        first_kickoff = round_matches.order_by('datetime').first()
-
-        for user in recipients:
-            context = {
-                'user': user,
-                'competition_name': competition_name,
-                'round_label': round_label,
-                'match_count': round_matches.count(),
-                'first_kickoff': first_kickoff.datetime,
-                'site_url': getattr(settings, 'SITE_URL', ''),
+        match_params = [
+            {
+                'home': m.home_team.name,
+                'away': m.away_team.name,
+                'home_logo': f"{site_url}/static/img/teams/{m.home_team.slug}.png",
+                'away_logo': f"{site_url}/static/img/teams/{m.away_team.slug}.png",
+                'kickoff': _format_kickoff(m.datetime),
+                'competition': m.competition.name,
             }
-            subject = f"[Oval'Pronos] Tu n'as pas encore pronostiqué — {competition_name} J{round_label}"
-            html_body = render_to_string('accounts/emails/deadline_reminder.html', context)
-            msg = EmailMultiAlternatives(
-                subject=subject,
-                body=html_body,
-                from_email=settings.DEFAULT_FROM_EMAIL,
-                to=[user.email],
-            )
-            msg.attach_alternative(html_body, 'text/html')
-            try:
-                msg.send()
-                sent += 1
-            except Exception as e:
-                logger.error(f"Failed to send deadline reminder to {user.email}: {e}")
+            for m in user_matches
+        ]
+
+        msg = AnymailMessage(
+            to=[user.email],
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            template_id=1,
+            merge_global_data={
+                'user_name': user.get_display_name(),
+                'predictions_url': predictions_url,
+                'matches': match_params,
+            },
+        )
+        try:
+            msg.send()
+            user.last_reminder_sent = now
+            user.save(update_fields=['last_reminder_sent'])
+            sent += 1
+        except Exception as e:
+            logger.error(f"Failed to send deadline reminder to {user.email}: {e}")
 
     logger.info(f"send_deadline_reminders: {sent} email(s) sent.")
     return sent
