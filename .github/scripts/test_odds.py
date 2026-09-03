@@ -83,14 +83,18 @@ TEST_MATCHES = [
 
 # --- Identique au script de prod ---
 
-lines = ["Trouve les cotes Unibet France pour ces matchs de rugby :\n"]
+from datetime import datetime
+n = len(TEST_MATCHES)
+lines = [f"Trouve les cotes 1N2 pour ces {n} matchs de rugby. Tu dois en couvrir {n} sur {n}.\n"]
 for m in TEST_MATCHES:
-    from datetime import datetime
     dt = datetime.fromisoformat(m['datetime']).strftime('%d/%m/%Y')
     home = f"{m['home_team']} ({m['home_team_short']})"
     away = f"{m['away_team']} ({m['away_team_short']})"
     lines.append(f"- match_id={m['match_id']} : {home} vs {away} ({m['competition']}, le {dt})")
-lines.append("\nAppelle submit_odds avec toutes les cotes trouvées.")
+lines.append(
+    f"\nAvant d'appeler submit_odds, vérifie que tu as bien {n} entrées. "
+    "Si des matchs manquent, fais des recherches supplémentaires ciblées sur ces matchs spécifiques."
+)
 user_message = "\n".join(lines)
 
 submit_odds_tool = {
@@ -132,13 +136,13 @@ response = client.messages.create(
     ],
     system=(
         "Tu es un assistant spécialisé dans la collecte de cotes de paris sportifs rugby. "
-        "Pour chaque match fourni, trouve les cotes 1N2 (victoire domicile / nul / victoire extérieur) "
-        "chez n'importe quel bookmaker français ou européen reconnu (Unibet, Betclic, Winamax, PMU, ZEbet, Betway, etc.). "
-        "Utilise des agrégateurs comme rugbyscope.fr, ruedesjoueurs.com, oddschecker.com ou wincomparator.com "
-        "pour trouver rapidement les cotes disponibles. "
-        "Objectif : couvrir TOUS les matchs de la liste. "
-        "Pour chaque match, utilise les cotes du bookmaker offrant les meilleures cotes ou le plus fiable. "
-        "N'inclus un match dans submit_odds QUE si tu as trouvé ses 3 cotes (1, N, 2) réelles et vérifiées. "
+        "Stratégie de recherche en deux temps :\n"
+        "1. Commence par rechercher toutes les cotes d'une journée en une seule requête sur un agrégateur "
+        "(rugbyscope.fr, ruedesjoueurs.com, wincomparator.com ou oddschecker.com).\n"
+        "2. Pour chaque match dont les 3 cotes (1, N, 2) sont encore manquantes après l'étape 1, "
+        "fais une recherche ciblée : '<équipe domicile> <équipe extérieure> cotes rugby bookmaker'.\n"
+        "Utilise n'importe quel bookmaker reconnu (Unibet, Betclic, Winamax, PMU, ZEbet, Betway, etc.). "
+        "N'inclus un match dans submit_odds QUE si tu as trouvé ses 3 cotes réelles et vérifiées. "
         "Ne jamais inventer ou estimer des cotes. Appelle submit_odds exactement une fois."
     ),
     messages=[{"role": "user", "content": user_message}],
