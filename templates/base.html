@@ -64,6 +64,17 @@
             <a class="btn btn-accent btn-navbar" href="{% url 'accounts:register' %}">{% trans "Sign up" %}</a>
           </li>
         {% endif %}
+        {% get_current_language as CURRENT_LANG %}
+        <li class="nav-item">
+          <form method="post" action="{% url 'set_language' %}" class="d-flex align-items-center gap-1">
+            {% csrf_token %}
+            <input type="hidden" name="next" value="{{ request.get_full_path }}">
+            <input type="hidden" name="language" value="{% if CURRENT_LANG == 'fr' %}en{% else %}fr{% endif %}">
+            <button type="submit" class="btn btn-sm lang-toggle">
+              {% if CURRENT_LANG == 'fr' %}FR{% else %}EN{% endif %}
+            </button>
+          </form>
+        </li>
       </ul>
     </div>
   </div>

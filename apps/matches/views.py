@@ -83,7 +83,7 @@ def upcoming_matches_api(request):
     from .models import Match
 
     now = timezone.now()
-    cutoff = now + dt.timedelta(days=14)
+    cutoff = now + dt.timedelta(days=7)
 
     matches = (
         Match.objects
@@ -177,7 +177,7 @@ def notify_missing_odds_api(request):
     from .models import Match
 
     now = timezone.now()
-    cutoff = now + dt.timedelta(days=14)
+    cutoff = now + dt.timedelta(days=7)
 
     missing = list(
         Match.objects

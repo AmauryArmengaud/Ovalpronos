@@ -20,6 +20,7 @@ urlpatterns = [
     path('api/upcoming-matches/', upcoming_matches_api),
     path('api/update-odds/', update_odds_api),
     path('api/notify/missing-odds/', notify_missing_odds_api),
+    path('i18n/', include('django.conf.urls.i18n')),
 ]
 
 if settings.DEBUG:
