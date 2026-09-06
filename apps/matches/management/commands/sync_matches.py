@@ -44,7 +44,7 @@ class Command(BaseCommand):
             self.stdout.write(
                 self.style.SUCCESS(f" {r['created']} créés, {r['updated']} mis à jour")
             )
-            for change in r['status_changes']:
+            for change in r['changes']:
                 self.stdout.write(f"     {change}")
 
         self.stdout.write(

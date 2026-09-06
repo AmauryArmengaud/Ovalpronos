@@ -110,11 +110,11 @@ def sync_competition_matches(competition_code):
 
     games = _get_fixtures(comp_config['id'], season)
     if games is None:
-        return {'created': 0, 'updated': 0, 'status_changes': [], 'points_calculated': 0, 'api_error': True}
+        return {'created': 0, 'updated': 0, 'changes': [], 'points_calculated': 0, 'api_error': True}
 
     created_count = 0
     updated_count = 0
-    status_changes = []
+    changes = []
     points_calculated = 0
 
     # Prefetch existing match states for comparison
@@ -181,14 +181,18 @@ def sync_competition_matches(competition_code):
 
                 if created:
                     created_count += 1
-                elif old_status and old_status != status:
-                    score_str = f" ({score_home}-{score_away})" if score_home is not None else ""
-                    status_changes.append(
-                        f"{game['home']} vs {game['away']}{score_str}: {old_status}→{status}"
-                    )
-                    updated_count += 1
                 else:
                     updated_count += 1
+                    old_score_home, old_score_away = (old[1], old[2]) if old else (None, None)
+                    if old_status and old_status != status:
+                        score_str = f" ({score_home}-{score_away})" if score_home is not None else ""
+                        changes.append(
+                            f"{game['home']} vs {game['away']}{score_str}: {old_status}→{status}"
+                        )
+                    elif score_home is not None and (score_home, score_away) != (old_score_home, old_score_away):
+                        changes.append(
+                            f"{game['home']} vs {game['away']} [{status}]: {old_score_home}-{old_score_away} → {score_home}-{score_away}"
+                        )
 
                 if status == Match.STATUS_FINISHED and score_home is not None:
                     _calculate_points_for_match(match)
@@ -203,12 +207,12 @@ def sync_competition_matches(competition_code):
 
     logger.info(
         f"[{competition_code}] Sync terminée : {created_count} créés, {updated_count} mis à jour, "
-        f"{len(status_changes)} changements de statut, {points_calculated} matchs scorés"
+        f"{len(changes)} changements, {points_calculated} matchs scorés"
     )
     return {
         'created': created_count,
         'updated': updated_count,
-        'status_changes': status_changes,
+        'changes': changes,
         'points_calculated': points_calculated,
         'api_error': False,
     }
