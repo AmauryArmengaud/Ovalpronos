@@ -65,6 +65,22 @@ TEAM_OVERRIDES = {
 }
 
 
+def _get_match(match_id):
+    """
+    Appelle l'endpoint /match/{match_id} pour les données en temps réel.
+    Retourne le dict 'match' ou None en cas d'erreur.
+    """
+    url = f"{API_BASE_URL}/match/{match_id}"
+    try:
+        response = requests.get(url, headers=HEADERS, timeout=15)
+        response.raise_for_status()
+        data = response.json()
+        return data.get('results', {}).get('match')
+    except requests.RequestException as e:
+        logger.error(f"Erreur API rugby-live-data (match/{match_id}): {e}")
+        return None
+
+
 def _get_fixtures(comp_id, season):
     """
     Appelle l'endpoint /fixtures/{comp_id}/{season}.
@@ -213,6 +229,59 @@ def sync_competition_matches(competition_code):
             except (KeyError, TypeError, ValueError) as e:
                 logger.warning(f"Données malformées pour game {game.get('id', '?')}: {e}")
                 continue
+
+    # Sync live : pour les matchs dont la date est passée mais pas encore FINISHED,
+    # l'endpoint /fixtures ne reflète pas les scores en temps réel.
+    # On appelle /match/{id} individuellement pour chacun.
+    now = timezone.now()
+    live_matches = Match.objects.filter(
+        competition=competition,
+        datetime__lte=now,
+    ).exclude(
+        status__in=[Match.STATUS_FINISHED, Match.STATUS_CANCELLED]
+    ).select_related('home_team', 'away_team')
+
+    for match in live_matches:
+        if not match.external_id:
+            continue
+        live_data = _get_match(match.external_id)
+        if not live_data:
+            continue
+
+        api_status = live_data.get('status', 'Not Started')
+        live_status = STATUS_MAP.get(api_status, 'SCHEDULED')
+        live_score_home = live_data.get('home_score')
+        live_score_away = live_data.get('away_score')
+
+        old_status = match.status
+        old_score_home = match.home_score
+        old_score_away = match.away_score
+
+        status_changed = old_status != live_status
+        score_changed = live_score_home is not None and (live_score_home, live_score_away) != (old_score_home, old_score_away)
+
+        if not status_changed and not score_changed:
+            continue
+
+        match.status = live_status
+        if live_score_home is not None:
+            match.home_score = live_score_home
+            match.away_score = live_score_away
+        match.save(update_fields=['status', 'home_score', 'away_score'])
+
+        label = f"{match.home_team.name} vs {match.away_team.name}"
+        if status_changed:
+            score_str = f" ({live_score_home}-{live_score_away})" if live_score_home is not None else ""
+            changes.append(f"{label}{score_str}: {old_status}→{live_status} [live]")
+        else:
+            changes.append(f"{label} [{live_status}]: {old_score_home}-{old_score_away} → {live_score_home}-{live_score_away} [live]")
+
+        if live_status == Match.STATUS_FINISHED and live_score_home is not None:
+            _calculate_points_for_match(match)
+            points_calculated += 1
+        elif live_status == Match.STATUS_CANCELLED:
+            _calculate_points_for_match(match)
+            points_calculated += 1
 
     logger.info(
         f"[{competition_code}] Sync terminée : {created_count} créés, {updated_count} mis à jour, "
