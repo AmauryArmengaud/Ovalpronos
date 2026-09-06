@@ -30,7 +30,7 @@ def send_deadline_reminders():
     Send a weekly prediction reminder via Brevo template #1.
 
     Triggered when the earliest upcoming match (with odds, not locked) starts
-    in the next 22–26 hours. Each user receives at most one reminder per 6 days.
+    in the next 22–30 hours. Each user receives at most one reminder per 6 days.
     The email lists all upcoming matches the user hasn't predicted yet.
 
     Returns the number of emails sent.
@@ -44,7 +44,7 @@ def send_deadline_reminders():
     User = get_user_model()
     now = timezone.now()
     window_start = now + datetime.timedelta(hours=22)
-    window_end = now + datetime.timedelta(hours=26)
+    window_end = now + datetime.timedelta(hours=30)
 
     # Check if the first upcoming match (with odds) falls in the 22–26h window
     first_upcoming = (

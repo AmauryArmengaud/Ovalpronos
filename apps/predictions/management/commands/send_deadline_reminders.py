@@ -3,7 +3,7 @@ from apps.predictions.tasks import send_deadline_reminders
 
 
 class Command(BaseCommand):
-    help = 'Send prediction deadline reminders to users with 0 predictions on the upcoming round (22–26h window).'
+    help = 'Send prediction deadline reminders to users with 0 predictions on the upcoming round (22–30h window).'
 
     def handle(self, *args, **options):
         sent = send_deadline_reminders()
