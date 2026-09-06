@@ -163,6 +163,16 @@ def sync_competition_matches(competition_code):
 
                 old = existing.get(game['id'])
                 old_status = old[0] if old else None
+                old_score_home = old[1] if old else None
+                old_score_away = old[2] if old else None
+
+                # Ne pas rétrograder un match déjà FINISHED vers SCHEDULED
+                if old_status == Match.STATUS_FINISHED and status == Match.STATUS_SCHEDULED:
+                    status = old_status
+                    if score_home is None:
+                        score_home = old_score_home
+                    if score_away is None:
+                        score_away = old_score_away
 
                 match, created = Match.objects.update_or_create(
                     external_id=game['id'],
@@ -183,7 +193,6 @@ def sync_competition_matches(competition_code):
                     created_count += 1
                 else:
                     updated_count += 1
-                    old_score_home, old_score_away = (old[1], old[2]) if old else (None, None)
                     if old_status and old_status != status:
                         score_str = f" ({score_home}-{score_away})" if score_home is not None else ""
                         changes.append(
