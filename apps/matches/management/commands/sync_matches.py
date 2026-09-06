@@ -38,12 +38,14 @@ class Command(BaseCommand):
 
         for code in competitions:
             self.stdout.write(f"  → Synchronisation {code}...", ending='')
-            created, updated = sync_competition_matches(code)
-            total_created += created
-            total_updated += updated
+            r = sync_competition_matches(code)
+            total_created += r['created']
+            total_updated += r['updated']
             self.stdout.write(
-                self.style.SUCCESS(f" {created} créés, {updated} mis à jour")
+                self.style.SUCCESS(f" {r['created']} créés, {r['updated']} mis à jour")
             )
+            for change in r['status_changes']:
+                self.stdout.write(f"     {change}")
 
         self.stdout.write(
             self.style.SUCCESS(

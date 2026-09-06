@@ -16,9 +16,9 @@ class CompetitionImportView(View):
 
     def post(self, request, competition_id):
         competition = get_object_or_404(Competition, pk=competition_id)
-        created, updated = sync_competition_matches(competition.code)
+        r = sync_competition_matches(competition.code)
         messages.success(
             request,
-            f"Sync terminée pour {competition.name} : {created} créés, {updated} mis à jour."
+            f"Sync terminée pour {competition.name} : {r['created']} créés, {r['updated']} mis à jour."
         )
         return redirect(reverse('admin:matches_competition_change', args=[competition_id]))

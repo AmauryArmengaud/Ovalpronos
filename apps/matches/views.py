@@ -36,8 +36,8 @@ def sync_scores_api(request):
         return JsonResponse({'error': 'Unauthorized'}, status=401)
 
     from .services import sync_all_competitions
-    created, updated = sync_all_competitions()
-    return JsonResponse({'created': created, 'updated': updated})
+    results = sync_all_competitions()
+    return JsonResponse({'competitions': results})
 
 
 @csrf_exempt

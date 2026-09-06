@@ -76,8 +76,8 @@ class CompetitionAdmin(admin.ModelAdmin):
         from apps.matches.services import sync_competition_matches
         for comp in queryset:
             try:
-                created, updated = sync_competition_matches(comp.code)
-                self.message_user(request, f"{comp.name} : {created} créés, {updated} mis à jour.")
+                r = sync_competition_matches(comp.code)
+                self.message_user(request, f"{comp.name} : {r['created']} créés, {r['updated']} mis à jour.")
             except Exception as e:
                 self.message_user(request, f"{comp.name} : erreur — {e}", level='error')
 

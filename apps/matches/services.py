@@ -110,10 +110,20 @@ def sync_competition_matches(competition_code):
 
     games = _get_fixtures(comp_config['id'], season)
     if games is None:
-        return 0, 0
+        return {'created': 0, 'updated': 0, 'status_changes': [], 'points_calculated': 0, 'api_error': True}
 
     created_count = 0
     updated_count = 0
+    status_changes = []
+    points_calculated = 0
+
+    # Prefetch existing match states for comparison
+    existing = {
+        m.external_id: (m.status, m.home_score, m.away_score)
+        for m in Match.objects.filter(
+            external_id__in=[g['id'] for g in games]
+        ).only('external_id', 'status', 'home_score', 'away_score')
+    }
 
     with transaction.atomic():
         for game in games:
@@ -151,6 +161,9 @@ def sync_competition_matches(competition_code):
                 score_home = game.get('home_score')
                 score_away = game.get('away_score')
 
+                old = existing.get(game['id'])
+                old_status = old[0] if old else None
+
                 match, created = Match.objects.update_or_create(
                     external_id=game['id'],
                     defaults={
@@ -168,22 +181,37 @@ def sync_competition_matches(competition_code):
 
                 if created:
                     created_count += 1
+                elif old_status and old_status != status:
+                    score_str = f" ({score_home}-{score_away})" if score_home is not None else ""
+                    status_changes.append(
+                        f"{game['home']} vs {game['away']}{score_str}: {old_status}→{status}"
+                    )
+                    updated_count += 1
                 else:
                     updated_count += 1
 
                 if status == Match.STATUS_FINISHED and score_home is not None:
                     _calculate_points_for_match(match)
+                    points_calculated += 1
                 elif status == Match.STATUS_CANCELLED:
                     _calculate_points_for_match(match)
+                    points_calculated += 1
 
             except (KeyError, TypeError, ValueError) as e:
                 logger.warning(f"Données malformées pour game {game.get('id', '?')}: {e}")
                 continue
 
     logger.info(
-        f"[{competition_code}] Sync terminée : {created_count} créés, {updated_count} mis à jour"
+        f"[{competition_code}] Sync terminée : {created_count} créés, {updated_count} mis à jour, "
+        f"{len(status_changes)} changements de statut, {points_calculated} matchs scorés"
     )
-    return created_count, updated_count
+    return {
+        'created': created_count,
+        'updated': updated_count,
+        'status_changes': status_changes,
+        'points_calculated': points_calculated,
+        'api_error': False,
+    }
 
 
 def refresh_user_scores_for_match(match):
@@ -295,10 +323,9 @@ def _calculate_points_for_match(match):
 
 
 def sync_all_competitions():
-    total_created = 0
-    total_updated = 0
+    results = []
     for code in settings.RUGBY_COMPETITIONS:
-        created, updated = sync_competition_matches(code)
-        total_created += created
-        total_updated += updated
-    return total_created, total_updated
+        r = sync_competition_matches(code)
+        r['competition'] = code
+        results.append(r)
+    return results
