@@ -2,8 +2,7 @@ name: Sync Matches
 
 on:
   schedule:
-    - cron: '0 */2 * * *'        # Every 2 hours
-    - cron: '*/15 * * * 6,0'     # Every 15 min on Sat/Sun
+    - cron: '0 7 * * *'          # Once a day at 07:00 UTC
   workflow_dispatch:              # Manual trigger
 
 jobs:
