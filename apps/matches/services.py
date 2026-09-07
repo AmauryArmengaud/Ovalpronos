@@ -386,18 +386,24 @@ def _calculate_points_for_match(match):
         logger.info(f"Pas de cotes pour {match} — calcul ignoré")
         return
 
-    predictions = Prediction.objects.filter(
-        match=match,
-        points_earned__isnull=True
-    )
+    # NB : on recalcule TOUJOURS tous les pronostics du match, même ceux déjà
+    # scorés (points_earned non-null). Un match peut être scoré une première
+    # fois avec un score encore provisoire (ex. sync live sur un match mal
+    # détecté comme FINISHED), puis voir son score corrigé plus tard par la
+    # sync suivante. Sans ce recalcul systématique, les points restent figés
+    # sur l'ancien score et ne sont jamais corrigés, y compris via l'action
+    # admin "Recalculer les points".
+    predictions = Prediction.objects.filter(match=match)
 
     count = 0
     for prediction in predictions:
         result = calculate_points(prediction, match)
         if result is not None:
-            prediction.points_earned, prediction.result_type = result
-            prediction.save(update_fields=['points_earned', 'result_type'])
-            count += 1
+            new_points, new_result_type = result
+            if (prediction.points_earned, prediction.result_type) != (new_points, new_result_type):
+                prediction.points_earned, prediction.result_type = new_points, new_result_type
+                prediction.save(update_fields=['points_earned', 'result_type'])
+                count += 1
 
     if count > 0:
         logger.info(f"Points calculés pour {count} pronostic(s) — {match}")
