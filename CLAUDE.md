@@ -75,7 +75,7 @@ Strong success criteria let you loop independently. Weak criteria ("make it work
 
 ## Project Overview
 
-**Oval'Pronos** is a Django 5 rugby predictions web app. Users predict match scores for Top 14, Champions Cup, and 6 Nations, then compete in a global ranking or private leagues. Match data is synced from the rugby-live-data RapidAPI via a GitHub Actions cron that calls a secured Django endpoint.
+**Oval'Pronos** is a Django 5 rugby predictions web app. Users predict match scores for Top 14, Champions Cup, and 6 Nations, then compete in a global ranking or private leagues. Match data is synced from the rugby-live-data RapidAPI via VPS cron jobs.
 
 **Tagline:** "Tu sais pas plaquer, viens pronostiquer"
 
@@ -99,6 +99,11 @@ python manage.py compilemessages
 # Sync matches from api-sports.io (manual trigger)
 python manage.py sync_matches                  # All competitions
 python manage.py sync_matches --comp TOP14     # Single competition
+python manage.py sync_if_live                  # Sync only if a match is in play (used by VPS cron)
+
+# Notification commands (also run via VPS cron)
+python manage.py send_deadline_reminders       # Email users with unpredicted matches in next 22-30h
+python manage.py send_results_summary --competition-id=X --round=Y  # Email results summary
 
 # Maintenance commands
 python manage.py deactivate_ended_competitions  # Set is_active=False on competitions past end_date
@@ -123,8 +128,11 @@ RAPIDAPI_KEY=<key>
 RUGBY_SEASON=2025
 ALLOWED_HOSTS=localhost,127.0.0.1
 
-# Sync endpoint — shared with GitHub Actions secret SYNC_SECRET_TOKEN
+# Sync endpoint — shared with VPS cron and GitHub Actions secret SYNC_SECRET_TOKEN
 SYNC_SECRET_TOKEN=<random-token>
+
+# Google AI Studio key — used by update_odds.py (VPS cron, also stored in GHA secret)
+GOOGLE_API_KEY=<google-ai-studio-key>
 
 # Cloudflare Turnstile CAPTCHA (register + login pages)
 TURNSTILE_SITE_KEY=<site-key>          # Use 1x00000000000000000000AA for local dev (always passes)
@@ -189,9 +197,11 @@ Scoring logic: `apps/predictions/services.py::calculate_points()`. Orchestration
 
 ### Data Flow
 
-**Match sync (scores & schedule):** GitHub Actions cron → `POST /api/sync-scores/` → `sync_all_competitions()` → `sync_competition_matches(code)` → upserts matches → on FINISHED: `_calculate_points_for_match()` → `refresh_user_scores_for_match()`.
+**Match sync (scores & schedule):** VPS cron (daily 07:00 UTC) → `python manage.py sync_matches` → `sync_competition_matches(code)` → upserts matches → on FINISHED: `_calculate_points_for_match()` → `refresh_user_scores_for_match()`.
 
-**Odds update (weekly):** GitHub Actions cron (Tuesday 12:00 Paris) → `.github/scripts/update_odds.py` → Gemini 3.6 Flash with Google Search grounding → `POST /api/update-odds/` → `POST /api/notify/missing-odds/`.
+**Live sync:** VPS cron (every 10min, 24/7) → `python manage.py sync_if_live` → exits silently if no match in play, otherwise runs `sync_competition_matches()` for all competitions.
+
+**Odds update (weekly):** VPS cron (Tuesday 10:00 UTC) → `.github/scripts/update_odds.py` → Gemini 3.6 Flash with Google Search grounding → `POST /api/update-odds/` → `POST /api/notify/missing-odds/`.
 
 Test script: `.github/scripts/test_odds.py` — runs standalone with `GOOGLE_API_KEY=... python .github/scripts/test_odds.py`, no Django needed.
 
@@ -243,28 +253,40 @@ sudo systemctl restart gunicorn
 | `DEPLOY_HOST` | `deploy.yml` | Hetzner server IP/hostname |
 | `DEPLOY_USER` | `deploy.yml` | SSH user (`amaury`) |
 | `DEPLOY_KEY` | `deploy.yml` | SSH private key |
-| `APP_URL` | `sync_matches.yml`, `sync_live.yml`, `update_odds.yml`, `email_notifications.yml` | Full app URL (e.g. `https://ovalpronos.com`) |
-| `SYNC_SECRET_TOKEN` | `sync_matches.yml`, `sync_live.yml`, `update_odds.yml`, `email_notifications.yml` | Bearer token for secured API endpoints |
-| `GOOGLE_API_KEY` | `update_odds.yml` | Google AI Studio key for Gemini 3.6 Flash |
-| `GITHUB_TOKEN` | `keepalive.yml` | Auto-injected by GitHub Actions |
+| `APP_URL` | `sync_matches.yml`, `update_odds.yml`, `email_notifications.yml` | Full app URL — `workflow_dispatch` manual triggers only |
+| `SYNC_SECRET_TOKEN` | `sync_matches.yml`, `update_odds.yml`, `email_notifications.yml` | Bearer token for secured API endpoints |
+| `GOOGLE_API_KEY` | `update_odds.yml` | Google AI Studio key — `workflow_dispatch` manual trigger only |
 
 **To deploy manually:** push to `main`, or SSH in and run `~/deploy.sh` directly.
 
 ## GitHub Actions Workflows
 
-| Workflow | Déclencheur | Endpoint Django | Rôle |
-|---|---|---|---|
-| `deploy.yml` | Push sur `main` | SSH → `~/deploy.sh` | Déploiement prod |
-| `sync_matches.yml` | 1×/jour à 07h00 UTC + `workflow_dispatch` | `POST /api/sync-scores/` | Sync scores + scoring pronostics |
-| `sync_live.yml` | Toutes les 10min, sam/dim 12h–22h UTC + `workflow_dispatch` | `POST /api/sync-scores/` | Sync temps réel week-end |
-| `update_odds.yml` | Mardi 10h00 UTC (12h Paris) + `workflow_dispatch` | Gemini → `POST /api/update-odds/` + `POST /api/notify/missing-odds/` | Mise à jour cotes bookmaker |
-| `email_notifications.yml` | Quotidien 10h UTC (deadline_reminders) + `workflow_dispatch` (résultats) | `POST /api/notify/deadline-reminders/` ou `POST /api/notify/results-summary/` | Rappels si premier match dans 22–30h (vendredi midi → matchs samedi 14h/16h30) + résumés de round |
-| `keepalive.yml` | 1er du mois 00h UTC + `workflow_dispatch` | GitHub API (enable workflow) | Réactive `sync_live.yml` (GitHub désactive les workflows inactifs après 60j) |
+Seul `deploy.yml` est event-driven. Tous les crons ont été migrés sur le VPS.
+
+| Workflow | Déclencheur | Rôle |
+|---|---|---|
+| `deploy.yml` | Push sur `main` | SSH → `~/deploy.sh` — déploiement prod |
+| `sync_matches.yml` | `workflow_dispatch` uniquement | Sync d'urgence manuel — `POST /api/sync-scores/` |
+| `update_odds.yml` | `workflow_dispatch` uniquement | Relance manuelle Gemini — `POST /api/update-odds/` + `POST /api/notify/missing-odds/` |
+| `email_notifications.yml` | `workflow_dispatch` uniquement | Résumés manuels de round — `POST /api/notify/results-summary/` |
 
 **`email_notifications.yml` — `workflow_dispatch` inputs :**
 - `command` : `deadline_reminders` ou `results_summary`
 - `competition_id` : ID DB de la compétition (pour `results_summary` seulement)
 - `round_label` : ex. `"26"` (pour `results_summary` seulement)
+
+## VPS Cron Jobs
+
+Crontab de l'utilisateur `amaury` sur le VPS Hetzner. Logs dans `/home/amaury/logs/`.
+
+| Schedule | Commande | Rôle |
+|---|---|---|
+| `0 7 * * *` | `python manage.py sync_matches` | Sync quotidien complet |
+| `*/10 * * * *` | `python manage.py sync_if_live` | Sync live — exit silencieux si pas de match |
+| `0 10 * * 2` | `python .github/scripts/update_odds.py` | Mise à jour cotes Gemini (mardi 10h00 UTC) |
+| `0 10 * * *` | `python manage.py send_deadline_reminders` | Rappels deadline quotidiens (10h00 UTC) |
+
+Logrotate : `/etc/logrotate.d/ovalpronos` — rotation hebdomadaire, 12 semaines, compression.
 
 ## Known Issues / TODOs
 
@@ -280,6 +302,15 @@ Sprint 1 is complete. All migration items have been resolved:
 - `django-crontab` removed — done
 - Scoring test suite (11 tests) — done
 - GitHub Actions sync workflow — done
+
+### Done — Sprint 13 (2026-09-09)
+
+- Migration totale des crons GHA → VPS — done
+  - `sync_if_live` management command : sync uniquement si match en cours (fenêtre ±2h)
+  - VPS crontab : sync daily 07h00, sync live */10, odds mardi 10h00, deadline reminders 10h00
+  - Logrotate `/etc/logrotate.d/ovalpronos` : rotation hebdo, 12 semaines
+  - Suppression `sync_live.yml`, `keepalive.yml` ; retrait des `schedule:` sur `sync_matches.yml`, `update_odds.yml`, `email_notifications.yml`
+  - `google-genai` ajouté à `requirements.txt` (nécessaire pour `update_odds.py` sur VPS)
 
 ### Done — Sprint 12 (2026-09-09)
 
