@@ -1,9 +1,7 @@
 name: Sync Matches
 
 on:
-  schedule:
-    - cron: '0 7 * * *'          # Once a day at 07:00 UTC
-  workflow_dispatch:              # Manual trigger
+  workflow_dispatch:              # Manual trigger only — daily sync runs via VPS cron
 
 jobs:
   sync:

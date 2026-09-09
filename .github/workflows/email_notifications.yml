@@ -1,9 +1,7 @@
 name: Email Notifications
 
 on:
-  schedule:
-    - cron: '0 10 * * *'   # Daily at 10:00 UTC — checks for rounds starting ~24h later
-  workflow_dispatch:
+  workflow_dispatch:    # Manual trigger only — deadline reminders run via VPS cron (daily 10:00 UTC)
     inputs:
       command:
         description: 'Command to run: deadline_reminders or results_summary'
@@ -22,8 +20,8 @@ jobs:
   notify:
     runs-on: ubuntu-latest
     steps:
-      - name: Send deadline reminders (scheduled)
-        if: github.event_name == 'schedule' || inputs.command == 'deadline_reminders'
+      - name: Send deadline reminders
+        if: inputs.command == 'deadline_reminders'
         run: |
           curl -X POST "${{ secrets.APP_URL }}/api/notify/deadline-reminders/" \
             -H "Authorization: Bearer ${{ secrets.SYNC_SECRET_TOKEN }}" \

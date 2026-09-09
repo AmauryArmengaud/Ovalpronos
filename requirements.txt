@@ -14,6 +14,9 @@ gunicorn==23.0.0
 # Requêtes HTTP (appels api-sports.io)
 requests==2.32.3
 
+# Gemini AI (mise à jour des cotes — update_odds.py)
+google-genai>=1.0.0
+
 # Gestion des assets statiques
 whitenoise==6.8.2
 

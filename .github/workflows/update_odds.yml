@@ -1,9 +1,7 @@
 name: Update Odds
 
 on:
-  schedule:
-    - cron: '0 10 * * 2'   # Mardi 10:00 UTC (12:00 Paris)
-  workflow_dispatch:
+  workflow_dispatch:    # Manual trigger only — weekly odds update runs via VPS cron (Tuesday 10:00 UTC)
 
 jobs:
   update-odds:
