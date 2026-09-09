@@ -17,7 +17,7 @@ eggs/
 parts/
 var/
 sdist/
-wheels/
+wheels
 *.egg-link
 pip-wheel-metadata/
 
@@ -48,3 +48,6 @@ legacy/
 
 # Documentation
 *.md
+!CLAUDE.md
+!ARCHITECTURE.md
+!README.md
