@@ -288,58 +288,6 @@ Crontab de l'utilisateur `amaury` sur le VPS Hetzner. Logs dans `/home/amaury/lo
 
 Logrotate : `/etc/logrotate.d/ovalpronos` — rotation hebdomadaire, 12 semaines, compression.
 
-## Known Issues / TODOs
+## Sprints & Roadmap
 
-Sprint 1 is complete. All migration items have been resolved:
-- `predictions` app, `Prediction` model, `result_type` field — done
-- `Competition.scoring_system` + `good_gap_pts` — done
-- `Team.slug` + `short_name` — done
-- `Match.cote_home/draw/away` + computed properties — done
-- `CustomUser.favorite_team` is FK to Team — done
-- URL routes in English — done
-- `dj-database-url` in `requirements.txt` — done
-- `locale/` directory — done
-- `django-crontab` removed — done
-- Scoring test suite (11 tests) — done
-- GitHub Actions sync workflow — done
-
-### Done — Sprint 13 (2026-09-09)
-
-- Migration totale des crons GHA → VPS — done
-  - `sync_if_live` management command : sync uniquement si match en cours (fenêtre ±2h)
-  - VPS crontab : sync daily 07h00, sync live */10, odds mardi 10h00, deadline reminders 10h00
-  - Logrotate `/etc/logrotate.d/ovalpronos` : rotation hebdo, 12 semaines
-  - Suppression `sync_live.yml`, `keepalive.yml` ; retrait des `schedule:` sur `sync_matches.yml`, `update_odds.yml`, `email_notifications.yml`
-  - `google-genai` ajouté à `requirements.txt` (nécessaire pour `update_odds.py` sur VPS)
-
-### Done — Sprint 12 (2026-09-09)
-
-- Integration test suite for `_calculate_points_for_match()` and `refresh_user_scores_for_match()` — done
-  - `apps/matches/tests.py` — 12 `django.test.TestCase` tests (real DB, no new deps)
-  - Covers the production bug: score correction after premature FINISHED status now has a regression test
-  - Hotfix `b24d0fa` backported locally (`points_earned__isnull=True` filter removed)
-
-### Done — Sprint 11 (2026-09-03)
-
-- Automated weekly odds update via Gemini 3.6 Flash + Google Search grounding — done
-  - `GET /api/upcoming-matches/` — returns upcoming matches for Gemini to process
-  - `POST /api/update-odds/` — writes bookmaker odds, validates range `[10, 1000]`, rejects locked matches
-  - `POST /api/notify/missing-odds/` — emails superusers if any upcoming match has no odds after update
-  - `.github/scripts/update_odds.py` — weekly GHA script (Gemini chat + `submit_odds` FunctionDeclaration)
-  - `.github/scripts/test_odds.py` — standalone test script (no Django needed)
-  - `.github/workflows/update_odds.yml` — cron every Tuesday 12:00 Paris, `GOOGLE_API_KEY` secret
-- `Team.logo_url` dropped — field was unused, local PNGs at `static/img/teams/<slug>.png` are source of truth — done
-
-### Done — Sprint 10 (2026-09-02)
-
-- Cloudflare Turnstile CAPTCHA on register + login — server-side verification, `cleanup_bot_accounts` command — done
-- Leagues scoped to competitions: `League.competitions` M2M required at creation, leaderboard and predictions scoped to those competitions — done
-- `Competition.end_date` + `deactivate_ended_competitions` management command — done
-- Champions Cup (1464) and Challenge Cup (1470) season 2027 added to `RUGBY_COMPETITIONS` in settings — done
-- `sync_all_competitions()` now iterates `settings.RUGBY_COMPETITIONS` instead of active DB entries — done
-- Predictions page: chronological ordering (day → competition → time) with competition badge separators — done
-- Global rankings: single "Global" tab + competition filter chips (pill style) instead of per-competition tabs — done
-
-### On hold / not worth it now
-
-- `rankings.UserScore` — `rank` field exists in the model but is never written; ranking is computed in Python in `_build_leaderboard()`. Pre-calculating it in DB would only help at scale (thousands of users/leagues). Parked until there's a real need.
+→ **ROLLOUT.md** — full sprint history, current state inventory, V3/V4 roadmap.

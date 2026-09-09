@@ -50,4 +50,5 @@ legacy/
 *.md
 !CLAUDE.md
 !ARCHITECTURE.md
+!ROLLOUT.md
 !README.md
