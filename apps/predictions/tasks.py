@@ -66,7 +66,13 @@ def send_deadline_reminders():
     # All upcoming matches with odds (not yet locked)
     all_upcoming = (
         Match.objects
-        .filter(status=Match.STATUS_SCHEDULED, datetime__gt=now)
+        .filter(
+            status=Match.STATUS_SCHEDULED,
+            datetime__gt=now,
+            cote_home__isnull=False,
+            cote_draw__isnull=False,
+            cote_away__isnull=False,
+        )
         .select_related('competition', 'home_team', 'away_team')
         .order_by('datetime')
     )
