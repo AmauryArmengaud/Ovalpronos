@@ -6,6 +6,9 @@ Implementation plan for Oval'Pronos. Current state: **V2 complete** (Sprints 1�
 
 ## Current State Inventory
 
+### Done (2026-09-11)
+- PostHog EU analytics — cookieless, GDPR compliant, server-side + JS tracking (Sprint 14)
+
 ### Done (2026-09-09)
 - All V1 + V2 sprints complete (Sprints 1–13)
 - Deployed on Hetzner CX22, PostgreSQL self-hosted, Gunicorn + deploy.sh via GitHub Actions
@@ -389,6 +392,33 @@ Goal: cotes filled automatically each week without any manual intervention.
 
 **11.4 — Cleanup** ✓
 - `Team.logo_url` dropped — field was unused, local PNGs at `static/img/teams/<slug>.png` are source of truth
+
+---
+
+---
+
+### Sprint 14 — Analytics ✓ DONE (2026-09-11)
+
+Goal: track user journeys in a GDPR-compliant way with no budget. No cookie consent banner required.
+
+**14.1 — PostHog EU integration** ✓
+- `ovalpronos/analytics.py`: `capture(user_pk, event, properties)` — lazy `Posthog` instance, swallows all exceptions (analytics must never cause 500s)
+- `ovalpronos/context_processors.py`: exposes `POSTHOG_API_KEY` to all templates; empty string when disabled
+- `ovalpronos/settings.py`: `POSTHOG_API_KEY` + `POSTHOG_ENABLED` via `config()` — defaults to `False` in dev
+- `requirements.txt`: added `posthog`
+
+**14.2 — JS tracking** ✓
+- `templates/base.html`: loads `eu-assets.i.posthog.com/static/array.js` synchronously; calls `posthog.init()` with `persistence: 'localStorage'` (no cookies), `autocapture: false`, `capture_pageview: true`
+- Authenticated users identified as `'user_{{ user.pk }}'` — integer ID, no PII sent to PostHog
+
+**14.3 — Server-side events** ✓
+- `user_registered` — `accounts.RegisterView.form_valid()`
+- `user_logged_in` — `accounts.LoginView.form_valid()`
+- `prediction_saved` (+ `match_id`, `competition`, `is_update`) — `predictions.SubmitPredictionView.post()`
+- `league_created` (+ `league_id`) — `leagues.LeagueCreateView.form_valid()`
+- `league_joined` (+ `league_id`) — `leagues.LeagueJoinView.post()`
+
+**GDPR compliance:** EU hosting (Frankfurt), no cookies, no PII, no consent banner needed. One-line mention in privacy policy sufficient.
 
 ---
 

@@ -143,6 +143,10 @@ EMAIL_HOST=smtp.ionos.fr
 EMAIL_PORT=587
 EMAIL_HOST_USER=noreply@ovalpronos.com
 EMAIL_HOST_PASSWORD=<ionos-password>
+
+# Analytics — PostHog EU (leave unset in dev to avoid polluting prod dataset)
+POSTHOG_API_KEY=<phc_xxx>
+POSTHOG_ENABLED=True
 ```
 
 In development, use `EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'` — emails print to terminal.
@@ -223,6 +227,17 @@ The predictions page shows matches in chronological order (day → competition �
 ## Frontend
 
 Bootstrap 5 + HTMX. Font: Barlow (Google Fonts). Icons: Tabler Icons (`ti ti-*`). All colors use CSS variables defined in `static/css/main.css` — no hardcoded hex values in templates (V4 white-label requirement). Templates in `templates/<app>/`. HTMX partials in `templates/partials/`.
+
+### Analytics
+
+PostHog EU (Frankfurt) — GDPR compliant, cookieless (`localStorage` persistence, no cookies set).
+
+- **JS tracking:** snippet in `base.html` loads `eu-assets.i.posthog.com/static/array.js`; fires `$pageview` automatically; identifies authenticated users by `user_{{ user.pk }}` (no PII)
+- **Server-side tracking:** `ovalpronos/analytics.py::capture(user_pk, event, properties)` — lazy-initialises a `Posthog` instance; no-ops silently if `POSTHOG_ENABLED=False` or package absent
+- **Instrumented events:** `user_registered`, `user_logged_in`, `prediction_saved` (with `match_id`, `competition`, `is_update`), `league_created`, `league_joined`
+- **Context processor:** `ovalpronos/context_processors.py` exposes `POSTHOG_API_KEY` to all templates (empty string when disabled)
+
+→ Use cases and funnel definitions: plan file `~/.claude/plans/peppy-tinkering-iverson.md`
 
 ## Admin Interface
 

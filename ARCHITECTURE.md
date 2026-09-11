@@ -10,6 +10,8 @@ Technical reference for Oval'Pronos. Read this before implementing new features.
 ovalpronos/              # Django project config
   settings.py
   urls.py                # Root URL conf — all paths in English
+  analytics.py           # PostHog capture() utility — lazy Posthog instance, swallows exceptions
+  context_processors.py  # Exposes POSTHOG_API_KEY to all templates
 
 apps/
   accounts/              # CustomUser, auth views, profile
@@ -411,6 +413,15 @@ An admin does not have to pre-create a Competition row before the first sync.
 On-the-fly aggregation from `Prediction` is fast enough at the current user count. Adding
 `UserScore` now would require cache invalidation logic with no measurable benefit. It will
 be introduced when ranking queries become slow (thousands of concurrent users/leagues).
+
+**Why `capture()` swallows all exceptions.**
+Analytics must never cause a 500. The PostHog SDK makes network calls; any transient failure (DNS, timeout, package not yet installed during a deploy window) would otherwise crash views. The try/except in `capture()` ensures analytics is always best-effort.
+
+**Why PostHog is identified by `user.pk`, not email or username.**
+`user.pk` is an opaque integer in PostHog's database — it cannot be reverse-engineered to a real person without access to the Django DB. This avoids sending PII to a third-party service and keeps GDPR compliance structural rather than procedural.
+
+**Why `localStorage` persistence instead of cookies.**
+The ePrivacy Directive's cookie consent requirement does not apply to `localStorage` when no PII is stored. This eliminates the need for a cookie consent banner while keeping GDPR compliance.
 
 **Why `League.is_active` is a computed property.**
 A league's activity is derived from its linked competitions — having a separate boolean field
