@@ -11,7 +11,7 @@ from django.urls import reverse_lazy
 from django.views.generic import CreateView, TemplateView, UpdateView
 
 from apps.predictions.models import Prediction
-from .forms import ProfileForm, RegistrationForm
+from .forms import EmailOrUsernameAuthenticationForm, ProfileForm, RegistrationForm
 from .models import CustomUser
 
 
@@ -72,6 +72,7 @@ def _verify_turnstile(token, remote_ip):
 
 class LoginView(auth_views.LoginView):
     template_name = 'accounts/login.html'
+    authentication_form = EmailOrUsernameAuthenticationForm
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)

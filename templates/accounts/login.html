@@ -28,7 +28,7 @@
               id="{{ form.username.id_for_label }}"
               class="form-control{% if form.username.errors %} is-invalid{% endif %}"
               autofocus
-              autocomplete="username"
+              autocomplete="email"
             >
             {% for error in form.username.errors %}
               <div class="invalid-feedback">{{ error }}</div>

@@ -93,6 +93,7 @@ if DATABASE_URL:
 
 # ─── Authentification ────────────────────────────────────────────────────────
 AUTH_USER_MODEL = 'accounts.CustomUser'  # Notre modèle User personnalisé
+AUTHENTICATION_BACKENDS = ['apps.accounts.backends.EmailOrUsernameBackend']
 LOGIN_URL = 'accounts:login'
 LOGIN_REDIRECT_URL = 'matches:home'
 LOGOUT_REDIRECT_URL = 'accounts:login'
