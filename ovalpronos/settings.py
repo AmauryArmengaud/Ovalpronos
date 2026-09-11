@@ -66,6 +66,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'ovalpronos.context_processors.analytics',
             ],
         },
     },
@@ -172,4 +173,9 @@ DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default="Oval'Pronos <noreply@
 ANYMAIL = {
     'BREVO_API_KEY': config('BREVO_API_KEY', default=''),
 }
+
+
+# ─── Analytics (PostHog EU) ───────────────────────────────────────────────────
+POSTHOG_API_KEY = config('POSTHOG_API_KEY', default='')
+POSTHOG_ENABLED = config('POSTHOG_ENABLED', default=False, cast=bool)
 

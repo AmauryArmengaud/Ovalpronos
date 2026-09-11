@@ -32,3 +32,6 @@ pytz==2024.2
 
 # Transactional email (Brevo / SendinBlue)
 django-anymail[brevo]==12.0
+
+# Analytics (PostHog EU)
+posthog

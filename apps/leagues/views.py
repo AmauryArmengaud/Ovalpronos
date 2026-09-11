@@ -44,6 +44,8 @@ class LeagueCreateView(LoginRequiredMixin, CreateView):
         response = super().form_valid(form)
         self.object.members.add(self.request.user)
         messages.success(self.request, _("League created! Your invite code: %(code)s") % {'code': self.object.invite_code})
+        from ovalpronos.analytics import capture
+        capture(self.request.user.pk, 'league_created', {'league_id': self.object.pk})
         return response
 
 
@@ -66,6 +68,8 @@ class LeagueJoinView(LoginRequiredMixin, View):
         else:
             league.members.add(request.user)
             messages.success(request, _("You joined %(name)s!") % {'name': league.name})
+            from ovalpronos.analytics import capture
+            capture(request.user.pk, 'league_joined', {'league_id': league.pk})
         return redirect('leagues:detail', pk=league.pk)
 
 

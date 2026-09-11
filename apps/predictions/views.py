@@ -114,7 +114,7 @@ class SubmitPredictionView(LoginRequiredMixin, View):
                 {'match': match, 'prediction': prediction}
             )
 
-        prediction, _ = Prediction.objects.update_or_create(
+        prediction, created = Prediction.objects.update_or_create(
             user=request.user,
             match=match,
             defaults={
@@ -122,6 +122,13 @@ class SubmitPredictionView(LoginRequiredMixin, View):
                 'predicted_away_score': away,
             }
         )
+
+        from ovalpronos.analytics import capture
+        capture(request.user.pk, 'prediction_saved', {
+            'match_id': match.pk,
+            'competition': match.competition.name,
+            'is_update': not created,
+        })
 
         return render(
             request, 'partials/match_card.html',

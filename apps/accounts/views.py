@@ -79,6 +79,12 @@ class LoginView(auth_views.LoginView):
         ctx['turnstile_site_key'] = settings.TURNSTILE_SITE_KEY
         return ctx
 
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        from ovalpronos.analytics import capture
+        capture(self.request.user.pk, 'user_logged_in')
+        return response
+
     def post(self, request, *args, **kwargs):
         token = request.POST.get('cf-turnstile-response', '')
         try:
@@ -97,6 +103,12 @@ class RegisterView(CreateView):
     form_class = RegistrationForm
     template_name = 'accounts/register.html'
     success_url = reverse_lazy('accounts:login')
+
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        from ovalpronos.analytics import capture
+        capture(self.object.pk, 'user_registered')
+        return response
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
