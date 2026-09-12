@@ -227,16 +227,19 @@ def live_matches_api(request):
         return JsonResponse({'error': 'Unauthorized'}, status=401)
 
     import datetime as dt
+    from django.db.models import Q
     from .models import Match
 
     now = timezone.now()
-    window_start = now - dt.timedelta(hours=2)
+    window_start = now - dt.timedelta(hours=3)
     terminal = [Match.STATUS_FINISHED, Match.STATUS_CANCELLED, Match.STATUS_POSTPONED]
 
     matches = (
         Match.objects
-        .filter(datetime__lte=now, datetime__gte=window_start)
-        .exclude(status__in=terminal)
+        .filter(
+            Q(status=Match.STATUS_IN_PLAY)
+            | (Q(datetime__lte=now) & Q(datetime__gte=window_start) & ~Q(status__in=terminal))
+        )
         .select_related('home_team', 'away_team', 'competition')
         .order_by('datetime')
     )
