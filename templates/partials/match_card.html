@@ -59,15 +59,22 @@
 
         {% elif match.is_locked %}
           {# State: locked (match started, not yet finished) #}
+          {% if match.home_score is not None %}
+            <div class="match-score fw-bold">{{ match.home_score }} – {{ match.away_score }}</div>
+            <span class="badge rounded-pill mt-1 badge-live">
+              <span class="live-dot"></span>{% trans "Live" %}
+            </span>
+          {% else %}
+            <span class="badge rounded-pill mt-1 badge-result-locked"
+                  title="{% trans 'Predictions close at kickoff' %}">
+              🔒 {% trans "Locked" %}
+            </span>
+          {% endif %}
           {% if prediction %}
-            <div class="match-predicted-score">
+            <div class="text-muted small mt-1">
               {{ prediction.predicted_home_score }}–{{ prediction.predicted_away_score }}
             </div>
           {% endif %}
-          <span class="badge rounded-pill mt-1 badge-result-locked"
-                title="{% trans 'Predictions close at kickoff' %}">
-            🔒 {% trans "Locked" %}
-          </span>
 
         {% elif not match.has_odds %}
           {# State: no odds yet #}
