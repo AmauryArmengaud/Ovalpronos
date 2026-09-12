@@ -221,6 +221,101 @@ def notify_missing_odds_api(request):
 
 
 @csrf_exempt
+@require_GET
+def live_matches_api(request):
+    if not _check_bearer(request):
+        return JsonResponse({'error': 'Unauthorized'}, status=401)
+
+    import datetime as dt
+    from .models import Match
+
+    now = timezone.now()
+    window_start = now - dt.timedelta(hours=2)
+    terminal = [Match.STATUS_FINISHED, Match.STATUS_CANCELLED, Match.STATUS_POSTPONED]
+
+    matches = (
+        Match.objects
+        .filter(datetime__lte=now, datetime__gte=window_start)
+        .exclude(status__in=terminal)
+        .select_related('home_team', 'away_team', 'competition')
+        .order_by('datetime')
+    )
+
+    data = [
+        {
+            'match_id': m.pk,
+            'home_team': m.home_team.name,
+            'home_team_short': m.home_team.short_name,
+            'away_team': m.away_team.name,
+            'away_team_short': m.away_team.short_name,
+            'competition': m.competition.name,
+            'datetime': m.datetime.isoformat(),
+            'current_home_score': m.home_score,
+            'current_away_score': m.away_score,
+        }
+        for m in matches
+    ]
+    return JsonResponse(data, safe=False)
+
+
+@csrf_exempt
+@require_POST
+def update_scores_api(request):
+    if not _check_bearer(request):
+        return JsonResponse({'error': 'Unauthorized'}, status=401)
+
+    import json
+    from .models import Match
+    from .services import _calculate_points_for_match
+
+    try:
+        body = json.loads(request.body or '{}')
+    except json.JSONDecodeError:
+        return JsonResponse({'error': 'Invalid JSON'}, status=400)
+
+    entries = body.get('scores', [])
+    if not isinstance(entries, list):
+        return JsonResponse({'error': 'scores must be a list'}, status=400)
+
+    STATUS_MAP = {'in_play': Match.STATUS_IN_PLAY, 'finished': Match.STATUS_FINISHED}
+
+    updated = []
+    skipped = []
+
+    for entry in entries:
+        match_id = entry.get('match_id')
+        home_score = entry.get('home_score')
+        away_score = entry.get('away_score')
+        status = STATUS_MAP.get(entry.get('status', ''))
+
+        if status is None or not isinstance(home_score, int) or not isinstance(away_score, int):
+            skipped.append({'match_id': match_id, 'reason': 'invalid_data'})
+            continue
+
+        try:
+            match = Match.objects.get(pk=match_id)
+        except Match.DoesNotExist:
+            skipped.append({'match_id': match_id, 'reason': 'not_found'})
+            continue
+
+        if match.status == Match.STATUS_FINISHED:
+            skipped.append({'match_id': match_id, 'reason': 'already_finished'})
+            continue
+
+        match.status = status
+        match.home_score = home_score
+        match.away_score = away_score
+        match.save(update_fields=['status', 'home_score', 'away_score'])
+
+        if status == Match.STATUS_FINISHED:
+            _calculate_points_for_match(match)
+
+        updated.append(match_id)
+
+    return JsonResponse({'updated': updated, 'skipped': skipped})
+
+
+@csrf_exempt
 @require_POST
 def notify_results_summary_api(request):
     if not _check_bearer(request):
