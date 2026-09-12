@@ -90,7 +90,7 @@ config = types.GenerateContentConfig(
 )
 
 client = genai.Client(api_key=GOOGLE_API_KEY)
-chat = client.chats.create(model="gemini-2.5-flash", config=config)
+chat = client.chats.create(model="gemini-3.6-flash", config=config)
 response = chat.send_message(user_message)
 
 # Step 4 — extract submit_scores call

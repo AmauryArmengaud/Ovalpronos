@@ -23,4 +23,4 @@ jobs:
           APP_URL: ${{ secrets.APP_URL }}
           SYNC_SECRET_TOKEN: ${{ secrets.SYNC_SECRET_TOKEN }}
           GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
-        run: python .github/scripts/update_odds.py
+        run: python scripts/update_odds.py
