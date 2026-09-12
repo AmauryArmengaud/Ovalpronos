@@ -182,8 +182,9 @@ def sync_competition_matches(competition_code):
                 old_score_home = old[1] if old else None
                 old_score_away = old[2] if old else None
 
-                # Ne pas rétrograder un match déjà FINISHED vers SCHEDULED
-                if old_status == Match.STATUS_FINISHED and status == Match.STATUS_SCHEDULED:
+                # Ne pas rétrograder un match FINISHED ou IN_PLAY vers SCHEDULED
+                # (le endpoint /fixtures retourne 'Not Started' pour les matchs en cours)
+                if old_status in (Match.STATUS_FINISHED, Match.STATUS_IN_PLAY) and status == Match.STATUS_SCHEDULED:
                     status = old_status
                     if score_home is None:
                         score_home = old_score_home
