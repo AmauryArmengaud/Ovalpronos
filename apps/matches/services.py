@@ -167,7 +167,7 @@ def sync_competition_matches(competition_code):
 
                 # Statut
                 api_status = game.get('status', 'Not Started')
-                status = STATUS_MAP.get(api_status, 'SCHEDULED')
+                status = STATUS_MAP.get(api_status.title(), 'SCHEDULED')
 
                 # Date (ISO 8601 UTC)
                 match_datetime = datetime.fromisoformat(game['date']).astimezone(dt_timezone.utc)
@@ -249,7 +249,7 @@ def sync_competition_matches(competition_code):
             continue
 
         api_status = live_data.get('status', 'Not Started')
-        live_status = STATUS_MAP.get(api_status, 'SCHEDULED')
+        live_status = STATUS_MAP.get(api_status.title(), 'SCHEDULED')
         live_score_home = live_data.get('home_score')
         live_score_away = live_data.get('away_score')
 
