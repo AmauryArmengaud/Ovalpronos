@@ -6,7 +6,7 @@ from datetime import datetime
 import requests
 from google import genai
 from google.genai import types
-from google.genai.errors import ServerError
+from google.genai.errors import ClientError, ServerError
 
 APP_URL = os.environ['APP_URL']
 SYNC_SECRET_TOKEN = os.environ['SYNC_SECRET_TOKEN']
@@ -94,11 +94,12 @@ for attempt in range(1, 4):
         chat = client.chats.create(model="gemini-3.6-flash", config=config)
         response = chat.send_message(user_message)
         break
-    except ServerError as e:
-        if attempt == 3:
+    except (ServerError, ClientError) as e:
+        is_retryable = isinstance(e, ServerError) or (isinstance(e, ClientError) and e.status_code == 429)
+        if attempt == 3 or not is_retryable:
             raise
         wait = 30 * attempt
-        print(f"Gemini indisponible (tentative {attempt}/3), retry dans {wait}s : {e}")
+        print(f"Gemini erreur (tentative {attempt}/3), retry dans {wait}s : {e}")
         time.sleep(wait)
 
 # Step 3 — extract submit_odds call from chat history
