@@ -42,36 +42,11 @@ submit_odds_tool = types.FunctionDeclaration(
     ),
 )
 
-# Step 1 — fetch upcoming matches
-resp = requests.get(f'{APP_URL}/api/upcoming-matches/', headers=auth_headers, timeout=30)
-resp.raise_for_status()
-matches = resp.json()
-
-if not matches:
-    print("Aucun match à venir dans les 14 prochains jours.")
-    sys.exit(0)
-
-print(f"{len(matches)} match(s) à traiter.")
-
-# Step 2 — build Gemini prompt
-n = len(matches)
-lines = [f"Trouve les cotes 1N2 pour ces {n} matchs de rugby.\n"]
-for m in matches:
-    dt = datetime.fromisoformat(m['datetime']).strftime('%d/%m/%Y')
-    home = f"{m['home_team']} ({m['home_team_short']})"
-    away = f"{m['away_team']} ({m['away_team_short']})"
-    lines.append(f"- match_id={m['match_id']} : {home} vs {away} ({m['competition']}, le {dt})")
-lines.append(
-    f"\nObjectif : couvrir les {n} matchs. Si après tes recherches ciblées certains manquent encore, "
-    "soumets quand même les cotes trouvées — ne reste pas bloqué sur un match introuvable."
-)
-user_message = "\n".join(lines)
-
 config = types.GenerateContentConfig(
     system_instruction=(
         "Tu es un assistant spécialisé dans la collecte de cotes de paris sportifs rugby. "
         "Stratégie de recherche :\n"
-        "1. Recherche les cotes 1N2 des matchs demandés sur des bookmakers ou agrégateurs (Betclic, Winamax, Unibet, RueDesJoueurs, etc.).\n"
+        "1. Recherche les cotes 1N2 des matchs demandés sur des bookmakers ou agrégateurs (Betclic, Winamax, Unibet, RueDesJoueurs, Oddsportal, etc.).\n"
         "2. Pour CHAQUE match où tu trouves les cotes, prépare l'entrée.\n"
         "3. Ne jamais inventer ou estimer des cotes.\n"
         "4. OBLIGATOIRE : Tu DOIS terminer en appelant la fonction `submit_odds` avec la liste des cotes trouvées, même si certains matchs manquent."
@@ -89,31 +64,77 @@ config = types.GenerateContentConfig(
 )
 
 client = genai.Client(api_key=GOOGLE_API_KEY)
-for attempt in range(1, 4):
-    try:
-        chat = client.chats.create(model="gemini-3.6-flash", config=config)
-        response = chat.send_message(user_message)
-        break
-    except (ServerError, ClientError) as e:
-        is_retryable = isinstance(e, ServerError) or (isinstance(e, ClientError) and e.status_code == 429)
-        if attempt == 3 or not is_retryable:
-            raise
-        wait = 30 * attempt
-        print(f"Gemini erreur (tentative {attempt}/3), retry dans {wait}s : {e}")
-        time.sleep(wait)
 
-# Step 3 — extract submit_odds call from chat history
-odds_payload = None
-for message in reversed(chat.get_history()):
-    if message.role == "model" and message.parts:
-        for part in message.parts:
-            if part.function_call and part.function_call.name == "submit_odds":
-                odds_payload = part.function_call.args
-                break
-        if odds_payload:
+
+def gemini_search(matches, hint=None):
+    """Run one Gemini pass for the given matches. Returns dict[match_id -> entry]."""
+    n = len(matches)
+    lines = [f"Trouve les cotes 1N2 pour ces {n} matchs de rugby.\n"]
+    for m in matches:
+        dt = datetime.fromisoformat(m['datetime']).strftime('%d/%m/%Y')
+        home = f"{m['home_team']} ({m['home_team_short']})"
+        away = f"{m['away_team']} ({m['away_team_short']})"
+        lines.append(f"- match_id={m['match_id']} : {home} vs {away} ({m['competition']}, le {dt})")
+    if hint:
+        lines.append(f"\n{hint}")
+    lines.append(
+        f"\nObjectif : couvrir les {n} matchs. Soumets les cotes trouvées même si certains manquent."
+    )
+    user_message = "\n".join(lines)
+
+    for attempt in range(1, 4):
+        try:
+            chat = client.chats.create(model="gemini-2.5-flash", config=config)
+            chat.send_message(user_message)
             break
+        except (ServerError, ClientError) as e:
+            is_retryable = isinstance(e, ServerError) or (isinstance(e, ClientError) and e.status_code == 429)
+            if attempt == 3 or not is_retryable:
+                raise
+            wait = 30 * attempt
+            print(f"Gemini erreur (tentative {attempt}/3), retry dans {wait}s : {e}")
+            time.sleep(wait)
 
-if not odds_payload or not odds_payload.get('odds'):
+    for message in reversed(chat.get_history()):
+        if message.role == "model" and message.parts:
+            for part in message.parts:
+                if part.function_call and part.function_call.name == "submit_odds":
+                    return {e['match_id']: e for e in part.function_call.args.get('odds', [])}
+    return {}
+
+
+# Step 1 — fetch upcoming matches
+resp = requests.get(f'{APP_URL}/api/upcoming-matches/', headers=auth_headers, timeout=30)
+resp.raise_for_status()
+matches = resp.json()
+
+if not matches:
+    print("Aucun match à venir dans les 14 prochains jours.")
+    sys.exit(0)
+
+print(f"{len(matches)} match(s) à traiter.")
+
+# Step 2 — pass 1: search all matches
+found = gemini_search(matches)
+print(f"Pass 1 : {len(found)} cote(s) trouvée(s).")
+
+# Step 3 — pass 2: retry missing matches with a broader bookmaker hint
+missing_ids = {m['match_id'] for m in matches} - set(found.keys())
+if missing_ids:
+    missing_matches = [m for m in matches if m['match_id'] in missing_ids]
+    print(f"Pass 2 : {len(missing_matches)} match(s) manquant(s), nouvelle tentative...")
+    found2 = gemini_search(
+        missing_matches,
+        hint=(
+            "Conseil : pour les matchs de Challenge Cup / Champions Cup, essaie des bookmakers "
+            "UK/irlandais (Bet365, Paddy Power, William Hill, Betfair) ou des agrégateurs comme "
+            "Oddsportal, Flashscore ou Sofascore qui affichent souvent les cotes."
+        ),
+    )
+    found.update(found2)
+    print(f"Pass 2 : +{len(found2)} cote(s) supplémentaire(s).")
+
+if not found:
     print("Gemini n'a trouvé aucune cote. Aucune mise à jour.")
     sys.exit(0)
 
@@ -125,7 +146,7 @@ odds_list = [
         'cote_draw': int(e['cote_draw']),
         'cote_away': int(e['cote_away']),
     }
-    for e in odds_payload['odds']
+    for e in found.values()
 ]
 print(f"Cotes trouvées pour {len(odds_list)} match(s).")
 
