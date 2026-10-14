@@ -84,11 +84,11 @@ def gemini_search(matches, hint=None):
 
     for attempt in range(1, 4):
         try:
-            chat = client.chats.create(model="gemini-2.5-flash", config=config)
+            chat = client.chats.create(model="gemini-3.8-flash", config=config)
             chat.send_message(user_message)
             break
         except (ServerError, ClientError) as e:
-            is_retryable = isinstance(e, ServerError) or (isinstance(e, ClientError) and e.status_code == 429)
+            is_retryable = isinstance(e, ServerError) or (isinstance(e, ClientError) and '429' in str(e))
             if attempt == 3 or not is_retryable:
                 raise
             wait = 30 * attempt
