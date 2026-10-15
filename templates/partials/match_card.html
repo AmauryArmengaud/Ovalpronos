@@ -1,5 +1,5 @@
 {% load i18n static match_tags %}
-<div class="card mb-3" id="match-card-{{ match.pk }}">
+<div class="card mb-3{% if match.status == 'FINISHED' %} match-card-finished{% endif %}" id="match-card-{{ match.pk }}">
   <div class="card-body match-card-body">
 
     {# ── Teams row ─────────────────────────────────────────────────────── #}
@@ -9,8 +9,9 @@
       <div class="text-center match-team-col">
         <img src="{% if match.home_team.logo %}{{ match.home_team.logo.url }}{% else %}{% static 'img/teams/' %}{{ match.home_team.slug }}.png{% endif %}"
              alt="{{ match.home_team.name }}"
-             style="height: 44px; width: auto; max-width: 72px; object-fit: contain;"
-             onerror="this.style.display='none'">
+             class="match-team-logo"
+             onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+        <span class="match-team-logo-fallback" aria-hidden="true">{{ match.home_team.short_name|default:match.home_team.name|slice:":3"|upper }}</span>
         <div class="fw-semibold small mt-1">
           <span class="d-none d-sm-inline">{{ match.home_team.name }}</span>
           <span class="d-sm-none">{{ match.home_team.short_name|default:match.home_team.name }}</span>
@@ -21,12 +22,12 @@
       <div class="text-center match-center-col">
 
         {% if match.status == 'CANCELLED' %}
-          {# State: cancelled #}
+          {# State 1: cancelled #}
           <span class="badge rounded-pill badge-result-cancelled">✗</span>
           <div class="text-muted small mt-1">{% trans "Cancelled" %}</div>
 
         {% elif match.status == 'FINISHED' %}
-          {# State: finished — real score + points badge #}
+          {# State 2: finished — real score + points badge (moment fort) #}
           <div class="match-score fw-bold">{{ match.home_score }} – {{ match.away_score }}</div>
           {% if prediction %}
             <div class="small text-muted mt-1">
@@ -58,7 +59,7 @@
           {% endif %}
 
         {% elif match.is_locked %}
-          {# State: locked (match started, not yet finished) #}
+          {# State 3: locked (match started, not yet finished) #}
           {% if match.home_score is not None %}
             <div class="match-score fw-bold">{{ match.home_score }} – {{ match.away_score }}</div>
             <span class="badge rounded-pill mt-1 badge-live">
@@ -77,14 +78,14 @@
           {% endif %}
 
         {% elif not match.has_odds %}
-          {# State: no odds yet #}
+          {# State 4: no odds yet #}
           <div class="text-muted match-no-odds">{% trans "Odds coming soon" %}</div>
 
         {% else %}
-          {# State: open — editable form #}
+          {# State 5: open — editable form #}
           {% if match.closes_soon %}
             <div class="mb-1 match-closes-soon">
-              ⏰ {% trans "Closes in" %} {{ match.datetime|timeuntil }}
+              <i class="ti ti-clock" aria-hidden="true"></i> {% trans "Closes in" %} {{ match.datetime|timeuntil }}
             </div>
           {% endif %}
           <form hx-post="{% url 'predictions:submit' match.pk %}"
@@ -99,9 +100,11 @@
                      min="0"
                      max="200"
                      value="{{ prediction.predicted_home_score|default:'' }}"
-                     class="form-control form-control-sm text-center p-1 match-score-input"
+                     class="match-score-input"
                      hx-disabled-elt="this"
+                     inputmode="numeric"
                      enterkeyhint="next"
+                     autocomplete="off"
                      aria-label="{% trans 'Home score' %}">
               <span class="fw-bold text-muted">–</span>
               <input type="number"
@@ -109,9 +112,11 @@
                      min="0"
                      max="200"
                      value="{{ prediction.predicted_away_score|default:'' }}"
-                     class="form-control form-control-sm text-center p-1 match-score-input"
+                     class="match-score-input"
                      hx-disabled-elt="this"
+                     inputmode="numeric"
                      enterkeyhint="next"
+                     autocomplete="off"
                      aria-label="{% trans 'Away score' %}">
             </div>
             <div class="htmx-indicator text-center mt-1">
@@ -135,6 +140,13 @@
             {% endwith %}
           {% endif %}
 
+          {# Saved feedback — driven by server flag, not JS state #}
+          {% if saved %}
+            <div class="match-saved-indicator text-center">
+              <i class="ti ti-check" aria-hidden="true"></i> {% trans "Saved" %}
+            </div>
+          {% endif %}
+
         {% endif %}
       </div>
       {# end centre #}
@@ -143,8 +155,9 @@
       <div class="text-center match-team-col">
         <img src="{% if match.away_team.logo %}{{ match.away_team.logo.url }}{% else %}{% static 'img/teams/' %}{{ match.away_team.slug }}.png{% endif %}"
              alt="{{ match.away_team.name }}"
-             style="height: 44px; width: auto; max-width: 72px; object-fit: contain;"
-             onerror="this.style.display='none'">
+             class="match-team-logo"
+             onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+        <span class="match-team-logo-fallback" aria-hidden="true">{{ match.away_team.short_name|default:match.away_team.name|slice:":3"|upper }}</span>
         <div class="fw-semibold small mt-1">
           <span class="d-none d-sm-inline">{{ match.away_team.name }}</span>
           <span class="d-sm-none">{{ match.away_team.short_name|default:match.away_team.name }}</span>
@@ -154,7 +167,7 @@
     </div>
     {# end teams row #}
 
-    {# ── Cotes bar ───────────────────────────────────────────────────── #}
+    {# ── Odds bar ─────────────────────────────────────────────────────── #}
     {% if match.has_odds and match.status != 'FINISHED' and match.status != 'CANCELLED' %}
     <div class="d-flex align-items-center mt-3 mb-1">
       <span class="match-odds-label">{% trans "Odds" %}</span>

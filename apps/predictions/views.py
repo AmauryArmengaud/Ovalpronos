@@ -132,5 +132,5 @@ class SubmitPredictionView(LoginRequiredMixin, View):
 
         return render(
             request, 'partials/match_card.html',
-            {'match': match, 'prediction': prediction}
+            {'match': match, 'prediction': prediction, 'saved': True}
         )
