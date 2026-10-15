@@ -27,6 +27,10 @@ live states and CTAs only. Brand green (#1a7f37) for positive feedback (saved st
 
 | Rejected | Reason |
 |---|---|
+| Emojis in Zone C (👑 🎯 ✓ ✗) | Rendering inconsistent across devices; replaced with Tabler icons (same family as Zone A) |
+| `btn-accent` on navbar logout | Accent red is for positive CTAs (login, sign-up); logout is destructive → discrete link style (`btn-nav-link`) |
+| Persistent `ti-check` in Zone C (`.match-saved-state`) | On mobile it was indistinguishable from a 4th tier icon; moved to input level (`--saved` tint + `ti-check` below inputs) |
+| Two different font-sizes for live vs finished score | Same score, different size → layout inconsistency; unified to `1.5rem` via single `.match-score` class |
 | `clip-path` on team logo images | PNG logos are cutout (transparent BG); clip-path bleeds fallback circle through transparency |
 | Overlay approach for logo fallback (fallback always visible behind img) | Same issue — transparent PNG reveals the circle beneath |
 | Dark background on score inputs | Feels like a separate widget; tinted surface integrates with card tone |
@@ -71,29 +75,33 @@ All 7 variables above are also present in `admin.css` (standalone — see §3).
 
 | Element | Desktop | Mobile XS (<576px) |
 |---|---|---|
-| `.match-team-logo-wrap` | 72×72px circle | 60×60px circle |
-| `.match-team-logo` | 56×56px inside wrap | 52×52px inside wrap |
+| `.match-team-logo-wrap` | 64×64px circle | 60×60px circle |
+| `.match-team-logo` | 48×48px inside wrap | 52×52px inside wrap |
 | `.match-team-logo-fallback` | 100%/100% of wrap, 0.875rem | 100%/100% of wrap, 0.75rem |
 | `.match-score-input` width | 52px | 44px |
-| `.match-score-input` font-size | 1.375rem | 1.125rem |
+| `.match-score-input` font-size | 1.5rem | 1.5rem (unified with score display) |
 | `.match-team-col` width | 38% | 35% |
 | `.match-center-col` width | 24% | 30% (wider to fit inputs) |
 | `.match-team-name` min-height | none (no desktop min-height) | 2.6rem (reserves 2 lines at 15px×1.5) |
 | `.match-card-body` padding | Bootstrap default | 0.625rem (uniform) |
-| `.match-zone-a` min-height | 20px | 20px |
+| `.match-zone-a` min-height | 36px (flex-column, gap 2px) | 36px |
 | `.match-center-content` min-height | 44px | 44px |
-| `.match-zone-c` min-height | 36px | 36px |
+| `.match-zone-c` min-height | 56px (align-items: flex-start) | 56px |
+| `.match-card-body` padding | 0.75rem | 0.625rem (uniform) |
 
 **Desktop max-width:** Match cards are rendered inside `col-12 col-lg-7 col-xl-6` on the predictions
 page. This caps card width at ~840px on large screens. No additional `max-width` on the card itself.
 
 ### Saved state
 
-- **Persistent:** `.match-saved-state` — rendered by server whenever `prediction` exists in the open
-  state. Shows `✓` checkmark (Tabler icon) in `--color-brand-rugby` (green), always visible in Zone C.
-  Score is NOT repeated — it is already visible in the inputs.
-- **Transient:** `.match-saved-indicator` — inline `<span>` rendered only when `saved=True` (view context).
-  Fades out over 2s via `saved-fade` keyframe. Reduced-motion: `opacity: 0` immediately.
+- **On inputs:** `.match-score-input--saved` — added server-side when `prediction` exists in the open
+  state. Gives a subtle green tint (`rgba brand-rugby 0.08`) + inset border. A small `ti ti-check` icon
+  below the input row (`.match-inputs-saved-mark`) confirms the saved state. 44px min-height maintained.
+- **Transient flash in Zone C:** `.match-saved-indicator` — rendered only when `saved=True`; the parent
+  `.match-saved-zone` gets `--flash` modifier. The indicator overlays the potential points (`position:
+  absolute`) and fades out over 2s (`saved-fade`); potential points reveal with a 0.7s delay
+  (`pts-delay-reveal`). Reduced-motion: indicator hidden immediately, points visible.
+- Zone C default (open + prediction): shows only potential points (no persistent checkmark).
 
 ---
 
@@ -262,58 +270,82 @@ the 4-zone anatomy (see §6):
 - French translations added: "Ton prono :", "Match annulé, 0 pt", "pt", "J%(r)s", playoff round
   labels ("Finale", "Demi-finales", "Quarts de finale").
 
-Remaining: iOS keyboard restoration (Plan B) — activate if confirmed broken on device.
+Step 2 follow-up changes (this session):
+- Zone A FINISHED: date/time (`D dd/mm · HH:mm`) replaces `ti-check-circle Terminé`.
+- Zone D FINISHED: date removed (already in Zone A); only round shown.
+- Day-group separators added for past tab in predictions index.
+- All emojis replaced with Tabler icons: `ti-crown` (EXACT), `ti-target` (GAP), `ti-check` (WIN), `ti-x` (MISS).
+- Points pluralisation: `{% blocktrans count %}` — 0→"0 pt", 1→"+1 pt", N→"+N pts"; no "+" on 0.
+- Saved state moved from Zone C (persistent `ti-check`) to inputs: `--saved` tint + small `ti-check` below inputs.
+- `match-saved-zone--flash`: "Enregistré" overlays and fades; potential points reveal with delay.
+- Competition divider chip: filter style (light tint + border) replaces filled navy pill.
+- Navbar logout: `btn-nav-link` (discrete) replaces `btn-accent`.
+- Logo sizes: desktop 64×64px wrap / 48px logo (was 72×72 / 56px).
+- Card body padding: 0.75rem desktop (was Bootstrap default 1rem).
+- Score consistency: unified `.match-score` at `1.5rem tabular-nums`; removed finished-only override; inputs aligned to same 1.5rem.
+
+Remaining: iOS keyboard restoration (Plan B) — activate if confirmed broken on device. 2-column grid at lg (recommended, not yet implemented — see §6).
 
 ---
 
-## 6. Match card anatomy (Step 2 — fixed zones)
+## 6. Match card anatomy — fixed zones, all tabs identical
 
-The card is divided into **4 zones of constant height**, always rendered in every state. Only the
-content of a zone changes; never its presence or size.
+**Rule:** One card structure for all tabs and all states. Zone presence and height never change;
+only zone content changes. No tab-specific conditions in the card template or the page loop.
 
 ```
 ┌──────────────────────────────────────────────┐
-│ Zone A — status strip        min-height 20px │
+│ Zone A — time · round + opt. status  ~36px   │
 ├──────────┬───────────────────┬───────────────┤
 │          │                   │               │
 │  Logo    │  Zone B centre    │  Logo  ~100px │
 │  Name    │  (min-height 44px)│  Name         │
 │          │                   │               │
 ├──────────┴───────────────────┴───────────────┤
-│ Zone C — player context      min-height 36px │
-├──────────────────────────────────────────────┤
-│ Zone D — footer              ~16px           │
+│ Zone C — player context      min-height 56px │
 └──────────────────────────────────────────────┘
 ```
 
-**Rule for each zone:**
-- **Zone A** = time and status only. Labels use Tabler icons; no emojis.
-- **Zone B centre** = the match score only: inputs before kickoff, live score in-play, final score finished, `—` otherwise.
-- **Zone C** = the player's perspective: odds bar, saved checkmark + potential pts, stored prediction, result banner, or placeholder.
-- **Zone D** = round + date only. Competition is shown in the `comp-divider-chip` separator above the
-  group of cards — never repeated in the card footer.
+Zone D is removed. Round + time live in Zone A.
 
-**Icon discipline:** result tier emojis (👑 🎯 ✓ ✗) appear in Zone C only. Tabler icons (`ti ti-clock`, `ti ti-lock`, `ti ti-x`, `ti ti-check-circle`) in Zone A only.
+**Rule for each zone:**
+- **Zone A** = `HH:mm · Jx` always (first line, muted). Second line: status label when applicable
+  (closes-soon orange, locked grey, live red pulsing, cancelled grey). FINISHED: no second line.
+- **Zone B centre** = match score: inputs (open), live score (in-play), final score (finished), `—` otherwise.
+- **Zone C** = player perspective, always `min-height: 56px; align-items: flex-start`:
+  open+prediction uses `.match-result-banner-pending` (transparent, 2-row: potential pts + stored prono)
+  to match the height/structure of FINISHED result banners. Other states use placeholder text or odds bar.
+
+**Page loop (all tabs, identical structure):**
+```
+{% ifchanged date %}  →  day-divider chip
+{% ifchanged comp OR date %}  →  comp-divider-chip (resets at each new day)
+match card
+```
+
+**Icon discipline:** All icons are Tabler icons (`ti ti-*`) — no emojis anywhere. Zone A: `ti-clock`, `ti-lock`, `ti-x`. Zone C result tiers: `ti-crown` (EXACT), `ti-target` (GAP), `ti-check` (WIN/saved), `ti-x` (MISS). Potential points: same tier icons.
+
+**Score consistency:** `.match-score` uses a single unified style (`font-size: 1.5rem; font-weight: 700; font-variant-numeric: tabular-nums`) for all states (live, finished). Score inputs use the same `font-size: 1.5rem` so the digit size is consistent whether the user is entering or viewing a score. The `.match-card-finished` font-size override has been removed.
 
 ### Zone × State Matrix
 
-| State | Zone A | Zone B centre | Zone C |
+| State | Zone A (line 1 / line 2) | Zone B centre | Zone C |
 |---|---|---|---|
-| Open, no prediction | _(spacer)_ | Inputs | Odds bar |
-| Open, with prediction | _(spacer)_ | Inputs | `ti-check` + anim "Enregistré" + 👑N 🎯N ✓N |
-| Closes soon, no prediction | `ti-clock` Ferme dans Xh (accent) | Inputs | Odds bar |
-| Closes soon, with prediction | `ti-clock` Ferme dans Xh (accent) | Inputs | `ti-check` + anim "Enregistré" + 👑N 🎯N ✓N |
-| No odds | _(spacer)_ | `—` | Cotes à venir |
-| Locked, no live, with pred | `ti-lock` Verrouillé | `—` | Ton prono : 21–17 |
-| Locked, no live, no pred | `ti-lock` Verrouillé | `—` | Pas de prono |
-| In-play, with pred | `●` En direct (pulsing, accent) | Live score `27–14` | Ton prono : 30–10 |
-| In-play, no pred | `●` En direct (pulsing, accent) | Live score `27–14` | Pas de prono |
-| Finished + EXACT | `ti-check-circle` Terminé | Final `24–17` | Bandeau gold `👑 +N pts · Score exact` + `Ton prono : X–Y` |
-| Finished + GAP | `ti-check-circle` Terminé | Final `24–17` | Bandeau violet `🎯 +N pts · Bon écart` + `Ton prono : X–Y` |
-| Finished + WIN | `ti-check-circle` Terminé | Final `24–17` | Bandeau vert `✓ +N pts · Bon vainqueur` + `Ton prono : X–Y` |
-| Finished + MISS | `ti-check-circle` Terminé | Final `24–17` | Bandeau neutre `✗ 0 pt · Raté` + `Ton prono : X–Y` |
-| Finished, no prediction | `ti-check-circle` Terminé | Final `24–17` | Pas de prono |
-| Cancelled | `ti-x` Annulé | `—` | Match annulé, 0 pt |
+| Open, no prediction | `21:05 · J7` / _(none)_ | Inputs | Odds bar |
+| Open, with prediction | `21:05 · J7` / _(none)_ | Inputs (green tint + `ti-check` below) | Pending banner: `ti-crown`N `ti-target`N `ti-check`N + Ton prono : X–Y |
+| Closes soon, no pred | `21:05 · J7` / `ti-clock` Ferme dans Xh | Inputs | Odds bar |
+| Closes soon, with pred | `21:05 · J7` / `ti-clock` Ferme dans Xh | Inputs (green tint + `ti-check` below) | Pending banner: potential pts + Ton prono : X–Y |
+| No odds | `21:05 · J7` / _(none)_ | `—` | Cotes à venir |
+| Locked, with pred | `21:05 · J7` / `ti-lock` Verrouillé | `—` | Ton prono : 21–17 |
+| Locked, no pred | `21:05 · J7` / `ti-lock` Verrouillé | `—` | Pas de prono |
+| In-play, with pred | `21:05 · J7` / `●` En direct | Live score `27–14` | Ton prono : 30–10 |
+| In-play, no pred | `21:05 · J7` / `●` En direct | Live score `27–14` | Pas de prono |
+| Finished + EXACT | `21:05 · J7` / _(none)_ | Final `24–17` | Gold banner: `ti-crown +N pts · Score exact` + `Ton prono : X–Y` |
+| Finished + GAP | `21:05 · J7` / _(none)_ | Final `24–17` | Purple banner: `ti-target +N pts · Bon écart` + `Ton prono : X–Y` |
+| Finished + WIN | `21:05 · J7` / _(none)_ | Final `24–17` | Green banner: `ti-check +N pts · Bon vainqueur` + `Ton prono : X–Y` |
+| Finished + MISS | `21:05 · J7` / _(none)_ | Final `24–17` | Neutral banner: `ti-x 0 pt · Raté` + `Ton prono : X–Y` |
+| Finished, no pred | `21:05 · J7` / _(none)_ | Final `24–17` | Pas de prono |
+| Cancelled | `21:05 · J7` / `ti-x` Annulé | `—` | Match annulé, 0 pt |
 
 ### Result banner contrast (Zone C, finished)
 

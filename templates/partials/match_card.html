@@ -1,31 +1,21 @@
 {% load i18n static match_tags %}
-<div class="card mb-3{% if match.status == 'FINISHED' %} match-card-finished{% endif %}" id="match-card-{{ match.pk }}">
+<div class="card mb-3" id="match-card-{{ match.pk }}">
   <div class="card-body match-card-body">
 
-    {# ── Zone A — status strip ─────────────────────────────────────────── #}
+    {# ── Zone A — time · round + optional status ────────────────────────── #}
     <div class="match-zone-a">
+      <span class="match-zone-a-time">
+        {{ match.datetime|date:"H:i" }}{% if match.round %} · {% if match.round|is_numeric %}{% blocktrans with r=match.round %}J{{ r }}{% endblocktrans %}{% else %}{{ match.round|round_label }}{% endif %}{% endif %}
+      </span>
       {% if match.status == 'CANCELLED' %}
-        <span class="match-status-label">
-          <i class="ti ti-x" aria-hidden="true"></i> {% trans "Cancelled" %}
-        </span>
-      {% elif match.status == 'FINISHED' %}
-        <span class="match-status-label">
-          <i class="ti ti-check-circle" aria-hidden="true"></i> {% trans "Finished" %}
-        </span>
+        <span class="match-status-label"><i class="ti ti-x" aria-hidden="true"></i> {% trans "Cancelled" %}</span>
       {% elif match.is_locked and match.home_score is not None %}
-        <span class="match-status-label match-status-live">
-          <span class="live-dot"></span>{% trans "Live" %}
-        </span>
+        <span class="match-status-label match-status-live"><span class="live-dot"></span>{% trans "Live" %}</span>
       {% elif match.is_locked %}
-        <span class="match-status-label">
-          <i class="ti ti-lock" aria-hidden="true"></i> {% trans "Locked" %}
-        </span>
+        <span class="match-status-label"><i class="ti ti-lock" aria-hidden="true"></i> {% trans "Locked" %}</span>
       {% elif match.closes_soon %}
-        <span class="match-status-label match-status-closes-soon">
-          <i class="ti ti-clock" aria-hidden="true"></i> {% trans "Closes in" %} {{ match.datetime|timeuntil }}
-        </span>
+        <span class="match-status-label match-status-closes-soon"><i class="ti ti-clock" aria-hidden="true"></i> {% trans "Closes in" %} {{ match.datetime|timeuntil }}</span>
       {% endif %}
-      {# open / no-odds: zone reserved by min-height, no label #}
     </div>
 
     {# ── Teams row ─────────────────────────────────────────────────────── #}
@@ -46,7 +36,7 @@
         </div>
       </div>
 
-      {# ── Centre: score only ────────────────────────────────────────── #}
+      {# ── Centre: score/inputs ──────────────────────────────────────── #}
       <div class="text-center match-center-col">
         <div class="match-center-content">
 
@@ -81,7 +71,7 @@
                        min="0"
                        max="200"
                        value="{{ prediction.predicted_home_score|default:'' }}"
-                       class="match-score-input"
+                       class="match-score-input{% if prediction %} match-score-input--saved{% endif %}"
                        hx-disabled-elt="this"
                        inputmode="numeric"
                        enterkeyhint="next"
@@ -94,13 +84,16 @@
                        min="0"
                        max="200"
                        value="{{ prediction.predicted_away_score|default:'' }}"
-                       class="match-score-input"
+                       class="match-score-input{% if prediction %} match-score-input--saved{% endif %}"
                        hx-disabled-elt="this"
                        inputmode="numeric"
                        enterkeyhint="next"
                        autocomplete="off"
                        aria-label="{% trans 'Away score' %}">
               </div>
+              {% if prediction %}
+              <div class="match-inputs-saved-mark"><i class="ti ti-check" aria-hidden="true"></i></div>
+              {% endif %}
             </form>
           {% endif %}
 
@@ -133,12 +126,12 @@
         {% if prediction %}
           <div class="match-result-banner match-result-banner-{{ prediction.result_type|lower }}">
             <div class="fw-bold">
-              {% if prediction.result_type == 'EXACT' %}👑
-              {% elif prediction.result_type == 'GAP' %}🎯
-              {% elif prediction.result_type == 'WIN' %}✓
-              {% else %}✗
+              {% if prediction.result_type == 'EXACT' %}<i class="ti ti-crown" aria-hidden="true"></i>
+              {% elif prediction.result_type == 'GAP' %}<i class="ti ti-target" aria-hidden="true"></i>
+              {% elif prediction.result_type == 'WIN' %}<i class="ti ti-check" aria-hidden="true"></i>
+              {% else %}<i class="ti ti-x" aria-hidden="true"></i>
               {% endif %}
-              +{{ prediction.points_earned }} {% trans "pt" %}{% if prediction.points_earned != 1 %}s{% endif %} · {% if prediction.result_type == 'EXACT' %}{% trans "Exact score" %}{% elif prediction.result_type == 'GAP' %}{% trans "Good gap" %}{% elif prediction.result_type == 'WIN' %}{% trans "Correct winner" %}{% else %}{% trans "Missed" %}{% endif %}
+              {% if prediction.points_earned %}+{% endif %}{% blocktrans count counter=prediction.points_earned %}{{ counter }} pt{% plural %}{{ counter }} pts{% endblocktrans %} · {% if prediction.result_type == 'EXACT' %}{% trans "Exact score" %}{% elif prediction.result_type == 'GAP' %}{% trans "Good gap" %}{% elif prediction.result_type == 'WIN' %}{% trans "Correct winner" %}{% else %}{% trans "Missed" %}{% endif %}
             </div>
             <div class="match-result-banner-pred">{% trans "Your prediction:" %} {{ prediction.predicted_home_score }}–{{ prediction.predicted_away_score }}</div>
           </div>
@@ -160,20 +153,20 @@
         <span class="match-zone-c-placeholder">{% trans "Odds coming soon" %}</span>
 
       {% else %}
-        {# Open — odds bar if no prediction, saved + potential if prediction #}
+        {# Open — odds bar if no prediction, pending banner if prediction #}
         {% if prediction %}
-          <div class="match-saved-zone">
-            <span class="match-saved-state">
-              <i class="ti ti-check" aria-hidden="true"></i>
-              {% if saved %}<span class="match-saved-indicator ms-1">{% trans "Saved" %}</span>{% endif %}
-            </span>
+          <div class="match-saved-zone{% if saved %} match-saved-zone--flash{% endif %}">
+            {% if saved %}<span class="match-saved-indicator">{% trans "Saved" %}</span>{% endif %}
             {% if prediction.predicted_cote %}
               {% with pp=prediction.potential_points %}
-              <span class="match-potential-points">
-                <span class="match-badge-label-exact" title="{% trans 'Exact score' %}">👑 {{ pp.exact }}</span>
-                <span class="match-badge-label-gap ms-1" title="{% trans 'Good gap' %}">🎯 {{ pp.gap }}</span>
-                <span class="match-badge-label-win ms-1" title="{% trans 'Correct winner' %}">✓ {{ pp.win }}</span>
-              </span>
+              <div class="match-result-banner match-result-banner-pending">
+                <div class="match-potential-points">
+                  <span class="match-badge-label-exact" title="{% trans 'Exact score' %}"><i class="ti ti-crown" aria-hidden="true"></i> {{ pp.exact }}</span>
+                  <span class="match-badge-label-gap ms-1" title="{% trans 'Good gap' %}"><i class="ti ti-target" aria-hidden="true"></i> {{ pp.gap }}</span>
+                  <span class="match-badge-label-win ms-1" title="{% trans 'Correct winner' %}"><i class="ti ti-check" aria-hidden="true"></i> {{ pp.win }}</span>
+                </div>
+                <div class="match-result-banner-pred">{% trans "Your prediction:" %} {{ prediction.predicted_home_score }}–{{ prediction.predicted_away_score }}</div>
+              </div>
               {% endwith %}
             {% endif %}
           </div>
@@ -194,12 +187,6 @@
 
     </div>
     {# end Zone C #}
-
-    {# ── Zone D — footer ───────────────────────────────────────────────── #}
-    <div class="d-flex justify-content-between mt-1 text-muted match-card-footer">
-      <span>{% if match.round %}{% if match.round|is_numeric %}{% blocktrans with r=match.round %}J{{ r }}{% endblocktrans %}{% else %}{{ match.round|round_label }}{% endif %}{% endif %}</span>
-      <span>{{ match.datetime|date:"d/m H:i" }}</span>
-    </div>
 
   </div>
 </div>

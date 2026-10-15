@@ -59,8 +59,11 @@
 
   {# ── Flat chronological list ────────────────────────────────────────── #}
   {% for item in items %}
-    {% ifchanged item.match.competition_id %}
-    <div class="comp-divider-chip{% if not forloop.first %} mt-4{% endif %}">{{ item.match.competition.name }}</div>
+    {% ifchanged item.match.datetime|date:"Y-m-d" %}
+    <div class="day-divider{% if not forloop.first %} mt-4{% endif %}">{{ item.match.datetime|date:"D d/m" }}</div>
+    {% endifchanged %}
+    {% ifchanged item.match.competition_id item.match.datetime|date:"Y-m-d" %}
+    <div class="comp-divider-chip">{{ item.match.competition.name }}</div>
     {% endifchanged %}
     {% include "partials/match_card.html" with match=item.match prediction=item.prediction %}
   {% endfor %}
@@ -79,8 +82,11 @@
   </div>
   <div class="collapse" id="no-odds-collapse">
     {% for item in items_without_odds %}
-      {% ifchanged item.match.competition_id %}
-      <div class="comp-divider-chip{% if not forloop.first %} mt-4{% endif %}">{{ item.match.competition.name }}</div>
+      {% ifchanged item.match.datetime|date:"Y-m-d" %}
+      <div class="day-divider{% if not forloop.first %} mt-4{% endif %}">{{ item.match.datetime|date:"D d/m" }}</div>
+      {% endifchanged %}
+      {% ifchanged item.match.competition_id item.match.datetime|date:"Y-m-d" %}
+      <div class="comp-divider-chip">{{ item.match.competition.name }}</div>
       {% endifchanged %}
       {% include "partials/match_card.html" with match=item.match prediction=item.prediction %}
     {% endfor %}

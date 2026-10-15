@@ -227,7 +227,7 @@ msgstr "Planifié"
 msgid "In play"
 msgstr "En cours"
 
-#: apps/matches/models.py:107 templates/partials/match_card.html:13
+#: apps/matches/models.py:107
 msgid "Finished"
 msgstr "Terminé"
 
@@ -867,9 +867,11 @@ msgstr "Verrouillé"
 msgid "Closes in"
 msgstr "Ferme dans"
 
-#: templates/partials/match_card.html:141
-msgid "pt"
-msgstr "pt"
+#: templates/partials/match_card.html
+msgid "%(counter)s pt"
+msgid_plural "%(counter)s pts"
+msgstr[0] "%(counter)s pt"
+msgstr[1] "%(counter)s pts"
 
 #: templates/partials/match_card.html:143
 #: templates/partials/match_card.html:154
