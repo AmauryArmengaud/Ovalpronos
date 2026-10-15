@@ -54,6 +54,7 @@ locale/
 | `display_name` | CharField(50) | shown in rankings; falls back to username |
 | `favorite_team` | FK → Team | null/blank, set after teams are imported |
 | `avatar` | ImageField | optional, upload_to='avatars/' |
+| `last_reminder_sent` | DateTimeField | null/blank; guards 6-day cooldown for deadline reminder emails |
 
 ### `matches.Competition`
 
@@ -79,8 +80,9 @@ One competition per code can be `is_active=True` at a time. Rankings filter on t
 | `short_name` | CharField | "STA" |
 | `slug` | SlugField | "stade-toulousain" — key for local PNG |
 | `country` | CharField | used for national teams |
+| `logo` | ImageField | optional, upload_to='teams/'; for admin uploads |
 
-Logo resolution: `static/img/teams/<slug>.png`. No external logo URLs.
+Logo resolution for templates: `static/img/teams/<slug>.png`. The static PNG is the rendering source of truth — the `logo` ImageField is for admin-uploaded overrides only (see `migrate_team_logos` command). No external logo URLs.
 
 ### `matches.Match`
 
@@ -210,27 +212,21 @@ FIXED mode (when `competition.scoring_system == 'FIXED'`): same branching logic,
 
 ## 4. Sync Flow
 
-### V1: GitHub Actions → Django endpoint
+### Current sync flow
 
 ```
-GitHub Actions cron
-  schedule: every 2h (every 15min Sat/Sun)
-  → POST /api/sync-scores/
-    Authorization: Bearer <SYNC_SECRET_TOKEN>
-
-sync_scores_api (apps/matches/views.py)
-  → validate token against settings.SYNC_SECRET_TOKEN
-  → call sync_all_competitions()
-  → return JsonResponse {created, updated}
+VPS cron (07:00 UTC daily)
+  → python manage.py sync_matches
 
 sync_all_competitions() (apps/matches/services.py)
-  → for each competition in settings.RUGBY_COMPETITIONS (not filtered by DB is_active):
+  → Competition.objects.filter(is_active=True)  # DB is single source of truth
+  → for each active competition:
       sync_competition_matches(competition.code)
 
 sync_competition_matches(code)
-  → GET v1.rugby.api-sports.io/games?league=<id>&season=<season>
+  → GET rugby-live-data RapidAPI /fixtures/{comp_id}/{season}
   → for each game: update_or_create Match, Team (within transaction.atomic)
-  → if match just reached FINISHED:
+  → if match just reached FINISHED or CANCELLED:
       _calculate_points_for_match(match)
 
 _calculate_points_for_match(match)
@@ -246,9 +242,12 @@ _calculate_points_for_match(match)
 
 Note: the queryset deliberately omits `points_earned__isnull=True`. Filtering it would cause score corrections (e.g. a match mis-detected as FINISHED by the live sync, then corrected by the next sync) to be silently ignored.
 
-### V2: AWS Lambda (future)
-
-EventBridge (every 5min during match windows) → Lambda fetches api-sports.io scores → POST to `/api/sync-scores/` with full score payload → Django updates and calculates in one shot.
+Live sync (every 10 min, 24/7):
+```
+VPS cron → python manage.py sync_if_live
+  → exits silently if no match is IN_PLAY or started within last 2h
+  → otherwise calls sync_all_competitions()
+```
 
 ---
 
@@ -294,9 +293,9 @@ Global rankings use a single "Global" tab with competition filter chips (pill-st
 For the global ranking view:
 
 ```
-1. Aggregate from Prediction (on-the-fly, V1 — no UserScore)
-2. Apply competition filter if chip selected (filter to matches in that competition)
-3. Sort by total points DESC, assign rank
+1. Read from UserScore (denormalized cache — see §6)
+2. Apply competition filter if chip selected
+3. Sort by (-points, -exact_count, -gap_count) in Python via _build_leaderboard()
 4. Highlight current user row
 ```
 
@@ -332,8 +331,8 @@ The `next` parameter is handled natively by Django's `LoginView` — no custom l
 
 The admin uses Django's native admin with a custom theme that matches the main app's design system. No third-party admin package.
 
-- `templates/admin/base_site.html` — injects Bootstrap 5, Barlow, Tabler Icons, `main.css`, and `admin.css`
-- `static/css/admin.css` — overrides Django admin selectors using `var(--color-primary)`, `var(--color-accent)` etc. from `main.css`; **never redefines CSS variables**
+- `templates/admin/base_site.html` — injects Bootstrap 5, Barlow, Tabler Icons, and `admin.css` (does **not** load `main.css`)
+- `static/css/admin.css` — standalone; duplicates CSS variables from `main.css` in its own `:root` block, then overrides Django admin selectors. **V4 debt:** variable duplication must be unified before white-label (extract to `tokens.css`); when changing a variable in `main.css`, update `admin.css` too.
 - `templates/admin/index.html` — dashboard with 4 metric cards
 - `apps/matches/templatetags/admin_extras.py` — `dashboard_stats` inclusion tag powering the dashboard
 
@@ -378,9 +377,12 @@ Non-standard ModelAdmin pages use `@staff_member_required` and live in `apps/mat
 ```
 Internet → Ionos DNS → Hetzner CX22 → Gunicorn → Django → PostgreSQL (local)
                                                          → WhiteNoise (static files)
-GitHub Actions cron → POST /api/sync-scores/ → Django → PostgreSQL
-GitHub Actions push  → SSH → ~/deploy.sh (git pull, migrate, collectstatic, restart gunicorn)
-Email: Ionos SMTP (smtp.ionos.fr:587)
+VPS cron (07:00 UTC)  → python manage.py sync_matches
+VPS cron (*/10 * * * *) → python manage.py sync_if_live
+VPS cron (Tue 10:00 UTC) → python .github/scripts/update_odds.py
+VPS cron (10:00 UTC daily) → python manage.py send_deadline_reminders
+GitHub Actions push → SSH → ~/deploy.sh (git pull, migrate, collectstatic, restart gunicorn)
+Email: Brevo transactional API (django-anymail)
 SSL: Let's Encrypt (certbot)
 ```
 
@@ -405,9 +407,8 @@ The raw integer is used directly in `calculate_points()` — no division needed.
 attributes. This avoids stale event bindings after a re-render without writing any JS
 re-initialisation logic.
 
-**Why `sync_all_competitions()` iterates `settings.RUGBY_COMPETITIONS`, not DB entries.**
-New competitions in config are synced and created on first run without any manual DB insert.
-An admin does not have to pre-create a Competition row before the first sync.
+**Why `sync_all_competitions()` iterates active DB competitions, not a settings list.**
+The DB is the single source of truth for which competitions are active. Adding a competition is done once via the admin (creating a Competition row and setting `is_active=True`) — no code deploy needed. Before this approach the list lived in `settings.RUGBY_COMPETITIONS`; that constant was removed (Sprint 10.5.3).
 
 **Why `UserScore` is V2, not V1.**
 On-the-fly aggregation from `Prediction` is fast enough at the current user count. Adding

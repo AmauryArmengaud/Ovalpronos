@@ -11,7 +11,7 @@
   --color-background:       #FCFFF9;
   --color-text-on-primary:  #FCFFF9;
   --color-text:             #404771;
-  --color-text-secondary:   rgba(43, 52, 103, 0.55);
+  --color-text-secondary:   rgba(43, 52, 103, 0.75);  /* synced with main.css — was 0.55 */
   --color-surface-raised:   rgba(43, 52, 103, 0.06);
   --color-brand-rugby:      #1a7f37;
 

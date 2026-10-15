@@ -4,7 +4,7 @@ Application de pronostics rugby couvrant le **Top 14**, la **Champions Cup** et 
 
 **Tagline :** "Tu sais pas plaquer, viens pronostiquer"
 
-Stack : **Django 5** · **Bootstrap 5 + HTMX** · **PostgreSQL** · **api-sports.io (Rugby)** · **Hetzner CX22**
+Stack : **Django 6** · **Bootstrap 5 + HTMX** · **PostgreSQL** · **rugby-live-data (RapidAPI)** · **Hetzner CX22**
 
 Admin : interface Django native thématisée avec le design system de l'app (Bootstrap 5, Barlow, Tabler Icons, CSS variables).
 
@@ -38,11 +38,24 @@ SECRET_KEY=<django-secret-key>
 DEBUG=True
 DATABASE_URL=              # Omit for SQLite in dev
 RAPIDAPI_KEY=<key>
-RUGBY_SEASON=2024-2025
+RUGBY_SEASON=2025
 ALLOWED_HOSTS=localhost,127.0.0.1
 SYNC_SECRET_TOKEN=<random-token>
+
+# Cloudflare Turnstile CAPTCHA (use test keys locally — always passes)
+TURNSTILE_SITE_KEY=1x00000000000000000000AA
+TURNSTILE_SECRET_KEY=1x0000000000000000000000000000000AA
+
+# Google AI Studio (needed by update_odds.py; optional in dev)
+GOOGLE_API_KEY=<google-ai-studio-key>
+
 # Email: console backend by default in dev, no config needed
-# EMAIL_BACKEND=django.core.mail.backends.smtp.EmailBackend  # uncomment for SMTP
+# Brevo API key for prod (django-anymail)
+# BREVO_API_KEY=<brevo-api-key>
+
+# PostHog EU analytics (leave unset in dev)
+# POSTHOG_API_KEY=<phc_xxx>
+# POSTHOG_ENABLED=True
 ```
 
 ### 4. Base de données et premier lancement
@@ -91,20 +104,26 @@ ovalpronos/
 │   ├── leagues/              # list, create, join, detail
 │   ├── partials/             # match_card.html (6 états HTMX)
 │   ├── admin/
-│   │   ├── base_site.html    # Injecte Bootstrap 5, Barlow, Tabler Icons, main.css + admin.css
+│   │   ├── base_site.html    # Injecte Bootstrap 5, Barlow, Tabler Icons, admin.css (ne charge PAS main.css)
 │   │   ├── index.html        # Dashboard avec 4 cartes métriques
 │   │   ├── partials/         # dashboard_stats.html (templatetag inclusion)
 │   │   └── matches/          # import.html (déclencheur sync api-sports.io)
 │   └── 404.html
 ├── static/
 │   ├── css/main.css          # CSS variables — aucune couleur hex en dur
-│   ├── css/admin.css         # Overrides Django admin (utilise les vars de main.css)
-│   └── img/teams/            # <slug>.svg — un fichier par équipe
+│   ├── css/admin.css         # Overrides Django admin — standalone, duplique les vars de main.css (dette V4)
+│   └── img/teams/            # <slug>.png — un fichier par équipe
 ├── locale/fr/LC_MESSAGES/    # django.po / django.mo
-├── .github/workflows/
-│   └── sync_matches.yml      # Cron 2h + 15min week-end + workflow_dispatch
+├── .github/
+│   ├── workflows/
+│   │   ├── deploy.yml           # Déploiement SSH sur Hetzner (push → ~/deploy.sh)
+│   │   ├── sync_matches.yml     # Sync manuelle d'urgence (workflow_dispatch)
+│   │   ├── update_odds.yml      # Relance Gemini manuelle (workflow_dispatch)
+│   │   └── email_notifications.yml  # Résumés manuels (workflow_dispatch)
+│   └── scripts/
+│       ├── update_odds.py       # Gemini Flash + Google Search → POST /api/update-odds/
+│       └── test_odds.py         # Test standalone (GOOGLE_API_KEY=... python test_odds.py)
 ├── requirements.txt
-│   └── deploy.yml            # Déploiement SSH sur Hetzner (push → ~/deploy.sh)
 ```
 
 ---
@@ -146,13 +165,14 @@ Mode **FIXED** : 5 / 3 / 1 / 0 points fixes. Configurable par compétition dans 
 
 ## Synchronisation des matchs
 
-La sync est déclenchée par **GitHub Actions** via `POST /api/sync-scores/` avec un token Bearer :
+La sync est pilotée par le **cron VPS** — GitHub Actions n'est utilisé qu'en déclenchement manuel d'urgence.
 
-- Toutes les 2h en semaine
-- Toutes les 15 minutes le week-end
-- Manuellement via `workflow_dispatch`
-
-GitHub Secrets requis : `APP_URL`, `SYNC_SECRET_TOKEN`.
+| Schedule | Commande | Rôle |
+|---|---|---|
+| `0 7 * * *` | `python manage.py sync_matches` | Sync quotidienne complète |
+| `*/10 * * * *` | `python manage.py sync_if_live` | Sync live — exit silencieux si pas de match |
+| `0 10 * * 2` | `python .github/scripts/update_odds.py` | Mise à jour cotes Gemini (mardi) |
+| `0 10 * * *` | `python manage.py send_deadline_reminders` | Rappels deadline |
 
 En développement, déclencher manuellement :
 ```bash
@@ -181,8 +201,9 @@ sudo systemctl restart gunicorn
 | `DEPLOY_HOST` | IP/hostname Hetzner |
 | `DEPLOY_USER` | Utilisateur SSH (`amaury`) |
 | `DEPLOY_KEY` | Clé privée SSH |
-| `APP_URL` | URL complète de l'app |
-| `SYNC_SECRET_TOKEN` | Token Bearer pour `/api/sync-scores/` |
+| `APP_URL` | URL complète de l'app (déclenchements manuels uniquement) |
+| `SYNC_SECRET_TOKEN` | Token Bearer pour les endpoints `/api/` sécurisés |
+| `GOOGLE_API_KEY` | Google AI Studio — `update_odds.yml` (manuel uniquement) |
 
 ---
 
