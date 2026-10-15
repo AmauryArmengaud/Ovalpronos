@@ -1,6 +1,7 @@
 from django.contrib import admin
 from django.db.models import Count
-from django.urls import reverse
+from django.http import HttpResponseRedirect
+from django.urls import path, reverse
 from django.utils.html import format_html, mark_safe
 
 from .models import Competition, Match, Team
@@ -59,6 +60,23 @@ class CompetitionAdmin(admin.ModelAdmin):
     search_fields = ('name', 'code')
     actions = ['sync_competition_action', 'recalculate_all_scores_action']
 
+    def get_urls(self):
+        urls = super().get_urls()
+        custom = [
+            path('<int:pk>/sync/', self.admin_site.admin_view(self.sync_view), name='matches_competition_sync'),
+        ]
+        return custom + urls
+
+    def sync_view(self, request, pk):
+        from apps.matches.services import sync_competition_matches
+        comp = Competition.objects.get(pk=pk)
+        try:
+            r = sync_competition_matches(comp.code)
+            self.message_user(request, f"{comp.name} : {r['created']} créés, {r['updated']} mis à jour.")
+        except Exception as e:
+            self.message_user(request, f"{comp.name} : erreur — {e}", level='error')
+        return HttpResponseRedirect(reverse('admin:matches_competition_changelist'))
+
     def get_queryset(self, request):
         return super().get_queryset(request).annotate(_match_count=Count('matches'))
 
@@ -68,7 +86,7 @@ class CompetitionAdmin(admin.ModelAdmin):
 
     @admin.display(description='')
     def sync_button(self, obj):
-        url = f'/admin/matches/competition/{obj.pk}/import/'
+        url = reverse('admin:matches_competition_sync', args=[obj.pk])
         return format_html('<a class="button btn btn-sm btn-outline-primary" href="{}">Sync</a>', url)
 
     @admin.action(description='Synchroniser les matchs depuis l\'API')
