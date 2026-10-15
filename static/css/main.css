@@ -451,7 +451,7 @@ main {
   gap: 2px;
   text-align: center;
   font-size: var(--text-xs);
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.25rem;
 }
 
 .match-zone-a-time {
@@ -743,10 +743,7 @@ main {
   font-size: var(--text-xs);
   font-weight: 700;
   color: var(--color-text-secondary);
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
   padding: 0.5rem 0 0.25rem;
-  text-align: center;
 }
 
 /* ─── Predictions: competition divider chip (filter style) ────────────── */
@@ -760,7 +757,7 @@ main {
   color: var(--color-primary);
   font-size: var(--text-xs);
   font-weight: 600;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.375rem;
 }
 
 /* ─── Predictions: no-odds collapse toggle ─────────────────────────────── */
@@ -867,6 +864,13 @@ main {
   }
 }
 
+/* ─── Predictions page — centred wrapper, caps at 1140px on wide screens ── */
+.predictions-page-wrap {
+  max-width: 1140px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
 /* ─── Predictions: 2-column grid at lg ──────────────────────────────────── */
 @media (min-width: 992px) {
   .predictions-grid {
@@ -876,9 +880,14 @@ main {
     align-items: start;
   }
 
-  /* Separators and collapse span both columns */
+  /* Full-width span forces a row break so the next card starts in col 1 */
   .predictions-grid > .day-divider,
   .predictions-grid > .comp-divider-chip {
     grid-column: 1 / -1;
+  }
+
+  /* Chip keeps its natural pill shape — only the invisible row span is full-width */
+  .predictions-grid > .comp-divider-chip {
+    width: fit-content;
   }
 }

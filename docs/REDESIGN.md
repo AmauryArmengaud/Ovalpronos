@@ -90,9 +90,14 @@ All 7 variables above are also present in `admin.css` (standalone — see §3).
 | `.match-zone-c` min-height | 56px (align-items: flex-start) | 56px |
 
 **Desktop layout:** At `lg` (≥992px) the predictions page uses a 2-column CSS grid
-(`.predictions-grid`). Day-dividers and comp-divider-chips span both columns via
-`grid-column: 1 / -1`. DOM order matches reading order (left-to-right, top-to-bottom), so
-keyboard navigation is correct without JS changes.
+(`.predictions-grid`). Day-dividers span both columns (`grid-column: 1 / -1`, left-aligned, no
+uppercase). Comp-divider-chips also span both columns for the row break but keep their natural
+pill width via `width: fit-content`. The whole page content is wrapped in `.predictions-page-wrap`
+(max-width: 1140px, auto-centred). DOM order matches reading order (left-to-right, top-to-bottom),
+so keyboard navigation is correct without JS changes.
+
+Day separator date format: `date:"D j M"` — uses locale-aware abbreviated day and month names
+(e.g. "dim. 6 sept." in French, "Sun 6 Sep" in English). Never hardcoded slashes or fixed locale.
 
 ### Saved state
 

@@ -4,8 +4,7 @@
 {% block title %}{% trans "Predictions" %} — Oval'Pronos{% endblock %}
 
 {% block content %}
-<div class="row justify-content-center">
-<div class="col-12">
+<div class="predictions-page-wrap">
 
 <h1 class="mb-4">{% trans "Predictions" %}</h1>
 
@@ -61,7 +60,7 @@
   <div class="predictions-grid">
   {% for item in items %}
     {% ifchanged item.match.datetime|date:"Y-m-d" %}
-    <div class="day-divider{% if not forloop.first %} mt-4{% endif %}">{{ item.match.datetime|date:"D d/m" }}</div>
+    <div class="day-divider{% if not forloop.first %} mt-4{% endif %}">{{ item.match.datetime|date:"D j M" }}</div>
     {% endifchanged %}
     {% ifchanged item.match.competition_id item.match.datetime|date:"Y-m-d" %}
     <div class="comp-divider-chip">{{ item.match.competition.name }}</div>
@@ -86,7 +85,7 @@
     <div class="predictions-grid">
     {% for item in items_without_odds %}
       {% ifchanged item.match.datetime|date:"Y-m-d" %}
-      <div class="day-divider{% if not forloop.first %} mt-4{% endif %}">{{ item.match.datetime|date:"D d/m" }}</div>
+      <div class="day-divider{% if not forloop.first %} mt-4{% endif %}">{{ item.match.datetime|date:"D j M" }}</div>
       {% endifchanged %}
       {% ifchanged item.match.competition_id item.match.datetime|date:"Y-m-d" %}
       <div class="comp-divider-chip">{{ item.match.competition.name }}</div>
@@ -99,8 +98,7 @@
 
 {% endif %}
 
-</div>{# /col #}
-</div>{# /row #}
+</div>{# /predictions-page-wrap #}
 {% endblock %}
 
 {% block extra_js %}
