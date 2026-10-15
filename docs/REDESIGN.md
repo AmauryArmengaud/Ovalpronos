@@ -83,7 +83,7 @@ All 7 variables above are also present in `admin.css` (standalone — see §3).
 | `.match-center-col` width | 24% | 30% (wider to fit inputs) |
 | `.match-team-name` min-height | none | 2.6rem (reserves 2 lines at 15px×1.5) |
 | `.match-card-body` padding | 0.75rem | 0.625rem (uniform) |
-| `.match-zone-a` min-height | 36px (flex-column, gap 2px) | 36px |
+| `.match-zone-a` min-height | 44px (flex-column, gap 2px) | 44px |
 | `.match-center-content` min-height | 44px | 44px |
 | `.match-zone-c` min-height | 56px (align-items: flex-start) | 56px |
 
@@ -365,27 +365,27 @@ Access from phone: `http://<your-mac-ip>:8000/predictions/`
 
 Checklist:
 - [ ] **All cards the same height** — no card taller than the others
-- [ ] On desktop (≥992px): 2-column grid, day-dividers and comp-chips span both columns, centred at 1140px
-- [ ] Zone A shows correct label for each state (closes-soon accent red, locked grey, live red pulsing, cancelled grey, finished empty)
-- [ ] Logos visible (Toulouse, Racing 92, La Rochelle, Clermont)
-- [ ] Match -9 shows initials circles (no PNG for those slugs)
-- [ ] Match -10 Zone A shows "Finale" (not "Final") — `round_label` filter working
-- [ ] All logos have a subtle circular background tint (`--color-logo-bg`) — visible behind pale logos
-- [ ] Score inputs fit inside center col without overflow
-- [ ] Team names wrap to 2 lines, no ellipsis, no height jump
-- [ ] Match -3 (closes soon + prediction): Zone A shows "Ferme dans Xh", Zone C shows potential pts
-- [ ] Match -6 (in-play): Zone A shows pulsing dot + "En direct", centre shows "27–14"
-- [ ] Match -7 (finished): gold result banner with pts fills Zone C
-- [ ] "Enregistré" appears and fades after save (match -1 or -9)
-- [ ] Save on match -2: inputs stay pre-filled, Zone C updates, progress bar increments
-- [ ] Progress bar: primary colour while partial, green when 100%
-- [ ] Progress bar label: "X/Y pronos" — accurate count
-- [ ] Tabs: height ≥ 44px, live-dot visible on En direct when match -6 is in play
-- [ ] Live empty state (access ?tab=live when no live match): message + "Voir les matchs à venir" link
-- [ ] No-odds toggle: solid border, 44px height — tap target comfortable
-- [ ] Saved state on match -2: green tint + `ti-check` below inputs visible on page load (server-rendered)
-- [ ] **Priority — keyboard on iOS:** modify only the home score of match -2 (existing prediction, not the first card). Keyboard must stay open after the card swaps. If it closes, activate Plan B morph.
-- [ ] **Priority — last card:** enter a prediction on the last visible card (no-odds section expanded if needed). "OK" / done key should save via blur, keyboard closes, card swaps correctly.
+- [x] On desktop (≥992px): 2-column grid, day-dividers and comp-chips span both columns, centred at 1140px
+- [x] Zone A shows correct label for each state (closes-soon accent red, locked grey, live red pulsing, cancelled grey, finished empty)
+- [x] Logos visible (Toulouse, Racing 92, La Rochelle, Clermont)
+- [x] Match -9 shows initials circles (no PNG for those slugs)
+- [x] Match -10 Zone A shows "Finale" (not "Final") — `round_label` filter working
+- [x] All logos have a subtle circular background tint (`--color-logo-bg`) — visible behind pale logos
+- [x] Score inputs fit inside center col without overflow
+- [x] Team names wrap to 2 lines, no ellipsis, no height jump
+- [x] Match -3 (closes soon + prediction): Zone A shows "Ferme dans Xh", Zone C shows potential pts
+- [x] Match -6 (in-play): Zone A shows pulsing dot + "En direct", centre shows "27–14"
+- [x] Match -7 (finished): gold result banner with pts fills Zone C
+- [x] "Enregistré" appears and fades after save (match -1 or -9)
+- [x] Save on match -2: inputs stay pre-filled, Zone C updates, progress bar increments
+- [x] Progress bar: primary colour while partial, green when 100%
+- [x] Progress bar label: "X/Y pronos" — accurate count
+- [x] Tabs: height ≥ 44px, live-dot visible on En direct when match -6 is in play
+- [x] Live empty state (access ?tab=live when no live match): message + "Voir les matchs à venir" link
+- [x] No-odds toggle: solid border, 44px height — tap target comfortable
+- [x] Saved state on match -2: green tint + `ti-check` below inputs visible on page load (server-rendered)
+- [x] **Priority — keyboard on iOS:** modify only the home score of match -2 (existing prediction, not the first card). Keyboard must stay open after the card swaps. If it closes, activate Plan B morph.
+- [x] **Priority — last card:** enter a prediction on the last visible card (no-odds section expanded if needed). "OK" / done key should save via blur, keyboard closes, card swaps correctly.
 
 ### i18n
 

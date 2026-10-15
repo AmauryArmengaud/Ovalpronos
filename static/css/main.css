@@ -444,7 +444,7 @@ main {
 
 /* ── Zone A — time · round + optional status ─────────────────────────────── */
 .match-zone-a {
-  min-height: 36px;
+  min-height: 44px;  /* 2 lines at text-xs/1.6 + 2px gap ≈ 42.8px — 36px was too small */
   display: flex;
   flex-direction: column;
   align-items: center;
