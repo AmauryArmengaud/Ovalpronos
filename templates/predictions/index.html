@@ -36,6 +36,7 @@
     {% elif active_tab == 'live' %}
       <i class="ti ti-player-play mb-3" style="font-size: 3rem; color: var(--color-icon-muted);"></i>
       <p>{% trans "No matches in progress right now." %}</p>
+      <a href="?tab=upcoming" class="btn btn-outline-secondary btn-sm mt-2">{% trans "See upcoming matches" %}</a>
     {% else %}
       <i class="ti ti-history mb-3" style="font-size: 3rem; color: var(--color-icon-muted);"></i>
       <p>{% trans "Your past predictions will appear here." %}</p>
@@ -46,13 +47,13 @@
   {# ── Progress bar (upcoming only) ──────────────────────────────────── #}
   {% if active_tab == 'upcoming' and total_with_odds %}
   <div class="d-flex align-items-center gap-2 prediction-progress-sticky">
-    <div class="progress flex-grow-1" style="height:4px;">
-      <div class="progress-bar bg-accent prediction-progress-bar"
+    <div class="prediction-progress-track flex-grow-1">
+      <div class="prediction-progress-bar{% if predicted_with_odds == total_with_odds %} prediction-progress-bar--complete{% endif %}"
            style="width:{% widthratio predicted_with_odds total_with_odds 100 %}%"
            data-total="{{ total_with_odds }}">
       </div>
     </div>
-    <span class="small text-muted flex-shrink-0 prediction-progress-counter">{{ predicted_with_odds }}/{{ total_with_odds }}</span>
+    <span class="flex-shrink-0 prediction-progress-counter"><span class="prediction-progress-count">{{ predicted_with_odds }}</span>/{{ total_with_odds }} {% blocktrans count n=total_with_odds %}prediction{% plural %}predictions{% endblocktrans %}</span>
   </div>
   {% endif %}
 
@@ -216,12 +217,13 @@
 
     // Update progress bar
     var bar = document.querySelector('.prediction-progress-bar');
-    var counter = document.querySelector('.prediction-progress-counter');
-    if (bar && counter) {
+    var count = document.querySelector('.prediction-progress-count');
+    if (bar && count) {
       var total = parseInt(bar.dataset.total);
       var predicted = document.querySelectorAll('.match-potential-points').length;
       bar.style.width = (predicted / total * 100) + '%';
-      counter.textContent = predicted + '/' + total;
+      count.textContent = predicted;
+      bar.classList.toggle('prediction-progress-bar--complete', predicted >= total);
     }
 
     // Restore focus if the swap destroyed the focused input (focus fell back to body)
