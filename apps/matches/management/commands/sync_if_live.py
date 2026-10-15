@@ -1,5 +1,4 @@
 from django.core.management.base import BaseCommand
-from django.conf import settings
 from django.utils import timezone
 from django.db.models import Q
 import datetime as dt
@@ -24,7 +23,8 @@ class Command(BaseCommand):
         if not has_live:
             return
 
-        for code in settings.RUGBY_COMPETITIONS:
+        from apps.matches.models import Competition
+        for code in Competition.objects.filter(is_active=True).values_list('code', flat=True):
             r = sync_competition_matches(code)
             self.stdout.write(f"[{code}] {r['created']} créés, {r['updated']} mis à jour")
             for change in r['changes']:

@@ -103,28 +103,17 @@ def sync_competition_matches(competition_code):
     Crée ou met à jour les équipes, puis les matchs.
 
     Args:
-        competition_code: clé dans RUGBY_COMPETITIONS (ex: 'TOP14')
+        competition_code: code de la Competition en base (ex: 'TOP14')
     """
     from apps.matches.models import Competition, Team, Match
 
-    comp_config = settings.RUGBY_COMPETITIONS.get(competition_code)
-    if not comp_config:
+    try:
+        competition = Competition.objects.get(code=competition_code)
+    except Competition.DoesNotExist:
         logger.error(f"Compétition inconnue : {competition_code}")
-        return 0, 0
+        return {'created': 0, 'updated': 0, 'changes': [], 'points_calculated': 0}
 
-    season = comp_config.get('season', settings.RUGBY_SEASON)
-
-    competition, _ = Competition.objects.get_or_create(
-        external_id=comp_config['id'],
-        season=str(season),
-        defaults={
-            'name': comp_config['name'],
-            'code': competition_code,
-            'country': comp_config['country'],
-        }
-    )
-
-    games = _get_fixtures(comp_config['id'], season)
+    games = _get_fixtures(competition.external_id, competition.season)
     if games is None:
         return {'created': 0, 'updated': 0, 'changes': [], 'points_calculated': 0, 'api_error': True}
 
@@ -412,9 +401,10 @@ def _calculate_points_for_match(match):
 
 
 def sync_all_competitions():
+    from apps.matches.models import Competition
     results = []
-    for code in settings.RUGBY_COMPETITIONS:
-        r = sync_competition_matches(code)
-        r['competition'] = code
+    for comp in Competition.objects.filter(is_active=True):
+        r = sync_competition_matches(comp.code)
+        r['competition'] = comp.code
         results.append(r)
     return results

@@ -10,7 +10,6 @@ Usage :
 """
 
 from django.core.management.base import BaseCommand
-from django.conf import settings
 from apps.matches.services import sync_competition_matches
 
 
@@ -28,10 +27,11 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         comp_code = options.get('comp')
 
+        from apps.matches.models import Competition
         if comp_code:
             competitions = [comp_code]
         else:
-            competitions = list(settings.RUGBY_COMPETITIONS.keys())
+            competitions = list(Competition.objects.filter(is_active=True).values_list('code', flat=True))
 
         total_created = 0
         total_updated = 0

@@ -145,16 +145,6 @@ TURNSTILE_SECRET_KEY = config('TURNSTILE_SECRET_KEY', default='1x000000000000000
 RAPIDAPI_KEY = config('RAPIDAPI_KEY', default='')
 SYNC_SECRET_TOKEN = config('SYNC_SECRET_TOKEN', default='')
 
-# Compétitions à synchroniser (IDs rugby-live-data sur RapidAPI)
-RUGBY_COMPETITIONS = {
-    'TOP14': {'id': 1230, 'name': 'Top 14', 'country': 'France', 'season': 2027},
-    'CHAMPIONS_CUP': {'id': 1464, 'name': 'Champions Cup', 'country': 'Europe', 'season': 2027},
-    'CHALLENGE_CUP': {'id': 1470, 'name': 'Challenge Cup', 'country': 'Europe', 'season': 2027},
-    'NATIONS_CHAMPIONSHIP': {'id': 696, 'name': 'Nation Championship', 'country': 'Europe', 'season': 2026}
-    #'SIX_NATIONS': {'id': 180, 'name': '6 Nations', 'country': 'World', 'season': 2025},
-}
-# Fallback season used if a competition config has no 'season' key.
-RUGBY_SEASON = config('RUGBY_SEASON', default='2025')
 
 
 # ─── Email ────────────────────────────────────────────────────────────────────
