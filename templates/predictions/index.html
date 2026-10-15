@@ -164,16 +164,36 @@
     }
   });
 
-  // Update progress bar after each card save
+  // Track the last focused score input so focus can be restored after HTMX swap
+  var pendingFocusId = null;
+  document.addEventListener('focusin', function(e) {
+    if (e.target.classList.contains('match-score-input') && e.target.id) {
+      pendingFocusId = e.target.id;
+    }
+  });
+
+  // Update progress bar + restore keyboard focus after each card swap
   document.body.addEventListener('htmx:afterSwap', function(e) {
     if (!e.target.id || !e.target.id.startsWith('match-card-')) return;
+
+    // Update progress bar
     var bar = document.querySelector('.prediction-progress-bar');
     var counter = document.querySelector('.prediction-progress-counter');
-    if (!bar || !counter) return;
-    var total = parseInt(bar.dataset.total);
-    var predicted = document.querySelectorAll('.match-potential-points').length;
-    bar.style.width = (predicted / total * 100) + '%';
-    counter.textContent = predicted + '/' + total;
+    if (bar && counter) {
+      var total = parseInt(bar.dataset.total);
+      var predicted = document.querySelectorAll('.match-potential-points').length;
+      bar.style.width = (predicted / total * 100) + '%';
+      counter.textContent = predicted + '/' + total;
+    }
+
+    // Restore focus if the swap destroyed the focused input (focus fell back to body)
+    // Note: on iOS Safari programmatic focus() after async may not reopen the keyboard —
+    // see ARCHITECTURE.md §morph-swap for the definitive fix if this is insufficient.
+    if (pendingFocusId && (document.activeElement === document.body || document.activeElement === document.documentElement)) {
+      var el = document.getElementById(pendingFocusId);
+      if (el) el.focus();
+    }
+    pendingFocusId = null;
   });
 </script>
 {% endblock %}

@@ -7,13 +7,11 @@
 
       {# Home team #}
       <div class="text-center match-team-col">
-        <div class="match-logo-wrap">
-          <span class="match-team-logo-fallback" aria-hidden="true">{{ match.home_team.short_name|default:match.home_team.name|slice:":3"|upper }}</span>
-          <img src="{% if match.home_team.logo %}{{ match.home_team.logo.url }}{% else %}{% static 'img/teams/' %}{{ match.home_team.slug }}.png{% endif %}"
-               alt="{{ match.home_team.name }}"
-               class="match-team-logo"
-               onerror="this.style.opacity='0'">
-        </div>
+        <img src="{% if match.home_team.logo %}{{ match.home_team.logo.url }}{% else %}{% static 'img/teams/' %}{{ match.home_team.slug }}.png{% endif %}"
+             alt="{{ match.home_team.name }}"
+             class="match-team-logo"
+             onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+        <span class="match-team-logo-fallback" aria-hidden="true">{{ match.home_team.short_name|default:match.home_team.name|slice:":3"|upper }}</span>
         <div class="fw-semibold small mt-1 match-team-name">
           <span class="d-none d-sm-inline">{{ match.home_team.name }}</span>
           <span class="d-sm-none">{{ match.home_team.short_name|default:match.home_team.name }}</span>
@@ -91,13 +89,14 @@
             </div>
           {% endif %}
           <form hx-post="{% url 'predictions:submit' match.pk %}"
-                hx-trigger="blur[this.querySelector('[name=away]').value !== '' && this.querySelector('[name=home]').value !== ''] from:[name=away]"
+                hx-trigger="change[this.querySelector('[name=home]').value !== '' && this.querySelector('[name=away]').value !== '']"
                 hx-swap="outerHTML"
                 hx-target="#match-card-{{ match.pk }}"
                 class="save-form position-relative">
             {% csrf_token %}
             <div class="d-flex align-items-center justify-content-center gap-1">
               <input type="number"
+                     id="home-{{ match.pk }}"
                      name="home"
                      min="0"
                      max="200"
@@ -110,6 +109,7 @@
                      aria-label="{% trans 'Home score' %}">
               <span class="fw-bold text-muted">–</span>
               <input type="number"
+                     id="away-{{ match.pk }}"
                      name="away"
                      min="0"
                      max="200"
@@ -131,22 +131,25 @@
             <div class="text-muted text-center mt-1 match-microcopy">{% trans "Fill both scores to save" %}</div>
           {% endif %}
 
+          {# Persistent saved state — visible as long as a prediction exists #}
+          {% if prediction %}
+            <div class="match-saved-state mt-1">
+              <i class="ti ti-check" aria-hidden="true"></i>
+              {{ prediction.predicted_home_score }}–{{ prediction.predicted_away_score }}
+              {# Transient: "Saved" text animates in right after a save, then fades #}
+              {% if saved %}<span class="match-saved-indicator ms-1">{% trans "Saved" %}</span>{% endif %}
+            </div>
+          {% endif %}
+
           {# Potential points when prediction is entered #}
           {% if prediction and prediction.predicted_cote %}
             {% with pp=prediction.potential_points %}
-            <div class="mt-2 d-flex justify-content-center gap-2 match-potential-points">
+            <div class="mt-1 d-flex justify-content-center gap-2 match-potential-points">
               <span class="match-badge-label-exact" title="{% trans 'Exact score' %}">👑 {{ pp.exact }}</span>
               <span class="match-badge-label-gap"   title="{% trans 'Good gap' %}">🎯 {{ pp.gap }}</span>
               <span class="match-badge-label-win"   title="{% trans 'Correct winner' %}">✓ {{ pp.win }}</span>
             </div>
             {% endwith %}
-          {% endif %}
-
-          {# Saved feedback — driven by server flag, not JS state #}
-          {% if saved %}
-            <div class="match-saved-indicator text-center">
-              <i class="ti ti-check" aria-hidden="true"></i> {% trans "Saved" %}
-            </div>
           {% endif %}
 
         {% endif %}
@@ -155,13 +158,11 @@
 
       {# Away team #}
       <div class="text-center match-team-col">
-        <div class="match-logo-wrap">
-          <span class="match-team-logo-fallback" aria-hidden="true">{{ match.away_team.short_name|default:match.away_team.name|slice:":3"|upper }}</span>
-          <img src="{% if match.away_team.logo %}{{ match.away_team.logo.url }}{% else %}{% static 'img/teams/' %}{{ match.away_team.slug }}.png{% endif %}"
-               alt="{{ match.away_team.name }}"
-               class="match-team-logo"
-               onerror="this.style.opacity='0'">
-        </div>
+        <img src="{% if match.away_team.logo %}{{ match.away_team.logo.url }}{% else %}{% static 'img/teams/' %}{{ match.away_team.slug }}.png{% endif %}"
+             alt="{{ match.away_team.name }}"
+             class="match-team-logo"
+             onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+        <span class="match-team-logo-fallback" aria-hidden="true">{{ match.away_team.short_name|default:match.away_team.name|slice:":3"|upper }}</span>
         <div class="fw-semibold small mt-1 match-team-name">
           <span class="d-none d-sm-inline">{{ match.away_team.name }}</span>
           <span class="d-sm-none">{{ match.away_team.short_name|default:match.away_team.name }}</span>

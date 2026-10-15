@@ -18,6 +18,8 @@
   --color-icon-muted:       rgba(43, 52, 103, 0.28);
   /* Rankings "You" row — primary-tinted, dark text passes 6.9:1 */
   --color-you-highlight:    rgba(43, 52, 103, 0.12);
+  /* Team logo initials fallback — visible against card background (was 0.06, invisible) */
+  --color-logo-fallback-bg: rgba(43, 52, 103, 0.15);
 
   /* Result badges — ordered best to worst */
   --color-badge-exact:      #F5C542;     /* gold — best outcome */
@@ -346,19 +348,23 @@ main {
   transition: opacity 0.15s;
 }
 
-/* ─── Saved feedback — server-driven, transform+opacity only ──────────────── */
-.match-saved-indicator {
+/* ─── Saved state — persistent when prediction exists ───────────────────── */
+.match-saved-state {
   font-size: var(--text-xs);
   color: var(--color-brand-rugby);
   font-weight: 600;
   margin-top: 0.375rem;
+}
+
+/* ─── Saved transient — inline animation complement ─────────────────────── */
+.match-saved-indicator {
   animation: saved-fade 2s ease-out forwards;
 }
 
 @keyframes saved-fade {
-  0%   { opacity: 1; transform: translateY(0); }
-  70%  { opacity: 1; transform: translateY(0); }
-  100% { opacity: 0; transform: translateY(-4px); }
+  0%   { opacity: 1; }
+  70%  { opacity: 1; }
+  100% { opacity: 0; }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -417,36 +423,30 @@ main {
 .match-team-col    { width: 38%; }
 .match-center-col  { width: 24%; }
 
-/* Logo wrapper — fixed square, relative positioning for overlay pattern */
-.match-logo-wrap {
-  position: relative;
-  width: 60px;
+/* Team logos — 60px desktop, 52px XS (overridden below) */
+.match-team-logo {
   height: 60px;
+  width: auto;
+  max-width: 80px;
+  object-fit: contain;
+  display: block;
   margin: 0 auto;
 }
 
-/* Initials fallback — always in DOM, visible when image fails to load */
+/* Initials fallback — hidden by default, shown via onerror when PNG fails */
 .match-team-logo-fallback {
-  position: absolute;
-  inset: 0;
+  width: 52px;
+  height: 52px;
   border-radius: 50%;
-  background: rgba(43, 52, 103, 0.15);
-  display: flex;
+  background: var(--color-logo-fallback-bg);
+  display: none;               /* shown via JS: this.nextElementSibling.style.display='flex' */
   align-items: center;
   justify-content: center;
   font-size: 0.875rem;
   font-weight: 700;
   color: var(--color-primary);
-}
-
-/* Image sits on top of fallback; onerror sets opacity:0 to reveal fallback */
-.match-team-logo {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-  display: block;
+  margin: 0 auto;
+  flex-shrink: 0;
 }
 
 /* Score inputs — tabular-nums, no Bootstrap border, tinted surface */
@@ -728,13 +728,15 @@ main {
     width: 35%;
   }
 
-  /* Logos: 52px on XS */
-  .match-logo-wrap {
-    width: 52px;
+  /* Logos: 52px on XS (60px on desktop) */
+  .match-team-logo {
     height: 52px;
+    max-width: 68px;
   }
 
   .match-team-logo-fallback {
+    width: 44px;
+    height: 44px;
     font-size: 0.75rem;
   }
 
@@ -744,11 +746,9 @@ main {
     font-size: 1.125rem;
   }
 
-  /* Truncate team name to 1 line — prevents height variation when short_name falls back to full name */
+  /* Reserve 2-line height on all cards — prevents height variation between teams */
   .match-team-name {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+    min-height: 2.8rem;
   }
 
   /* Hide sub-pixel potential-points preview — unreadable on mobile */
