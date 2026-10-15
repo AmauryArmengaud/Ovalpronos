@@ -158,6 +158,10 @@ document.body.addEventListener('htmx:afterSwap', function(e) {
 });
 ```
 
+**`pendingFocusId = null` before `blur()`:** When the last `away` input triggers a save via `blur()`,
+`pendingFocusId` is cleared first. This prevents the `htmx:afterSwap` handler from re-focusing that
+input after the swap, which would reopen the mobile keyboard unnecessarily.
+
 **iOS Safari limitation:** Programmatic `focus()` after an async request does not reopen the
 keyboard on iOS Safari. The above is best-effort for updating an existing prediction; the keyboard
 stays open if the user is already typing (first prediction entry typically works).
@@ -283,6 +287,13 @@ Step 2 follow-up changes (this session):
 - Logo sizes: desktop 64×64px wrap / 48px logo (was 72×72 / 56px).
 - Card body padding: 0.75rem desktop (was Bootstrap default 1rem).
 - Score consistency: unified `.match-score` at `1.5rem tabular-nums`; removed finished-only override; inputs aligned to same 1.5rem.
+
+Step 2 mobile JS fix (this session):
+- `isVisible(el)` helper: skips inputs inside `.collapse:not(.show)` (no-odds collapsed section).
+- `findNextCardHomeInput` / `findPrevCardAwayInput` now filter by `isVisible()`.
+- `updateEnterkeyhint()`: sets `enterkeyhint="done"` on the last visible `away` input, `"next"` on all others. Called on page load, after each HTMX swap (`htmx:afterSwap`), and on Bootstrap collapse show/hide events.
+- Last `away` input blur path: when no next visible input exists, `input` handler (2-digit) and `keydown` Enter handler both do `pendingFocusId = null; input.blur()` — triggers `change` event → HTMX saves.
+- `pendingFocusId = null` before `blur()` prevents focus restoration reopening the keyboard after the save swap.
 
 Remaining: iOS keyboard restoration (Plan B) — activate if confirmed broken on device. 2-column grid at lg (recommended, not yet implemented — see §6).
 

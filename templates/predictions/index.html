@@ -106,13 +106,17 @@
     row.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
   }
 
+  function isVisible(el) {
+    return !el.closest('.collapse:not(.show)');
+  }
+
   function findNextCardHomeInput(fromInput) {
     var currentCard = fromInput.closest('[id^="match-card-"]');
     var allCards = Array.from(document.querySelectorAll('[id^="match-card-"]'));
     var idx = allCards.indexOf(currentCard);
     for (var i = idx + 1; i < allCards.length; i++) {
       var next = allCards[i].querySelector('input[name="home"]');
-      if (next) return next;
+      if (next && isVisible(next)) return next;
     }
     return null;
   }
@@ -123,7 +127,7 @@
     var idx = allCards.indexOf(currentCard);
     for (var i = idx - 1; i >= 0; i--) {
       var prev = allCards[i].querySelector('input[name="away"]');
-      if (prev) return prev;
+      if (prev && isVisible(prev)) return prev;
     }
     return null;
   }
@@ -131,6 +135,15 @@
   function focusInput(input) {
     input.focus();
     input.select();
+  }
+
+  function updateEnterkeyhint() {
+    var allAway = Array.from(document.querySelectorAll('input[name="away"].match-score-input'));
+    var visibleAway = allAway.filter(isVisible);
+    allAway.forEach(function(inp) { inp.setAttribute('enterkeyhint', 'next'); });
+    if (visibleAway.length > 0) {
+      visibleAway[visibleAway.length - 1].setAttribute('enterkeyhint', 'done');
+    }
   }
 
   // Auto-advance when 2 digits typed
@@ -142,7 +155,13 @@
       focusInput(input.closest('form').querySelector('[name="away"]'));
     } else {
       var nextHome = findNextCardHomeInput(input);
-      if (nextHome) focusInput(nextHome);
+      if (nextHome) {
+        focusInput(nextHome);
+      } else {
+        // Last visible away input — blur triggers the change event and auto-save
+        pendingFocusId = null;
+        input.blur();
+      }
     }
   });
 
@@ -165,7 +184,12 @@
         focusInput(input.closest('form').querySelector('[name="away"]'));
       } else {
         var nextHomeEnter = findNextCardHomeInput(input);
-        if (nextHomeEnter) focusInput(nextHomeEnter);
+        if (nextHomeEnter) {
+          focusInput(nextHomeEnter);
+        } else {
+          pendingFocusId = null;
+          input.blur();
+        }
       }
     } else if (e.key === 'Tab' && !e.shiftKey && input.name === 'away') {
       var nextHomeTab = findNextCardHomeInput(input);
@@ -206,6 +230,14 @@
       if (el) el.focus();
     }
     pendingFocusId = null;
+
+    updateEnterkeyhint();
   });
+
+  // Update enterkeyhint when no-odds collapse opens or closes
+  document.getElementById('no-odds-collapse') && document.getElementById('no-odds-collapse').addEventListener('shown.bs.collapse', updateEnterkeyhint);
+  document.getElementById('no-odds-collapse') && document.getElementById('no-odds-collapse').addEventListener('hidden.bs.collapse', updateEnterkeyhint);
+
+  updateEnterkeyhint();
 </script>
 {% endblock %}
