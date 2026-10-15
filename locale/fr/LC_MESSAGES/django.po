@@ -5,7 +5,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Oval'Pronos\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-12 17:07+0200\n"
+"POT-Creation-Date: 2026-10-15 15:49+0200\n"
 "PO-Revision-Date: 2026-05-21 17:00+0200\n"
 "Last-Translator: Oval'Pronos\n"
 "Language-Team: French\n"
@@ -124,7 +124,7 @@ msgid "You left %(name)s."
 msgstr "Tu as quitté %(name)s."
 
 #: apps/matches/models.py:12 apps/matches/models.py:64
-#: apps/matches/models.py:113
+#: apps/matches/models.py:114
 msgid "API ID"
 msgstr "ID API"
 
@@ -180,7 +180,7 @@ msgstr "COTES = basé sur les cotes, FIXED = points fixes"
 msgid "Good gap threshold (pts)"
 msgstr "Seuil bon écart (pts)"
 
-#: apps/matches/models.py:48 apps/matches/models.py:119
+#: apps/matches/models.py:48 apps/matches/models.py:120
 #: apps/rankings/models.py:27
 msgid "Competition"
 msgstr "Compétition"
@@ -205,122 +205,148 @@ msgstr "Ex : STA, ASM, LOU"
 msgid "Country"
 msgstr "Pays"
 
-#: apps/matches/models.py:77
+#: apps/matches/models.py:75
+#, fuzzy
+#| msgid "Logo URL"
+msgid "Logo"
+msgstr "URL du logo"
+
+#: apps/matches/models.py:78
 msgid "Team"
 msgstr "Équipe"
 
-#: apps/matches/models.py:78
+#: apps/matches/models.py:79
 msgid "Teams"
 msgstr "Équipes"
 
-#: apps/matches/models.py:104
+#: apps/matches/models.py:105
 msgid "Scheduled"
 msgstr "Planifié"
 
-#: apps/matches/models.py:105
+#: apps/matches/models.py:106
 msgid "In play"
 msgstr "En cours"
 
-#: apps/matches/models.py:106
+#: apps/matches/models.py:107 templates/partials/match_card.html:13
 msgid "Finished"
 msgstr "Terminé"
 
-#: apps/matches/models.py:107
+#: apps/matches/models.py:108
 msgid "Postponed"
 msgstr "Reporté"
 
-#: apps/matches/models.py:108 apps/predictions/models.py:19
-#: templates/partials/match_card.html:26
+#: apps/matches/models.py:109 apps/predictions/models.py:19
+#: templates/partials/match_card.html:9
 msgid "Cancelled"
 msgstr "Annulé"
 
-#: apps/matches/models.py:125
+#: apps/matches/models.py:126
 msgid "Home team"
 msgstr "Équipe domicile"
 
-#: apps/matches/models.py:131
+#: apps/matches/models.py:132
 msgid "Away team"
 msgstr "Équipe extérieur"
 
-#: apps/matches/models.py:138
+#: apps/matches/models.py:139
 msgid "Round"
 msgstr "Journée / Tour"
 
-#: apps/matches/models.py:139
+#: apps/matches/models.py:140
 msgid "e.g. 1, 22, Semi-final, Final"
 msgstr "Ex : J1, J22, Demi-finale, Finale"
 
-#: apps/matches/models.py:141
+#: apps/matches/models.py:142
 msgid "Kickoff date and time"
 msgstr "Date et heure du coup d'envoi"
 
-#: apps/matches/models.py:142
+#: apps/matches/models.py:143
 msgid "Venue"
 msgstr "Stade"
 
-#: apps/matches/models.py:149
+#: apps/matches/models.py:150
 msgid "Status"
 msgstr "Statut"
 
-#: apps/matches/models.py:153
+#: apps/matches/models.py:154
 msgid "Hidden"
 msgstr "Masqué"
 
-#: apps/matches/models.py:154
+#: apps/matches/models.py:155
 msgid "If True, this match is not shown to users in the prediction UI."
 msgstr ""
 "Si coché, ce match n'est pas affiché aux utilisateurs dans l'interface des "
 "pronos."
 
-#: apps/matches/models.py:156 templates/partials/match_card.html:105
+#: apps/matches/models.py:157 templates/partials/match_card.html:89
 msgid "Home score"
 msgstr "Score domicile"
 
-#: apps/matches/models.py:157 templates/partials/match_card.html:115
+#: apps/matches/models.py:158 templates/partials/match_card.html:102
 msgid "Away score"
 msgstr "Score extérieur"
 
-#: apps/matches/models.py:158
+#: apps/matches/models.py:159
 msgid "Home odds (×10)"
 msgstr "Cote domicile (×10)"
 
-#: apps/matches/models.py:159
+#: apps/matches/models.py:160
 msgid "Draw odds (×10)"
 msgstr "Cote nul (×10)"
 
-#: apps/matches/models.py:160
+#: apps/matches/models.py:161
 msgid "Away odds (×10)"
 msgstr "Cote extérieur (×10)"
 
-#: apps/matches/models.py:167 apps/predictions/models.py:32
+#: apps/matches/models.py:168 apps/predictions/models.py:32
 msgid "Match"
 msgstr "Match"
 
-#: apps/matches/models.py:168
+#: apps/matches/models.py:169
 msgid "Matches"
 msgstr "Matchs"
 
+#: apps/matches/templatetags/match_tags.py:10
+msgid "Final"
+msgstr "Finale"
+
+#: apps/matches/templatetags/match_tags.py:11
+msgid "Semi-finals"
+msgstr "Demi-finales"
+
+#: apps/matches/templatetags/match_tags.py:12
+msgid "Quarter-finals"
+msgstr "Quarts de finale"
+
+#: apps/matches/templatetags/match_tags.py:13
+msgid "Semi Finals"
+msgstr "Demi-finales"
+
+#: apps/matches/templatetags/match_tags.py:14
+msgid "Quarter Finals"
+msgstr "Quarts de finale"
+
 #: apps/predictions/models.py:15 templates/matches/rules.html:20
-#: templates/matches/rules.html:77 templates/partials/match_card.html:39
-#: templates/partials/match_card.html:131
+#: templates/matches/rules.html:77 templates/partials/match_card.html:141
+#: templates/partials/match_card.html:173
 msgid "Exact score"
 msgstr "Score exact"
 
 #: apps/predictions/models.py:16 templates/matches/rules.html:28
-#: templates/matches/rules.html:83 templates/partials/match_card.html:44
-#: templates/partials/match_card.html:132
+#: templates/matches/rules.html:83 templates/partials/match_card.html:141
+#: templates/partials/match_card.html:174
 msgid "Good gap"
 msgstr "Bon écart"
 
 #: apps/predictions/models.py:17 templates/matches/rules.html:36
-#: templates/matches/rules.html:89 templates/partials/match_card.html:49
-#: templates/partials/match_card.html:133
+#: templates/matches/rules.html:89 templates/partials/match_card.html:141
+#: templates/partials/match_card.html:175
 msgid "Correct winner"
 msgstr "Bon vainqueur"
 
 #: apps/predictions/models.py:18 templates/accounts/profile.html:86
 #: templates/matches/rules.html:44 templates/matches/rules.html:95
-#: templates/partials/match_card.html:54
+#: templates/partials/match_card.html:141
 msgid "Missed"
 msgstr "Raté"
 
@@ -350,7 +376,7 @@ msgid "Prediction"
 msgstr "Pronostic"
 
 #: apps/predictions/models.py:52 templates/base.html:52 templates/base.html:102
-#: templates/predictions/index.html:4 templates/predictions/index.html:7
+#: templates/predictions/index.html:4 templates/predictions/index.html:10
 #: templates/rankings/_table.html:11
 msgid "Predictions"
 msgstr "Pronos"
@@ -541,7 +567,7 @@ msgstr "membres"
 msgid "Copy invite link"
 msgstr "Copier le lien d'invitation"
 
-#: templates/accounts/profile.html:131 templates/accounts/profile.html:171
+#: templates/accounts/profile.html:131 templates/accounts/profile.html:181
 #: templates/leagues/detail.html:19 templates/leagues/detail.html:135
 msgid "Leave"
 msgstr "Quitter"
@@ -555,15 +581,15 @@ msgstr "Tu n'es encore dans aucune ligue."
 msgid "Rules"
 msgstr "Règles"
 
-#: templates/accounts/profile.html:154 templates/base.html:70
+#: templates/accounts/profile.html:164 templates/base.html:70
 msgid "Log out"
 msgstr "Déconnexion"
 
-#: templates/accounts/profile.html:165 templates/leagues/detail.html:129
+#: templates/accounts/profile.html:175 templates/leagues/detail.html:129
 msgid "Leave this league?"
 msgstr "Quitter cette ligue ?"
 
-#: templates/accounts/profile.html:168 templates/accounts/profile_edit.html:32
+#: templates/accounts/profile.html:178 templates/accounts/profile_edit.html:32
 #: templates/admin/matches/import.html:10 templates/leagues/create.html:23
 #: templates/leagues/detail.html:132 templates/leagues/join.html:28
 msgid "Cancel"
@@ -689,11 +715,11 @@ msgstr "Code d'invitation"
 msgid "Ended"
 msgstr "Terminée"
 
-#: templates/leagues/list.html:65 templates/predictions/index.html:25
+#: templates/leagues/list.html:65 templates/predictions/index.html:28
 msgid "Join a league"
 msgstr "Rejoindre une ligue"
 
-#: templates/leagues/list.html:66 templates/predictions/index.html:26
+#: templates/leagues/list.html:66 templates/predictions/index.html:29
 msgid "Create a league"
 msgstr "Créer une ligue"
 
@@ -783,7 +809,7 @@ msgstr "Cote × 1"
 msgid "point"
 msgstr "point"
 
-#: templates/matches/rules.html:52 templates/partials/match_card.html:160
+#: templates/matches/rules.html:52
 msgid "Odds"
 msgstr "Les cotes"
 
@@ -829,51 +855,62 @@ msgstr ""
 "0) est valide pour marquer des points. Pronostiquer n'importe quel vainqueur "
 "compte comme raté."
 
-#: templates/partials/match_card.html:57
-msgid "No prediction"
-msgstr "Pas de prono"
-
-#: templates/partials/match_card.html:65 templates/predictions/index.html:14
+#: templates/partials/match_card.html:17 templates/predictions/index.html:17
 msgid "Live"
 msgstr "En direct"
 
-#: templates/partials/match_card.html:69
-msgid "Predictions close at kickoff"
-msgstr "Les pronos ferment au coup d'envoi"
-
-#: templates/partials/match_card.html:70
+#: templates/partials/match_card.html:21
 msgid "Locked"
 msgstr "Verrouillé"
 
-#: templates/partials/match_card.html:81
-msgid "Odds coming soon"
-msgstr "Cotes à venir"
-
-#: templates/partials/match_card.html:87
+#: templates/partials/match_card.html:25
 msgid "Closes in"
 msgstr "Ferme dans"
 
-#: templates/partials/match_card.html:124
-msgid "Fill both scores to save"
-msgstr "Remplis les deux scores pour enregistrer"
+#: templates/partials/match_card.html:141
+msgid "pt"
+msgstr "pt"
 
-#: templates/partials/match_card.html:147
+#: templates/partials/match_card.html:143
+#: templates/partials/match_card.html:154
+msgid "Your prediction:"
+msgstr "Ton prono :"
+
+#: templates/partials/match_card.html:146
+#: templates/partials/match_card.html:156
+msgid "No prediction"
+msgstr "Pas de prono"
+
+#: templates/partials/match_card.html:150
+msgid "Match cancelled, 0 pts"
+msgstr "Match annulé, 0 pt"
+
+#: templates/partials/match_card.html:160
+msgid "Odds coming soon"
+msgstr "Cotes à venir"
+
+#: templates/partials/match_card.html:168
 msgid "Saved"
 msgstr "Enregistré"
 
-#: templates/predictions/index.html:12
+#: templates/partials/match_card.html:200
+#, python-format
+msgid "J%(r)s"
+msgstr "J%(r)s"
+
+#: templates/predictions/index.html:15
 msgid "Upcoming"
 msgstr "À venir"
 
-#: templates/predictions/index.html:16
+#: templates/predictions/index.html:19
 msgid "Past"
 msgstr "Passés"
 
-#: templates/predictions/index.html:22
+#: templates/predictions/index.html:25
 msgid "Join or create a league to start predicting."
 msgstr "Rejoins ou crée une ligue pour commencer à pronostiquer."
 
-#: templates/predictions/index.html:23
+#: templates/predictions/index.html:26
 msgid ""
 "Leagues are tied to specific competitions. Your predictions will count "
 "toward your league's leaderboard."
@@ -881,19 +918,19 @@ msgstr ""
 "Les ligues sont liées à des compétitions spécifiques. Tes pronos comptent "
 "dans le classement de ta ligue."
 
-#: templates/predictions/index.html:33
+#: templates/predictions/index.html:36
 msgid "No upcoming matches yet. Fixtures are added weekly."
 msgstr "Pas de matchs à venir. Les rencontres sont ajoutées chaque semaine."
 
-#: templates/predictions/index.html:36
+#: templates/predictions/index.html:39
 msgid "No matches in progress right now."
 msgstr "Aucun match en cours pour l'instant."
 
-#: templates/predictions/index.html:39
+#: templates/predictions/index.html:42
 msgid "Your past predictions will appear here."
 msgstr "Tes pronos passés s'afficheront ici."
 
-#: templates/predictions/index.html:74
+#: templates/predictions/index.html:77
 #, python-format
 msgid "See %(n)s match without odds"
 msgid_plural "See %(n)s matches without odds"
@@ -911,6 +948,12 @@ msgstr "Gérer mes ligues"
 #: templates/rankings/index.html:37
 msgid "All"
 msgstr "Toutes"
+
+#~ msgid "Predictions close at kickoff"
+#~ msgstr "Les pronos ferment au coup d'envoi"
+
+#~ msgid "Fill both scores to save"
+#~ msgstr "Remplis les deux scores pour enregistrer"
 
 #~ msgid "You requested a password reset for your Oval'Pronos account."
 #~ msgstr ""

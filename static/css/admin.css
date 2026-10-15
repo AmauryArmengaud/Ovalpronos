@@ -17,12 +17,15 @@
 
   /* Result badges */
   --color-badge-exact:      #F5C542;
-  --color-badge-exact-text: #705500;
+  --color-badge-exact-text: #5c4500;
   --color-badge-gap:        #8B35A8;
   --color-badge-win:        #A8E063;
-  --color-badge-win-text:   #2d6b0e;
+  --color-badge-win-text:   #235408;
   --color-badge-miss:       rgba(43, 52, 103, 0.10);
   --color-badge-miss-text:  rgba(43, 52, 103, 0.50);
+  --color-logo-bg:          rgba(43, 52, 103, 0.08);
+  --color-badge-win-light:  rgba(168, 224, 99, 0.25);
+  --color-badge-gap-light:  rgba(139, 53, 168, 0.35);
 
   /* Radius */
   --radius-sm:  0.375rem;

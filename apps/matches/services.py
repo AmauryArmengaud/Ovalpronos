@@ -58,7 +58,7 @@ TEAM_OVERRIDES = {
     158:   {'slug': 'larochelle', 'short_name': 'SRO'},  # Stade Rochelais
     7067:  {'slug': 'toulouse',   'short_name': 'ST'},   # Stade Toulousain
     4967:  {'slug': 'perpignan',  'short_name': 'PER'},  # USAP
-    131:   {'slug': 'bordeaux',   'short_name': 'UBB'},  # Union Bordeaux-Bègles
+    131:   {'slug': 'bordeaux',   'short_name': 'UBB', 'name': 'Union Bordeaux-Bègles'},
     14717: {'slug': 'montauban',  'short_name': 'USM'},  # US Montauban
     1322:  {'slug': 'vannes',     'short_name': 'RCV'}, # Racing Club Vannes
     17:    {'slug': 'tbc',        'short_name': 'TBC'},  # À définir
@@ -140,7 +140,7 @@ def sync_competition_matches(competition_code):
                 home_team, _ = Team.objects.update_or_create(
                     external_id=game['home_id'],
                     defaults={
-                        'name': game['home'],
+                        'name': home_overrides.get('name', game['home']),
                         'slug': home_overrides.get('slug', slugify(game['home'])),
                         'short_name': home_overrides.get('short_name', ''),
                     },
@@ -148,7 +148,7 @@ def sync_competition_matches(competition_code):
                 away_team, _ = Team.objects.update_or_create(
                     external_id=game['away_id'],
                     defaults={
-                        'name': game['away'],
+                        'name': away_overrides.get('name', game['away']),
                         'slug': away_overrides.get('slug', slugify(game['away'])),
                         'short_name': away_overrides.get('short_name', ''),
                     },

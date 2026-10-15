@@ -13,7 +13,7 @@ Usage:
 Demo data identifiers (safe to purge without touching prod data):
     Competition code:    __DEMO__  (external_id=-999, season='9999')
     Team external_ids:   -1 to -6
-    Match external_ids:  -1 to -9
+    Match external_ids:  -1 to -10
     Users:               username prefix 'demo_'
     League name:         'Demo League'
 
@@ -244,8 +244,9 @@ class Command(BaseCommand):
                 'dt': now - timedelta(minutes=45),
                 'status': Match.STATUS_IN_PLAY,
                 'cote_home': 15, 'cote_draw': 70, 'cote_away': 45,
+                'home_score': 27, 'away_score': 14,
                 'round': 'D6',
-                'label': 'IN_PLAY — with prediction',
+                'label': 'IN_PLAY — with live score + prediction',
             },
             {
                 'external_id': -7,
@@ -274,6 +275,15 @@ class Command(BaseCommand):
                 'cote_home': 18, 'cote_draw': 65, 'cote_away': 30,
                 'round': 'D9',
                 'label': 'Long team name + no logo (fallback initials for both teams)',
+            },
+            {
+                'external_id': -10,
+                'home': -1, 'away': -3,
+                'dt': now + timedelta(days=12),
+                'status': Match.STATUS_SCHEDULED,
+                'cote_home': 21, 'cote_draw': 60, 'cote_away': 32,
+                'round': 'Final',
+                'label': 'Playoff round — non-numeric round display (Final → Finale)',
             },
         ]
 
@@ -305,6 +315,12 @@ class Command(BaseCommand):
         Prediction.objects.get_or_create(
             user=main, match=m[-2],
             defaults={'predicted_home_score': 28, 'predicted_away_score': 15},
+        )
+
+        # Match 3: main has a prediction (closes soon + prediction — Zone C shows saved + potential)
+        Prediction.objects.get_or_create(
+            user=main, match=m[-3],
+            defaults={'predicted_home_score': 22, 'predicted_away_score': 10},
         )
 
         # Match 5: main had predicted before kickoff; match is now locked

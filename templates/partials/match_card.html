@@ -2,167 +2,121 @@
 <div class="card mb-3{% if match.status == 'FINISHED' %} match-card-finished{% endif %}" id="match-card-{{ match.pk }}">
   <div class="card-body match-card-body">
 
+    {# ── Zone A — status strip ─────────────────────────────────────────── #}
+    <div class="match-zone-a">
+      {% if match.status == 'CANCELLED' %}
+        <span class="match-status-label">
+          <i class="ti ti-x" aria-hidden="true"></i> {% trans "Cancelled" %}
+        </span>
+      {% elif match.status == 'FINISHED' %}
+        <span class="match-status-label">
+          <i class="ti ti-check-circle" aria-hidden="true"></i> {% trans "Finished" %}
+        </span>
+      {% elif match.is_locked and match.home_score is not None %}
+        <span class="match-status-label match-status-live">
+          <span class="live-dot"></span>{% trans "Live" %}
+        </span>
+      {% elif match.is_locked %}
+        <span class="match-status-label">
+          <i class="ti ti-lock" aria-hidden="true"></i> {% trans "Locked" %}
+        </span>
+      {% elif match.closes_soon %}
+        <span class="match-status-label match-status-closes-soon">
+          <i class="ti ti-clock" aria-hidden="true"></i> {% trans "Closes in" %} {{ match.datetime|timeuntil }}
+        </span>
+      {% endif %}
+      {# open / no-odds: zone reserved by min-height, no label #}
+    </div>
+
     {# ── Teams row ─────────────────────────────────────────────────────── #}
     <div class="d-flex align-items-center justify-content-between">
 
       {# Home team #}
       <div class="text-center match-team-col">
-        <img src="{% if match.home_team.logo %}{{ match.home_team.logo.url }}{% else %}{% static 'img/teams/' %}{{ match.home_team.slug }}.png{% endif %}"
-             alt="{{ match.home_team.name }}"
-             class="match-team-logo"
-             onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
-        <span class="match-team-logo-fallback" aria-hidden="true">{{ match.home_team.short_name|default:match.home_team.name|slice:":3"|upper }}</span>
+        <div class="match-team-logo-wrap">
+          <img src="{% if match.home_team.logo %}{{ match.home_team.logo.url }}{% else %}{% static 'img/teams/' %}{{ match.home_team.slug }}.png{% endif %}"
+               alt="{{ match.home_team.name }}"
+               class="match-team-logo"
+               onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+          <span class="match-team-logo-fallback" aria-hidden="true">{{ match.home_team.short_name|default:match.home_team.name|slice:":3"|upper }}</span>
+        </div>
         <div class="fw-semibold small mt-1 match-team-name">
           <span class="d-none d-sm-inline">{{ match.home_team.name }}</span>
           <span class="d-sm-none">{{ match.home_team.short_name|default:match.home_team.name }}</span>
         </div>
       </div>
 
-      {# ── Centre: state-dependent content ────────────────────────────── #}
+      {# ── Centre: score only ────────────────────────────────────────── #}
       <div class="text-center match-center-col">
+        <div class="match-center-content">
 
-        {% if match.status == 'CANCELLED' %}
-          {# State 1: cancelled #}
-          <span class="badge rounded-pill badge-result-cancelled">✗</span>
-          <div class="text-muted small mt-1">{% trans "Cancelled" %}</div>
+          {% if match.status == 'CANCELLED' %}
+            <span class="match-center-dash">—</span>
 
-        {% elif match.status == 'FINISHED' %}
-          {# State 2: finished — real score + points badge (moment fort) #}
-          <div class="match-score fw-bold">{{ match.home_score }} – {{ match.away_score }}</div>
-          {% if prediction %}
-            <div class="small text-muted mt-1">
-              {{ prediction.predicted_home_score }}–{{ prediction.predicted_away_score }}
-            </div>
-            {% if prediction.result_type == 'EXACT' %}
-              <span class="badge rounded-pill mt-1 px-2 badge-result badge-result-exact">
-                👑 {{ prediction.points_earned }} pts
-              </span>
-              <div class="small fw-semibold mt-1 match-badge-label-exact">{% trans "Exact score" %}</div>
-            {% elif prediction.result_type == 'GAP' %}
-              <span class="badge rounded-pill mt-1 px-2 badge-result badge-result-gap">
-                🎯 {{ prediction.points_earned }} pts
-              </span>
-              <div class="small fw-semibold mt-1 match-badge-label-gap">{% trans "Good gap" %}</div>
-            {% elif prediction.result_type == 'WIN' %}
-              <span class="badge rounded-pill mt-1 px-2 badge-result badge-result-win">
-                ✓ {{ prediction.points_earned }} pts
-              </span>
-              <div class="small fw-semibold mt-1 match-badge-label-win">{% trans "Correct winner" %}</div>
-            {% elif prediction.result_type == 'MISS' %}
-              <span class="badge rounded-pill mt-1 px-2 badge-result badge-result-miss">
-                ✗ 0 pts
-              </span>
-              <div class="small fw-semibold mt-1 match-badge-label-miss">{% trans "Missed" %}</div>
-            {% endif %}
-          {% else %}
-            <div class="text-muted small mt-1 match-no-odds">{% trans "No prediction" %}</div>
-          {% endif %}
-
-        {% elif match.is_locked %}
-          {# State 3: locked (match started, not yet finished) #}
-          {% if match.home_score is not None %}
+          {% elif match.status == 'FINISHED' %}
             <div class="match-score fw-bold">{{ match.home_score }} – {{ match.away_score }}</div>
-            <span class="badge rounded-pill mt-1 badge-live">
-              <span class="live-dot"></span>{% trans "Live" %}
-            </span>
+
+          {% elif match.is_locked %}
+            {% if match.home_score is not None %}
+              <div class="match-score fw-bold">{{ match.home_score }} – {{ match.away_score }}</div>
+            {% else %}
+              <span class="match-center-dash">—</span>
+            {% endif %}
+
+          {% elif not match.has_odds %}
+            <span class="match-center-dash">—</span>
+
           {% else %}
-            <span class="badge rounded-pill mt-1 badge-result-locked"
-                  title="{% trans 'Predictions close at kickoff' %}">
-              🔒 {% trans "Locked" %}
-            </span>
-          {% endif %}
-          {% if prediction %}
-            <div class="text-muted small mt-1">
-              {{ prediction.predicted_home_score }}–{{ prediction.predicted_away_score }}
-            </div>
-          {% endif %}
-
-        {% elif not match.has_odds %}
-          {# State 4: no odds yet #}
-          <div class="text-muted match-no-odds">{% trans "Odds coming soon" %}</div>
-
-        {% else %}
-          {# State 5: open — editable form #}
-          {% if match.closes_soon %}
-            <div class="mb-1 match-closes-soon">
-              <i class="ti ti-clock" aria-hidden="true"></i> {% trans "Closes in" %} {{ match.datetime|timeuntil }}
-            </div>
-          {% endif %}
-          <form hx-post="{% url 'predictions:submit' match.pk %}"
-                hx-trigger="change[this.querySelector('[name=home]').value !== '' && this.querySelector('[name=away]').value !== '']"
-                hx-swap="outerHTML"
-                hx-target="#match-card-{{ match.pk }}"
-                class="save-form position-relative">
-            {% csrf_token %}
-            <div class="d-flex align-items-center justify-content-center gap-1">
-              <input type="number"
-                     id="home-{{ match.pk }}"
-                     name="home"
-                     min="0"
-                     max="200"
-                     value="{{ prediction.predicted_home_score|default:'' }}"
-                     class="match-score-input"
-                     hx-disabled-elt="this"
-                     inputmode="numeric"
-                     enterkeyhint="next"
-                     autocomplete="off"
-                     aria-label="{% trans 'Home score' %}">
-              <span class="fw-bold text-muted">–</span>
-              <input type="number"
-                     id="away-{{ match.pk }}"
-                     name="away"
-                     min="0"
-                     max="200"
-                     value="{{ prediction.predicted_away_score|default:'' }}"
-                     class="match-score-input"
-                     hx-disabled-elt="this"
-                     inputmode="numeric"
-                     enterkeyhint="next"
-                     autocomplete="off"
-                     aria-label="{% trans 'Away score' %}">
-            </div>
-            <div class="htmx-indicator text-center mt-1">
-              <span class="spinner-border spinner-border-sm text-secondary" role="status" style="width: 0.8rem; height: 0.8rem;"></span>
-            </div>
-          </form>
-
-          {# Microcopy before first prediction #}
-          {% if not prediction %}
-            <div class="text-muted text-center mt-1 match-microcopy">{% trans "Fill both scores to save" %}</div>
+            {# Open — editable inputs #}
+            <form hx-post="{% url 'predictions:submit' match.pk %}"
+                  hx-trigger="change[this.querySelector('[name=home]').value !== '' && this.querySelector('[name=away]').value !== '']"
+                  hx-swap="outerHTML"
+                  hx-target="#match-card-{{ match.pk }}"
+                  class="save-form">
+              {% csrf_token %}
+              <div class="d-flex align-items-center justify-content-center gap-1">
+                <input type="number"
+                       id="home-{{ match.pk }}"
+                       name="home"
+                       min="0"
+                       max="200"
+                       value="{{ prediction.predicted_home_score|default:'' }}"
+                       class="match-score-input"
+                       hx-disabled-elt="this"
+                       inputmode="numeric"
+                       enterkeyhint="next"
+                       autocomplete="off"
+                       aria-label="{% trans 'Home score' %}">
+                <span class="fw-bold text-muted">–</span>
+                <input type="number"
+                       id="away-{{ match.pk }}"
+                       name="away"
+                       min="0"
+                       max="200"
+                       value="{{ prediction.predicted_away_score|default:'' }}"
+                       class="match-score-input"
+                       hx-disabled-elt="this"
+                       inputmode="numeric"
+                       enterkeyhint="next"
+                       autocomplete="off"
+                       aria-label="{% trans 'Away score' %}">
+              </div>
+            </form>
           {% endif %}
 
-          {# Persistent saved state — visible as long as a prediction exists #}
-          {% if prediction %}
-            <div class="match-saved-state mt-1">
-              <i class="ti ti-check" aria-hidden="true"></i>
-              {{ prediction.predicted_home_score }}–{{ prediction.predicted_away_score }}
-              {# Transient: "Saved" text animates in right after a save, then fades #}
-              {% if saved %}<span class="match-saved-indicator ms-1">{% trans "Saved" %}</span>{% endif %}
-            </div>
-          {% endif %}
-
-          {# Potential points when prediction is entered #}
-          {% if prediction and prediction.predicted_cote %}
-            {% with pp=prediction.potential_points %}
-            <div class="mt-1 d-flex justify-content-center gap-2 match-potential-points">
-              <span class="match-badge-label-exact" title="{% trans 'Exact score' %}">👑 {{ pp.exact }}</span>
-              <span class="match-badge-label-gap"   title="{% trans 'Good gap' %}">🎯 {{ pp.gap }}</span>
-              <span class="match-badge-label-win"   title="{% trans 'Correct winner' %}">✓ {{ pp.win }}</span>
-            </div>
-            {% endwith %}
-          {% endif %}
-
-        {% endif %}
+        </div>
       </div>
       {# end centre #}
 
       {# Away team #}
       <div class="text-center match-team-col">
-        <img src="{% if match.away_team.logo %}{{ match.away_team.logo.url }}{% else %}{% static 'img/teams/' %}{{ match.away_team.slug }}.png{% endif %}"
-             alt="{{ match.away_team.name }}"
-             class="match-team-logo"
-             onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
-        <span class="match-team-logo-fallback" aria-hidden="true">{{ match.away_team.short_name|default:match.away_team.name|slice:":3"|upper }}</span>
+        <div class="match-team-logo-wrap">
+          <img src="{% if match.away_team.logo %}{{ match.away_team.logo.url }}{% else %}{% static 'img/teams/' %}{{ match.away_team.slug }}.png{% endif %}"
+               alt="{{ match.away_team.name }}"
+               class="match-team-logo"
+               onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+          <span class="match-team-logo-fallback" aria-hidden="true">{{ match.away_team.short_name|default:match.away_team.name|slice:":3"|upper }}</span>
+        </div>
         <div class="fw-semibold small mt-1 match-team-name">
           <span class="d-none d-sm-inline">{{ match.away_team.name }}</span>
           <span class="d-sm-none">{{ match.away_team.short_name|default:match.away_team.name }}</span>
@@ -172,35 +126,78 @@
     </div>
     {# end teams row #}
 
-    {# ── Odds bar ─────────────────────────────────────────────────────── #}
-    {% if match.has_odds and match.status != 'FINISHED' and match.status != 'CANCELLED' %}
-    <div class="d-flex align-items-center mt-3 mb-1">
-      <span class="match-odds-label">{% trans "Odds" %}</span>
-    </div>
-    <div class="d-flex rounded-2 overflow-hidden match-odds-bar">
-      <div class="text-center flex-fill py-2 match-odds-col">
-        <div class="match-odds-value">{{ match.cote_home|format_cote }}</div>
-      </div>
-      <div class="text-center flex-fill py-2 match-odds-col">
-        <div class="match-odds-value">{{ match.cote_draw|format_cote }}</div>
-      </div>
-      <div class="text-center flex-fill py-2 match-odds-col">
-        <div class="match-odds-value">{{ match.cote_away|format_cote }}</div>
-      </div>
-    </div>
-    {# Max potential points preview (before prediction entered) #}
-    {% if not match.is_locked and not prediction %}
-    <div class="d-flex mt-1 match-potential-preview">
-      <div class="text-center flex-fill match-badge-label-exact">👑 {% widthratio match.cote_home 1 3 %} pts</div>
-      <div class="text-center flex-fill match-badge-label-exact">👑 {% widthratio match.cote_draw 1 3 %} pts</div>
-      <div class="text-center flex-fill match-badge-label-exact">👑 {% widthratio match.cote_away 1 3 %} pts</div>
-    </div>
-    {% endif %}
-    {% endif %}
+    {# ── Zone C — player context ───────────────────────────────────────── #}
+    <div class="match-zone-c">
 
-    {# ── Footer: competition, round, datetime ───────────────────────── #}
-    <div class="d-flex justify-content-between mt-2 text-muted match-card-footer">
-      <span>{{ match.competition.name }}{% if match.round %} — {{ match.round }}{% endif %}</span>
+      {% if match.status == 'FINISHED' %}
+        {% if prediction %}
+          <div class="match-result-banner match-result-banner-{{ prediction.result_type|lower }}">
+            <div class="fw-bold">
+              {% if prediction.result_type == 'EXACT' %}👑
+              {% elif prediction.result_type == 'GAP' %}🎯
+              {% elif prediction.result_type == 'WIN' %}✓
+              {% else %}✗
+              {% endif %}
+              +{{ prediction.points_earned }} {% trans "pt" %}{% if prediction.points_earned != 1 %}s{% endif %} · {% if prediction.result_type == 'EXACT' %}{% trans "Exact score" %}{% elif prediction.result_type == 'GAP' %}{% trans "Good gap" %}{% elif prediction.result_type == 'WIN' %}{% trans "Correct winner" %}{% else %}{% trans "Missed" %}{% endif %}
+            </div>
+            <div class="match-result-banner-pred">{% trans "Your prediction:" %} {{ prediction.predicted_home_score }}–{{ prediction.predicted_away_score }}</div>
+          </div>
+        {% else %}
+          <span class="match-zone-c-placeholder">{% trans "No prediction" %}</span>
+        {% endif %}
+
+      {% elif match.status == 'CANCELLED' %}
+        <span class="match-zone-c-placeholder">{% trans "Match cancelled, 0 pts" %}</span>
+
+      {% elif match.is_locked %}
+        {% if prediction %}
+          <span class="match-zone-c-placeholder">{% trans "Your prediction:" %} {{ prediction.predicted_home_score }}–{{ prediction.predicted_away_score }}</span>
+        {% else %}
+          <span class="match-zone-c-placeholder">{% trans "No prediction" %}</span>
+        {% endif %}
+
+      {% elif not match.has_odds %}
+        <span class="match-zone-c-placeholder">{% trans "Odds coming soon" %}</span>
+
+      {% else %}
+        {# Open — odds bar if no prediction, saved + potential if prediction #}
+        {% if prediction %}
+          <div class="match-saved-zone">
+            <span class="match-saved-state">
+              <i class="ti ti-check" aria-hidden="true"></i>
+              {% if saved %}<span class="match-saved-indicator ms-1">{% trans "Saved" %}</span>{% endif %}
+            </span>
+            {% if prediction.predicted_cote %}
+              {% with pp=prediction.potential_points %}
+              <span class="match-potential-points">
+                <span class="match-badge-label-exact" title="{% trans 'Exact score' %}">👑 {{ pp.exact }}</span>
+                <span class="match-badge-label-gap ms-1" title="{% trans 'Good gap' %}">🎯 {{ pp.gap }}</span>
+                <span class="match-badge-label-win ms-1" title="{% trans 'Correct winner' %}">✓ {{ pp.win }}</span>
+              </span>
+              {% endwith %}
+            {% endif %}
+          </div>
+        {% else %}
+          <div class="d-flex match-odds-bar">
+            <div class="text-center flex-fill py-1 match-odds-col">
+              <div class="match-odds-value">{{ match.cote_home|format_cote }}</div>
+            </div>
+            <div class="text-center flex-fill py-1 match-odds-col">
+              <div class="match-odds-value">{{ match.cote_draw|format_cote }}</div>
+            </div>
+            <div class="text-center flex-fill py-1 match-odds-col">
+              <div class="match-odds-value">{{ match.cote_away|format_cote }}</div>
+            </div>
+          </div>
+        {% endif %}
+      {% endif %}
+
+    </div>
+    {# end Zone C #}
+
+    {# ── Zone D — footer ───────────────────────────────────────────────── #}
+    <div class="d-flex justify-content-between mt-1 text-muted match-card-footer">
+      <span>{% if match.round %}{% if match.round|is_numeric %}{% blocktrans with r=match.round %}J{{ r }}{% endblocktrans %}{% else %}{{ match.round|round_label }}{% endif %}{% endif %}</span>
       <span>{{ match.datetime|date:"d/m H:i" }}</span>
     </div>
 

@@ -20,13 +20,17 @@
   --color-you-highlight:    rgba(43, 52, 103, 0.12);
   /* Team logo initials fallback — visible against card background (was 0.06, invisible) */
   --color-logo-fallback-bg: rgba(43, 52, 103, 0.15);
+  /* Team logo circle background — subtle tint behind all logos (pale logos, shape harmony) */
+  --color-logo-bg:          rgba(43, 52, 103, 0.08);
 
   /* Result badges — ordered best to worst */
   --color-badge-exact:      #F5C542;     /* gold — best outcome */
-  --color-badge-exact-text: #705500;     /* dark amber — legible on cream/white */
+  --color-badge-exact-text: #5c4500;     /* dark amber — 5.7:1 on badge-exact gold (#F5C542) */
   --color-badge-gap:        #8B35A8;     /* muted purple — dark enough for bg and text */
   --color-badge-win:        #A8E063;     /* lime green — badge background */
-  --color-badge-win-text:   #2d6b0e;     /* dark green — legible on cream/white */
+  --color-badge-win-text:   #235408;     /* dark green — 5.8:1 on badge-win lime (#A8E063) */
+  --color-badge-win-light:  rgba(168, 224, 99, 0.25);   /* 25% win — light result banner bg */
+  --color-badge-gap-light:  rgba(139, 53, 168, 0.35);   /* 35% gap — medium result banner bg */
   --color-badge-miss:       rgba(43, 52, 103, 0.10);  /* neutral — subdued, no points */
   --color-badge-miss-text:  rgba(43, 52, 103, 0.50);
 
@@ -342,44 +346,6 @@ main {
   50%       { opacity: 0.4; transform: scale(0.75); }
 }
 
-/* ─── HTMX save indicator ───────────────────────────────────────────────── */
-.save-form.htmx-request .match-score-input {
-  opacity: 0.4;
-  transition: opacity 0.15s;
-}
-
-/* ─── Saved state — persistent when prediction exists ───────────────────── */
-.match-saved-state {
-  font-size: var(--text-xs);
-  color: var(--color-brand-rugby);
-  font-weight: 600;
-  margin-top: 0.375rem;
-}
-
-/* ─── Saved transient — inline animation complement ─────────────────────── */
-.match-saved-indicator {
-  animation: saved-fade 2s ease-out forwards;
-}
-
-@keyframes saved-fade {
-  0%   { opacity: 1; }
-  70%  { opacity: 1; }
-  100% { opacity: 0; }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .match-saved-indicator { animation: none; opacity: 0; }
-}
-
-/* ─── Finished state — moment fort ──────────────────────────────────────── */
-.match-card-finished .match-score {
-  font-size: 1.5rem;
-}
-
-.match-card-finished .badge-result {
-  font-size: 0.8125rem;
-  padding: 0.35em 0.8em;
-}
 
 /* ─── Flash messages ────────────────────────────────────────────────────── */
 .messages .alert {
@@ -419,24 +385,34 @@ main {
 
 /* ─── Match card ────────────────────────────────────────────────────────── */
 
-/* Layout classes — replace previous inline styles, enable mobile overrides */
+/* Layout columns */
 .match-team-col    { width: 38%; }
 .match-center-col  { width: 24%; }
 
-/* Team logos — 60px desktop, 52px XS (overridden below) */
-.match-team-logo {
-  height: 60px;
-  width: auto;
-  max-width: 80px;
-  object-fit: contain;
-  display: block;
+/* Logo circle wrapper — neutral background behind all logos */
+.match-team-logo-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: var(--color-logo-bg);
   margin: 0 auto;
 }
 
-/* Initials fallback — hidden by default, shown via onerror when PNG fails */
+/* Team logos — centered inside wrap */
+.match-team-logo {
+  height: 56px;
+  max-width: 56px;
+  object-fit: contain;
+  display: block;
+}
+
+/* Initials fallback — fills wrap circle, shown via onerror when PNG fails */
 .match-team-logo-fallback {
-  width: 52px;
-  height: 52px;
+  width: 100%;
+  height: 100%;
   border-radius: 50%;
   background: var(--color-logo-fallback-bg);
   display: none;               /* shown via JS: this.nextElementSibling.style.display='flex' */
@@ -445,14 +421,67 @@ main {
   font-size: 0.875rem;
   font-weight: 700;
   color: var(--color-primary);
-  margin: 0 auto;
   flex-shrink: 0;
+}
+
+/* ── Zone A — status strip ───────────────────────────────────────────────── */
+.match-zone-a {
+  min-height: 20px;
+  text-align: center;
+  font-size: var(--text-xs);
+  margin-bottom: 0.5rem;
+}
+
+.match-status-label {
+  color: var(--color-text-secondary);
+  font-weight: 500;
+}
+
+.match-status-closes-soon {
+  color: var(--color-accent);
+  font-weight: 600;
+}
+
+.match-status-live {
+  color: var(--color-accent);
+}
+
+/* Live pulsing dot — used in Zone A in-play label */
+.live-dot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--color-accent);
+  animation: pulse-live 1.4s ease-in-out infinite;
+  vertical-align: middle;
+  margin-right: 3px;
+}
+
+@keyframes pulse-live {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.5; }
+}
+
+/* ── Zone B centre — single element, fixed min-height ───────────────────── */
+.match-center-content {
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.match-center-dash {
+  color: var(--color-icon-muted);
+  font-size: 1.25rem;
+  font-weight: 600;
+  line-height: 1;
 }
 
 /* Score inputs — tabular-nums, no Bootstrap border, tinted surface */
 .match-score-input {
   width: 52px;
-  height: 44px;                /* minimum touch target */
+  height: 44px;
   background: var(--color-surface-raised);
   border: none;
   border-radius: var(--radius-sm);
@@ -479,60 +508,45 @@ main {
   box-shadow: none;
 }
 
+/* HTMX save indicator — dim inputs while request is in flight */
+.save-form.htmx-request .match-score-input {
+  opacity: 0.4;
+  transition: opacity 0.15s;
+}
+
 .match-score {
   font-size: 1.15rem;
   letter-spacing: 0.03em;
   font-weight: 700;
 }
 
-.match-predicted-score {
-  font-size: 1.1rem;
-  font-weight: 600;
+/* Finished state — larger score */
+.match-card-finished .match-score {
+  font-size: 1.5rem;
 }
 
-.match-card-footer {
+/* ── Zone C — player context ─────────────────────────────────────────────── */
+.match-zone-c {
+  min-height: 36px;
+  margin-top: 0.5rem;
+  display: flex;
+  align-items: center;
+}
+
+.match-zone-c-placeholder {
   font-size: var(--text-xs);
-}
-
-.match-closes-soon {
-  font-size: var(--text-2xs);
-  color: var(--color-accent);
-  font-weight: 600;
-}
-
-.match-no-odds {
-  font-size: var(--text-xs);
-}
-
-.match-microcopy {
-  font-size: var(--text-2xs);
-}
-
-.match-potential-points {
-  font-size: var(--text-sm);   /* was 0.7rem (11px) — unreadable; now 14px */
-  line-height: 1.4;
-}
-
-.match-potential-preview {
-  font-size: var(--text-2xs);
-  opacity: 0.55;
+  color: var(--color-text-secondary);
+  text-align: center;
+  width: 100%;
 }
 
 /* Odds bar */
-.match-odds-label {
-  font-size: var(--text-sm);
-  color: var(--color-text-secondary);
-}
-
 .match-odds-bar {
-  background: rgba(43, 52, 103, 0.10);  /* slightly darker than card surface-raised (0.06) so the bar reads */
+  background: rgba(43, 52, 103, 0.10);
+  width: 100%;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
 }
-
-.match-odds-col {
-  /* thin rule removed — columns separated by background tone in step 2 */
-}
-
-.match-odds-col:last-child {}
 
 .match-odds-value {
   font-size: var(--text-sm);
@@ -540,67 +554,86 @@ main {
   color: var(--color-primary);
 }
 
-/* Result badges */
-.badge-result {
+/* Saved state + potential points (open + prediction) */
+.match-saved-zone {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  width: 100%;
+  justify-content: center;
+}
+
+.match-saved-state {
+  font-size: var(--text-xs);
+  color: var(--color-brand-rugby);
+  font-weight: 600;
+}
+
+.match-saved-indicator {
+  animation: saved-fade 2s ease-out forwards;
+}
+
+@keyframes saved-fade {
+  0%   { opacity: 1; }
+  70%  { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .match-saved-indicator { animation: none; opacity: 0; }
+}
+
+.match-potential-points {
+  font-size: var(--text-sm);
+  line-height: 1.4;
+}
+
+/* Result banner (Zone C, finished) — graded: WIN light → GAP medium → EXACT full */
+.match-result-banner {
+  width: 100%;
+  border-radius: var(--radius-sm);
+  padding: 0.375rem 0.75rem;
+  line-height: 1.4;
+  text-align: center;
+}
+
+.match-result-banner-pred {
+  font-size: var(--text-xs);
+  margin-top: 0.125rem;
+  opacity: 0.85;
+}
+
+/* EXACT — full gold, peak impact */
+.match-result-banner-exact {
+  background: var(--color-badge-exact);
+  color: var(--color-badge-exact-text);  /* #5c4500 — 5.7:1 on gold */
+}
+
+/* GAP — medium purple tint, --color-primary text (7.8:1 on tinted bg) */
+.match-result-banner-gap {
+  background: var(--color-badge-gap-light);
+  color: var(--color-primary);
+}
+
+/* WIN — light lime tint, dark green text (7.8:1 on tinted bg) */
+.match-result-banner-win {
+  background: var(--color-badge-win-light);
+  color: var(--color-badge-win-text);
+}
+
+/* MISS — neutral, subdued */
+.match-result-banner-miss {
+  background: var(--color-badge-miss);
+  color: var(--color-text-secondary);    /* rgba 0.75 — ~5:1 on near-white miss bg */
+}
+
+/* ── Zone D — footer ─────────────────────────────────────────────────────── */
+.match-card-footer {
   font-size: var(--text-xs);
 }
 
-.badge-result-exact {
-  background: var(--color-badge-exact);
-  color: var(--color-text);
-}
-
-.badge-result-gap {
-  background: var(--color-badge-gap);
-  color: var(--color-text-on-primary);
-}
-
-.badge-result-win {
-  background: var(--color-badge-win);
-  color: var(--color-text);
-}
-
-.badge-result-miss {
-  background: var(--color-badge-miss);
-  color: var(--color-badge-miss-text);
-}
-
-.badge-result-cancelled {
-  background: rgba(43, 52, 103, 0.12);
-  color: var(--color-text-secondary);
-  font-size: var(--text-sm);
-  padding: 0.4em 0.75em;
-}
-
-.badge-result-locked {
-  background: rgba(43, 52, 103, 0.12);
-  color: var(--color-text);
-  font-size: var(--text-2xs);
-}
-
-.badge-live {
-  background: rgba(235, 69, 95, 0.12);
-  color: var(--color-accent);
-  font-size: var(--text-2xs);
-}
-
-@keyframes pulse-live {
-  0%, 100% { opacity: 1; }
-  50%       { opacity: 0.5; }
-}
-
-.badge-live .live-dot {
-  display: inline-block;
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: var(--color-accent);
-  animation: pulse-live 1.4s ease-in-out infinite;
-  vertical-align: middle;
-  margin-right: 3px;
-}
-
-/* Result badge labels — darker shades for legibility on cream/white backgrounds */
+/* Result tier labels — used in potential points display in Zone C */
 .match-badge-label-exact { color: var(--color-badge-exact-text); }
 .match-badge-label-gap   { color: var(--color-badge-gap); }
 .match-badge-label-win   { color: var(--color-badge-win-text); }
@@ -713,9 +746,9 @@ main {
 
 /* ─── Mobile XS fixes (< 576px) ─────────────────────────────────────────── */
 @media (max-width: 575.98px) {
-  /* Tighter horizontal padding so teams have more room */
+  /* Uniform padding all sides */
   .match-card-body {
-    padding: 0.75rem 0.625rem;
+    padding: 0.625rem;
   }
 
   /* Wider center col fixes score input overflow (24% → 30%) */
@@ -728,15 +761,18 @@ main {
     width: 35%;
   }
 
-  /* Logos: 52px on XS (60px on desktop) */
+  /* Logos: 60px wrap / 52px logo on XS (72px wrap / 56px logo on desktop) */
+  .match-team-logo-wrap {
+    width: 60px;
+    height: 60px;
+  }
+
   .match-team-logo {
     height: 52px;
-    max-width: 68px;
+    max-width: 52px;
   }
 
   .match-team-logo-fallback {
-    width: 44px;
-    height: 44px;
     font-size: 0.75rem;
   }
 
@@ -748,11 +784,6 @@ main {
 
   /* Reserve 2-line height on all cards — prevents height variation between teams */
   .match-team-name {
-    min-height: 2.8rem;
-  }
-
-  /* Hide sub-pixel potential-points preview — unreadable on mobile */
-  .match-potential-preview {
-    display: none;
+    min-height: 2.6rem;
   }
 }

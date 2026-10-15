@@ -44,12 +44,19 @@ live states and CTAs only. Brand green (#1a7f37) for positive feedback (saved st
 |---|---|---|
 | `--color-you-highlight` | `rgba(43,52,103,0.12)` | Rankings "You" row highlight |
 | `--color-logo-fallback-bg` | `rgba(43,52,103,0.15)` | Logo initials fallback circle background |
+| `--color-logo-bg` | `rgba(43,52,103,0.08)` | Neutral circle behind every team logo — pale logos visible, shapes harmonised |
+| `--color-badge-exact-text` | `#5c4500` | Dark amber text on gold banner — 5.7:1 on `#F5C542` |
+| `--color-badge-win-text` | `#235408` | Dark green text on lime banner — 5.8:1 on `#A8E063` |
+| `--color-badge-win-light` | `rgba(168,224,99,0.25)` | Light lime tint for WIN result banner background |
+| `--color-badge-gap-light` | `rgba(139,53,168,0.35)` | Medium purple tint for GAP result banner background |
+
+All 7 variables above are also present in `admin.css` (standalone — see §3).
 
 ### CSS variables modified in `:root`
 
 | Variable | Old value | New value | Reason |
 |---|---|---|---|
-| `--color-text-secondary` | `rgba(43,52,103,0.55)` (~3.2:1 contrast) | `rgba(43,52,103,0.75)` (~5.4:1) | WCAG AA on cream background |
+| `--color-text-secondary` | `rgba(43,52,103,0.55)` (~3.2:1) | `rgba(43,52,103,0.75)` (~5.4:1) | WCAG AA on cream background |
 
 ### Typography scale (unchanged since step 1)
 
@@ -64,20 +71,27 @@ live states and CTAs only. Brand green (#1a7f37) for positive feedback (saved st
 
 | Element | Desktop | Mobile XS (<576px) |
 |---|---|---|
-| `.match-team-logo` height | 60px | 52px |
-| `.match-team-logo` max-width | 80px | 68px |
-| `.match-team-logo-fallback` | 52×52px, 0.875rem | 44×44px, 0.75rem |
+| `.match-team-logo-wrap` | 72×72px circle | 60×60px circle |
+| `.match-team-logo` | 56×56px inside wrap | 52×52px inside wrap |
+| `.match-team-logo-fallback` | 100%/100% of wrap, 0.875rem | 100%/100% of wrap, 0.75rem |
 | `.match-score-input` width | 52px | 44px |
 | `.match-score-input` font-size | 1.375rem | 1.125rem |
 | `.match-team-col` width | 38% | 35% |
 | `.match-center-col` width | 24% | 30% (wider to fit inputs) |
-| `.match-team-name` min-height | — | 2.8rem (reserves 2 lines at 17px×1.6) |
-| `.match-card-body` padding | Bootstrap default | 0.75rem 0.625rem |
+| `.match-team-name` min-height | none (no desktop min-height) | 2.6rem (reserves 2 lines at 15px×1.5) |
+| `.match-card-body` padding | Bootstrap default | 0.625rem (uniform) |
+| `.match-zone-a` min-height | 20px | 20px |
+| `.match-center-content` min-height | 44px | 44px |
+| `.match-zone-c` min-height | 36px | 36px |
+
+**Desktop max-width:** Match cards are rendered inside `col-12 col-lg-7 col-xl-6` on the predictions
+page. This caps card width at ~840px on large screens. No additional `max-width` on the card itself.
 
 ### Saved state
 
-- **Persistent:** `.match-saved-state` — rendered by server whenever `prediction` exists.
-  Shows `✓ {home}–{away}` in `--color-brand-rugby` (green), always visible.
+- **Persistent:** `.match-saved-state` — rendered by server whenever `prediction` exists in the open
+  state. Shows `✓` checkmark (Tabler icon) in `--color-brand-rugby` (green), always visible in Zone C.
+  Score is NOT repeated — it is already visible in the inputs.
 - **Transient:** `.match-saved-indicator` — inline `<span>` rendered only when `saved=True` (view context).
   Fades out over 2s via `saved-fade` keyframe. Reduced-motion: `opacity: 0` immediately.
 
@@ -169,12 +183,42 @@ python manage.py compilemessages
 
 The `"Saved"` → `"Enregistré"` entry was missing from the PO file and has been added.
 
+**Variable translations — `round_label` filter pattern:**
+`makemessages` only extracts *literal* strings. For dynamic values sourced from the API (e.g.,
+`match.round`), do NOT use `{% trans variable %}` in templates — the strings won't be extracted and
+will be silently dropped as obsolete on the next `makemessages` run.
+
+Instead, declare the known API strings in `apps/matches/templatetags/match_tags.py`:
+
+```python
+from django.utils.translation import gettext_lazy as _
+
+ROUND_LABELS = {
+    'Final':         _('Final'),        # → "Finale"
+    'Semi-finals':   _('Semi-finals'),  # → "Demi-finales"
+    # ...
+}
+
+@register.filter
+def round_label(value):
+    return ROUND_LABELS.get(value, value)  # falls back to raw API string
+```
+
+`makemessages` extracts `_('Final')` etc. from the Python file; the filter applies the translation at
+runtime. Add new entries to `ROUND_LABELS` whenever the API introduces a new round name.
+
 ### admin.css — standalone, V4 debt
 
 `static/css/admin.css` does NOT `@import main.css`. It duplicates the CSS variable declarations
 independently. When you change a variable in `main.css`, you must also update `admin.css` manually.
 
-Changes already synced: `--color-text-secondary` bumped from 0.55 to 0.75.
+Changes already synced to `admin.css`:
+- `--color-text-secondary`: 0.55 → 0.75
+- `--color-badge-exact-text`: added (#5c4500)
+- `--color-badge-win-text`: added (#235408)
+- `--color-logo-bg`: added (rgba 0.08)
+- `--color-badge-win-light`: added (rgba lime 0.25)
+- `--color-badge-gap-light`: added (rgba purple 0.35)
 
 V4 will consolidate these into a shared token file. Until then: both files must stay in sync.
 
@@ -189,23 +233,105 @@ surfaces, navbar, footer, segment controls, flash messages, ranking table "You" 
 
 Remaining: nothing.
 
-### Step 2 — Match card (DONE, commits `c2871c6`, `958706f`, `4553870`)
+### Step 2 — Match card (DONE, commits `c2871c6`, `958706f`, `4553870`, subsequent fixes)
 
-Match card partial (`templates/partials/match_card.html`) redesigned:
-- All 9 match states covered: open, open-with-prediction, closes-soon, no-odds, locked,
-  locked-with-live-score, finished (EXACT/GAP/WIN/MISS), cancelled, in-play.
-- Logos: 60px desktop / 52px XS, initials fallback circle.
-- Score inputs: pill-aligned, tabular-nums, no border.
-- Odds bar: tone-separated columns, no vertical rules.
-- Saved state: persistent `✓ score` + transient "Saved" animation.
-- Potential points: 3-tier display (👑/🎯/✓) when prediction + odds exist.
-- Mobile XS fixes applied: column widths, input sizes, `min-height` on team names.
-- Progress bar: sticky, JS-updated on `htmx:afterSwap`.
-- Focus restoration after swap implemented.
-- `seed_ui_states.py` updated to use real DB teams for logo testing.
-- French translation for "Saved" added.
+Match card partial (`templates/partials/match_card.html`) redesigned, then fully restructured into
+the 4-zone anatomy (see §6):
+- All states covered: open (±prediction, ±closes-soon), no-odds, locked (±live score), in-play,
+  finished (EXACT/GAP/WIN/MISS, ±prediction), cancelled.
+- Fixed anatomy: 4 constant-height zones — no more 64px gap between states with/without odds bar.
+- Logos: 72×72px wrap / 56px logo desktop, 60×60px wrap / 52px logo XS. `--color-logo-bg`
+  (`rgba primary 0.08`) circle behind every logo — pale logos visible, shape harmony.
+- Score inputs: pill-aligned, tabular-nums, no border. Form wraps inputs only; Zone C is outside.
+- Zone C result banner: full-width, graded intensity by tier (EXACT full gold / GAP medium purple
+  tint / WIN light lime tint / MISS neutral), `text-align: center`, 4.5:1+ contrast on all backgrounds.
+- Persistent saved state: `✓` checkmark always visible in Zone C when prediction exists.
+  Transient "Enregistré" animation on save (server-rendered, fades via CSS, not JS-driven).
+  Score not repeated — already visible in inputs.
+- Potential points in Zone C: 3-tier display (👑/🎯/✓) when prediction + odds exist.
+- Footer: **competition removed** (already shown in comp-divider-chip above the card), only round
+  and date shown. Numeric rounds display as "J12"; non-numeric rounds use `|round_label` filter
+  (see §3 i18n). `is_numeric` template filter added to `match_tags.py`.
+- Desktop width: predictions page uses `col-12 col-lg-7 col-xl-6` — cards capped to ~840px.
+- Desktop team name: removed `min-height: 3rem` (was creating excess vertical space in Zone C area).
+- Language selector: visible on profile page at mobile breakpoint (added in step 2 bug fix).
+- TEAM_OVERRIDES: added `'name'` key support; "Union Bordeaux-Bègles" (ID 131) corrected from API
+  typo "Union Bordeaux-Begles" — applied on every sync.
+- `seed_ui_states.py`: matches -1 to -10 cover all visual states including match -10 (`round='Final'`
+  to test non-numeric round label rendering).
+- French translations added: "Ton prono :", "Match annulé, 0 pt", "pt", "J%(r)s", playoff round
+  labels ("Finale", "Demi-finales", "Quarts de finale").
 
 Remaining: iOS keyboard restoration (Plan B) — activate if confirmed broken on device.
+
+---
+
+## 6. Match card anatomy (Step 2 — fixed zones)
+
+The card is divided into **4 zones of constant height**, always rendered in every state. Only the
+content of a zone changes; never its presence or size.
+
+```
+┌──────────────────────────────────────────────┐
+│ Zone A — status strip        min-height 20px │
+├──────────┬───────────────────┬───────────────┤
+│          │                   │               │
+│  Logo    │  Zone B centre    │  Logo  ~100px │
+│  Name    │  (min-height 44px)│  Name         │
+│          │                   │               │
+├──────────┴───────────────────┴───────────────┤
+│ Zone C — player context      min-height 36px │
+├──────────────────────────────────────────────┤
+│ Zone D — footer              ~16px           │
+└──────────────────────────────────────────────┘
+```
+
+**Rule for each zone:**
+- **Zone A** = time and status only. Labels use Tabler icons; no emojis.
+- **Zone B centre** = the match score only: inputs before kickoff, live score in-play, final score finished, `—` otherwise.
+- **Zone C** = the player's perspective: odds bar, saved checkmark + potential pts, stored prediction, result banner, or placeholder.
+- **Zone D** = round + date only. Competition is shown in the `comp-divider-chip` separator above the
+  group of cards — never repeated in the card footer.
+
+**Icon discipline:** result tier emojis (👑 🎯 ✓ ✗) appear in Zone C only. Tabler icons (`ti ti-clock`, `ti ti-lock`, `ti ti-x`, `ti ti-check-circle`) in Zone A only.
+
+### Zone × State Matrix
+
+| State | Zone A | Zone B centre | Zone C |
+|---|---|---|---|
+| Open, no prediction | _(spacer)_ | Inputs | Odds bar |
+| Open, with prediction | _(spacer)_ | Inputs | `ti-check` + anim "Enregistré" + 👑N 🎯N ✓N |
+| Closes soon, no prediction | `ti-clock` Ferme dans Xh (accent) | Inputs | Odds bar |
+| Closes soon, with prediction | `ti-clock` Ferme dans Xh (accent) | Inputs | `ti-check` + anim "Enregistré" + 👑N 🎯N ✓N |
+| No odds | _(spacer)_ | `—` | Cotes à venir |
+| Locked, no live, with pred | `ti-lock` Verrouillé | `—` | Ton prono : 21–17 |
+| Locked, no live, no pred | `ti-lock` Verrouillé | `—` | Pas de prono |
+| In-play, with pred | `●` En direct (pulsing, accent) | Live score `27–14` | Ton prono : 30–10 |
+| In-play, no pred | `●` En direct (pulsing, accent) | Live score `27–14` | Pas de prono |
+| Finished + EXACT | `ti-check-circle` Terminé | Final `24–17` | Bandeau gold `👑 +N pts · Score exact` + `Ton prono : X–Y` |
+| Finished + GAP | `ti-check-circle` Terminé | Final `24–17` | Bandeau violet `🎯 +N pts · Bon écart` + `Ton prono : X–Y` |
+| Finished + WIN | `ti-check-circle` Terminé | Final `24–17` | Bandeau vert `✓ +N pts · Bon vainqueur` + `Ton prono : X–Y` |
+| Finished + MISS | `ti-check-circle` Terminé | Final `24–17` | Bandeau neutre `✗ 0 pt · Raté` + `Ton prono : X–Y` |
+| Finished, no prediction | `ti-check-circle` Terminé | Final `24–17` | Pas de prono |
+| Cancelled | `ti-x` Annulé | `—` | Match annulé, 0 pt |
+
+### Result banner contrast (Zone C, finished)
+
+Banners are graded by intensity — EXACT is the most salient, MISS the most subdued.
+
+| Tier | Background | Text | Ratio |
+|---|---|---|---|
+| EXACT | `--color-badge-exact` #F5C542 (full gold) | `--color-badge-exact-text` #5c4500 | 5.7:1 ✓ |
+| GAP | `--color-badge-gap-light` rgba(139,53,168,0.35) (medium tint) | `--color-primary` #2B3467 | 7.8:1 ✓ |
+| WIN | `--color-badge-win-light` rgba(168,224,99,0.25) (light tint) | `--color-badge-win-text` #235408 | 7.8:1 ✓ |
+| MISS | `--color-badge-miss` rgba(43,52,103,0.10) (neutral) | `--color-text-secondary` rgba(0.75) | ~5:1 ✓ |
+
+The original GAP row used `--color-badge-gap` #8B35A8 solid + white text. It was changed to a tinted
+background + `--color-primary` text to fit the WIN light → GAP medium → EXACT full gradation.
+`--color-badge-exact-text` (#705500 → #5c4500) and `--color-badge-win-text` (#2d6b0e → #235408)
+were darkened to meet 4.5:1. All changes reflected in both `main.css` and `admin.css`.
+
+---
 
 ### Step 3 — Landing page (TODO)
 
@@ -248,17 +374,22 @@ Login: `demo_main` / `demo1234`
 
 ### State checklist — predictions page (`/predictions/`)
 
-| Match | Expected state | What to verify |
-|---|---|---|
-| -1 | Open, no prediction | Form shown, microcopy "Fill both scores to save", potential preview in odds bar |
-| -2 | Open, prediction saved | Form shown, `✓ 28–15` persistent state, potential points 3-tier |
-| -3 | Closes soon | Orange "Closes in Xh" above form |
-| -4 | No odds | "Odds coming soon" in centre, card in no-odds collapse |
-| -5 | Locked (past kickoff) | 🔒 Locked badge, `✓ 21–17` shown, no form |
-| -6 | In-play | Live score + pulsing dot, `✓ 30–10` shown |
-| -7 | Finished EXACT | 👑 badge, exact score shown |
-| -8 | Cancelled | ✗ badge, "Cancelled" |
-| -9 | Long name + no logo | Long name wraps (no ellipsis), initials circle fallback |
+| Match | State | Zone A | Centre | Zone C | Zone D |
+|---|---|---|---|---|---|
+| -1 | Open, no pred | _(empty)_ | Inputs empty | Odds bar 3 cols | D1 · date |
+| -2 | Open, with pred | _(empty)_ | Inputs `28–15` | `✓` + potential pts | D2 · date |
+| -3 | Closes soon, with pred | `⏱ Ferme dans Xh` (red) | Inputs `22–10` | `✓` + potential pts | D3 · date |
+| -4 | No odds | _(empty)_ | `—` | "Cotes à venir" | D4 · date |
+| -5 | Locked, with pred | `🔒 Verrouillé` | `—` | "Ton prono : 21–17" | D5 · date |
+| -6 | In-play | `● En direct` (pulsing) | `27–14` | "Ton prono : 30–10" | D6 · date |
+| -7 | Finished EXACT | `✓ Terminé` | `24–17` | Gold banner 👑 +N pts | D7 · date |
+| -8 | Cancelled | `✗ Annulé` | `—` | "Match annulé, 0 pt" | D8 · date |
+| -9 | Long name + no logo | _(empty)_ | Inputs | Odds bar + initials fallback | D9 · date |
+| -10 | Open, non-numeric round | _(empty)_ | Inputs | Odds bar | "Finale" · date |
+
+All cards should be the **same height** within the list — this is the primary visual check.
+
+Match -10 also verifies the `round_label` filter: Zone D should show "Finale" (not "Final").
 
 ### HTMX save flow
 
@@ -273,13 +404,22 @@ Login: `demo_main` / `demo1234`
 Access from phone: `http://<your-mac-ip>:8000/predictions/`
 
 Checklist:
+- [ ] **All 10 cards the same height** — no card taller than the others
+- [ ] On desktop (≥992px): cards constrained to ~840px, centred — not stretching full viewport
+- [ ] Zone A shows correct label for each state (closes-soon orange, locked grey, live red pulsing, terminé/annulé grey)
 - [ ] Logos visible (Toulouse, Racing 92, La Rochelle, Clermont)
 - [ ] Match -9 shows initials circles (no PNG for those slugs)
-- [ ] All cards same height within each state group
+- [ ] Match -10 footer shows "Finale" (not "Final") — `round_label` filter working
+- [ ] All logos have a subtle circular background tint (`--color-logo-bg`) — visible behind pale logos
 - [ ] Score inputs fit inside center col without overflow
 - [ ] Team names wrap to 2 lines, no ellipsis, no height jump
-- [ ] "Enregistré" appears and fades after save
-- [ ] Language toggle visible on profile page (mobile breakpoint)
+- [ ] Match -3 (closes soon + prediction): Zone A shows "Ferme dans Xh", Zone C shows ✓ + potential pts
+- [ ] Match -6 (in-play): Zone A shows pulsing dot + "En direct", centre shows "27–14"
+- [ ] Match -7 (finished): gold result banner with pts fills Zone C
+- [ ] "Enregistré" appears and fades after save (match -1 or -9)
+- [ ] Save on match -2: inputs stay pre-filled, Zone C updates, progress bar increments
+- [ ] Language selector visible on profile page at mobile breakpoint (added in step 2 bug fix)
+- [ ] Persistent saved state: on match -2, `✓` checkmark is visible in Zone C on page load (no interaction needed) — it is server-rendered, not JS-injected
 - [ ] Keyboard behaviour when typing first prediction (new entry)
 - [ ] Keyboard behaviour when updating an existing prediction (iOS Plan B trigger)
 
