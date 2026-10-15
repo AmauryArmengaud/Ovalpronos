@@ -5,7 +5,7 @@
 
 {% block content %}
 <div class="row justify-content-center">
-<div class="col-12 col-lg-7 col-xl-6">
+<div class="col-12">
 
 <h1 class="mb-4">{% trans "Predictions" %}</h1>
 
@@ -58,6 +58,7 @@
   {% endif %}
 
   {# ── Flat chronological list ────────────────────────────────────────── #}
+  <div class="predictions-grid">
   {% for item in items %}
     {% ifchanged item.match.datetime|date:"Y-m-d" %}
     <div class="day-divider{% if not forloop.first %} mt-4{% endif %}">{{ item.match.datetime|date:"D d/m" }}</div>
@@ -67,6 +68,7 @@
     {% endifchanged %}
     {% include "partials/match_card.html" with match=item.match prediction=item.prediction %}
   {% endfor %}
+  </div>
 
   {# ── Matches without odds (collapsed) ──────────────────────────────── #}
   {% if items_without_odds %}
@@ -81,6 +83,7 @@
     </button>
   </div>
   <div class="collapse" id="no-odds-collapse">
+    <div class="predictions-grid">
     {% for item in items_without_odds %}
       {% ifchanged item.match.datetime|date:"Y-m-d" %}
       <div class="day-divider{% if not forloop.first %} mt-4{% endif %}">{{ item.match.datetime|date:"D d/m" }}</div>
@@ -90,6 +93,7 @@
       {% endifchanged %}
       {% include "partials/match_card.html" with match=item.match prediction=item.prediction %}
     {% endfor %}
+    </div>
   </div>
   {% endif %}
 

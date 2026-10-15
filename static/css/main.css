@@ -411,8 +411,8 @@ main {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 64px;
-  height: 64px;
+  width: 72px;
+  height: 72px;
   border-radius: 50%;
   background: var(--color-logo-bg);
   margin: 0 auto;
@@ -420,8 +420,8 @@ main {
 
 /* Team logos — centered inside wrap */
 .match-team-logo {
-  height: 48px;
-  max-width: 48px;
+  height: 56px;
+  max-width: 56px;
   object-fit: contain;
   display: block;
 }
@@ -840,7 +840,7 @@ main {
     width: 35%;
   }
 
-  /* Logos: 60px wrap / 52px logo on XS (72px wrap / 56px logo on desktop) */
+  /* Logos: 60px wrap / 52px logo on XS (<576px) — desktop is 72px wrap / 56px logo */
   .match-team-logo-wrap {
     width: 60px;
     height: 60px;
@@ -864,5 +864,21 @@ main {
   /* Reserve 2-line height on all cards — prevents height variation between teams */
   .match-team-name {
     min-height: 2.6rem;
+  }
+}
+
+/* ─── Predictions: 2-column grid at lg ──────────────────────────────────── */
+@media (min-width: 992px) {
+  .predictions-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    column-gap: 1rem;
+    align-items: start;
+  }
+
+  /* Separators and collapse span both columns */
+  .predictions-grid > .day-divider,
+  .predictions-grid > .comp-divider-chip {
+    grid-column: 1 / -1;
   }
 }
