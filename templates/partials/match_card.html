@@ -9,6 +9,8 @@
       </span>
       {% if match.status == 'CANCELLED' %}
         <span class="match-status-label"><i class="ti ti-x" aria-hidden="true"></i> {% trans "Cancelled" %}</span>
+      {% elif match.status == 'FINISHED' %}
+        {# no status label — result is in Zone C, date in day separator #}
       {% elif match.is_locked and match.home_score is not None %}
         <span class="match-status-label match-status-live"><span class="live-dot"></span>{% trans "Live" %}</span>
       {% elif match.is_locked %}
