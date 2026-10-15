@@ -149,6 +149,16 @@
     }
   }
 
+  // On click, position cursor at end rather than letting the browser default to position 0.
+  // type=number doesn't support setSelectionRange everywhere — try/catch is the safe wrapper.
+  // Only runs on user-initiated clicks; auto-advance (focusInput) is unaffected.
+  document.addEventListener('click', function(e) {
+    var input = e.target;
+    if (!input.matches('.match-score-input') || input.value === '') return;
+    var len = String(input.value).length;
+    try { input.setSelectionRange(len, len); } catch(e) {}
+  });
+
   // Auto-advance when 2 digits typed
   document.addEventListener('input', function(e) {
     var input = e.target;
