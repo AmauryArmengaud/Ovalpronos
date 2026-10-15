@@ -857,6 +857,10 @@ msgstr "Ferme dans"
 msgid "Fill both scores to save"
 msgstr "Remplis les deux scores pour enregistrer"
 
+#: templates/partials/match_card.html:147
+msgid "Saved"
+msgstr "Enregistré"
+
 #: templates/predictions/index.html:12
 msgid "Upcoming"
 msgstr "À venir"
