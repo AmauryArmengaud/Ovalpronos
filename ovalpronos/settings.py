@@ -141,6 +141,11 @@ TURNSTILE_SITE_KEY = config('TURNSTILE_SITE_KEY', default='1x0000000000000000000
 TURNSTILE_SECRET_KEY = config('TURNSTILE_SECRET_KEY', default='1x0000000000000000000000000000000AA')
 
 
+# ─── Media (uploaded files) ──────────────────────────────────────────────────
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
+
+
 # ─── API Rugby (rugby-live-data via RapidAPI) ────────────────────────────────
 RAPIDAPI_KEY = config('RAPIDAPI_KEY', default='')
 SYNC_SECRET_TOKEN = config('SYNC_SECRET_TOKEN', default='')

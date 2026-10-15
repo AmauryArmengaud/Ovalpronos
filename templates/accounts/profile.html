@@ -27,7 +27,7 @@
     <div class="text-muted small">@{{ user.username }}</div>
     {% if user.favorite_team %}
       <div class="d-flex align-items-center gap-2 mt-1">
-        <img src="{% static 'img/teams/' %}{{ user.favorite_team.slug }}.png"
+        <img src="{% if user.favorite_team.logo %}{{ user.favorite_team.logo.url }}{% else %}{% static 'img/teams/' %}{{ user.favorite_team.slug }}.png{% endif %}"
              alt="{{ user.favorite_team.name }}" width="20" height="20"
              style="object-fit:contain;"
              onerror="this.style.display='none'">

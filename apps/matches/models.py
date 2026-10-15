@@ -72,6 +72,7 @@ class Team(models.Model):
         help_text=_("e.g. STA, ASM, LOU")
     )
     country = models.CharField(max_length=100, blank=True, verbose_name=_("Country"))
+    logo = models.ImageField(upload_to='teams/', blank=True, verbose_name=_("Logo"))
 
     class Meta:
         verbose_name = _("Team")

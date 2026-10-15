@@ -7,7 +7,7 @@
 
       {# Home team #}
       <div class="text-center match-team-col">
-        <img src="{% static 'img/teams/' %}{{ match.home_team.slug }}.png"
+        <img src="{% if match.home_team.logo %}{{ match.home_team.logo.url }}{% else %}{% static 'img/teams/' %}{{ match.home_team.slug }}.png{% endif %}"
              alt="{{ match.home_team.name }}"
              style="height: 44px; width: auto; max-width: 72px; object-fit: contain;"
              onerror="this.style.display='none'">
@@ -141,7 +141,7 @@
 
       {# Away team #}
       <div class="text-center match-team-col">
-        <img src="{% static 'img/teams/' %}{{ match.away_team.slug }}.png"
+        <img src="{% if match.away_team.logo %}{{ match.away_team.logo.url }}{% else %}{% static 'img/teams/' %}{{ match.away_team.slug }}.png{% endif %}"
              alt="{{ match.away_team.name }}"
              style="height: 44px; width: auto; max-width: 72px; object-fit: contain;"
              onerror="this.style.display='none'">
