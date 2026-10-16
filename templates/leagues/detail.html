@@ -101,10 +101,5 @@
 {% endblock %}
 
 {% block extra_js %}
-<script>
-  var _row = document.getElementById('current-user-row');
-  if (_row) {
-    _row.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-  }
-</script>
+{% include "partials/_ranking_sticky_js.html" %}
 {% endblock %}
