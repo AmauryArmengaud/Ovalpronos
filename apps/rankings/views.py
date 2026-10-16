@@ -60,12 +60,12 @@ class RankingsView(LoginRequiredMixin, TemplateView):
         ctx = super().get_context_data(**kwargs)
 
         competitions = list(Competition.objects.filter(is_active=True).order_by('name', '-season'))
-        # Flag competitions whose name appears more than once so the template can show the season
+        # When a name appears more than once, append the season so chips are distinguishable
         name_counts = {}
         for c in competitions:
             name_counts[c.name] = name_counts.get(c.name, 0) + 1
         for c in competitions:
-            c._show_season = name_counts[c.name] > 1
+            c.chip_label = f"{c.name} {c.season}" if name_counts[c.name] > 1 else c.name
         ctx['competitions'] = competitions
         ctx['user_leagues'] = self.request.user.leagues.filter(competitions__is_active=True).distinct()
 

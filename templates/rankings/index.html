@@ -40,7 +40,7 @@
   {% for comp in competitions %}
   <a href="{% url 'rankings:index' %}?comp={{ comp.pk }}"
      class="ranking-comp-chip {% if selected_comp.pk == comp.pk %}ranking-comp-chip--active{% endif %}">
-    {{ comp.name }}{% if comp._show_season %} {{ comp.season }}{% endif %}
+    {{ comp.chip_label }}
   </a>
   {% endfor %}
 </div>
