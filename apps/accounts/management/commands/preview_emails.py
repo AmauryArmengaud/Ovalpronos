@@ -86,9 +86,15 @@ class Command(BaseCommand):
         out_dir = os.path.join(tempfile.gettempdir(), 'ovalpronos_emails')
         os.makedirs(out_dir, exist_ok=True)
 
+        # Rewrite http://localhost:8000/static/... → file:///project/static/...
+        # so images render without a running dev server.
+        static_file_root = os.path.join(settings.BASE_DIR, 'static')
+        static_file_url = f'file://{static_file_root}'
+        localhost_static = f'{_FAKE_SITE_URL}/static'
+
         for name, template, context in _EMAILS:
             html = render_to_string(template, context)
-            # Rewrite the reset-confirm URL to a bare anchor for preview
+            html = html.replace(localhost_static, static_file_url)
             html = html.replace(
                 '/accounts/password-reset-confirm/NA/fake-token-0000/',
                 '#preview-link',
