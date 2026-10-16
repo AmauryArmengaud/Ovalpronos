@@ -188,6 +188,8 @@ class Command(BaseCommand):
             {'username': 'demo_player17', 'display_name': 'Inès Bernard'},
             {'username': 'demo_player18', 'display_name': 'Nathan Simon'},
             {'username': 'demo_player19', 'display_name': 'Léa Thomas'},
+            # demo_newcomer: no predictions at all — tests 0-pt display in active league leaderboard
+            {'username': 'demo_newcomer',  'display_name': 'Nouveau Joueur'},
         ]
         users = {}
         for spec in user_specs:
@@ -612,7 +614,8 @@ class Command(BaseCommand):
             defaults={'creator': users['demo_player1']},
         )
         potes.competitions.add(comp)
-        potes.members.add(main, users['demo_player1'], users['demo_player5'])
+        # demo_newcomer has no predictions → visible at 0 pt in active league leaderboard
+        potes.members.add(main, users['demo_player1'], users['demo_player5'], users['demo_newcomer'])
 
         # Long name league — tests Zone A ellipsis and header word-break.
         long_league, _ = League.objects.get_or_create(

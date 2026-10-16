@@ -33,12 +33,14 @@ class LeagueListView(LoginRequiredMixin, TemplateView):
         leagues = list(
             self.request.user.leagues
             .prefetch_related('competitions', 'members')
-            .annotate(member_count=Count('members', distinct=True))
             .all()
         )
         join_base = self.request.build_absolute_uri(reverse('leagues:join'))
         for league in leagues:
             league.join_url = f"{join_base}?code={league.invite_code}"
+            # Compute from prefetch cache — annotate(Count('members')) reuses the
+            # filter JOIN (WHERE customuser_id = current_user) and always returns 1.
+            league.member_count = len(league.members.all())
         ctx['leagues'] = leagues
         return ctx
 

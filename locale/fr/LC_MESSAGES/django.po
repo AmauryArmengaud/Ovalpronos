@@ -5,7 +5,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Oval'Pronos\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-16 12:11+0200\n"
+"POT-Creation-Date: 2026-10-16 12:50+0200\n"
 "PO-Revision-Date: 2026-05-21 17:00+0200\n"
 "Last-Translator: Oval'Pronos\n"
 "Language-Team: French\n"
@@ -72,7 +72,7 @@ msgid "Name"
 msgstr "Nom"
 
 #: apps/leagues/models.py:19 templates/leagues/detail.html:41
-#: templates/leagues/list.html:50
+#: templates/leagues/list.html:48
 msgid "Invite code"
 msgstr "Code d'invitation"
 
@@ -97,31 +97,31 @@ msgstr "Ligue"
 msgid "Leagues"
 msgstr "Ligues"
 
-#: apps/leagues/views.py:58
+#: apps/leagues/views.py:60
 #, python-format
 msgid "League created! Your invite code: %(code)s"
 msgstr "Ligue créée ! Ton code d'invitation : %(code)s"
 
-#: apps/leagues/views.py:75
+#: apps/leagues/views.py:77
 #, python-format
 msgid "No league found with code %(code)s."
 msgstr "Aucune ligue trouvée avec le code %(code)s."
 
-#: apps/leagues/views.py:79
+#: apps/leagues/views.py:81
 #, python-format
 msgid "You are already a member of %(name)s."
 msgstr "Tu es déjà membre de %(name)s."
 
-#: apps/leagues/views.py:82
+#: apps/leagues/views.py:84
 #, python-format
 msgid "You joined %(name)s!"
 msgstr "Tu as rejoint %(name)s !"
 
-#: apps/leagues/views.py:182
+#: apps/leagues/views.py:184
 msgid "The creator cannot leave their own league."
 msgstr "Le créateur ne peut pas quitter sa propre ligue."
 
-#: apps/leagues/views.py:185
+#: apps/leagues/views.py:187
 #, python-format
 msgid "You left %(name)s."
 msgstr "Tu as quitté %(name)s."
@@ -541,22 +541,21 @@ msgid "Winner"
 msgstr "Vainqueur"
 
 #: templates/accounts/profile.html:94 templates/leagues/list.html:4
-#: templates/leagues/list.html:12
+#: templates/leagues/list.html:10
 msgid "My Leagues"
 msgstr "Mes Ligues"
 
 #: templates/accounts/profile.html:97 templates/leagues/join.html:34
-#: templates/leagues/list.html:16
+#: templates/leagues/list.html:13
 msgid "Join"
 msgstr "Rejoindre"
 
 #: templates/accounts/profile.html:100 templates/leagues/create.html:55
-#: templates/leagues/list.html:19
+#: templates/leagues/list.html:16
 msgid "Create"
 msgstr "Créer"
 
 #: templates/accounts/profile.html:114 templates/leagues/detail.html:16
-#: templates/leagues/list.html:49
 msgid "members"
 msgstr "membres"
 
@@ -569,7 +568,7 @@ msgstr "Copier le lien d'invitation"
 msgid "Leave"
 msgstr "Quitter"
 
-#: templates/accounts/profile.html:143 templates/leagues/list.html:79
+#: templates/accounts/profile.html:143 templates/leagues/list.html:78
 msgid "You are not in any league yet."
 msgstr "Tu n'es encore dans aucune ligue."
 
@@ -660,10 +659,8 @@ msgid "Create a League"
 msgstr "Créer une Ligue"
 
 #: templates/leagues/create.html:22
-#, fuzzy
-#| msgid "League"
 msgid "League name"
-msgstr "Ligue"
+msgstr "Nom de la ligue"
 
 #: templates/leagues/create.html:65
 msgid ""
@@ -681,7 +678,7 @@ msgstr ""
 "Seuls les pronos pour les matchs des compétitions sélectionnées comptent "
 "dans le classement de cette ligue."
 
-#: templates/leagues/detail.html:18 templates/leagues/list.html:36
+#: templates/leagues/detail.html:18 templates/leagues/list.html:34
 msgid "Ended"
 msgstr "Terminée"
 
@@ -698,16 +695,16 @@ msgid "Invite"
 msgstr "Invitation"
 
 #: templates/leagues/detail.html:47 templates/leagues/detail.html:49
-#: templates/leagues/list.html:55
+#: templates/leagues/list.html:53
 msgid "Copy code"
 msgstr "Copier le code"
 
-#: templates/leagues/detail.html:56 templates/leagues/list.html:63
+#: templates/leagues/detail.html:56 templates/leagues/list.html:61
 #, python-format
 msgid "Join my league %(name)s on Oval'Pronos, code %(code)s"
 msgstr "Rejoins ma ligue %(name)s sur Oval'Pronos, code %(code)s"
 
-#: templates/leagues/detail.html:57 templates/leagues/list.html:64
+#: templates/leagues/detail.html:57
 msgid "Share invite link"
 msgstr "Partager le lien d'invitation"
 
@@ -715,7 +712,7 @@ msgstr "Partager le lien d'invitation"
 msgid "Share"
 msgstr "Partager"
 
-#: templates/leagues/detail.html:63 templates/leagues/list.html:69
+#: templates/leagues/detail.html:63 templates/leagues/list.html:67
 msgid "Invite link"
 msgstr "Lien d'invitation"
 
@@ -731,11 +728,22 @@ msgstr "Rejoindre une Ligue"
 msgid "Invite Code"
 msgstr "Code d'invitation"
 
-#: templates/leagues/list.html:81 templates/predictions/index.html:27
+#: templates/leagues/list.html:47
+#, python-format
+msgid "%(count)s member"
+msgid_plural "%(count)s members"
+msgstr[0] "%(count)s membre"
+msgstr[1] "%(count)s membres"
+
+#: templates/leagues/list.html:62
+msgid "Share invitation"
+msgstr "Partager l'invitation"
+
+#: templates/leagues/list.html:80 templates/predictions/index.html:27
 msgid "Join a league"
 msgstr "Rejoindre une ligue"
 
-#: templates/leagues/list.html:82 templates/predictions/index.html:28
+#: templates/leagues/list.html:81 templates/predictions/index.html:28
 msgid "Create a league"
 msgstr "Créer une ligue"
 

@@ -69,6 +69,32 @@ class LeagueDetailAllMembersTest(TestCase):
         self.assertEqual(ranks, [1, 1])
 
 
+class LeagueListMemberCountTest(TestCase):
+    """member_count on list view matches actual members (not 1 due to filter-JOIN reuse)."""
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.comp = _make_comp('LGCOUNT')
+        cls.creator = _make_user('lg_count_creator')
+        cls.m1 = _make_user('lg_count_m1')
+        cls.m2 = _make_user('lg_count_m2')
+
+        cls.league = League.objects.create(name='Count Test League', creator=cls.creator)
+        cls.league.competitions.add(cls.comp)
+        cls.league.members.add(cls.creator, cls.m1, cls.m2)
+
+    def setUp(self):
+        self.client.force_login(self.creator)
+
+    def test_member_count_correct(self):
+        """list view returns member_count == actual member count, not 1."""
+        response = self.client.get(reverse('leagues:list'))
+        self.assertEqual(response.status_code, 200)
+        leagues = response.context['leagues']
+        league = next(lg for lg in leagues if lg.pk == self.league.pk)
+        self.assertEqual(league.member_count, 3)
+
+
 class LeagueJoinCodePreservesNextTest(TestCase):
     """?code= parameter survives the ?next= login redirect cycle."""
 
