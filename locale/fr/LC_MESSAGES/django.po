@@ -2474,13 +2474,13 @@ msgstr "Score exact, bon écart, bon vainqueur — comment les points sont calcu
 
 #: templates/matches/rules.html
 msgid ""
-"Odds are Unibet odds × 10, stored as integers to avoid decimals. Perpignan "
-"odds 6.30 → 63 base pts. Apply the tier multiplier: exact 63 × 3 = 189 pts, "
-"good gap 63 × 2 = 126 pts, correct winner 63 × 1 = 63 pts."
+"Odds are sourced from bookmakers and stored × 10 as integers to avoid "
+"decimals (e.g. 6.30 → 63 base pts). Apply the tier multiplier: exact "
+"63 × 3 = 189 pts, good gap 63 × 2 = 126 pts, correct winner 63 × 1 = 63 pts."
 msgstr ""
-"Les cotes sont les odds Unibet × 10, stockées en entiers pour éviter les "
-"décimales. Cote Perpignan 6,30 → 63 pts de base. Applique le multiplicateur "
-"de palier : score exact 63 × 3 = 189 pts, bon écart 63 × 2 = 126 pts, "
+"Les cotes sont issues de bookmakers et stockées × 10 en entiers pour éviter "
+"les décimales (ex. 6,30 → 63 pts de base). Applique le multiplicateur de "
+"palier : score exact 63 × 3 = 189 pts, bon écart 63 × 2 = 126 pts, "
 "bon vainqueur 63 × 1 = 63 pts."
 
 #: templates/matches/rules.html
