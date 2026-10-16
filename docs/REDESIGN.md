@@ -350,33 +350,36 @@ League list, create, join, and detail pages.
 
 ```
 ┌───────────────────────────────────────────────────────────┐
-│ Zone A  League name ·····················  [Ended badge?] │  ~36px min-h
+│ Zone A  League name ·····················  [Ended badge?] │
 ├───────────────────────────────────────────────────────────┤
-│ Zone B  [chip Comp A] [chip Comp B]                       │  ~28px
+│ Zone B  [chip Comp A] [chip Comp B]                       │
 ├───────────────────────────────────────────────────────────┤
-│ Zone C  N members   ·   CODE  [Copy] [Share]              │  ~36px
+│ Zone C  N members   ·   CODE  [Copy] [Share]              │
 └───────────────────────────────────────────────────────────┘
 ```
 
 - Card is a full-width link (stretched link pattern) — entire surface navigates to detail.
 - Copy/Share buttons sit above the stretched link via `position: relative; z-index: 2` on `.league-card-actions`.
-- Zone A: `text-overflow: ellipsis` + `title` attr for long names. Ended badge uses `--color-badge-ended-*`.
+- Zone A: `text-overflow: ellipsis` + `title` attr for long names. Ended badge uses `--color-badge-ended-*`. No `min-height` — natural content height.
 - Zone B: `.comp-divider-chip` — same pill as pronos page, single row max.
-- Zone C: member count muted, invite code monospace (secondary info), Copy/Share right.
-- `min-height: 88px`.
+- Zone C: member count muted, invite code monospace (secondary info), Copy/Share right. No `min-height`.
 
 **League detail anatomy** (`templates/leagues/detail.html`):
 
 ```
-Page header: ti-trophy icon · league name (word-break) · [Leave btn] [← My leagues]
+Page header (flex-wrap, align-items-start):
+  Left (flex-wrap, min-w-0): league name (.league-detail-title) [Ended badge?]
+  Right (flex-shrink-0):     [Leave btn] [← My leagues]
+  → On narrow screens (<320px), buttons wrap to a new line below the title.
 ────────────────────────────────────────────────────────────
 Invite block (.league-invite-block, tinted surface): code [Copy code] [Share ↑]
   └─ share fallback input (readonly, shown when Web Share + clipboard both unavailable)
 ────────────────────────────────────────────────────────────
 Comp chips (.comp-divider-chip)
-[Inactive notice if not league.is_active]
 Leaderboard: {% include "rankings/_table.html" %} — zero duplication
 ```
+
+`.league-detail-title`: `overflow-wrap: anywhere; word-break: break-word` — long names wrap at any character, never cause horizontal scroll. No `text-truncate`.
 
 **Invite code copy + share:**
 - `[Copy code]` (`.copy-code-btn`): copies 5-char code to clipboard. Icon swaps to `ti-check` 1.5s.
@@ -389,7 +392,7 @@ Leaderboard: {% include "rankings/_table.html" %} — zero duplication
 
 **`_assign_ranks` moved** to `apps/rankings/services.py` — shared by both `rankings/views.py` and `leagues/views.py`. Tests in `apps/rankings/tests.py` updated to import from services.
 
-**Sticky "Toi" bar JS** extracted to `templates/partials/_ranking_sticky_js.html` — included by both `rankings/index.html` and `leagues/detail.html` via `{% include %}`.
+**Sticky "Toi" bar JS** extracted to `templates/partials/_ranking_sticky_js.html` — included by both `rankings/index.html` and `leagues/detail.html` via `{% include %}`. The `scrollIntoView` on page load is opt-in: pass `with scroll_on_load=True` to enable it (rankings does; league detail does not — page opens at top, sticky bar handles position awareness).
 
 **Forms:**
 - `create.html`: no crispy_forms. Name field uses `.form-control-44` (min-height 44px). Competitions rendered as `.league-comp-checkbox` pill labels (`CheckboxSelectMultiple` iterated as `BoundWidget`). `:has(input:checked)` toggles checked state.
@@ -415,6 +418,7 @@ Leaderboard: {% include "rankings/_table.html" %} — zero duplication
 - All members shown including 0-pt member
 - 0-pt member has total_points=0 and count_predictions=0
 - Two 0-pt members share rank 1 (shared-rank convention)
+- `member_count` equals actual member count (guards against ORM M2M JOIN-reuse bug where `annotate(Count('members'))` always returned 1)
 - `?code=` pre-fills `initial_code` in join view
 - Unauthenticated GET `/leagues/join/?code=X` redirects preserving `?code=` in `?next=`
 
