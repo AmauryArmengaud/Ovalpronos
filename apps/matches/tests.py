@@ -11,6 +11,7 @@ Run:
 """
 from django.contrib.auth import get_user_model
 from django.test import TestCase
+from django.urls import reverse
 from django.utils import timezone
 
 from apps.matches.models import Competition, Match, Team
@@ -299,3 +300,29 @@ class RefreshUserScoresForMatchTests(TestCase):
         _calculate_points_for_match(match)
         score.refresh_from_db()
         self.assertEqual(score.points, 0)  # predicted home, away won → MISS
+
+
+class RulesViewExampleTest(TestCase):
+    """Rules page passes example points calculated by get_example_points()."""
+
+    def test_context_has_correct_example(self):
+        resp = self.client.get(reverse('matches:rules'))
+        self.assertEqual(resp.status_code, 200)
+        example = resp.context['example']
+        self.assertEqual(example['exact_pts'], 189)
+        self.assertEqual(example['gap_pts'], 126)
+        self.assertEqual(example['win_pts'], 63)
+        self.assertEqual(example['miss_pts'], 0)
+
+
+class HomeViewExampleTest(TestCase):
+    """Home page passes the same example points as the rules page."""
+
+    def test_context_has_correct_example(self):
+        resp = self.client.get(reverse('matches:home'))
+        self.assertEqual(resp.status_code, 200)
+        example = resp.context['example']
+        self.assertEqual(example['exact_pts'], 189)
+        self.assertEqual(example['gap_pts'], 126)
+        self.assertEqual(example['win_pts'], 63)
+        self.assertEqual(example['miss_pts'], 0)

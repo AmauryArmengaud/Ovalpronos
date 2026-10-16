@@ -660,11 +660,21 @@ values kept (approved exception — see §3 Email templates).
 - `RegisterNextValidationTest` (1 case) — validation error preserves `next_url` in context; then valid re-submit redirects correctly
 - `RegisterInviteLeagueContextTest` (3 cases) — `invite_league` in context for valid invite `next`; `None` for non-invite next; `None` for unknown code
 
-### Règles (TODO)
+### Règles (fait)
 
-Four tier cards (EXACT / GAP / WIN / MISS) matching the same colours and icons as the match result
-banners. Exact: gold / `ti-crown`. Gap: purple tint / `ti-target`. Win: lime tint / `ti-check`.
-Miss: neutral / `ti-x`.
+Four tier rows (EXACT / GAP / WIN / MISS) reusing `.home-example-rows` / `.home-example-row--{tier}`
+CSS — same colours and icons as match result banners. Exact: gold / `ti-crown`. Gap: purple tint /
+`ti-target`. Win: lime tint / `ti-check`. Miss: neutral / `ti-x`.
+
+- Odds explanation: Unibet × 10 → base pts; multiplier per tier; formula spelled out (63 × 3 = 189)
+- Bon écart: |pred_gap − real_gap| ≤ threshold, with the 15–22 / 17–22 example
+- Threshold: live from DB (`good_gap_pts`); single value or per-competition list if they differ
+- Example pts: computed by `get_example_points()` in `apps/predictions/services.py` — used by both
+  home page and rules page, tested in `ExamplePointsTest` + `RulesViewExampleTest` + `HomeViewExampleTest`
+- Edge cases covered: draw (3 sub-cases), cancelled, kickoff lock, no-odds, FIXED mode (conditional)
+- FIXED mode points computed via `calculate_points()` with `scoring_system='FIXED'`
+- OG tags: `og_title` / `og_description` blocks overridden
+- All text via `{% trans %}` / `{% blocktrans %}`; new FR translations added to `django.po`
 
 ### Micro-interactions (TODO)
 

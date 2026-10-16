@@ -973,8 +973,8 @@ msgid "An unlikely winner earns more points."
 msgstr "Un vainqueur surprise rapporte plus de points."
 
 #: templates/matches/home.html:41
-msgid "Clermont — Perpignan, Perpignan wins (cote 6.30):"
-msgstr "Clermont — Perpignan, Perpignan gagne (cote 6,30) :"
+msgid "Clermont — Perpignan, Perpignan wins (odds 6.30 = 63 base pts):"
+msgstr "Clermont — Perpignan, Perpignan gagne (cote 6,30 = 63 pts de base) :"
 
 #: templates/matches/home.html:95
 msgid "Play with friends"
@@ -2467,6 +2467,114 @@ msgstr ""
 #: venv/lib/python3.12/site-packages/django/views/templates/default_urlconf.html:235
 msgid "Django Community"
 msgstr ""
+
+#: templates/matches/rules.html
+msgid "Exact score, good gap, correct winner — how points are calculated in Oval'Pronos."
+msgstr "Score exact, bon écart, bon vainqueur — comment les points sont calculés dans Oval'Pronos."
+
+#: templates/matches/rules.html
+msgid ""
+"Odds are Unibet odds × 10, stored as integers to avoid decimals. Perpignan "
+"odds 6.30 → 63 base pts. Apply the tier multiplier: exact 63 × 3 = 189 pts, "
+"good gap 63 × 2 = 126 pts, correct winner 63 × 1 = 63 pts."
+msgstr ""
+"Les cotes sont les odds Unibet × 10, stockées en entiers pour éviter les "
+"décimales. Cote Perpignan 6,30 → 63 pts de base. Applique le multiplicateur "
+"de palier : score exact 63 × 3 = 189 pts, bon écart 63 × 2 = 126 pts, "
+"bon vainqueur 63 × 1 = 63 pts."
+
+#: templates/matches/rules.html
+msgid "What is a good gap?"
+msgstr "C'est quoi le bon écart ?"
+
+#: templates/matches/rules.html
+msgid ""
+"The gap is the score difference (home − away). A good gap means the absolute "
+"difference between your predicted gap and the real gap is within the threshold."
+msgstr ""
+"L'écart, c'est la différence de score (domicile − extérieur). Un bon écart "
+"signifie que la valeur absolue de (écart prédit − écart réel) est dans le seuil."
+
+#: templates/matches/rules.html
+msgid ""
+"Example: predict 15–22 (Perpignan by 7), real score 17–22 (Perpignan by 5). "
+"|7 − 5| = 2. Within the threshold → Good gap."
+msgstr ""
+"Exemple : prono 15–22 (Perpignan de 7 pts d'écart), réel 17–22 (Perpignan "
+"de 5 pts d'écart). |7 − 5| = 2. Dans le seuil → Bon écart."
+
+#: templates/matches/rules.html
+#, python-format
+msgid "Threshold for all active competitions: %(n)s pts."
+msgstr "Seuil pour toutes les compétitions actives : %(n)s pts."
+
+#: templates/matches/rules.html
+msgid "Default threshold: 3 pts."
+msgstr "Seuil par défaut : 3 pts."
+
+#: templates/matches/rules.html
+msgid "Edge cases"
+msgstr "Cas particuliers"
+
+#: templates/matches/rules.html
+msgid "Draw"
+msgstr "Match nul"
+
+#: templates/matches/rules.html
+msgid "Real draw + predicted draw: exact score → Exact, wrong score → Good gap."
+msgstr "Nul réel + prono nul : score exact → Score exact, mauvais score → Bon écart."
+
+#: templates/matches/rules.html
+msgid "Real draw + predicted winner → 0 pts."
+msgstr "Nul réel + prono vainqueur → 0 pt."
+
+#: templates/matches/rules.html
+msgid "Predicted draw + real winner → 0 pts."
+msgstr "Prono nul + vainqueur réel → 0 pt."
+
+#: templates/matches/rules.html
+msgid "Cancelled match"
+msgstr "Match annulé"
+
+#: templates/matches/rules.html
+msgid "A cancelled match always scores 0 pts, whatever your prediction."
+msgstr "Un match annulé rapporte toujours 0 pt, quel que soit ton pronostic."
+
+#: templates/matches/rules.html
+msgid "Kickoff lock"
+msgstr "Verrouillage au coup d'envoi"
+
+#: templates/matches/rules.html
+msgid "Predictions are locked at kickoff. No changes possible after that."
+msgstr "Les pronostics sont verrouillés au coup d'envoi. Aucune modification possible ensuite."
+
+#: templates/matches/rules.html
+msgid ""
+"Matches without odds are hidden. They are not counted in the prediction "
+"progress bar and submissions are blocked."
+msgstr ""
+"Les matchs sans cotes sont masqués. Ils ne comptent pas dans la barre de "
+"progression et les soumissions sont bloquées."
+
+#: templates/matches/rules.html
+msgid "Fixed points mode"
+msgstr "Mode points fixes"
+
+#: templates/matches/rules.html
+msgid "Some competitions use flat points instead of odds:"
+msgstr "Certaines compétitions utilisent des points fixes à la place des cotes :"
+
+#: templates/matches/rules.html
+msgid "Rankings and leagues"
+msgstr "Classement et ligues"
+
+#: templates/matches/rules.html
+msgid "Scores update after each match. Equal points → shared rank."
+msgstr "Les scores sont mis à jour après chaque match. Égalité de points → rang partagé."
+
+#: templates/matches/rules.html
+msgid "Play in private leagues with custom rankings among friends and family."
+msgstr "Joue dans des ligues privées avec un classement personnalisé entre amis et famille."
 
 #: venv/lib/python3.12/site-packages/django/views/templates/default_urlconf.html:236
 msgid "Connect, get help, or contribute"

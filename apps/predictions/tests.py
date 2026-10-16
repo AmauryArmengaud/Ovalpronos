@@ -7,7 +7,7 @@ from unittest.mock import MagicMock
 
 from django.test import SimpleTestCase
 
-from apps.predictions.services import calculate_points
+from apps.predictions.services import calculate_points, get_example_points
 
 
 def make_match(
@@ -124,3 +124,22 @@ class CalculatePointsTests(SimpleTestCase):
         pred = make_pred(15, 10)
         result = calculate_points(pred, match)
         self.assertIsNone(result)
+
+
+class ExamplePointsTest(SimpleTestCase):
+    """get_example_points() values must match calculate_points() — if the formula
+    changes these break, forcing an update of the rules and home pages."""
+
+    def test_cotes_values(self):
+        example = get_example_points()
+        self.assertEqual(example['exact_pts'], 189)  # 63 × 3
+        self.assertEqual(example['gap_pts'], 126)    # 63 × 2
+        self.assertEqual(example['win_pts'], 63)     # 63 × 1
+        self.assertEqual(example['miss_pts'], 0)
+
+    def test_fixed_values(self):
+        example = get_example_points(scoring_system='FIXED')
+        self.assertEqual(example['exact_pts'], 5)
+        self.assertEqual(example['gap_pts'], 3)
+        self.assertEqual(example['win_pts'], 1)
+        self.assertEqual(example['miss_pts'], 0)
