@@ -2,6 +2,7 @@
 {% load i18n %}
 {% load static %}
 {% load humanize %}
+{% load account_tags %}
 
 {% block title %}{% trans "Profile" %} — Oval'Pronos{% endblock %}
 {% block nav_active_profile %}active{% endblock %}
@@ -21,7 +22,7 @@
       {% endif %}
       <div>
         <h1 class="mb-0 fs-4 fw-bold">{{ user.get_display_name }}</h1>
-        {% if user.display_name %}
+        {% if show_username %}
           <div class="text-muted" style="font-size: var(--text-sm);">@{{ user.username }}</div>
         {% endif %}
         {% if user.favorite_team %}
@@ -59,8 +60,8 @@
       </div>
       {% if rank %}
       <div>
-        <div class="profile-stat-primary">#{{ rank }}</div>
-        <div class="profile-stat-label">{% trans "rank" %}</div>
+        <div class="profile-stat-primary">{{ rank|ordinal_local }}</div>
+        <div class="profile-stat-label">{% blocktrans with total=total_ranked %}out of {{ total }}{% endblocktrans %}</div>
       </div>
       {% endif %}
     </div>
@@ -68,24 +69,32 @@
     {# Secondary: tier counts with same icons/colors as match result banners #}
     <div class="profile-tier-row">
       <div class="profile-tier-item match-badge-label-exact">
-        <i class="ti ti-crown" aria-hidden="true"></i>
-        <span>{{ stats.count_exact }}</span>
-        <span class="visually-hidden">{% trans "exact" %}</span>
+        <div class="profile-tier-item__value">
+          <i class="ti ti-crown" aria-hidden="true"></i>
+          <span>{{ stats.count_exact }}</span>
+        </div>
+        <span class="profile-tier-item__label">{% trans "Exact" %}</span>
       </div>
       <div class="profile-tier-item match-badge-label-gap">
-        <i class="ti ti-target" aria-hidden="true"></i>
-        <span>{{ stats.count_gap }}</span>
-        <span class="visually-hidden">{% trans "gap" %}</span>
+        <div class="profile-tier-item__value">
+          <i class="ti ti-target" aria-hidden="true"></i>
+          <span>{{ stats.count_gap }}</span>
+        </div>
+        <span class="profile-tier-item__label">{% trans "Gap" %}</span>
       </div>
       <div class="profile-tier-item match-badge-label-win">
-        <i class="ti ti-check" aria-hidden="true"></i>
-        <span>{{ stats.count_win }}</span>
-        <span class="visually-hidden">{% trans "win" %}</span>
+        <div class="profile-tier-item__value">
+          <i class="ti ti-check" aria-hidden="true"></i>
+          <span>{{ stats.count_win }}</span>
+        </div>
+        <span class="profile-tier-item__label">{% trans "Winner" %}</span>
       </div>
       <div class="profile-tier-item match-badge-label-miss">
-        <i class="ti ti-x" aria-hidden="true"></i>
-        <span>{{ stats.count_miss }}</span>
-        <span class="visually-hidden">{% trans "miss" %}</span>
+        <div class="profile-tier-item__value">
+          <i class="ti ti-x" aria-hidden="true"></i>
+          <span>{{ stats.count_miss }}</span>
+        </div>
+        <span class="profile-tier-item__label">{% trans "Missed" %}</span>
       </div>
     </div>
   {% endif %}
@@ -99,7 +108,7 @@
       <a href="{% url 'leagues:join' %}" class="btn btn-outline-secondary btn-sm">
         <i class="ti ti-door-enter me-1" aria-hidden="true"></i>{% trans "Join" %}
       </a>
-      <a href="{% url 'leagues:create' %}" class="btn btn-primary btn-sm">
+      <a href="{% url 'leagues:create' %}" class="btn btn-outline-secondary btn-sm">
         <i class="ti ti-plus me-1" aria-hidden="true"></i>{% trans "Create" %}
       </a>
     </div>
@@ -117,7 +126,7 @@
       <p>{% trans "You are not in any league yet." %}</p>
       <div class="d-flex gap-2 justify-content-center mt-3">
         <a href="{% url 'leagues:join' %}" class="btn btn-outline-secondary">{% trans "Join a league" %}</a>
-        <a href="{% url 'leagues:create' %}" class="btn btn-primary">{% trans "Create a league" %}</a>
+        <a href="{% url 'leagues:create' %}" class="btn btn-outline-secondary">{% trans "Create a league" %}</a>
       </div>
     </div>
   {% endif %}

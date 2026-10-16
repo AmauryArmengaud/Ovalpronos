@@ -80,6 +80,7 @@ class ProfileView(LoginRequiredMixin, TemplateView):
         _assign_ranks(all_scores)
         rank_entry = next((e for e in all_scores if e['user_id'] == user.pk), None)
         rank = rank_entry['rank'] if rank_entry else None
+        total_ranked = len(all_scores)
 
         # Leagues with member_count and join_url (mirrors leagues/views.py)
         leagues = list(user.leagues.prefetch_related('competitions', 'members').all())
@@ -91,6 +92,9 @@ class ProfileView(LoginRequiredMixin, TemplateView):
 
         ctx['stats'] = stats
         ctx['rank'] = rank
+        ctx['total_ranked'] = total_ranked
+        # Show @username only if display_name is set and differs from username
+        ctx['show_username'] = bool(user.display_name) and user.display_name != user.username
         ctx['leagues'] = leagues
         return ctx
 

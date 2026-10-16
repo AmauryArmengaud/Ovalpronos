@@ -2400,6 +2400,11 @@ msgstr "Oval'Pronos — Pronos rugby entre potes"
 msgid "Predict rugby scores for Top 14, Champions Cup, 6 Nations. Odds reward the bold."
 msgstr "Prédit les scores du Top 14, Champions Cup et 6 Nations. Les cotes récompensent les audacieux."
 
+#. Translators: rank display on profile — e.g. "16e sur 21"
+#: templates/accounts/profile.html
+msgid "out of %(total)s"
+msgstr "sur %(total)s"
+
 #~ msgid "Leave league"
 #~ msgstr "Quitter la ligue"
 
