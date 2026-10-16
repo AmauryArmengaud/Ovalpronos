@@ -44,9 +44,9 @@ def send_deadline_reminders():
     User = get_user_model()
     now = timezone.now()
     window_start = now + datetime.timedelta(hours=22)
-    window_end = now + datetime.timedelta(hours=30)
+    window_end = now + datetime.timedelta(hours=46)
 
-    # Check if the first upcoming match (with odds) falls in the 22–26h window
+    # Check if the first upcoming match (with odds) falls in the 22–46h window
     first_upcoming = (
         Match.objects
         .filter(
