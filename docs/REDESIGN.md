@@ -315,7 +315,7 @@ Rankings leaderboard, row anatomy, competition filter chips, sticky "Toi" bar.
 - Use `<ol aria-label="{% trans 'Leaderboard' %}">` — semantically ordered list.
 
 **Shared ranks (sports convention 1,1,3):**
-`_assign_ranks(entries)` in `apps/rankings/views.py` — pure function, fully unit-tested (10 tests in `apps/rankings/tests.py`). Two entries are tied when they share the same `total_points`, `count_exact`, and `count_gap`. Called by both `_build_leaderboard` and the league leaderboard path.
+`_assign_ranks(entries)` in `apps/rankings/services.py` — pure function, fully unit-tested (10 tests in `apps/rankings/tests.py`). Two entries are tied when they share the same `total_points`, `count_exact`, and `count_gap`. Called by `_build_leaderboard` (rankings), `LeagueDetailView` (leagues), and `ProfileView` (accounts).
 
 **Sticky "Toi" bar (mobile only):**
 - `.ranking-you-sticky` — `position: fixed; bottom: 64px` (above `.mobile-bottom-nav`); `z-index: 1020`.
@@ -590,19 +590,25 @@ Four `.profile-section` blocks, separated by `margin-top: 2rem` via the CSS `+` 
 1. **Identity** — `.profile-identity` (avatar + name block, flex row), edit button top-right.
    Avatar: `.profile-avatar` if set, else `.profile-avatar-initials` (circle, initials, fallback
    bg `--color-logo-fallback-bg`). 80px mobile / 96px `sm+`. Below avatar: display_name as `h1`,
-   username (@handle) shown only when `display_name` differs from username, favorite team logo + name.
+   `@username` shown only when `bool(display_name) and display_name != username` — hidden if no
+   display_name set or if it matches the username exactly. Favorite team logo + name below.
 
 2. **Stats** — hidden entirely when zero scored predictions (shows CTA to predictions instead).
    Primary stat row: `profile-stat-primary` (2rem, tabular-nums) for points (`|intcomma`) and rank
-   (`#N`). Rank is computed via `_assign_ranks()` from `apps/rankings/services.py` — same 1,1,3
-   convention as rankings page. Hidden if no ranked entry (no scored predictions).
-   Secondary tier row: `.profile-tier-row` with four `.profile-tier-item` items reusing
-   `.match-badge-label-exact/gap/win/miss` classes — same icons and colors as match result banners.
+   (`{{ rank|ordinal_local }}` — "1er" / "2e" fr, "1st" / "2nd" en) + `{% blocktrans with
+   total=total_ranked %}out of {{ total }}{% endblocktrans %}` → "16e sur 21". Rank computed via
+   `_assign_ranks()` from `apps/rankings/services.py` — same 1,1,3 convention as rankings page.
+   Hidden if no ranked entry (no scored predictions).
+   Secondary tier row: `.profile-tier-row` with four `.profile-tier-item` items (column layout —
+   value on top, label below) reusing `.match-badge-label-exact/gap/win/miss` classes. Each item
+   has `.profile-tier-item__value` (icon + count) and `.profile-tier-item__label` (text label).
    Icon discipline: `ti-crown` EXACT / `ti-target` GAP / `ti-check` WIN / `ti-x` MISS.
 
 3. **Leagues** — uses `{% include "partials/league_card.html" %}` — no duplication vs. the leagues
    list page. `ProfileView` annotates each league with `member_count` and `join_url` (absolute URL
    to `/leagues/invite/<code>/`) before passing to context.
+   Create / Join CTAs at the bottom of the section: `btn-outline-secondary` (discrete) — not accent
+   red, which is reserved for auth CTAs and positive primary actions.
 
 4. **Settings** — language toggle (mobile only, `d-lg-none`) + logout button.
    Logout uses `.btn-nav-link` (discrete link style) — not `btn-outline-secondary`. Matches the
@@ -633,6 +639,10 @@ layout as login/register (no banner, no `.auth-header`/`.auth-body`). `btn-accen
 Converted from hardcoded French to `{% trans %}` / `{% blocktrans %}` for i18n. CTA button
 `border-radius` updated from `6px` to `99px` (pill — aligns with L'Ovale motif). Inline hex
 values kept (approved exception — see §3 Email templates).
+
+**New templatetag (`apps/accounts/templatetags/account_tags.py`):**
+`ordinal_local` filter — locale-aware ordinal suffix. "1er"/"2e" (fr), "1st"/"2nd" (en).
+`{% load account_tags %}` required in any template using it.
 
 **New CSS classes (added to `main.css`):**
 `.auth-invite-context`, `.profile-identity`, `.profile-avatar`, `.profile-avatar-initials`,
