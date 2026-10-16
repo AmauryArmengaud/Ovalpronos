@@ -1,9 +1,11 @@
 <script>
-  /* Scroll to current-user row on page load (desktop) */
   var _row = document.getElementById('current-user-row');
+  {% if scroll_on_load %}
+  /* Scroll to current-user row on page load (opt-in per page) */
   if (_row) {
     _row.scrollIntoView({ behavior: 'smooth', block: 'center' });
   }
+  {% endif %}
 
   /* Sticky "Toi" bar: show when current-user row leaves viewport (mobile) */
   var _stickyBar = document.getElementById('you-sticky');

@@ -7,14 +7,14 @@
 <div class="league-page-wrap">
 
 {# ── Header ───────────────────────────────────────────────────────────── #}
-<div class="d-flex align-items-center justify-content-between mb-4">
-  <div class="d-flex align-items-center gap-2 min-w-0">
-    <h1 class="mb-0 text-truncate">{{ league.name }}</h1>
+<div class="d-flex align-items-start justify-content-between flex-wrap gap-2 mb-4">
+  <div class="d-flex align-items-baseline flex-wrap gap-2 min-w-0">
+    <h1 class="mb-0 league-detail-title">{{ league.name }}</h1>
     {% if not league.is_active %}
       <span class="badge-ended flex-shrink-0">{% trans "Ended" %}</span>
     {% endif %}
   </div>
-  <div class="d-flex gap-2 flex-shrink-0 ms-2">
+  <div class="d-flex gap-2 flex-shrink-0">
     {% if not is_creator %}
     <button type="button"
             class="btn btn-outline-secondary btn-sm"

@@ -1181,6 +1181,12 @@ main {
   margin-right: auto;
 }
 
+/* Allow long league names to wrap rather than overflow */
+.league-detail-title {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
 /* ── Form field — 44px touch target ── */
 .form-control-44 {
   min-height: 44px;
