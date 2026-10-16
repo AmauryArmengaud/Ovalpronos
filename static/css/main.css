@@ -1202,7 +1202,6 @@ main {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  min-height: 36px;
 }
 
 .league-card-name {
@@ -1229,7 +1228,6 @@ main {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  min-height: 36px;
   color: var(--color-text-secondary);
   font-size: var(--text-sm);
 }
