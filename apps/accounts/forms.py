@@ -20,10 +20,10 @@ class TrackingFreePasswordResetForm(PasswordResetForm):
         if html_email_template_name is not None:
             html_body = loader.render_to_string(html_email_template_name, context)
             msg.attach_alternative(html_body, "text/html")
-        # Anymail reads these attributes when using the Brevo backend.
+        # Brevo-native tracking flags via esp_extra — prevent link rewriting.
+        # Anymail passes these through to the Brevo API as-is.
         # Ignored silently by the console backend in development.
-        msg.track_clicks = False
-        msg.track_opens = False
+        msg.esp_extra = {'trackClicks': False, 'trackOpens': False}
         msg.send()
 
 
