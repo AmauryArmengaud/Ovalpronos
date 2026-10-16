@@ -1059,7 +1059,9 @@ main {
   /* Each column fixed-width so numbers align across rows */
   .ranking-tier-col {
     width: 3rem;
-    text-align: right;
+    display: flex;
+    justify-content: center;
+    align-items: center;
   }
 }
 
@@ -1101,11 +1103,19 @@ main {
     font-weight: 600;
     color: var(--color-text-secondary);
   }
-  .ranking-header-rank  { width: 40px; flex-shrink: 0; text-align: center; }
-  .ranking-header-player { flex: 1; min-width: 0; }
-  .ranking-header-tiers { display: flex; gap: 1.5rem; flex-shrink: 0; }
-  .ranking-header-tier-col { width: 3rem; text-align: right; }
-  .ranking-header-pts   { width: 80px; flex-shrink: 0; text-align: right; }
+  /* Header reuses data-row column classes — reset styles that only apply to data cells */
+  .ranking-header > .ranking-rank,
+  .ranking-header > .ranking-points {
+    color: inherit;
+    font-weight: inherit;
+    font-variant-numeric: initial;
+    flex-direction: initial;
+  }
+  /* .ranking-player inside header: no column/avatar layout, just label */
+  .ranking-header > .ranking-player {
+    flex-direction: initial;
+    gap: 0;
+  }
 }
 
 /* ── Sticky "Toi" bar (mobile only, above bottom nav) ── */

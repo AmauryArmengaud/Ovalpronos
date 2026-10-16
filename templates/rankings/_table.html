@@ -1,22 +1,22 @@
-{% load i18n static %}
+{% load i18n static humanize %}
 {% if entries %}
 
-{# Desktop column headers #}
+{# Desktop column headers — same column classes as data rows, single source of truth #}
 <div class="ranking-header" role="row">
-  <div class="ranking-header-rank" role="columnheader" aria-label="{% trans 'Rank' %}"></div>
-  <div class="ranking-header-player" role="columnheader">{% trans "Player" %}</div>
-  <div class="ranking-header-tiers" role="presentation">
-    <div class="ranking-header-tier-col" role="columnheader">
-      <i class="ti ti-crown rank-icon--1" aria-label="{% trans 'Exact' %}"></i>
+  <div class="ranking-rank" role="columnheader" aria-label="{% trans 'Rank' %}"></div>
+  <div class="ranking-player" role="columnheader">{% trans "Player" %}</div>
+  <div class="ranking-tier-cols" role="presentation">
+    <div class="ranking-tier-col" role="columnheader" aria-label="{% trans 'Exact' %}">
+      <i class="ti ti-crown rank-icon--1"></i>
     </div>
-    <div class="ranking-header-tier-col" role="columnheader">
-      <i class="ti ti-target" style="color:var(--color-badge-gap)" aria-label="{% trans 'Gap' %}"></i>
+    <div class="ranking-tier-col" role="columnheader" aria-label="{% trans 'Gap' %}">
+      <i class="ti ti-target" style="color:var(--color-badge-gap)"></i>
     </div>
-    <div class="ranking-header-tier-col" role="columnheader">
-      <i class="ti ti-check" style="color:var(--color-badge-win-text)" aria-label="{% trans 'Winner' %}"></i>
+    <div class="ranking-tier-col" role="columnheader" aria-label="{% trans 'Winner' %}">
+      <i class="ti ti-check" style="color:var(--color-badge-win-text)"></i>
     </div>
   </div>
-  <div class="ranking-header-pts" role="columnheader">{% trans "Points" %}</div>
+  <div class="ranking-points" role="columnheader">{% trans "Points" %}</div>
 </div>
 
 <ol class="ranking-list" aria-label="{% trans 'Leaderboard' %}">
@@ -88,7 +88,7 @@
 
     {# Zone 4: points #}
     <div class="ranking-points">
-      {{ entry.total_points }}
+      {{ entry.total_points|intcomma }}
       <div class="ranking-pred-count">
         {% blocktrans with n=entry.count_predictions %}{{ n }} scored{% endblocktrans %}
       </div>
@@ -116,7 +116,7 @@
   {% endif %}
   <span class="ranking-name flex-grow-1" style="min-width:0">{{ entry.user.get_display_name }}</span>
   <span class="badge badge-you">{% trans "You" %}</span>
-  <span class="ranking-points" style="width:auto">{{ entry.total_points }}</span>
+  <span class="ranking-points" style="width:auto">{{ entry.total_points|intcomma }}</span>
 </div>
 {% endif %}{% endfor %}
 
