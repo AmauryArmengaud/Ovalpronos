@@ -46,12 +46,14 @@ def send_deadline_reminders():
     window_start = now + datetime.timedelta(hours=22)
     window_end = now + datetime.timedelta(hours=46)
 
-    # Check if the first upcoming match (with odds) falls in the 22–46h window
-    first_upcoming = (
+    # Trigger only if at least one match (with odds) falls in the 22–46h window.
+    # all_upcoming uses datetime__gt=now so it also includes closer matches
+    # (e.g. same-day evening kickoffs) in case last night's reminder failed.
+    first_in_window = (
         Match.objects
         .filter(
             status=Match.STATUS_SCHEDULED,
-            datetime__gt=now,
+            datetime__range=(window_start, window_end),
             cote_home__isnull=False,
             cote_draw__isnull=False,
             cote_away__isnull=False,
@@ -59,8 +61,8 @@ def send_deadline_reminders():
         .order_by('datetime')
         .first()
     )
-    if not first_upcoming or not (window_start <= first_upcoming.datetime <= window_end):
-        logger.info("send_deadline_reminders: first upcoming match not in window, nothing to send.")
+    if not first_in_window:
+        logger.info("send_deadline_reminders: no upcoming match in window, nothing to send.")
         return 0
 
     # All upcoming matches with odds (not yet locked)
