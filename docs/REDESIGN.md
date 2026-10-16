@@ -299,7 +299,7 @@ Rankings leaderboard, row anatomy, competition filter chips, sticky "Toi" bar.
 
 - **Zone 1 (rank, 40px, fixed):** `ti-crown` gold (rank 1) / `ti-medal` silver (rank 2) / `ti-medal` bronze (rank 3) / numeric in `--text-sm` muted for rank ≥4.
 - **Zone 2 (player, flex-grow, `min-width:0`):** Avatar (profile photo if set, else initials circle `--color-logo-fallback-bg`), `display_name` with `text-overflow: ellipsis` + `title` attribute for full name. Mobile second line: `ti-crown N · ti-target N · ti-check N` in `--text-xs` with badge colors — always present for consistent row height.
-- **Zone 3 (tier columns, `d-none d-lg-flex`):** Three right-aligned `3rem` columns (EXACT/GAP/WIN), hidden on mobile.
+- **Zone 3 (tier columns, `d-none d-lg-flex`):** Three centred `3rem` columns (EXACT/GAP/WIN), hidden on mobile. `.ranking-tier-col` uses `display:flex; justify-content:center` so header icons and data values share the same visual axis.
 - **Zone 4 (points, 80px, right-aligned):** `tabular-nums; font-weight: 700`. Pronos count below in `--text-xs`, desktop only.
 
 **Row rules:**
@@ -317,12 +317,24 @@ Rankings leaderboard, row anatomy, competition filter chips, sticky "Toi" bar.
 - `IntersectionObserver` on `#current-user-row` toggles `.visible` when the row exits the viewport.
 - `display: none !important` at `≥992px` — desktop never shows the bar.
 
+**Header / data column alignment:**
+Header row uses the **exact same column classes** as data rows (`ranking-rank`, `ranking-player`, `ranking-tier-cols`, `ranking-tier-col`, `ranking-points`) — single source of truth for widths and alignment. `.ranking-header` overrides only font-size, color, and font-weight for its direct children.
+
 **Competition filter chips:**
 `.ranking-comp-chip` / `.ranking-comp-chip--active` — `min-height: 44px` tap target. Inactive matches `.comp-divider-chip` style (light tinted bg, navy border). Active: filled navy (`--color-primary`).
+
+When multiple active competitions share the same name (e.g. two seasons of Top 14), the view computes `comp.chip_label = "{name} {season}"` for duplicates; single-name competitions keep `chip_label = name`. Template renders `{{ comp.chip_label }}` with no condition.
+
+**Django template underscore rule:**
+Django blocks attribute access on names starting with `_`. Never set `obj._attr` and reference it in a template — compute a clean name in the view instead.
+
+**Points formatting:** `{{ entry.total_points|intcomma }}` — locale-aware thousands separator via `django.contrib.humanize` (space in French, comma in English).
 
 **New CSS variables** (added to both `main.css` and `admin.css`):
 - `--color-rank-silver: rgba(43,52,103,0.45)` — rank 2 medal icon
 - `--color-rank-bronze: rgba(184,105,37,0.75)` — rank 3 medal icon
+
+**Tests** (`apps/rankings/tests.py`): 10 unit tests on `_assign_ranks` + 5 `RankingsViewTest` smoke tests covering `/rankings/`, `?comp=`, `?league=`, duplicate-name season disambiguation, and unknown comp pk.
 
 **Seed data** (`seed_ui_states`): Competition switched to COTES scoring (`good_gap_pts=10`). 20 players (demo_main + player1-19). Demo League: 4 members (main rank 1). Demo Liga: all 20 members (global eligibility). demo_main ~rank 15 globally, rank 1 in Demo League. True ties: P8=P9 (rank 1), P2=P6 (rank 17), P3=P7 (rank 19, P7 = long name + 0 pts). Max score ~2103 pts (4 digits).
 
