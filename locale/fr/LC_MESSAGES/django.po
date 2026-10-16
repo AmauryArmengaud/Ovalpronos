@@ -1007,6 +1007,49 @@ msgstr "Gérer mes ligues"
 msgid "All"
 msgstr "Toutes"
 
+#. Translators: shown on login/register when user arrives via league invite link
+msgid "To join %(name)s"
+msgstr "Pour rejoindre %(name)s"
+
+msgid "We'll send you a reset link."
+msgstr "Nous t'enverrons un lien de réinitialisation."
+
+msgid "No predictions yet."
+msgstr "Aucun prono pour l'instant."
+
+msgid "points"
+msgstr "points"
+
+msgid "rank"
+msgstr "rang"
+
+msgid "Settings"
+msgstr "Réglages"
+
+msgid "Switch to English"
+msgstr "Switch to English"
+
+msgid "Reset your password — Oval'Pronos"
+msgstr "Réinitialisation de ton mot de passe — Oval'Pronos"
+
+msgid "Reset your password"
+msgstr "Réinitialise ton mot de passe"
+
+msgid "You requested to reset the password for your Oval'Pronos account."
+msgstr "Tu as demandé à réinitialiser le mot de passe de ton compte Oval'Pronos."
+
+msgid "Click the button below to choose a new password. This link is valid for <strong>24 hours</strong>."
+msgstr "Clique sur le bouton ci-dessous pour choisir un nouveau mot de passe. Ce lien est valable <strong>24 heures</strong>."
+
+msgid "Reset my password"
+msgstr "Réinitialiser mon mot de passe"
+
+msgid "If you didn't request this, just ignore this email — your password won't change."
+msgstr "Si tu n'es pas à l'origine de cette demande, ignore simplement cet e-mail — ton mot de passe restera inchangé."
+
+msgid "The Oval'Pronos team"
+msgstr "L'équipe Oval'Pronos"
+
 #: venv/lib/python3.12/site-packages/django/contrib/messages/apps.py:16
 msgid "Messages"
 msgstr ""

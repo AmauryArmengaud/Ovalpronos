@@ -230,6 +230,12 @@ def round_label(value):
 `makemessages` extracts `_('Final')` etc. from the Python file; the filter applies the translation at
 runtime. Add new entries to `ROUND_LABELS` whenever the API introduces a new round name.
 
+### Email templates — inline hex exception
+
+Email templates (`templates/accounts/emails/`) use inline hex values for palette colors (`#2B3467`,
+`#EB455F`, `#FCFFF9`) — approved exception since mail clients do not support CSS variables. Keep the
+hex values synchronized with the CSS variables in `main.css`.
+
 ### admin.css — standalone, V4 debt
 
 `static/css/admin.css` does NOT `@import main.css`. It duplicates the CSS variable declarations
@@ -536,9 +542,111 @@ Visitor GET → "J'ai déjà un compte"
 - Register CAPTCHA failure → form re-renders, `next_url` in context
 - Register with `?next=` invite URL → after auto-login, GET invite URL auto-joins league
 
-### Comptes (TODO)
+### Comptes (DONE)
 
-Register, login, profile, password reset.
+Register, login, profile, and password reset pages.
+
+**Auth header layout (`.auth-header`):**
+
+All auth pages (login, register, password reset, reset confirm, reset done, reset complete) share
+the same `.auth-header` block at the top — navy background, centred logo, `h1.auth-header__title`,
+and optional `.auth-header__sub` subtitle. No card-header pattern; the header IS the page header.
+`{% block main_class %}p-0{% endblock %}` removes the default container padding so the header
+bleeds full-width. The `.auth-body` wrapper below handles inner padding.
+
+**Auth header anatomy:**
+
+```
+┌─────────────────────────────────────────────────────────┐
+│ navy (.auth-header)                                      │
+│   logo (SVG, 40px height)                               │
+│   h1.auth-header__title   "Log in"                      │
+│   p.auth-header__sub      "To join {league}" (optional) │
+└─────────────────────────────────────────────────────────┘
+  .auth-body (white, padding 2rem top/sides)
+    form content
+```
+
+**invite_league context and URL resolution safety:**
+
+`_get_invite_league(next_url, request_host)` in `views.py`:
+1. Returns `None` if `next_url` is empty.
+2. Validates with `url_has_allowed_host_and_scheme` — prevents open redirect exploitation.
+3. Calls `resolve(path)` — returns `None` on `Resolver404`.
+4. Checks `match.view_name == 'leagues:public_invite'` — no false positives.
+5. Queries `League.objects.filter(invite_code=...)` — returns `None` for unknown codes.
+
+Called from both `LoginView.get_context_data` (reads `GET['next']`) and
+`RegisterView.get_context_data` (reads `POST['next']` or `GET['next']`). When the context has an
+`invite_league`, the auth header shows `.auth-header__sub` with the league name.
+
+**Form layout decisions:**
+
+- No card wrapper — form sits directly in `.auth-body > .row > .col-*`.
+- All inputs use `.form-control-44` (min-height 44px) for 44px tap targets.
+- Primary CTA: `btn btn-accent btn-lg` (red pill) — not `btn-primary` (navy).
+- `autocomplete` attributes set on all fields for password managers.
+- Register form: `first_name` + `last_name` side-by-side on `sm+` (`col-12 col-sm-6`).
+- Hidden `<input name="next">` in register form preserves `next_url` through Turnstile failures and validation errors.
+- Login form: no hidden `next` input — Django's `LoginView` reads `?next=` from the query string directly (the form POSTs to the current URL which already contains `?next=`).
+
+**Profile page — section anatomy:**
+
+Four `.profile-section` blocks, separated by `border-top: 1px solid var(--color-logo-bg)` via the
+CSS `+` sibling selector:
+
+1. **Identity** — `.profile-identity` (avatar + name block, flex row), edit button top-right.
+   Avatar: `.profile-avatar` if set, else `.profile-avatar-initials` (circle, initials, fallback
+   bg `--color-logo-fallback-bg`). 80px mobile / 96px `sm+`. Below avatar: display_name as `h1`,
+   username (@handle) shown only when `display_name` differs from username, favorite team logo + name.
+
+2. **Stats** — hidden entirely when zero scored predictions (shows CTA to predictions instead).
+   Primary stat row: `profile-stat-primary` (2rem, tabular-nums) for points (`|intcomma`) and rank
+   (`#N`). Rank is computed via `_assign_ranks()` from `apps/rankings/services.py` — same 1,1,3
+   convention as rankings page. Hidden if no ranked entry (no scored predictions).
+   Secondary tier row: `.profile-tier-row` with four `.profile-tier-item` items reusing
+   `.match-badge-label-exact/gap/win/miss` classes — same icons and colors as match result banners.
+   Icon discipline: `ti-crown` EXACT / `ti-target` GAP / `ti-check` WIN / `ti-x` MISS.
+
+3. **Leagues** — uses `{% include "partials/league_card.html" %}` — no duplication vs. the leagues
+   list page. `ProfileView` annotates each league with `member_count` and `join_url` (absolute URL
+   to `/leagues/invite/<code>/`) before passing to context.
+
+4. **Settings** — language toggle (mobile only, `d-lg-none`) + logout button.
+   Logout uses `.btn-nav-link` (discrete link style) — not `btn-outline-secondary`. Matches the
+   design decision documented in §1 ("btn-accent on navbar logout" rejected).
+
+**League card partial (`templates/partials/league_card.html`):**
+
+Extracted from `leagues/list.html` into a shared partial. Both `leagues/list.html` and
+`accounts/profile.html` use `{% include "partials/league_card.html" %}`. The partial requires the
+`league` variable to have `league.member_count` and `league.join_url` set (computed in the view,
+not via ORM `.count()` in the template). Existing CSS (`.league-card`, `.league-card-zone-*`,
+`.league-card-actions`, `.badge-ended`, etc.) is unchanged.
+
+**Password reset flow:**
+
+All four password reset templates (`password_reset.html`, `password_reset_done.html`,
+`password_reset_confirm.html`, `password_reset_complete.html`) use `.auth-header` + `.auth-body`.
+`btn-accent` on all CTAs. `password_reset_done.html` and `password_reset_complete.html` use
+centered icon + copy layout (no form).
+
+**Email template (`templates/accounts/emails/password_reset_email.html`):**
+
+Converted from hardcoded French to `{% trans %}` / `{% blocktrans %}` for i18n. CTA button
+`border-radius` updated from `6px` to `99px` (pill — aligns with L'Ovale motif). Inline hex
+values kept (approved exception — see §3 Email templates).
+
+**New CSS classes (added to `main.css`):**
+`.auth-header`, `.auth-header__logo`, `.auth-header__title`, `.auth-header__sub`, `.auth-body`,
+`.profile-identity`, `.profile-avatar`, `.profile-avatar-initials`, `.profile-stat-primary`,
+`.profile-stat-label`, `.profile-tier-row`, `.profile-tier-item`, `.profile-section + .profile-section`.
+
+**Tests (`apps/accounts/tests.py`):**
+- `RegisterAutoLoginTest` (3 cases) — pre-existing
+- `RegisterThenJoinLeagueTest` (1 case) — pre-existing
+- `RegisterNextValidationTest` (1 case) — validation error preserves `next_url` in context; then valid re-submit redirects correctly
+- `RegisterInviteLeagueContextTest` (3 cases) — `invite_league` in context for valid invite `next`; `None` for non-invite next; `None` for unknown code
 
 ### Règles (TODO)
 

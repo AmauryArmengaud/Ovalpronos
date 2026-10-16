@@ -106,3 +106,58 @@ class RegisterThenJoinLeagueTest(TestCase):
         User = get_user_model()
         joiner = User.objects.get(username='league_joiner')
         self.assertTrue(self.league.members.filter(pk=joiner.pk).exists())
+
+
+class RegisterNextValidationTest(TestCase):
+    """next_url survives form validation errors, then succeeds on re-submit."""
+
+    @patch('apps.accounts.views._verify_turnstile', return_value=True)
+    def test_validation_error_then_success_with_next(self, _mock):
+        next_url = '/some-safe-path/'
+        # First POST — valid CAPTCHA but mismatched passwords (validation error)
+        bad_form = {**VALID_FORM, 'password2': 'wrong', 'next': next_url}
+        response = self.client.post(
+            REGISTER_URL + f'?next={next_url}',
+            bad_form,
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context['next_url'], next_url)
+
+        # Second POST — valid form with next
+        response2 = self.client.post(
+            REGISTER_URL,
+            {**VALID_FORM, 'next': next_url},
+        )
+        self.assertRedirects(response2, next_url, fetch_redirect_response=False)
+
+
+class RegisterInviteLeagueContextTest(TestCase):
+    """invite_league appears in context only for valid /leagues/invite/<code>/ next values."""
+
+    @classmethod
+    def setUpTestData(cls):
+        from django.contrib.auth import get_user_model
+        User = get_user_model()
+        cls.creator = User.objects.create_user(
+            username='ctx_creator', password='pass', email='ctxc@test.local'
+        )
+        cls.comp = _make_comp('CTXTEST')
+        cls.league = League.objects.create(name='Context Test League', creator=cls.creator)
+        cls.league.competitions.add(cls.comp)
+        cls.league.members.add(cls.creator)
+
+    def test_invite_league_in_context_for_invite_next(self):
+        invite_url = reverse('leagues:public_invite', kwargs={'code': self.league.invite_code})
+        response = self.client.get(REGISTER_URL + f'?next={invite_url}')
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context['invite_league'], self.league)
+
+    def test_invite_league_none_for_non_invite_next(self):
+        response = self.client.get(REGISTER_URL + '?next=/predictions/')
+        self.assertEqual(response.status_code, 200)
+        self.assertIsNone(response.context['invite_league'])
+
+    def test_invite_league_none_for_unknown_code(self):
+        response = self.client.get(REGISTER_URL + '?next=/leagues/invite/ZZZZZ/')
+        self.assertEqual(response.status_code, 200)
+        self.assertIsNone(response.context['invite_league'])

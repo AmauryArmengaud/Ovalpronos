@@ -21,54 +21,7 @@
 {% if leagues %}
   <div class="d-flex flex-column gap-3">
     {% for league in leagues %}
-    <div class="league-card">
-      {# Stretched link — covers entire card; buttons in zone C sit above it via z-index #}
-      <a href="{% url 'leagues:detail' league.pk %}"
-         class="stretched-link"
-         aria-label="{{ league.name }}"></a>
-
-      {# Zone A: name + ended badge #}
-      <div class="league-card-zone-a">
-        <span class="league-card-name" title="{{ league.name }}">{{ league.name }}</span>
-        {% if not league.is_active %}
-          <span class="badge-ended">{% trans "Ended" %}</span>
-        {% endif %}
-      </div>
-
-      {# Zone B: competition chips — compact, same as pronos page #}
-      <div class="league-card-zone-b">
-        {% for comp in league.competitions.all %}
-          <span class="comp-divider-chip">{{ comp.name }}</span>
-        {% endfor %}
-      </div>
-
-      {# Zone C: member count, invite code, copy/share buttons #}
-      <div class="league-card-zone-c">
-        <span>{% blocktrans count count=league.member_count %}{{ count }} member{% plural %}{{ count }} members{% endblocktrans %}</span>
-        <span class="league-card-code" aria-label="{% trans 'Invite code' %}">{{ league.invite_code }}</span>
-        <div class="league-card-actions">
-          <button type="button"
-                  class="copy-code-btn btn btn-outline-secondary btn-sm"
-                  data-code="{{ league.invite_code }}"
-                  aria-label="{% trans 'Copy code' %}">
-            <i class="ti ti-copy" aria-hidden="true"></i>
-          </button>
-          <div class="league-share-group">
-            <button type="button"
-                    class="share-link-btn btn btn-outline-secondary btn-sm"
-                    data-url="{{ league.join_url }}"
-                    data-share-title="Oval'Pronos"
-                    data-text="{% blocktrans with name=league.name code=league.invite_code %}Join my league {{ name }} on Oval'Pronos, code {{ code }}{% endblocktrans %}"
-                    aria-label="{% trans 'Share invitation' %}">
-              <i class="ti ti-share" aria-hidden="true"></i>
-            </button>
-            <input type="text" readonly
-                   class="share-fallback-input form-control form-control-sm d-none mt-1"
-                   aria-label="{% trans 'Invite link' %}">
-          </div>
-        </div>
-      </div>
-    </div>
+      {% include "partials/league_card.html" %}
     {% endfor %}
   </div>
 
