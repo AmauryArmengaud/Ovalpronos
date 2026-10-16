@@ -2321,13 +2321,17 @@ msgid "Join %(name)s on Oval'Pronos"
 msgstr "Rejoins %(name)s sur Oval'Pronos"
 
 #: templates/leagues/public_invite.html
-#, python-format
-msgid "You're invited to join <span class=\"invite-league-name\">%(name)s</span>"
-msgstr "Tu es invité à rejoindre <span class=\"invite-league-name\">%(name)s</span>"
+msgid "We're waiting for you in"
+msgstr "On t'attend dans"
 
 #: templates/leagues/public_invite.html
-msgid "Predict rugby scores and compete with your friends. Free."
-msgstr "Prédit des scores de rugby et affronte tes potes. Gratuit."
+#, python-format
+msgid "%(creator)s invites you"
+msgstr "%(creator)s t'invite"
+
+#: templates/leagues/public_invite.html
+msgid "Predict rugby scores, earn points based on odds — free."
+msgstr "Prédit des scores de rugby, gagne des points selon les cotes — c'est gratuit."
 
 #: templates/leagues/public_invite.html
 msgid "This invite link is invalid."

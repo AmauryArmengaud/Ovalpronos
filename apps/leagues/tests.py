@@ -116,29 +116,21 @@ class LeagueJoinCodePreservesNextTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context['initial_code'], code)
 
-    def test_join_url_redirects_anon_to_login_preserving_code(self):
-        """Unauthenticated GET /leagues/join/?code=X redirects to login with ?next= intact."""
+    def test_join_url_with_code_redirects_anon_to_invite_page(self):
+        """Unauthenticated GET /leagues/join/?code=X now redirects to the public invite page."""
         code = self.league.invite_code
-        join_url = reverse('leagues:join') + f'?code={code}'
-        response = self.client.get(join_url)
-        # Should redirect to login
-        self.assertEqual(response.status_code, 302)
-        redirect_target = response['Location']
-        self.assertIn('next=', redirect_target)
-        # The next= value must contain the code
-        self.assertIn(code, redirect_target)
+        response = self.client.get(reverse('leagues:join') + f'?code={code}')
+        self.assertRedirects(
+            response,
+            reverse('leagues:public_invite', kwargs={'code': code}),
+            fetch_redirect_response=False,
+        )
 
-    def test_login_then_join_url_still_has_code(self):
-        """After login, the redirect back to join preserves ?code= in the URL."""
-        code = self.league.invite_code
-        join_url = reverse('leagues:join') + f'?code={code}'
-        # Simulate following login redirect: GET join (anon) → login → back to join
-        response = self.client.get(join_url, follow=True)
-        # Should land on login page (unauthenticated)
-        self.assertIn(reverse('accounts:login'), response.redirect_chain[0][0])
-        # The login redirect URL must encode the join URL including the code
-        login_url_with_next = response.redirect_chain[0][0]
-        self.assertIn(code, login_url_with_next)
+    def test_join_url_without_code_redirects_anon_to_login(self):
+        """Unauthenticated GET /leagues/join/ (no code) still redirects to login."""
+        response = self.client.get(reverse('leagues:join'))
+        self.assertEqual(response.status_code, 302)
+        self.assertIn(reverse('accounts:login'), response['Location'])
 
 
 class LeaguePublicInviteViewTest(TestCase):

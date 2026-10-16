@@ -11,58 +11,78 @@
 {% endblock %}
 
 {% block og_title %}{% if not invalid %}{% blocktrans with name=league.name %}Join {{ name }} on Oval'Pronos{% endblocktrans %}{% endif %}{% endblock %}
-{% block og_description %}{% trans "Predict rugby scores and compete with your friends. Free." %}{% endblock %}
+{% block og_description %}{% trans "Predict rugby scores, earn points based on odds — free." %}{% endblock %}
 
 {% block body_class %}home-visitor{% endblock %}
 {% block main_class %}p-0{% endblock %}
 
 {% block content %}
-<div class="invite-page">
 
 {% if invalid %}
 {# ── Invalid code ─────────────────────────────────────────────────────── #}
-<div class="container py-5">
-  <div class="row justify-content-center">
-    <div class="col-12 col-md-6 text-center">
-      <i class="ti ti-link-off mb-3 d-block" aria-hidden="true"
-         style="font-size: 3rem; color: var(--color-text-secondary);"></i>
-      <h1 class="h4 mb-3">{% trans "This invite link is invalid." %}</h1>
-      <p class="text-muted mb-4">{% trans "The code may have changed or the link may be broken." %}</p>
-      <a href="{% url 'matches:home' %}" class="btn btn-accent">{% trans "Go to home" %}</a>
+<div class="invite-invalid">
+  <div class="container py-5">
+    <div class="row justify-content-center">
+      <div class="col-12 col-md-6 text-center">
+        <i class="ti ti-link-off mb-3 d-block" aria-hidden="true"
+           style="font-size: 3rem; color: var(--color-text-secondary);"></i>
+        <h1 class="h4 mb-3">{% trans "This invite link is invalid." %}</h1>
+        <p class="text-muted mb-4">{% trans "The code may have changed or the link may be broken." %}</p>
+        <a href="{% url 'matches:home' %}" class="btn btn-accent">{% trans "Go to home" %}</a>
+      </div>
     </div>
   </div>
 </div>
 
 {% else %}
-{# ── Valid invite ─────────────────────────────────────────────────────── #}
-<section class="invite-hero">
-  <div class="container invite-hero__inner">
+{# ── Valid invite — reuses home-hero CSS ──────────────────────────────── #}
+<section class="home-hero">
+  <div class="container home-hero__inner">
 
-    <img src="{% static 'img/logo_blanc.png' %}" alt="Oval'Pronos" class="invite-hero__logo" width="120" height="40">
+    <div class="home-hero__content">
 
-    <h1 class="invite-hero__title">
-      {% blocktrans with name=league.name %}You're invited to join <span class="invite-league-name">{{ name }}</span>{% endblocktrans %}
-    </h1>
+      <h1 class="home-hero__title">
+        {% trans "We're waiting for you in" %} <span class="invite-league-name">{{ league.name }}</span>
+      </h1>
 
-    <p class="invite-hero__sub">
-      {% trans "Predict rugby scores, earn points based on odds, and compete against your friends." %}<br>
-      {% trans "Free." %}
-    </p>
+      {# ── Social proof ──────────────────────────────────────────────── #}
+      <div class="invite-meta mb-3">
+        <span>{% blocktrans with creator=league.creator.get_display_name %}{{ creator }} invites you{% endblocktrans %}</span>
+        <span class="invite-meta__sep" aria-hidden="true">·</span>
+        <span>{% blocktrans count count=member_count %}{{ count }} member{% plural %}{{ count }} members{% endblocktrans %}</span>
+      </div>
 
-    <div class="invite-hero__ctas">
-      <a href="{% url 'accounts:register' %}?next={{ request.path }}"
-         class="btn btn-accent invite-hero__cta-primary">
-        {% trans "Create my account" %}
-      </a>
-      <a href="{% url 'accounts:login' %}?next={{ request.path }}"
-         class="invite-hero__cta-secondary">
-        {% trans "I already have an account" %}
-      </a>
+      {% if league.competitions.all %}
+      <div class="d-flex flex-wrap gap-2 mb-4">
+        {% for comp in league.competitions.all %}
+          <span class="comp-divider-chip comp-divider-chip--dark">{{ comp.name }}</span>
+        {% endfor %}
+      </div>
+      {% endif %}
+
+      <p class="home-hero__sub">
+        {% trans "Predict rugby scores, earn points based on odds — free." %}
+      </p>
+
+      <div class="home-hero__ctas">
+        <a href="{% url 'accounts:register' %}?next={{ request.path }}"
+           class="btn btn-accent home-hero__cta-primary">
+          {% trans "Create my account" %}
+        </a>
+        <a href="{% url 'accounts:login' %}?next={{ request.path }}"
+           class="home-hero__cta-secondary">
+          {% trans "I already have an account" %}
+        </a>
+      </div>
+
     </div>
+
+    <img src="{% static 'img/boar-mascot.png' %}" alt="" aria-hidden="true"
+         class="home-hero__mascot d-none d-lg-block"
+         width="240" height="240">
 
   </div>
 </section>
 {% endif %}
 
-</div>
 {% endblock %}

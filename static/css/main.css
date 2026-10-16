@@ -418,77 +418,39 @@ main {
   opacity: 0.85;
 }
 
-/* Invite page hero — same navy block as home hero but simpler */
-.invite-hero {
-  background: var(--color-primary);
-  min-height: calc(100vh - 68px);
-  display: flex;
-  align-items: center;
-  padding: 3rem 0;
-}
-
-.invite-hero__inner {
-  width: 100%;
-}
-
-.invite-hero__logo {
-  display: block;
-  margin-bottom: 2rem;
-  height: 40px;
-  width: auto;
-}
-
-.invite-hero__title {
-  font-size: clamp(1.75rem, 5vw, 3rem);
-  font-weight: 800;
-  color: var(--color-text-on-primary);
-  line-height: 1.1;
-  letter-spacing: -0.02em;
-  margin-bottom: 1.25rem;
-}
-
+/* Invite page — league name in hero (full cream = stands out vs 80%-opacity sub text) */
 .invite-league-name {
-  color: var(--color-badge-exact);
+  color: var(--color-text-on-primary);
+  font-weight: 800;
+  /* word-break ensures long league names wrap at any point, no overflow at 320px */
+  overflow-wrap: anywhere;
 }
 
-.invite-hero__sub {
-  font-size: 1rem;
-  color: rgba(252, 255, 249, 0.80);
-  line-height: 1.7;
-  margin-bottom: 2rem;
-  max-width: 480px;
-}
-
-.invite-hero__ctas {
+/* Social proof line (creator · member count) */
+.invite-meta {
   display: flex;
   align-items: center;
-  gap: 1.25rem;
+  gap: 0.5rem;
   flex-wrap: wrap;
+  font-size: var(--text-sm);
+  color: rgba(252, 255, 249, 0.75);
+  font-weight: 500;
 }
 
-.invite-hero__cta-primary {
-  padding: 0.75rem 2rem;
-  font-size: 1.05rem;
-  min-height: 48px;
+.invite-meta__sep {
+  opacity: 0.5;
 }
 
-.invite-hero__cta-secondary {
-  color: rgba(252, 255, 249, 0.80);
-  font-weight: 600;
-  font-size: 0.95rem;
-  text-decoration: none;
-  min-height: 44px;
-  display: inline-flex;
-  align-items: center;
-}
-
-.invite-hero__cta-secondary:hover {
+/* Competition chips on dark (navy) background */
+.comp-divider-chip--dark {
+  background: rgba(252, 255, 249, 0.10);
   color: var(--color-text-on-primary);
+  border-color: rgba(252, 255, 249, 0.20);
 }
 
-/* Invite page (invalid state) */
-.invite-page {
-  min-height: 50vh;
+/* Invalid state centering */
+.invite-invalid {
+  min-height: 60vh;
   display: flex;
   align-items: center;
 }

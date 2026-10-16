@@ -66,6 +66,12 @@ class LeagueCreateView(LoginRequiredMixin, CreateView):
 
 
 class LeagueJoinView(LoginRequiredMixin, View):
+    def dispatch(self, request, *args, **kwargs):
+        code = request.GET.get('code', '').strip().upper()
+        if not request.user.is_authenticated and code:
+            return redirect(reverse('leagues:public_invite', kwargs={'code': code}))
+        return super().dispatch(request, *args, **kwargs)
+
     def get(self, request):
         code = request.GET.get('code', '').strip().upper()
         return render(request, 'leagues/join.html', {'initial_code': code})
@@ -94,7 +100,12 @@ class LeaguePublicInviteView(View):
     def get(self, request, code):
         code = code.upper()
         try:
-            league = League.objects.prefetch_related('competitions').get(invite_code=code)
+            league = (
+                League.objects
+                .select_related('creator')
+                .prefetch_related('competitions')
+                .get(invite_code=code)
+            )
         except League.DoesNotExist:
             return render(request, 'leagues/public_invite.html', {'invalid': True})
 
@@ -108,6 +119,7 @@ class LeaguePublicInviteView(View):
         return render(request, 'leagues/public_invite.html', {
             'league': league,
             'code': code,
+            'member_count': league.members.count(),
         })
 
 
