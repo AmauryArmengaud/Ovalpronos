@@ -4,10 +4,12 @@ import json
 
 from django.conf import settings
 from django.contrib import messages
-from django.contrib.auth import views as auth_views
+from django.contrib.auth import login, views as auth_views
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Count, Q, Sum
+from django.shortcuts import redirect
 from django.urls import reverse_lazy
+from django.utils.http import url_has_allowed_host_and_scheme
 from django.views.generic import CreateView, TemplateView, UpdateView
 
 from apps.predictions.models import Prediction
@@ -102,17 +104,22 @@ class RegisterView(CreateView):
     model = CustomUser
     form_class = RegistrationForm
     template_name = 'accounts/register.html'
-    success_url = reverse_lazy('accounts:login')
+    success_url = reverse_lazy('predictions:index')
 
     def form_valid(self, form):
         response = super().form_valid(form)
+        login(self.request, self.object)
         from ovalpronos.analytics import capture
         capture(self.object.pk, 'user_registered')
+        next_url = self.request.POST.get('next') or self.request.GET.get('next')
+        if next_url and url_has_allowed_host_and_scheme(next_url, allowed_hosts={self.request.get_host()}):
+            return redirect(next_url)
         return response
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
         ctx['turnstile_site_key'] = settings.TURNSTILE_SITE_KEY
+        ctx['next_url'] = self.request.POST.get('next', '') or self.request.GET.get('next', '')
         return ctx
 
     def post(self, request, *args, **kwargs):

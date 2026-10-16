@@ -17,6 +17,7 @@
       <div class="card-body p-4">
         <form method="post">
           {% csrf_token %}
+          {% if next_url %}<input type="hidden" name="next" value="{{ next_url }}">{% endif %}
 
           {% for field in form %}
             <div class="mb-3">
@@ -61,7 +62,7 @@
         <div class="text-center">
           <p class="mb-0">
             {% trans "Already have an account?" %}
-            <a href="{% url 'accounts:login' %}" class="fw-600 text-decoration-none">
+            <a href="{% url 'accounts:login' %}{% if next_url %}?next={{ next_url }}{% endif %}" class="fw-600 text-decoration-none">
               {% trans "Log in" %}
             </a>
           </p>

@@ -170,14 +170,15 @@ class LeaguePublicInviteViewTest(TestCase):
         self.assertRedirects(response, reverse('leagues:detail', kwargs={'pk': self.league.pk}))
         self.assertTrue(self.league.members.filter(pk=joiner.pk).exists())
 
-    def test_authenticated_already_member_just_redirects(self):
-        """Already-member GET redirects without creating a duplicate membership."""
+    def test_authenticated_already_member_sees_already_member_page(self):
+        """Already-member GET renders the already_member page (not a redirect, no duplicate)."""
         self.client.force_login(self.creator)
         count_before = self.league.members.count()
         response = self.client.get(
             reverse('leagues:public_invite', kwargs={'code': self.league.invite_code})
         )
-        self.assertRedirects(response, reverse('leagues:detail', kwargs={'pk': self.league.pk}))
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(response.context['already_member'])
         self.assertEqual(self.league.members.count(), count_before)
 
     def test_visitor_registers_then_joins(self):
@@ -200,3 +201,13 @@ class LeaguePublicInviteViewTest(TestCase):
         )
         self.assertRedirects(response, reverse('leagues:detail', kwargs={'pk': self.league.pk}))
         self.assertTrue(self.league.members.filter(pk=joiner.pk).exists())
+
+    def test_already_member_sees_message(self):
+        """Authenticated user who is already a member sees the already_member page, not a redirect."""
+        self.client.force_login(self.creator)
+        response = self.client.get(
+            reverse('leagues:public_invite', kwargs={'code': self.league.invite_code})
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(response.context['already_member'])
+        self.assertEqual(response.context['league'].pk, self.league.pk)

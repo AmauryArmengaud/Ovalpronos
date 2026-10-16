@@ -501,7 +501,7 @@ Visitor GET → "J'ai déjà un compte"
 
 - Invalid code: renders error state (HTTP 200) + link to home. No 404.
 - Authenticated non-member: added to `league.members` + redirect to detail.
-- Authenticated already-member: just redirect to detail (no duplicate).
+- Authenticated already-member: renders invite page with `already_member=True` context — shows "You're already in {name}" with a link to the league (no silent redirect, no duplicate).
 - Analytics: `league_joined` event captured with `via: 'invite_link'`.
 
 **OG overrides:**
@@ -514,13 +514,27 @@ Visitor GET → "J'ai déjà un compte"
 
 **New CSS classes:** `.invite-hero`, `.invite-hero__inner`, `.invite-hero__logo`, `.invite-hero__title`, `.invite-league-name` (accent gold for the league name), `.invite-hero__sub`, `.invite-hero__ctas`, `.invite-hero__cta-primary/secondary`, `.invite-page`.
 
-**Tests** (`apps/leagues/tests.py`, class `LeaguePublicInviteViewTest`, 6 cases):
+**Registration → auto-join fix (`RegisterView`):**
+- After successful registration, user is auto-logged-in (`login(request, self.object)`).
+- `?next=` is read from `POST['next']` then `GET['next']`, validated with `url_has_allowed_host_and_scheme`, and followed on success.
+- `next_url` is passed to context so the template can render a hidden `<input name="next">` inside the form — survives Turnstile failures and field errors.
+- Fallback `success_url` is `predictions:index` (was `accounts:login`).
+- "Log in" link in `register.html` carries `?next={{ next_url }}`.
+
+**Tests** (`apps/leagues/tests.py`, class `LeaguePublicInviteViewTest`, 7 cases):
 - Unauthenticated GET → 200 + league in context
 - Invalid code → 200 + `invalid=True` in context
 - Authenticated non-member → auto-joined + redirect to detail
-- Authenticated already-member → redirect only (no duplicate)
+- Authenticated already-member → 200 + `already_member=True` in context (no redirect, no duplicate)
 - Post-register flow (simulated) → auto-joined ✓
 - Post-login flow (simulated) → auto-joined ✓
+- `already_member` in `LeaguePublicInviteViewTest.test_already_member_sees_message` ✓
+
+**Tests** (`apps/accounts/tests.py`, 4 cases):
+- Register → auto-logged-in + redirected to predictions
+- Register with `?next=` → redirected to next URL
+- Register CAPTCHA failure → form re-renders, `next_url` in context
+- Register with `?next=` invite URL → after auto-login, GET invite URL auto-joins league
 
 ### Comptes (TODO)
 

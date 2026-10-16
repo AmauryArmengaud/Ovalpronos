@@ -110,10 +110,15 @@ class LeaguePublicInviteView(View):
             return render(request, 'leagues/public_invite.html', {'invalid': True})
 
         if request.user.is_authenticated:
-            if not league.members.filter(pk=request.user.pk).exists():
-                league.members.add(request.user)
-                from ovalpronos.analytics import capture
-                capture(request.user.pk, 'league_joined', {'league_id': league.pk, 'via': 'invite_link'})
+            if league.members.filter(pk=request.user.pk).exists():
+                return render(request, 'leagues/public_invite.html', {
+                    'league': league,
+                    'member_count': league.members.count(),
+                    'already_member': True,
+                })
+            league.members.add(request.user)
+            from ovalpronos.analytics import capture
+            capture(request.user.pk, 'league_joined', {'league_id': league.pk, 'via': 'invite_link'})
             return redirect('leagues:detail', pk=league.pk)
 
         return render(request, 'leagues/public_invite.html', {
