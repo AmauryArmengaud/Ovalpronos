@@ -1,65 +1,139 @@
-{% load i18n %}
+{% load i18n static %}
 {% if entries %}
-<div class="card">
-  <div class="table-responsive">
-    <table class="table table-hover mb-0 align-middle">
-      <thead>
-        <tr>
-          <th style="width: 3rem">#</th>
-          <th>{% trans "Player" %}</th>
-          <th class="text-end">{% trans "Points" %}</th>
-          <th class="text-end d-none d-md-table-cell">{% trans "Predictions" %}</th>
-          <th class="text-end d-none d-md-table-cell">
-            <span class="match-badge-label-exact">{% trans "Exact" %}</span>
-          </th>
-          <th class="text-end d-none d-md-table-cell">
-            <span class="match-badge-label-gap">{% trans "Gap" %}</span>
-          </th>
-          <th class="text-end d-none d-md-table-cell">
-            <span class="match-badge-label-win">{% trans "Winner" %}</span>
-          </th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for entry in entries %}
-        <tr {% if entry.is_current_user %}id="current-user-row" style="background: rgba(186, 215, 233, 0.25); font-weight: 600;"{% endif %}>
-          <td>
-            {% if entry.rank == 1 %}🥇
-            {% elif entry.rank == 2 %}🥈
-            {% elif entry.rank == 3 %}🥉
-            {% else %}{{ entry.rank }}{% endif %}
-          </td>
-          <td>
-            {{ entry.user.get_display_name }}
-            {% if entry.is_current_user %}
-              <span class="badge badge-you ms-1">{% trans "You" %}</span>
-            {% endif %}
-            <div class="d-md-none mt-1 d-flex gap-2 flex-wrap">
-              <span class="match-badge-label-exact" style="font-size: var(--text-xs);">👑 {{ entry.count_exact }}</span>
-              <span class="match-badge-label-gap"   style="font-size: var(--text-xs);">🎯 {{ entry.count_gap }}</span>
-              <span class="match-badge-label-win"   style="font-size: var(--text-xs);">✓ {{ entry.count_win }}</span>
-            </div>
-          </td>
-          <td class="text-end fw-bold">{{ entry.total_points }}</td>
-          <td class="text-end d-none d-md-table-cell text-muted">{{ entry.count_predictions }}</td>
-          <td class="text-end d-none d-md-table-cell">
-            <span class="match-badge-label-exact">{{ entry.count_exact }}</span>
-          </td>
-          <td class="text-end d-none d-md-table-cell">
-            <span class="match-badge-label-gap">{{ entry.count_gap }}</span>
-          </td>
-          <td class="text-end d-none d-md-table-cell">
-            <span class="match-badge-label-win">{{ entry.count_win }}</span>
-          </td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
+
+{# Desktop column headers #}
+<div class="ranking-header" role="row">
+  <div class="ranking-header-rank" role="columnheader" aria-label="{% trans 'Rank' %}"></div>
+  <div class="ranking-header-player" role="columnheader">{% trans "Player" %}</div>
+  <div class="ranking-header-tiers" role="presentation">
+    <div class="ranking-header-tier-col" role="columnheader">
+      <i class="ti ti-crown rank-icon--1" aria-label="{% trans 'Exact' %}"></i>
+    </div>
+    <div class="ranking-header-tier-col" role="columnheader">
+      <i class="ti ti-target" style="color:var(--color-badge-gap)" aria-label="{% trans 'Gap' %}"></i>
+    </div>
+    <div class="ranking-header-tier-col" role="columnheader">
+      <i class="ti ti-check" style="color:var(--color-badge-win-text)" aria-label="{% trans 'Winner' %}"></i>
+    </div>
   </div>
+  <div class="ranking-header-pts" role="columnheader">{% trans "Points" %}</div>
 </div>
+
+<ol class="ranking-list" aria-label="{% trans 'Leaderboard' %}">
+  {% for entry in entries %}
+  <li class="ranking-row {% if entry.is_current_user %}ranking-row--you{% endif %}"
+      id="{% if entry.is_current_user %}current-user-row{% endif %}"
+      {% if entry.is_current_user %}aria-current="true"{% endif %}
+      aria-label="{% blocktrans with rank=entry.rank name=entry.user.get_display_name pts=entry.total_points %}Rank {{ rank }}, {{ name }}, {{ pts }} points{% endblocktrans %}">
+
+    {# Zone 1: rank / medal #}
+    <div class="ranking-rank" aria-hidden="true">
+      {% if entry.rank == 1 %}
+        <i class="ti ti-crown rank-icon--1"></i>
+      {% elif entry.rank == 2 %}
+        <i class="ti ti-medal rank-icon--2"></i>
+      {% elif entry.rank == 3 %}
+        <i class="ti ti-medal rank-icon--3"></i>
+      {% else %}
+        {{ entry.rank }}
+      {% endif %}
+    </div>
+
+    {# Zone 2: player #}
+    <div class="ranking-player">
+      <div class="ranking-player-main">
+        {# Avatar: photo if available, initials fallback #}
+        {% if entry.user.avatar %}
+          <img src="{{ entry.user.avatar.url }}"
+               alt=""
+               class="ranking-avatar"
+               aria-hidden="true">
+        {% else %}
+          <span class="ranking-avatar ranking-avatar--initials" aria-hidden="true">
+            {{ entry.user.get_display_name|slice:":1"|upper }}
+          </span>
+        {% endif %}
+        <span class="ranking-name"
+              title="{{ entry.user.get_display_name }}">{{ entry.user.get_display_name }}</span>
+        {% if entry.is_current_user %}
+          <span class="badge badge-you flex-shrink-0">{% trans "You" %}</span>
+        {% endif %}
+      </div>
+      {# Mobile tier row: always present to keep consistent row height #}
+      <div class="ranking-tiers ranking-tiers-mobile" aria-hidden="true">
+        <span class="ranking-tier-item ranking-tier-item--exact">
+          <i class="ti ti-crown"></i>{{ entry.count_exact }}
+        </span>
+        <span class="ranking-tier-item ranking-tier-item--gap">
+          <i class="ti ti-target"></i>{{ entry.count_gap }}
+        </span>
+        <span class="ranking-tier-item ranking-tier-item--win">
+          <i class="ti ti-check"></i>{{ entry.count_win }}
+        </span>
+      </div>
+    </div>
+
+    {# Zone 3: tier columns (desktop only) #}
+    <div class="ranking-tier-cols" aria-hidden="true">
+      <div class="ranking-tier-col">
+        <span class="ranking-tier-item ranking-tier-item--exact">{{ entry.count_exact }}</span>
+      </div>
+      <div class="ranking-tier-col">
+        <span class="ranking-tier-item ranking-tier-item--gap">{{ entry.count_gap }}</span>
+      </div>
+      <div class="ranking-tier-col">
+        <span class="ranking-tier-item ranking-tier-item--win">{{ entry.count_win }}</span>
+      </div>
+    </div>
+
+    {# Zone 4: points #}
+    <div class="ranking-points">
+      {{ entry.total_points }}
+      <div class="ranking-pred-count">
+        {% blocktrans with n=entry.count_predictions %}{{ n }} scored{% endblocktrans %}
+      </div>
+    </div>
+
+  </li>
+  {% endfor %}
+</ol>
+
+{# Sticky "Toi" bar — shown on mobile when current-user-row exits viewport #}
+{% for entry in entries %}{% if entry.is_current_user %}
+<div class="ranking-you-sticky" id="you-sticky" aria-hidden="true">
+  <div class="ranking-rank">
+    {% if entry.rank == 1 %}<i class="ti ti-crown rank-icon--1"></i>
+    {% elif entry.rank == 2 %}<i class="ti ti-medal rank-icon--2"></i>
+    {% elif entry.rank == 3 %}<i class="ti ti-medal rank-icon--3"></i>
+    {% else %}{{ entry.rank }}{% endif %}
+  </div>
+  {% if entry.user.avatar %}
+    <img src="{{ entry.user.avatar.url }}" alt="" class="ranking-avatar">
+  {% else %}
+    <span class="ranking-avatar ranking-avatar--initials">
+      {{ entry.user.get_display_name|slice:":1"|upper }}
+    </span>
+  {% endif %}
+  <span class="ranking-name flex-grow-1" style="min-width:0">{{ entry.user.get_display_name }}</span>
+  <span class="badge badge-you">{% trans "You" %}</span>
+  <span class="ranking-points" style="width:auto">{{ entry.total_points }}</span>
+</div>
+{% endif %}{% endfor %}
+
 {% else %}
-<div class="text-center text-muted py-5">
-  <i class="ti ti-clock mb-3" style="font-size: 3rem; color: var(--color-icon-muted);"></i>
-  <p>{% trans "No scores yet. Points appear after matches finish." %}</p>
+
+{# Empty state #}
+<div class="ranking-empty">
+  <i class="ti ti-clock ranking-empty__icon" aria-hidden="true"></i>
+  {% if empty_reason == 'competition' %}
+    <p>{% trans "No scores in this competition yet." %}</p>
+  {% elif empty_reason == 'league' %}
+    <p>{% trans "Your league has no scores yet." %}</p>
+    <a href="{% url 'predictions:index' %}" class="btn btn-primary btn-sm mt-2">{% trans "Make predictions" %}</a>
+  {% else %}
+    <p>{% trans "No scores yet. Points appear after matches finish." %}</p>
+    <a href="{% url 'predictions:index' %}" class="btn btn-primary btn-sm mt-2">{% trans "Make predictions" %}</a>
+  {% endif %}
 </div>
+
 {% endif %}

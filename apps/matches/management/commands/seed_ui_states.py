@@ -78,7 +78,7 @@ class Command(BaseCommand):
 
         # Leagues first — creator FK would cascade anyway, but being explicit
         # avoids relying on cascade ordering.
-        leagues_deleted, _ = League.objects.filter(name=LEAGUE_NAME).delete()
+        leagues_deleted, _ = League.objects.filter(name__in=[LEAGUE_NAME, 'Demo Liga']).delete()
         # Competition cascade: Match → Prediction → UserScore (competition-scoped)
         comps_deleted, _ = Competition.objects.filter(code=COMP_CODE).delete()
         # Users cascade: Prediction, UserScore (global), created leagues
@@ -104,7 +104,7 @@ class Command(BaseCommand):
         now = timezone.now()
 
         # --- Competition ---
-        # FIXED scoring makes demo points predictable: EXACT=5, GAP=3, WIN=1, MISS=0.
+        # COTES scoring with good_gap_pts=10 produces realistic 4-digit totals.
         # unique_together is (external_id, season), so we look up on those two fields.
         comp, _ = Competition.objects.update_or_create(
             external_id=COMP_EXTERNAL_ID,
@@ -113,8 +113,8 @@ class Command(BaseCommand):
                 'code': COMP_CODE,
                 'name': 'UI Demo',
                 'country': 'Demo',
-                'scoring_system': 'FIXED',
-                'good_gap_pts': 3,
+                'scoring_system': 'COTES',
+                'good_gap_pts': 10,
                 'is_active': True,
             },
         )
@@ -157,15 +157,28 @@ class Command(BaseCommand):
 
         # --- Users ---
         user_specs = [
-            {'username': 'demo_main',    'display_name': 'DemoMain'},
-            {'username': 'demo_player1', 'display_name': 'Player One'},
-            {'username': 'demo_player2', 'display_name': 'Player Two'},
-            {'username': 'demo_player3', 'display_name': 'Player Three'},
-            {'username': 'demo_player4', 'display_name': 'Player Four'},
-            {'username': 'demo_player5', 'display_name': 'Player Five'},
-            {'username': 'demo_player6', 'display_name': 'Player Six'},
-            # Long display_name — tests text overflow in ranking table
-            {'username': 'demo_player7', 'display_name': 'Grand Joueur de Pronostics du Monde Entier'},
+            {'username': 'demo_main',     'display_name': 'DemoMain'},
+            {'username': 'demo_player1',  'display_name': 'Player One'},
+            {'username': 'demo_player2',  'display_name': 'Player Two'},
+            {'username': 'demo_player3',  'display_name': 'Player Three'},
+            {'username': 'demo_player4',  'display_name': 'Player Four'},
+            {'username': 'demo_player5',  'display_name': 'Player Five'},
+            {'username': 'demo_player6',  'display_name': 'Player Six'},
+            # Long display_name — tests text overflow / ellipsis in ranking table
+            {'username': 'demo_player7',  'display_name': 'Grand Joueur de Pronostics du Monde Entier'},
+            # Players 8–19: bulk ranking data (20 players total, demo_main ~rank 15)
+            {'username': 'demo_player8',  'display_name': 'Arnaud Dupont'},
+            {'username': 'demo_player9',  'display_name': 'Camille Morel'},
+            {'username': 'demo_player10', 'display_name': 'Théo Laurent'},
+            {'username': 'demo_player11', 'display_name': 'Sophie Blanc'},
+            {'username': 'demo_player12', 'display_name': 'Lucas Martin'},
+            {'username': 'demo_player13', 'display_name': 'Julie Renard'},
+            {'username': 'demo_player14', 'display_name': 'Baptiste Roy'},
+            {'username': 'demo_player15', 'display_name': 'Chloé Petit'},
+            {'username': 'demo_player16', 'display_name': 'Maxime Girard'},
+            {'username': 'demo_player17', 'display_name': 'Inès Bernard'},
+            {'username': 'demo_player18', 'display_name': 'Nathan Simon'},
+            {'username': 'demo_player19', 'display_name': 'Léa Thomas'},
         ]
         users = {}
         for spec in user_specs:
@@ -285,6 +298,70 @@ class Command(BaseCommand):
                 'round': 'Final',
                 'label': 'Playoff round — non-numeric round display (Final → Finale)',
             },
+            # ── Ranking matches (FINISHED, past) ──────────────────────────
+            # These build realistic COTES scores (4-digit totals) for 20 players.
+            # Actual results and cotes are fixed; predicted scores are assigned
+            # per player below to produce the desired EXACT/GAP/WIN/MISS types.
+            # M-11: home wins 24-10, gap=14
+            {'external_id': -11, 'home': -1, 'away': -2,
+             'dt': now - timedelta(days=8),  'status': Match.STATUS_FINISHED,
+             'home_score': 24, 'away_score': 10,
+             'cote_home': 22, 'cote_draw': 58, 'cote_away': 68, 'round': 'D11',
+             'label': 'Ranking — M-11 home win'},
+            # M-12: away wins 12-31, gap=-19
+            {'external_id': -12, 'home': -3, 'away': -4,
+             'dt': now - timedelta(days=15), 'status': Match.STATUS_FINISHED,
+             'home_score': 12, 'away_score': 31,
+             'cote_home': 18, 'cote_draw': 62, 'cote_away': 72, 'round': 'D12',
+             'label': 'Ranking — M-12 away win'},
+            # M-13: home wins 28-17, gap=11
+            {'external_id': -13, 'home': -1, 'away': -4,
+             'dt': now - timedelta(days=22), 'status': Match.STATUS_FINISHED,
+             'home_score': 28, 'away_score': 17,
+             'cote_home': 18, 'cote_draw': 65, 'cote_away': 82, 'round': 'D13',
+             'label': 'Ranking — M-13 home win'},
+            # M-14: away wins 11-38, gap=-27
+            {'external_id': -14, 'home': -2, 'away': -3,
+             'dt': now - timedelta(days=29), 'status': Match.STATUS_FINISHED,
+             'home_score': 11, 'away_score': 38,
+             'cote_home': 16, 'cote_draw': 68, 'cote_away': 85, 'round': 'D14',
+             'label': 'Ranking — M-14 away win'},
+            # M-15: home wins 22-15, gap=7
+            {'external_id': -15, 'home': -4, 'away': -1,
+             'dt': now - timedelta(days=36), 'status': Match.STATUS_FINISHED,
+             'home_score': 22, 'away_score': 15,
+             'cote_home': 24, 'cote_draw': 60, 'cote_away': 66, 'round': 'D15',
+             'label': 'Ranking — M-15 home win'},
+            # M-16: away wins 14-38, gap=-24
+            {'external_id': -16, 'home': -3, 'away': -2,
+             'dt': now - timedelta(days=43), 'status': Match.STATUS_FINISHED,
+             'home_score': 14, 'away_score': 38,
+             'cote_home': 18, 'cote_draw': 66, 'cote_away': 92, 'round': 'D16',
+             'label': 'Ranking — M-16 away win'},
+            # M-17: home wins 30-14, gap=16
+            {'external_id': -17, 'home': -1, 'away': -4,
+             'dt': now - timedelta(days=50), 'status': Match.STATUS_FINISHED,
+             'home_score': 30, 'away_score': 14,
+             'cote_home': 28, 'cote_draw': 62, 'cote_away': 74, 'round': 'D17',
+             'label': 'Ranking — M-17 home win'},
+            # M-18: away wins 10-38, gap=-28   (high cote → big pts)
+            {'external_id': -18, 'home': -2, 'away': -4,
+             'dt': now - timedelta(days=57), 'status': Match.STATUS_FINISHED,
+             'home_score': 10, 'away_score': 38,
+             'cote_home': 16, 'cote_draw': 66, 'cote_away': 148, 'round': 'D18',
+             'label': 'Ranking — M-18 away win (high cote)'},
+            # M-19: home wins 35-22, gap=13
+            {'external_id': -19, 'home': -3, 'away': -1,
+             'dt': now - timedelta(days=64), 'status': Match.STATUS_FINISHED,
+             'home_score': 35, 'away_score': 22,
+             'cote_home': 38, 'cote_draw': 58, 'cote_away': 68, 'round': 'D19',
+             'label': 'Ranking — M-19 home win'},
+            # M-20: away wins 15-42, gap=-27   (high cote → big pts)
+            {'external_id': -20, 'home': -4, 'away': -2,
+             'dt': now - timedelta(days=71), 'status': Match.STATUS_FINISHED,
+             'home_score': 15, 'away_score': 42,
+             'cote_home': 15, 'cote_draw': 65, 'cote_away': 158, 'round': 'D20',
+             'label': 'Ranking — M-20 away win (high cote)'},
         ]
 
         m = {}
@@ -358,14 +435,132 @@ class Command(BaseCommand):
             defaults={'predicted_home_score': 21, 'predicted_away_score': 17},
         )
 
+        # ── Ranking match predictions ──────────────────────────────────────
+        # Target ranking (global, 20 players):
+        #   1=P8, 1=P9 (true tie), 3=P13, 4=P12, 5=P10, 6=P11, 7=P16, 8=P15,
+        #   9=P14, 10=P18, 11=P17, 12=P19, 13=P4, 14=P5, 15=demo_main,
+        #   16=P1, 17=P2/P6 (true tie), 19=P3/P7 (true tie, P7 = long name)
+        #
+        # Per-match predicted scores per result type:
+        #   M-11 (home 24-10, gap=14, cote_home=22): E→(24,10) G→(18,4) W→(30,0) M→(10,24)
+        #   M-12 (away 12-31, gap=-19, cote_away=72): E→(12,31) G→(15,34) W→(10,42) M→(20,14)
+        #   M-13 (home 28-17, gap=11, cote_home=18): E→(28,17) G→(22,11) W→(35,10) M→(15,25)
+        #   M-14 (away 11-38, gap=-27, cote_away=85): E→(11,38) G→(13,42) W→(10,50) M→(25,15)
+        #   M-15 (home 22-15, gap=7, cote_home=24): E→(22,15) G→(20,13) W→(35,15) M→(15,22)
+        #   M-16 (away 14-38, gap=-24, cote_away=92): E→(14,38) G→(16,40) W→(10,45) M→(20,14)
+        #   M-17 (home 30-14, gap=16, cote_home=28): E→(30,14) G→(25,9) W→(40,10) M→(14,30)
+        #   M-18 (away 10-38, gap=-28, cote_away=148): E→(10,38) G→(12,40) W→(10,50) M→(20,15)
+        #   M-19 (home 35-22, gap=13, cote_home=38): E→(35,22) G→(30,17) W→(40,10) M→(20,35)
+        #   M-20 (away 15-42, gap=-27, cote_away=158): E→(15,42) G→(16,43) W→(10,50) M→(30,20)
+        #
+        # Each entry: (user_key, match_ext_id, pred_home, pred_away)
+        p = users  # alias for brevity
+        ranking_preds = [
+            # P8: EXACT all 10 ranking matches + M-7 → ~2103 pts (true tie with P9)
+            ('demo_player8',  -7,  24, 17),
+            ('demo_player8',  -11, 24, 10), ('demo_player8',  -12, 12, 31),
+            ('demo_player8',  -13, 28, 17), ('demo_player8',  -14, 11, 38),
+            ('demo_player8',  -15, 22, 15), ('demo_player8',  -16, 14, 38),
+            ('demo_player8',  -17, 30, 14), ('demo_player8',  -18, 10, 38),
+            ('demo_player8',  -19, 35, 22), ('demo_player8',  -20, 15, 42),
+            # P9: same as P8 — true tie
+            ('demo_player9',  -7,  24, 17),
+            ('demo_player9',  -11, 24, 10), ('demo_player9',  -12, 12, 31),
+            ('demo_player9',  -13, 28, 17), ('demo_player9',  -14, 11, 38),
+            ('demo_player9',  -15, 22, 15), ('demo_player9',  -16, 14, 38),
+            ('demo_player9',  -17, 30, 14), ('demo_player9',  -18, 10, 38),
+            ('demo_player9',  -19, 35, 22), ('demo_player9',  -20, 15, 42),
+            # P10: GAP on M-18, EXACT rest → slightly fewer pts
+            ('demo_player10', -7,  24, 17),
+            ('demo_player10', -11, 24, 10), ('demo_player10', -12, 12, 31),
+            ('demo_player10', -13, 28, 17), ('demo_player10', -14, 11, 38),
+            ('demo_player10', -15, 22, 15), ('demo_player10', -16, 14, 38),
+            ('demo_player10', -17, 30, 14), ('demo_player10', -18, 12, 40),  # GAP
+            ('demo_player10', -19, 35, 22), ('demo_player10', -20, 15, 42),
+            # P11: GAP on M-20, EXACT rest
+            ('demo_player11', -7,  24, 17),
+            ('demo_player11', -11, 24, 10), ('demo_player11', -12, 12, 31),
+            ('demo_player11', -13, 28, 17), ('demo_player11', -14, 11, 38),
+            ('demo_player11', -15, 22, 15), ('demo_player11', -16, 14, 38),
+            ('demo_player11', -17, 30, 14), ('demo_player11', -18, 10, 38),
+            ('demo_player11', -19, 35, 22), ('demo_player11', -20, 16, 43),  # GAP
+            # P12: GAP on M-14, EXACT rest
+            ('demo_player12', -7,  24, 17),
+            ('demo_player12', -11, 24, 10), ('demo_player12', -12, 12, 31),
+            ('demo_player12', -13, 28, 17), ('demo_player12', -14, 13, 42),  # GAP
+            ('demo_player12', -15, 22, 15), ('demo_player12', -16, 14, 38),
+            ('demo_player12', -17, 30, 14), ('demo_player12', -18, 10, 38),
+            ('demo_player12', -19, 35, 22), ('demo_player12', -20, 15, 42),
+            # P13: GAP on M-12, EXACT rest
+            ('demo_player13', -7,  24, 17),
+            ('demo_player13', -11, 24, 10), ('demo_player13', -12, 15, 34),  # GAP
+            ('demo_player13', -13, 28, 17), ('demo_player13', -14, 11, 38),
+            ('demo_player13', -15, 22, 15), ('demo_player13', -16, 14, 38),
+            ('demo_player13', -17, 30, 14), ('demo_player13', -18, 10, 38),
+            ('demo_player13', -19, 35, 22), ('demo_player13', -20, 15, 42),
+            # P14: WIN on M-18 + WIN on M-20, EXACT rest
+            ('demo_player14', -7,  24, 17),
+            ('demo_player14', -11, 24, 10), ('demo_player14', -12, 12, 31),
+            ('demo_player14', -13, 28, 17), ('demo_player14', -14, 11, 38),
+            ('demo_player14', -15, 22, 15), ('demo_player14', -16, 14, 38),
+            ('demo_player14', -17, 30, 14), ('demo_player14', -18, 10, 50),  # WIN
+            ('demo_player14', -19, 35, 22), ('demo_player14', -20, 10, 50),  # WIN
+            # P15: MISS on M-12, WIN on M-14, EXACT rest
+            ('demo_player15', -7,  24, 17),
+            ('demo_player15', -11, 24, 10), ('demo_player15', -12, 20, 14),  # MISS
+            ('demo_player15', -13, 28, 17), ('demo_player15', -14, 10, 50),  # WIN
+            ('demo_player15', -15, 22, 15), ('demo_player15', -16, 14, 38),
+            ('demo_player15', -17, 30, 14), ('demo_player15', -18, 10, 38),
+            ('demo_player15', -19, 35, 22), ('demo_player15', -20, 15, 42),
+            # P16: WIN on M-11 + WIN on M-14, EXACT rest
+            ('demo_player16', -7,  24, 17),
+            ('demo_player16', -11, 30,  0),  # WIN
+            ('demo_player16', -12, 12, 31), ('demo_player16', -13, 28, 17),
+            ('demo_player16', -14, 10, 50),  # WIN
+            ('demo_player16', -15, 22, 15), ('demo_player16', -16, 14, 38),
+            ('demo_player16', -17, 30, 14), ('demo_player16', -18, 10, 38),
+            ('demo_player16', -19, 35, 22), ('demo_player16', -20, 15, 42),
+            # P17: EXACT on M-7 + EXACT on M-19 only
+            ('demo_player17', -7,  24, 17),
+            ('demo_player17', -19, 35, 22),
+            # P18: WIN on M-7(→correct winner) + GAP on M-16 → ~168 pts total
+            # M-7: main wins 24-17 (home), WIN pred: home wins big → (35,10)
+            # But wait: M-7 uses cote_home=16. WIN on M-7: correct winner (home), gap doesn't match
+            # Predicted 35-10: pred_gap=25, real_gap=7, |25-7|=18 > 10 → WIN ✓ → 16×1=16 pts
+            # GAP on M-16 (away wins 14-38, gap=-24, cote_away=92):
+            # Predicted (16,40): pred_gap=-24, same gap → GAP ✓ → 92×2=184 pts
+            ('demo_player18', -7,  35, 10),  # WIN on M-7 (16 pts)
+            ('demo_player18', -16, 16, 40),  # GAP on M-16 (184 pts) → total 200 pts
+            # P19: GAP on M-7 + GAP on M-11 + WIN on M-13
+            # GAP on M-7: pred (22,17) is already used by p1, use (23,16): gap=7, same gap ✓
+            ('demo_player19', -7,  23, 16),  # GAP on M-7 (16×2=32 pts)
+            ('demo_player19', -11, 18,  4),  # GAP on M-11 (22×2=44 pts)
+            ('demo_player19', -13, 35, 10),  # WIN on M-13 (18×1=18 pts)
+            # P4: existing EXACT on M-7 + WIN on M-11 → 48+22=70 pts (rank 13)
+            ('demo_player4',  -11, 30,  0),  # WIN on M-11
+            # P5: existing GAP on M-7 (32 pts) + WIN on M-11 → 32+22=54 pts (rank 14)
+            ('demo_player5',  -11, 38, 10),  # WIN on M-11 (pred_gap=28, |28-14|=14>10)
+        ]
+        for username, match_ext_id, h, a in ranking_preds:
+            Prediction.objects.get_or_create(
+                user=users[username],
+                match=m[match_ext_id],
+                defaults={'predicted_home_score': h, 'predicted_away_score': a},
+            )
+
         # --- Score calculation (via service, never manually) ---
         # _calculate_points_for_match() sets points_earned + result_type on each
         # Prediction, then calls refresh_user_scores_for_match() to update the
         # UserScore cache for the global and per-competition scopes.
+        # M-7 is scored first so its COTES points are included in the aggregates
+        # when ranking matches (which run after) call refresh_user_scores_for_match.
         _calculate_points_for_match(m[-7])  # FINISHED → EXACT/GAP/WIN/MISS + UserScore
         _calculate_points_for_match(m[-8])  # CANCELLED → 0 pts, result_type=CANCELLED
+        for ext_id in range(-11, -21, -1):
+            _calculate_points_for_match(m[ext_id])
 
-        # --- League ---
+        # --- Leagues ---
+        # Demo League: 4 members only — demo_main is rank 1 (tests league podium)
         league, _ = League.objects.get_or_create(
             name=LEAGUE_NAME,
             defaults={'creator': main},
@@ -378,6 +573,15 @@ class Command(BaseCommand):
             users['demo_player3'],
         )
 
+        # Demo Liga: all 20 players — makes everyone eligible for the global leaderboard.
+        # demo_main is ~rank 15 here. Also tests the league tab with a full leaderboard.
+        liga, _ = League.objects.get_or_create(
+            name='Demo Liga',
+            defaults={'creator': main},
+        )
+        liga.competitions.add(comp)
+        liga.members.add(*users.values())
+
         return created_matches
 
     # ------------------------------------------------------------------
@@ -388,7 +592,9 @@ class Command(BaseCommand):
         self.stdout.write('\n' + self.style.SUCCESS('=== Demo data seeded ===') + '\n')
         self.stdout.write(f'  Login:         demo_main  /  {MAIN_PASSWORD}')
         self.stdout.write(f'  All demo users share the same password: {MAIN_PASSWORD}')
-        self.stdout.write(f'  Usernames:     demo_main, demo_player1 … demo_player7\n')
+        self.stdout.write(f'  Usernames:     demo_main, demo_player1 … demo_player19\n')
+        self.stdout.write(f'  Rankings:      demo_main ~rank 15 globally, rank 1 in league')
+        self.stdout.write(f'                 True ties: P8=P9 (top), P2=P6 (rank 17), P3=P7 (rank 19)\n')
 
         self.stdout.write('  Matches:')
         for match, label in matches:

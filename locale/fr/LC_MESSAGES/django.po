@@ -5,7 +5,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Oval'Pronos\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-15 17:25+0200\n"
+"POT-Creation-Date: 2026-10-16 10:51+0200\n"
 "PO-Revision-Date: 2026-05-21 17:00+0200\n"
 "Last-Translator: Oval'Pronos\n"
 "Language-Team: French\n"
@@ -349,7 +349,7 @@ msgid "Missed"
 msgstr "Raté"
 
 #: apps/predictions/models.py:26 apps/rankings/models.py:20
-#: templates/leagues/detail.html:71 templates/rankings/_table.html:9
+#: templates/leagues/detail.html:71 templates/rankings/_table.html:7
 msgid "Player"
 msgstr "Joueur"
 
@@ -375,13 +375,12 @@ msgstr "Pronostic"
 
 #: apps/predictions/models.py:52 templates/base.html:52 templates/base.html:102
 #: templates/predictions/index.html:4 templates/predictions/index.html:9
-#: templates/rankings/_table.html:11
 msgid "Predictions"
 msgstr "Pronos"
 
 #: apps/rankings/models.py:36 templates/accounts/profile.html:46
 #: templates/leagues/detail.html:72 templates/matches/rules.html:70
-#: templates/rankings/_table.html:10
+#: templates/rankings/_table.html:19
 msgid "Points"
 msgstr "Points"
 
@@ -402,6 +401,7 @@ msgid "Correct winners"
 msgstr "Bons vainqueurs"
 
 #: apps/rankings/models.py:41 templates/accounts/profile.html:54
+#: templates/rankings/_table.html:6
 msgid "Rank"
 msgstr "Rang"
 
@@ -527,17 +527,17 @@ msgid "Edit"
 msgstr "Modifier"
 
 #: templates/accounts/profile.html:62 templates/leagues/detail.html:74
-#: templates/rankings/_table.html:13
+#: templates/rankings/_table.html:10
 msgid "Exact"
 msgstr "Exact"
 
 #: templates/accounts/profile.html:70 templates/leagues/detail.html:77
-#: templates/rankings/_table.html:16
+#: templates/rankings/_table.html:13
 msgid "Gap"
 msgstr "Écart"
 
 #: templates/accounts/profile.html:78 templates/leagues/detail.html:80
-#: templates/rankings/_table.html:19
+#: templates/rankings/_table.html:16
 msgid "Winner"
 msgstr "Vainqueur"
 
@@ -648,7 +648,7 @@ msgid "Run sync"
 msgstr "Lancer la synchronisation"
 
 #: templates/base.html:55 templates/base.html:106
-#: templates/rankings/index.html:4 templates/rankings/index.html:8
+#: templates/rankings/index.html:4
 msgid "Rankings"
 msgstr "Classement"
 
@@ -692,11 +692,12 @@ msgstr "Copier le lien"
 msgid "Share this code to invite friends"
 msgstr "Partage ce code pour inviter des amis"
 
-#: templates/leagues/detail.html:96 templates/rankings/_table.html:35
+#: templates/leagues/detail.html:96 templates/rankings/_table.html:59
+#: templates/rankings/_table.html:118
 msgid "You"
 msgstr "Vous"
 
-#: templates/leagues/detail.html:118 templates/rankings/_table.html:63
+#: templates/leagues/detail.html:118 templates/rankings/_table.html:134
 msgid "No scores yet. Points appear after matches finish."
 msgstr ""
 "Aucun score pour le moment. Les points s'affichent après la fin des matchs."
@@ -949,6 +950,32 @@ msgid_plural "See %(n)s matches without odds"
 msgstr[0] "Voir %(n)s match sans cote"
 msgstr[1] "Voir %(n)s matchs sans cote"
 
+#: templates/rankings/_table.html:22
+msgid "Leaderboard"
+msgstr "Classement"
+
+#: templates/rankings/_table.html:27
+#, python-format
+msgid "Rank %(rank)s, %(name)s, %(pts)s points"
+msgstr "%(rank)s, %(name)s, %(pts)s points"
+
+#: templates/rankings/_table.html:93
+#, python-format
+msgid "%(n)s scored"
+msgstr "%(n)s joués"
+
+#: templates/rankings/_table.html:129
+msgid "No scores in this competition yet."
+msgstr "Aucun score dans cette compétition pour l'instant."
+
+#: templates/rankings/_table.html:131
+msgid "Your league has no scores yet."
+msgstr "Ta ligue n'a pas encore de points."
+
+#: templates/rankings/_table.html:132 templates/rankings/_table.html:135
+msgid "Make predictions"
+msgstr "Faire des pronos"
+
 #: templates/rankings/index.html:16
 msgid "Global"
 msgstr "Général"
@@ -957,7 +984,7 @@ msgstr "Général"
 msgid "Manage leagues"
 msgstr "Gérer mes ligues"
 
-#: templates/rankings/index.html:37
+#: templates/rankings/index.html:36
 msgid "All"
 msgstr "Toutes"
 

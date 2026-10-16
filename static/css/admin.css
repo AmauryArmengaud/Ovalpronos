@@ -26,6 +26,9 @@
   --color-logo-bg:          rgba(43, 52, 103, 0.08);
   --color-badge-win-light:  rgba(168, 224, 99, 0.25);
   --color-badge-gap-light:  rgba(139, 53, 168, 0.35);
+  /* Rankings podium medals */
+  --color-rank-silver:      rgba(43, 52, 103, 0.45);
+  --color-rank-bronze:      rgba(184, 105, 37, 0.75);
 
   /* Radius */
   --radius-sm:  0.375rem;

@@ -283,9 +283,48 @@ card surfaces, navbar, footer, segment controls, flash messages, ranking table "
 - No-odds toggle: solid thin border, min-height 44px, pill shape.
 - Matches without odds hidden behind Bootstrap collapse toggle.
 
-### Classement (TODO)
+### Classement (DONE)
 
-Rankings table, leaderboard layout, competition filter chips.
+Rankings leaderboard, row anatomy, competition filter chips, sticky "Toi" bar.
+
+**Row anatomy** (`templates/rankings/_table.html`): `<ol>` list, 4 fixed zones per row.
+
+```
+┌──────────────────────────────────────────────────────────────────────┐
+│ Zone 1 (40px) │ Zone 2 (flex-grow)               │ Zone 3 │ Zone 4  │
+│ rank / medal  │ avatar · name · "Toi" badge       │ lg+    │ 80px   │
+│               │ [mobile line 2: tier chips ×3]   │ tiers  │ points  │
+└──────────────────────────────────────────────────────────────────────┘
+```
+
+- **Zone 1 (rank, 40px, fixed):** `ti-crown` gold (rank 1) / `ti-medal` silver (rank 2) / `ti-medal` bronze (rank 3) / numeric in `--text-sm` muted for rank ≥4.
+- **Zone 2 (player, flex-grow, `min-width:0`):** Avatar (profile photo if set, else initials circle `--color-logo-fallback-bg`), `display_name` with `text-overflow: ellipsis` + `title` attribute for full name. Mobile second line: `ti-crown N · ti-target N · ti-check N` in `--text-xs` with badge colors — always present for consistent row height.
+- **Zone 3 (tier columns, `d-none d-lg-flex`):** Three right-aligned `3rem` columns (EXACT/GAP/WIN), hidden on mobile.
+- **Zone 4 (points, 80px, right-aligned):** `tabular-nums; font-weight: 700`. Pronos count below in `--text-xs`, desktop only.
+
+**Row rules:**
+- `min-height: 56px` — matches Zone C of match cards.
+- "You" row: `--color-you-highlight` bg + `3px solid var(--color-primary)` left border.
+- `aria-current="true"` + `aria-label` (rank / name / pts) on each `<li>`.
+- Use `<ol aria-label="{% trans 'Leaderboard' %}">` — semantically ordered list.
+
+**Shared ranks (sports convention 1,1,3):**
+`_assign_ranks(entries)` in `apps/rankings/views.py` — pure function, fully unit-tested (10 tests in `apps/rankings/tests.py`). Two entries are tied when they share the same `total_points`, `count_exact`, and `count_gap`. Called by both `_build_leaderboard` and the league leaderboard path.
+
+**Sticky "Toi" bar (mobile only):**
+- `.ranking-you-sticky` — `position: fixed; bottom: 64px` (above `.mobile-bottom-nav`); `z-index: 1020`.
+- Hidden by default (`opacity: 0; pointer-events: none; transform: translateY(6px)`), shown via `.visible` class.
+- `IntersectionObserver` on `#current-user-row` toggles `.visible` when the row exits the viewport.
+- `display: none !important` at `≥992px` — desktop never shows the bar.
+
+**Competition filter chips:**
+`.ranking-comp-chip` / `.ranking-comp-chip--active` — `min-height: 44px` tap target. Inactive matches `.comp-divider-chip` style (light tinted bg, navy border). Active: filled navy (`--color-primary`).
+
+**New CSS variables** (added to both `main.css` and `admin.css`):
+- `--color-rank-silver: rgba(43,52,103,0.45)` — rank 2 medal icon
+- `--color-rank-bronze: rgba(184,105,37,0.75)` — rank 3 medal icon
+
+**Seed data** (`seed_ui_states`): Competition switched to COTES scoring (`good_gap_pts=10`). 20 players (demo_main + player1-19). Demo League: 4 members (main rank 1). Demo Liga: all 20 members (global eligibility). demo_main ~rank 15 globally, rank 1 in Demo League. True ties: P8=P9 (rank 1), P2=P6 (rank 17), P3=P7 (rank 19, P7 = long name + 0 pts). Max score ~2103 pts (4 digits).
 
 ### Ligues (TODO)
 
