@@ -1,7 +1,7 @@
 from django.test import SimpleTestCase, TestCase
 from django.urls import reverse
 
-from apps.rankings.views import _assign_ranks
+from apps.rankings.services import _assign_ranks
 
 
 def _e(*specs):

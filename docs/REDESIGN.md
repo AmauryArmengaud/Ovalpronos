@@ -338,9 +338,85 @@ Django blocks attribute access on names starting with `_`. Never set `obj._attr`
 
 **Seed data** (`seed_ui_states`): Competition switched to COTES scoring (`good_gap_pts=10`). 20 players (demo_main + player1-19). Demo League: 4 members (main rank 1). Demo Liga: all 20 members (global eligibility). demo_main ~rank 15 globally, rank 1 in Demo League. True ties: P8=P9 (rank 1), P2=P6 (rank 17), P3=P7 (rank 19, P7 = long name + 0 pts). Max score ~2103 pts (4 digits).
 
-### Ligues (TODO)
+### Ligues (DONE)
 
-League list, create, join, detail pages.
+League list, create, join, and detail pages.
+
+**New CSS variables** (added to both `main.css` and `admin.css`):
+- `--color-badge-ended-bg: rgba(43,52,103,0.08)` — ended league badge background
+- `--color-badge-ended-text: rgba(43,52,103,0.55)` — ended league badge text (distinct from `--color-badge-miss` which means "wrong prediction")
+
+**League card anatomy** (`templates/leagues/list.html`): single-column stacking list, same rhythm as ranking rows.
+
+```
+┌───────────────────────────────────────────────────────────┐
+│ Zone A  League name ·····················  [Ended badge?] │  ~36px min-h
+├───────────────────────────────────────────────────────────┤
+│ Zone B  [chip Comp A] [chip Comp B]                       │  ~28px
+├───────────────────────────────────────────────────────────┤
+│ Zone C  N members   ·   CODE  [Copy] [Share]              │  ~36px
+└───────────────────────────────────────────────────────────┘
+```
+
+- Card is a full-width link (stretched link pattern) — entire surface navigates to detail.
+- Copy/Share buttons sit above the stretched link via `position: relative; z-index: 2` on `.league-card-actions`.
+- Zone A: `text-overflow: ellipsis` + `title` attr for long names. Ended badge uses `--color-badge-ended-*`.
+- Zone B: `.comp-divider-chip` — same pill as pronos page, single row max.
+- Zone C: member count muted, invite code monospace (secondary info), Copy/Share right.
+- `min-height: 88px`.
+
+**League detail anatomy** (`templates/leagues/detail.html`):
+
+```
+Page header: ti-trophy icon · league name (word-break) · [Leave btn] [← My leagues]
+────────────────────────────────────────────────────────────
+Invite block (.league-invite-block, tinted surface): code [Copy code] [Share ↑]
+  └─ share fallback input (readonly, shown when Web Share + clipboard both unavailable)
+────────────────────────────────────────────────────────────
+Comp chips (.comp-divider-chip)
+[Inactive notice if not league.is_active]
+Leaderboard: {% include "rankings/_table.html" %} — zero duplication
+```
+
+**Invite code copy + share:**
+- `[Copy code]` (`.copy-code-btn`): copies 5-char code to clipboard. Icon swaps to `ti-check` 1.5s.
+- `[Share ↑]` (`.share-link-btn`): tries Web Share API (native share sheet on mobile) → clipboard fallback → read-only input fallback. URL rendered server-side in `data-url`; share text in `data-text` — no JS URL construction.
+- Both buttons in a `.league-share-group` wrapper so the JS can find `.share-fallback-input`.
+- **HTTPS note:** Web Share API and `navigator.clipboard` require HTTPS (or localhost). Cannot be tested on a phone over local HTTP — use ngrok, Tailscale, or deploy to staging.
+
+**Leaderboard — all members shown:**
+`LeagueDetailView` uses `Coalesce(Sum(...), 0)` + `Count(filter=...)` to annotate all members, including those with 0 predictions. A new member is visible immediately. `_assign_ranks()` produces 1,1,3 shared ranks (all-zero members tie at rank 1 in a new league). Imported from `apps/rankings/services.py`.
+
+**`_assign_ranks` moved** to `apps/rankings/services.py` — shared by both `rankings/views.py` and `leagues/views.py`. Tests in `apps/rankings/tests.py` updated to import from services.
+
+**Sticky "Toi" bar JS** extracted to `templates/partials/_ranking_sticky_js.html` — included by both `rankings/index.html` and `leagues/detail.html` via `{% include %}`.
+
+**Forms:**
+- `create.html`: no crispy_forms. Name field uses `.form-control-44` (min-height 44px). Competitions rendered as `.league-comp-checkbox` pill labels (`CheckboxSelectMultiple` iterated as `BoundWidget`). `:has(input:checked)` toggles checked state.
+- `join.html`: `.form-control-44` on the code input.
+
+**Creator / Leave:**
+- Creator: no Leave button.
+- Non-creator: `btn-outline-secondary` trigger (discrete) → Bootstrap modal → `btn-danger` confirm. League name truncated to 40 chars in modal.
+
+**Empty / ended states:**
+- `_table.html` gains `league_ended` empty_reason case ("This league has ended. Final rankings are frozen.") — no CTA.
+- League detail: if `not league.is_active`, an `alert-secondary` notice is shown above the leaderboard.
+- Empty state on list page reuses `.ranking-empty` for consistent icon sizing.
+
+**Seed** (`seed_ui_states`): 5 leagues total (+ Demo Liga already existing):
+- `Demo League` — demo_main creator, 4 members (existing, rank 1 test)
+- `Demo Liga` — demo_main creator, all 20 players (existing)
+- `Demo Potes` — demo_player1 creator, demo_main is member → tests Leave button
+- `Les Pronostiqueurs du Grand Stade du Midi-Pyrénées` — long name ellipsis/word-break test
+- `Demo Saison Passée` — inactive comp, tests Ended badge + inactive notice
+
+**Tests** (`apps/leagues/tests.py`):
+- All members shown including 0-pt member
+- 0-pt member has total_points=0 and count_predictions=0
+- Two 0-pt members share rank 1 (shared-rank convention)
+- `?code=` pre-fills `initial_code` in join view
+- Unauthenticated GET `/leagues/join/?code=X` redirects preserving `?code=` in `?next=`
 
 ### Home (TODO)
 

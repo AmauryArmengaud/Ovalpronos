@@ -127,6 +127,8 @@
   <i class="ti ti-clock ranking-empty__icon" aria-hidden="true"></i>
   {% if empty_reason == 'competition' %}
     <p>{% trans "No scores in this competition yet." %}</p>
+  {% elif empty_reason == 'league_ended' %}
+    <p>{% trans "This league has ended. Final rankings are frozen." %}</p>
   {% elif empty_reason == 'league' %}
     <p>{% trans "Your league has no scores yet." %}</p>
     <a href="{% url 'predictions:index' %}" class="btn btn-primary btn-sm mt-2">{% trans "Make predictions" %}</a>

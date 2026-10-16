@@ -4,120 +4,89 @@
 {% block title %}{{ league.name }} — Oval'Pronos{% endblock %}
 
 {% block content %}
-<div class="d-flex align-items-center justify-content-between mb-4">
-  <div class="d-flex align-items-center gap-3">
-    <i class="ti ti-trophy page-header-icon" style="color: var(--color-badge-exact);"></i>
-    <div>
+<div class="league-page-wrap">
+
+{# ── Page header ── #}
+<div class="d-flex align-items-start gap-3 mb-4">
+  <div class="d-flex align-items-center gap-3 flex-grow-1" style="min-width: 0;">
+    <i class="ti ti-trophy page-header-icon" style="color: var(--color-badge-exact); flex-shrink: 0;" aria-hidden="true"></i>
+    <div style="min-width: 0; word-break: break-word;">
       <h1 class="mb-0">{{ league.name }}</h1>
-      <span class="text-muted small font-monospace">{{ league.invite_code }}</span>
-      <span class="text-muted small ms-2">· {{ league.members.count }} {% trans "members" %}</span>
+      <span class="text-muted small">
+        {{ league.members.count }} {% trans "members" %}
+        {% if not league.is_active %}
+          &nbsp;<span class="badge-ended">{% trans "Ended" %}</span>
+        {% endif %}
+      </span>
     </div>
   </div>
-  <div class="d-flex gap-2">
+  <div class="d-flex gap-2 flex-shrink-0">
     {% if not is_creator %}
-    <button type="button" class="btn btn-outline-danger btn-sm" data-bs-toggle="modal" data-bs-target="#leaveModal">
-      <i class="ti ti-logout me-1"></i>{% trans "Leave" %}
+    <button type="button"
+            class="btn btn-outline-secondary btn-sm"
+            data-bs-toggle="modal"
+            data-bs-target="#leaveModal"
+            aria-label="{% trans 'Leave league' %}">
+      <i class="ti ti-logout me-1" aria-hidden="true"></i>{% trans "Leave" %}
     </button>
     {% endif %}
     <a href="{% url 'leagues:list' %}" class="btn btn-outline-secondary btn-sm">
-      <i class="ti ti-arrow-left me-1"></i>{% trans "Back" %}
+      <i class="ti ti-arrow-left me-1" aria-hidden="true"></i><span class="d-none d-sm-inline">{% trans "My leagues" %}</span>
     </a>
   </div>
 </div>
 
-{# Invite code highlight #}
-<div class="card card-left-accent mb-4">
-  <div class="card-body py-2 d-flex align-items-center gap-3">
-    <i class="ti ti-link text-muted"></i>
-    <span class="text-muted small">{% trans "Invite code" %}</span>
-    <strong class="font-monospace fs-5 letter-spacing">{{ league.invite_code }}</strong>
+{# ── Invite block ── #}
+<div class="league-invite-block mb-4" role="region" aria-label="{% trans 'Invite' %}">
+  <span class="text-muted small flex-shrink-0">{% trans "Invite code" %}</span>
+  <strong class="league-invite-code">{{ league.invite_code }}</strong>
+  <div class="league-invite-actions">
     <button type="button"
-            class="copy-code-btn btn btn-outline-secondary btn-sm py-0 px-1"
+            class="copy-code-btn btn btn-outline-secondary btn-sm"
             data-code="{{ league.invite_code }}"
-            title="{% trans 'Copy code' %}">
-      <i class="ti ti-copy" style="font-size: 0.85rem;"></i>
+            aria-label="{% trans 'Copy code' %}">
+      <i class="ti ti-copy" aria-hidden="true"></i>
+      <span class="ms-1">{% trans "Copy code" %}</span>
     </button>
-    <button type="button"
-            class="share-link-btn btn btn-outline-secondary btn-sm py-0 px-2"
-            data-code="{{ league.invite_code }}"
-            title="{% trans 'Copy invite link' %}">
-      <i class="ti ti-share" style="font-size: 0.85rem;"></i>
-      <span class="d-none d-md-inline ms-1">{% trans "Copy link" %}</span>
-    </button>
-    <span class="text-muted small d-none d-md-inline">— {% trans "Share this code to invite friends" %}</span>
+    <div class="league-share-group">
+      <button type="button"
+              class="share-link-btn btn btn-outline-secondary btn-sm"
+              data-url="{{ join_url }}"
+              data-share-title="Oval'Pronos"
+              data-text="{% blocktrans with name=league.name code=league.invite_code %}Join my league {{ name }} on Oval'Pronos, code {{ code }}{% endblocktrans %}"
+              aria-label="{% trans 'Share invite link' %}">
+        <i class="ti ti-share" aria-hidden="true"></i>
+        <span class="ms-1">{% trans "Share" %}</span>
+      </button>
+      <input type="text" readonly
+             class="share-fallback-input form-control form-control-sm d-none mt-2"
+             aria-label="{% trans 'Invite link' %}">
+    </div>
   </div>
 </div>
 
+{# ── Competitions ── #}
 {% with comps=league_competitions %}
 {% if comps %}
 <div class="d-flex flex-wrap gap-2 mb-4">
   {% for comp in comps %}
-  <span class="badge" style="background: var(--color-surface-raised); color: var(--color-text-secondary);">
-    {{ comp.name }}
-  </span>
+    <span class="comp-divider-chip">{{ comp.name }}</span>
   {% endfor %}
 </div>
 {% endif %}
 {% endwith %}
 
-{# Leaderboard #}
-{% if leaderboard %}
-<div class="card">
-  <div class="table-responsive">
-    <table class="table table-hover mb-0 align-middle">
-      <thead>
-        <tr>
-          <th style="width: 3rem">#</th>
-          <th>{% trans "Player" %}</th>
-          <th class="text-end">{% trans "Points" %}</th>
-          <th class="text-end d-none d-md-table-cell">
-            <span class="match-badge-label-exact">{% trans "Exact" %}</span>
-          </th>
-          <th class="text-end d-none d-md-table-cell">
-            <span class="match-badge-label-gap">{% trans "Gap" %}</span>
-          </th>
-          <th class="text-end d-none d-md-table-cell">
-            <span class="match-badge-label-win">{% trans "Winner" %}</span>
-          </th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for entry in leaderboard %}
-        <tr {% if entry.is_current_user %}style="background: rgba(186, 215, 233, 0.25); font-weight: 600;"{% endif %}>
-          <td>
-            {% if entry.rank == 1 %}🥇
-            {% elif entry.rank == 2 %}🥈
-            {% elif entry.rank == 3 %}🥉
-            {% else %}{{ entry.rank }}{% endif %}
-          </td>
-          <td>
-            {{ entry.user.get_display_name }}
-            {% if entry.is_current_user %}
-              <span class="badge badge-you ms-1">{% trans "You" %}</span>
-            {% endif %}
-          </td>
-          <td class="text-end fw-bold">{{ entry.total_points }}</td>
-          <td class="text-end d-none d-md-table-cell">
-            <span class="match-badge-label-exact">{{ entry.count_exact }}</span>
-          </td>
-          <td class="text-end d-none d-md-table-cell">
-            <span class="match-badge-label-gap">{{ entry.count_gap }}</span>
-          </td>
-          <td class="text-end d-none d-md-table-cell">
-            <span class="match-badge-label-win">{{ entry.count_win }}</span>
-          </td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-  </div>
-</div>
-{% else %}
-<div class="text-center text-muted py-5">
-  <i class="ti ti-clock mb-3" style="font-size: 3rem; color: var(--color-icon-muted);"></i>
-  <p>{% trans "No scores yet. Points appear after matches finish." %}</p>
+{# ── Inactive notice ── #}
+{% if not league.is_active %}
+<div class="alert alert-secondary py-2 small mb-4" role="status">
+  <i class="ti ti-info-circle me-1" aria-hidden="true"></i>{% trans "This league has ended. Rankings are final." %}
 </div>
 {% endif %}
+
+{# ── Leaderboard — reuses the shared ranking-row component ── #}
+{% include "rankings/_table.html" with entries=entries empty_reason=empty_reason %}
+
+</div>{# /league-page-wrap #}
 
 {% if not is_creator %}
 {# Leave confirmation modal #}
@@ -125,9 +94,10 @@
   <div class="modal-dialog modal-sm modal-dialog-centered">
     <div class="modal-content">
       <div class="modal-body text-center py-4">
-        <i class="ti ti-logout mb-2" style="font-size: 2rem; color: var(--color-accent);"></i>
-        <p class="mb-3 fw-semibold">{% trans "Leave this league?" %}</p>
-        <p class="text-muted small mb-4">{{ league.name }}</p>
+        <i class="ti ti-logout mb-2" style="font-size: 2rem; color: var(--color-accent);" aria-hidden="true"></i>
+        <p class="mb-2 fw-semibold">{% trans "Leave this league?" %}</p>
+        <p class="text-muted small mb-4"
+           title="{{ league.name }}">{{ league.name|truncatechars:40 }}</p>
         <div class="d-flex gap-2 justify-content-center">
           <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">{% trans "Cancel" %}</button>
           <form method="post" action="{% url 'leagues:leave' league.pk %}">
@@ -140,4 +110,9 @@
   </div>
 </div>
 {% endif %}
+
+{% endblock %}
+
+{% block extra_js %}
+{% include "partials/_ranking_sticky_js.html" %}
 {% endblock %}

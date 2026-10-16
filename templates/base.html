@@ -165,16 +165,36 @@
     });
   });
 
-  /* Share invite link buttons */
+  /* Share invite link — Web Share API with clipboard fallback, then read-only input */
   document.addEventListener('click', function(e) {
     var btn = e.target.closest('.share-link-btn');
     if (!btn) return;
-    var url = window.location.origin + '/leagues/join/?code=' + btn.dataset.code;
-    navigator.clipboard.writeText(url).then(function() {
-      var icon = btn.querySelector('i');
-      icon.className = 'ti ti-check';
-      setTimeout(function() { icon.className = 'ti ti-share'; }, 1500);
-    });
+    var url = btn.dataset.url;
+    var group = btn.closest('.league-share-group');
+    var fallback = group ? group.querySelector('.share-fallback-input') : null;
+    function showFallback() {
+      if (!fallback) return;
+      fallback.value = url;
+      fallback.classList.remove('d-none');
+      fallback.select();
+    }
+    if (navigator.share) {
+      navigator.share({
+        title: btn.dataset.shareTitle || document.title,
+        text: btn.dataset.text || url,
+        url: url,
+      }).catch(function() {});
+      return;
+    }
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(url).then(function() {
+        var icon = btn.querySelector('i');
+        icon.className = 'ti ti-check';
+        setTimeout(function() { icon.className = 'ti ti-share'; }, 1500);
+      }).catch(showFallback);
+      return;
+    }
+    showFallback();
   });
 </script>
 {% block extra_js %}{% endblock %}

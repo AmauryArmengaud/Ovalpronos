@@ -38,8 +38,13 @@ from django.utils import timezone
 
 COMP_CODE = '__DEMO__'
 COMP_EXTERNAL_ID = -999
+ENDED_COMP_CODE = '__DEMO_ENDED__'
+ENDED_COMP_EXTERNAL_ID = -998
 USER_PREFIX = 'demo_'
 LEAGUE_NAME = 'Demo League'
+MEMBER_LEAGUE_NAME = 'Demo Potes'
+LONG_LEAGUE_NAME = 'Les Pronostiqueurs du Grand Stade du Midi-Pyrénées'
+ENDED_LEAGUE_NAME = 'Demo Saison Passée'
 MAIN_PASSWORD = 'demo1234'
 
 
@@ -78,9 +83,13 @@ class Command(BaseCommand):
 
         # Leagues first — creator FK would cascade anyway, but being explicit
         # avoids relying on cascade ordering.
-        leagues_deleted, _ = League.objects.filter(name__in=[LEAGUE_NAME, 'Demo Liga']).delete()
+        leagues_deleted, _ = League.objects.filter(name__in=[
+            LEAGUE_NAME, 'Demo Liga', MEMBER_LEAGUE_NAME, LONG_LEAGUE_NAME, ENDED_LEAGUE_NAME,
+        ]).delete()
         # Competition cascade: Match → Prediction → UserScore (competition-scoped)
-        comps_deleted, _ = Competition.objects.filter(code=COMP_CODE).delete()
+        comps_deleted, _ = Competition.objects.filter(
+            code__in=[COMP_CODE, ENDED_COMP_CODE]
+        ).delete()
         # Users cascade: Prediction, UserScore (global), created leagues
         users_deleted, _ = User.objects.filter(username__startswith=USER_PREFIX).delete()
 
@@ -559,8 +568,22 @@ class Command(BaseCommand):
         for ext_id in range(-11, -21, -1):
             _calculate_points_for_match(m[ext_id])
 
+        # --- Ended competition (is_active=False) — for ENDED_LEAGUE_NAME seed ---
+        ended_comp, _ = Competition.objects.update_or_create(
+            external_id=ENDED_COMP_EXTERNAL_ID,
+            season='9998',
+            defaults={
+                'code': ENDED_COMP_CODE,
+                'name': 'UI Demo Terminé',
+                'country': 'Demo',
+                'scoring_system': 'COTES',
+                'good_gap_pts': 10,
+                'is_active': False,
+            },
+        )
+
         # --- Leagues ---
-        # Demo League: 4 members only — demo_main is rank 1 (tests league podium)
+        # Demo League: 4 members — demo_main is creator and rank 1 (tests creator case)
         league, _ = League.objects.get_or_create(
             name=LEAGUE_NAME,
             defaults={'creator': main},
@@ -581,6 +604,32 @@ class Command(BaseCommand):
         )
         liga.competitions.add(comp)
         liga.members.add(*users.values())
+
+        # Demo Potes: demo_player1 is creator, demo_main is a simple member.
+        # Tests the "Leave" button (demo_main can leave this one).
+        potes, _ = League.objects.get_or_create(
+            name=MEMBER_LEAGUE_NAME,
+            defaults={'creator': users['demo_player1']},
+        )
+        potes.competitions.add(comp)
+        potes.members.add(main, users['demo_player1'], users['demo_player5'])
+
+        # Long name league — tests Zone A ellipsis and header word-break.
+        long_league, _ = League.objects.get_or_create(
+            name=LONG_LEAGUE_NAME,
+            defaults={'creator': main},
+        )
+        long_league.competitions.add(comp)
+        long_league.members.add(main, users['demo_player4'])
+
+        # Ended league — linked only to an inactive competition (is_active=False).
+        # Tests the "Ended" badge, inactive notice, and league_ended empty_reason.
+        ended_league, _ = League.objects.get_or_create(
+            name=ENDED_LEAGUE_NAME,
+            defaults={'creator': main},
+        )
+        ended_league.competitions.add(ended_comp)
+        ended_league.members.add(main, users['demo_player6'])
 
         return created_matches
 
@@ -604,7 +653,12 @@ class Command(BaseCommand):
             )
 
         self.stdout.write(
-            f'\n  League:  "{LEAGUE_NAME}"  (demo_main + player1/2/3)'
+            f'\n  Leagues:'
+            f'\n    "{LEAGUE_NAME}"       — demo_main creator, rank 1 (4 members)'
+            f'\n    "Demo Liga"                — demo_main creator, all 20 players'
+            f'\n    "{MEMBER_LEAGUE_NAME}"            — demo_player1 creator, demo_main member (Leave button)'
+            f'\n    "{LONG_LEAGUE_NAME}" — long name, ellipsis test'
+            f'\n    "{ENDED_LEAGUE_NAME}"     — inactive comp, Ended badge'
             f'\n\n  To wipe and recreate:'
             f'\n    python manage.py seed_ui_states --reset\n'
         )

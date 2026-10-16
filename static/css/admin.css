@@ -29,6 +29,9 @@
   /* Rankings podium medals */
   --color-rank-silver:      rgba(43, 52, 103, 0.45);
   --color-rank-bronze:      rgba(184, 105, 37, 0.75);
+  /* League ended badge */
+  --color-badge-ended-bg:   rgba(43, 52, 103, 0.08);
+  --color-badge-ended-text: rgba(43, 52, 103, 0.55);
 
   /* Radius */
   --radius-sm:  0.375rem;

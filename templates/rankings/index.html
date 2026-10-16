@@ -61,19 +61,5 @@
 {% endblock %}
 
 {% block extra_js %}
-<script>
-  /* Scroll to current-user row on page load (desktop) */
-  var row = document.getElementById('current-user-row');
-  if (row) {
-    row.scrollIntoView({ behavior: 'smooth', block: 'center' });
-  }
-
-  /* Sticky "Toi" bar: show when current-user row leaves viewport (mobile) */
-  var stickyBar = document.getElementById('you-sticky');
-  if (row && stickyBar && 'IntersectionObserver' in window) {
-    new IntersectionObserver(function(entries) {
-      stickyBar.classList.toggle('visible', !entries[0].isIntersecting);
-    }, { threshold: 0 }).observe(row);
-  }
-</script>
+{% include "partials/_ranking_sticky_js.html" %}
 {% endblock %}

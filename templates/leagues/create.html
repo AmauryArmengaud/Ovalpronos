@@ -1,11 +1,13 @@
 {% extends "base.html" %}
-{% load i18n crispy_forms_tags %}
+{% load i18n %}
 
 {% block title %}{% trans "Create a League" %} — Oval'Pronos{% endblock %}
 
 {% block content %}
+<div class="league-page-wrap">
+
 <div class="d-flex align-items-center gap-3 mb-4">
-  <i class="ti ti-plus page-header-icon" style="color: var(--color-primary);"></i>
+  <i class="ti ti-plus page-header-icon" style="color: var(--color-primary);" aria-hidden="true"></i>
   <h1 class="mb-0">{% trans "Create a League" %}</h1>
 </div>
 
@@ -15,24 +17,59 @@
       <div class="card-body">
         <form method="post">
           {% csrf_token %}
-          {{ form|crispy }}
-          <div class="d-flex gap-2 mt-3">
+
+          <div class="mb-3">
+            <label for="{{ form.name.id_for_label }}" class="form-label fw-semibold">{% trans "League name" %}</label>
+            <input type="text"
+                   id="{{ form.name.id_for_label }}"
+                   name="{{ form.name.html_name }}"
+                   class="form-control form-control-44{% if form.name.errors %} is-invalid{% endif %}"
+                   value="{{ form.name.value|default:'' }}"
+                   maxlength="{{ form.name.field.max_length }}"
+                   required>
+            {% if form.name.errors %}
+            <div class="invalid-feedback">{{ form.name.errors.0 }}</div>
+            {% endif %}
+          </div>
+
+          <div class="mb-4">
+            <label class="form-label fw-semibold d-block mb-2">{% trans "Competitions" %}</label>
+            <div class="d-flex flex-wrap gap-2">
+              {% for bw in form.competitions %}
+              <label class="league-comp-checkbox">
+                <input type="checkbox"
+                       name="{{ form.competitions.html_name }}"
+                       value="{{ bw.data.value }}"
+                       {% if bw.data.selected %}checked{% endif %}>
+                {{ bw.choice_label }}
+              </label>
+              {% endfor %}
+            </div>
+            {% if form.competitions.errors %}
+            <div class="text-danger small mt-2">{{ form.competitions.errors.0 }}</div>
+            {% endif %}
+          </div>
+
+          <div class="d-flex gap-2">
             <button type="submit" class="btn btn-primary">
-              <i class="ti ti-check me-1"></i>{% trans "Create" %}
+              <i class="ti ti-check me-1" aria-hidden="true"></i>{% trans "Create" %}
             </button>
             <a href="{% url 'leagues:list' %}" class="btn btn-outline-secondary">{% trans "Cancel" %}</a>
           </div>
         </form>
       </div>
     </div>
+
     <p class="text-muted small mt-3">
-      <i class="ti ti-info-circle me-1"></i>
+      <i class="ti ti-info-circle me-1" aria-hidden="true"></i>
       {% trans "A 5-character invite code will be generated automatically. Share it with friends to let them join." %}
     </p>
     <p class="text-muted small mt-2">
-      <i class="ti ti-info-circle me-1"></i>
+      <i class="ti ti-info-circle me-1" aria-hidden="true"></i>
       {% trans "Only predictions for matches in the selected competitions will count toward this league's leaderboard." %}
     </p>
   </div>
 </div>
+
+</div>{# /league-page-wrap #}
 {% endblock %}
