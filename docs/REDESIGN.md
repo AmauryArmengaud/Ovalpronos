@@ -546,30 +546,23 @@ Visitor GET → "J'ai déjà un compte"
 
 Register, login, profile, and password reset pages.
 
-**Auth header layout (`.auth-header`):**
+**Navy background rule:**
 
-All auth pages (login, register, password reset, reset confirm, reset done, reset complete) share
-the same `.auth-header` block at the top — navy background, centred logo, `h1.auth-header__title`,
-and optional `.auth-header__sub` subtitle. No card-header pattern; the header IS the page header.
-`{% block main_class %}p-0{% endblock %}` removes the default container padding so the header
-bleeds full-width. The `.auth-body` wrapper below handles inner padding.
+**Navy is reserved for `.home-hero` and the public invite page only.** Auth forms (login, register,
+password reset) use the default cream container — no banner, no logo repeat. The navbar already
+carries the brand; adding a second navy strip duplicates the logo and pushes the form below the
+fold on mobile.
 
-**Auth header anatomy:**
+**Auth page layout:**
 
-```
-┌─────────────────────────────────────────────────────────┐
-│ navy (.auth-header)                                      │
-│   logo (SVG, 40px height)                               │
-│   h1.auth-header__title   "Log in"                      │
-│   p.auth-header__sub      "To join {league}" (optional) │
-└─────────────────────────────────────────────────────────┘
-  .auth-body (white, padding 2rem top/sides)
-    form content
-```
+- Standard `container my-4` (default `{% block main_class %}`).
+- Centred column: `col-12 col-sm-10 col-md-6/7 col-lg-5/6` depending on form width.
+- `h1` title at top of content (same style as Pronos and Rankings pages).
+- **Invitation context** (when `next=` points to a league invite): `.auth-invite-context` chip
+  below the `h1` — tinted surface (`--color-surface-raised`), `ti-users` icon, league name.
+  Never shows raw URL content — league name is resolved from DB via `_get_invite_league()`.
 
-**invite_league context and URL resolution safety:**
-
-`_get_invite_league(next_url, request_host)` in `views.py`:
+**`_get_invite_league(next_url, request_host)`** in `views.py`:
 1. Returns `None` if `next_url` is empty.
 2. Validates with `url_has_allowed_host_and_scheme` — prevents open redirect exploitation.
 3. Calls `resolve(path)` — returns `None` on `Resolver404`.
@@ -577,12 +570,11 @@ bleeds full-width. The `.auth-body` wrapper below handles inner padding.
 5. Queries `League.objects.filter(invite_code=...)` — returns `None` for unknown codes.
 
 Called from both `LoginView.get_context_data` (reads `GET['next']`) and
-`RegisterView.get_context_data` (reads `POST['next']` or `GET['next']`). When the context has an
-`invite_league`, the auth header shows `.auth-header__sub` with the league name.
+`RegisterView.get_context_data` (reads `POST['next']` or `GET['next']`).
 
 **Form layout decisions:**
 
-- No card wrapper — form sits directly in `.auth-body > .row > .col-*`.
+- No card wrapper — form sits directly in the centred column.
 - All inputs use `.form-control-44` (min-height 44px) for 44px tap targets.
 - Primary CTA: `btn btn-accent btn-lg` (red pill) — not `btn-primary` (navy).
 - `autocomplete` attributes set on all fields for password managers.

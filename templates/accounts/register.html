@@ -1,195 +1,192 @@
 {% extends "base.html" %}
 {% load i18n %}
-{% load static %}
 
 {% block title %}{% trans "Create an account" %} — Oval'Pronos{% endblock %}
-{% block main_class %}p-0{% endblock %}
 
 {% block extra_head %}
 <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 {% endblock %}
 
 {% block content %}
-<div class="auth-header">
-  <a href="{% url 'matches:home' %}" class="auth-header__logo">
-    <img src="{% static 'img/logo.svg' %}" alt="Oval'Pronos" height="40">
-  </a>
-  <h1 class="auth-header__title">{% trans "Create my account" %}</h1>
-  {% if invite_league %}
-    <p class="auth-header__sub">{% blocktrans with name=invite_league.name %}To join {{ name }}{% endblocktrans %}</p>
-  {% endif %}
-</div>
+<div class="row justify-content-center">
+  <div class="col-12 col-sm-10 col-md-7 col-lg-6">
 
-<div class="auth-body">
-  <div class="row justify-content-center">
-    <div class="col-12 col-sm-10 col-md-7 col-lg-5">
-      <form method="post" novalidate>
-        {% csrf_token %}
-        {% if next_url %}<input type="hidden" name="next" value="{{ next_url }}">{% endif %}
+    <h1 class="mb-4">{% trans "Create my account" %}</h1>
 
-        {# username #}
-        <div class="mb-3">
-          <label for="{{ form.username.id_for_label }}" class="form-label fw-500">
-            {{ form.username.label }}
-          </label>
-          <input
-            type="text"
-            name="username"
-            id="{{ form.username.id_for_label }}"
-            class="form-control form-control-44{% if form.username.errors %} is-invalid{% endif %}"
-            value="{{ form.username.value|default:'' }}"
-            autocomplete="username"
-            autofocus
-            required
-          >
-          {% for error in form.username.errors %}
-            <div class="invalid-feedback">{{ error }}</div>
-          {% endfor %}
-        </div>
-
-        {# email #}
-        <div class="mb-3">
-          <label for="{{ form.email.id_for_label }}" class="form-label fw-500">
-            {{ form.email.label }}
-          </label>
-          <input
-            type="email"
-            name="email"
-            id="{{ form.email.id_for_label }}"
-            class="form-control form-control-44{% if form.email.errors %} is-invalid{% endif %}"
-            value="{{ form.email.value|default:'' }}"
-            autocomplete="email"
-            required
-          >
-          {% for error in form.email.errors %}
-            <div class="invalid-feedback">{{ error }}</div>
-          {% endfor %}
-        </div>
-
-        {# first_name + last_name — side by side on sm+ #}
-        <div class="row g-3 mb-3">
-          <div class="col-12 col-sm-6">
-            <label for="{{ form.first_name.id_for_label }}" class="form-label fw-500">
-              {{ form.first_name.label }}
-            </label>
-            <input
-              type="text"
-              name="first_name"
-              id="{{ form.first_name.id_for_label }}"
-              class="form-control form-control-44{% if form.first_name.errors %} is-invalid{% endif %}"
-              value="{{ form.first_name.value|default:'' }}"
-              autocomplete="given-name"
-              required
-            >
-            {% for error in form.first_name.errors %}
-              <div class="invalid-feedback">{{ error }}</div>
-            {% endfor %}
-          </div>
-          <div class="col-12 col-sm-6">
-            <label for="{{ form.last_name.id_for_label }}" class="form-label fw-500">
-              {{ form.last_name.label }}
-            </label>
-            <input
-              type="text"
-              name="last_name"
-              id="{{ form.last_name.id_for_label }}"
-              class="form-control form-control-44{% if form.last_name.errors %} is-invalid{% endif %}"
-              value="{{ form.last_name.value|default:'' }}"
-              autocomplete="family-name"
-              required
-            >
-            {% for error in form.last_name.errors %}
-              <div class="invalid-feedback">{{ error }}</div>
-            {% endfor %}
-          </div>
-        </div>
-
-        {# display_name — optional public nickname #}
-        <div class="mb-3">
-          <label for="{{ form.display_name.id_for_label }}" class="form-label fw-500">
-            {{ form.display_name.label }}
-          </label>
-          <input
-            type="text"
-            name="display_name"
-            id="{{ form.display_name.id_for_label }}"
-            class="form-control form-control-44{% if form.display_name.errors %} is-invalid{% endif %}"
-            value="{{ form.display_name.value|default:'' }}"
-            autocomplete="nickname"
-          >
-          {% if form.display_name.help_text %}
-            <div class="form-text">{{ form.display_name.help_text }}</div>
-          {% endif %}
-          {% for error in form.display_name.errors %}
-            <div class="invalid-feedback">{{ error }}</div>
-          {% endfor %}
-        </div>
-
-        {# password1 #}
-        <div class="mb-3">
-          <label for="{{ form.password1.id_for_label }}" class="form-label fw-500">
-            {{ form.password1.label }}
-          </label>
-          <input
-            type="password"
-            name="password1"
-            id="{{ form.password1.id_for_label }}"
-            class="form-control form-control-44{% if form.password1.errors %} is-invalid{% endif %}"
-            autocomplete="new-password"
-            required
-          >
-          {% if form.password1.help_text %}
-            <div class="form-text">{{ form.password1.help_text }}</div>
-          {% endif %}
-          {% for error in form.password1.errors %}
-            <div class="invalid-feedback">{{ error }}</div>
-          {% endfor %}
-        </div>
-
-        {# password2 #}
-        <div class="mb-3">
-          <label for="{{ form.password2.id_for_label }}" class="form-label fw-500">
-            {{ form.password2.label }}
-          </label>
-          <input
-            type="password"
-            name="password2"
-            id="{{ form.password2.id_for_label }}"
-            class="form-control form-control-44{% if form.password2.errors %} is-invalid{% endif %}"
-            autocomplete="new-password"
-            required
-          >
-          {% for error in form.password2.errors %}
-            <div class="invalid-feedback">{{ error }}</div>
-          {% endfor %}
-        </div>
-
-        {% if form.non_field_errors %}
-          <div class="alert alert-danger">
-            {% for error in form.non_field_errors %}{{ error }}{% endfor %}
-          </div>
-        {% endif %}
-
-        <div class="cf-turnstile mb-3" data-sitekey="{{ turnstile_site_key }}"></div>
-
-        <div class="d-grid mt-4">
-          <button type="submit" class="btn btn-accent btn-lg">
-            {% trans "Create my account" %}
-          </button>
-        </div>
-      </form>
-
-      <hr class="my-4">
-
-      <div class="text-center">
-        <p class="mb-0">
-          {% trans "Already have an account?" %}
-          <a href="{% url 'accounts:login' %}{% if next_url %}?next={{ next_url }}{% endif %}" class="fw-600 text-decoration-none">
-            {% trans "Log in" %}
-          </a>
-        </p>
-      </div>
+    {% if invite_league %}
+    <div class="auth-invite-context mb-3">
+      <i class="ti ti-users" aria-hidden="true"></i>
+      {% blocktrans with name=invite_league.name %}To join {{ name }}{% endblocktrans %}
     </div>
+    {% endif %}
+
+    <form method="post" novalidate>
+      {% csrf_token %}
+      {% if next_url %}<input type="hidden" name="next" value="{{ next_url }}">{% endif %}
+
+      {# username #}
+      <div class="mb-3">
+        <label for="{{ form.username.id_for_label }}" class="form-label fw-500">
+          {{ form.username.label }}
+        </label>
+        <input
+          type="text"
+          name="username"
+          id="{{ form.username.id_for_label }}"
+          class="form-control form-control-44{% if form.username.errors %} is-invalid{% endif %}"
+          value="{{ form.username.value|default:'' }}"
+          autocomplete="username"
+          autofocus
+          required
+        >
+        {% for error in form.username.errors %}
+          <div class="invalid-feedback">{{ error }}</div>
+        {% endfor %}
+      </div>
+
+      {# email #}
+      <div class="mb-3">
+        <label for="{{ form.email.id_for_label }}" class="form-label fw-500">
+          {{ form.email.label }}
+        </label>
+        <input
+          type="email"
+          name="email"
+          id="{{ form.email.id_for_label }}"
+          class="form-control form-control-44{% if form.email.errors %} is-invalid{% endif %}"
+          value="{{ form.email.value|default:'' }}"
+          autocomplete="email"
+          required
+        >
+        {% for error in form.email.errors %}
+          <div class="invalid-feedback">{{ error }}</div>
+        {% endfor %}
+      </div>
+
+      {# first_name + last_name — side by side on sm+ #}
+      <div class="row g-3 mb-3">
+        <div class="col-12 col-sm-6">
+          <label for="{{ form.first_name.id_for_label }}" class="form-label fw-500">
+            {{ form.first_name.label }}
+          </label>
+          <input
+            type="text"
+            name="first_name"
+            id="{{ form.first_name.id_for_label }}"
+            class="form-control form-control-44{% if form.first_name.errors %} is-invalid{% endif %}"
+            value="{{ form.first_name.value|default:'' }}"
+            autocomplete="given-name"
+            required
+          >
+          {% for error in form.first_name.errors %}
+            <div class="invalid-feedback">{{ error }}</div>
+          {% endfor %}
+        </div>
+        <div class="col-12 col-sm-6">
+          <label for="{{ form.last_name.id_for_label }}" class="form-label fw-500">
+            {{ form.last_name.label }}
+          </label>
+          <input
+            type="text"
+            name="last_name"
+            id="{{ form.last_name.id_for_label }}"
+            class="form-control form-control-44{% if form.last_name.errors %} is-invalid{% endif %}"
+            value="{{ form.last_name.value|default:'' }}"
+            autocomplete="family-name"
+            required
+          >
+          {% for error in form.last_name.errors %}
+            <div class="invalid-feedback">{{ error }}</div>
+          {% endfor %}
+        </div>
+      </div>
+
+      {# display_name — optional public nickname #}
+      <div class="mb-3">
+        <label for="{{ form.display_name.id_for_label }}" class="form-label fw-500">
+          {{ form.display_name.label }}
+        </label>
+        <input
+          type="text"
+          name="display_name"
+          id="{{ form.display_name.id_for_label }}"
+          class="form-control form-control-44{% if form.display_name.errors %} is-invalid{% endif %}"
+          value="{{ form.display_name.value|default:'' }}"
+          autocomplete="nickname"
+        >
+        {% if form.display_name.help_text %}
+          <div class="form-text">{{ form.display_name.help_text }}</div>
+        {% endif %}
+        {% for error in form.display_name.errors %}
+          <div class="invalid-feedback">{{ error }}</div>
+        {% endfor %}
+      </div>
+
+      {# password1 #}
+      <div class="mb-3">
+        <label for="{{ form.password1.id_for_label }}" class="form-label fw-500">
+          {{ form.password1.label }}
+        </label>
+        <input
+          type="password"
+          name="password1"
+          id="{{ form.password1.id_for_label }}"
+          class="form-control form-control-44{% if form.password1.errors %} is-invalid{% endif %}"
+          autocomplete="new-password"
+          required
+        >
+        {% if form.password1.help_text %}
+          <div class="form-text">{{ form.password1.help_text }}</div>
+        {% endif %}
+        {% for error in form.password1.errors %}
+          <div class="invalid-feedback">{{ error }}</div>
+        {% endfor %}
+      </div>
+
+      {# password2 #}
+      <div class="mb-3">
+        <label for="{{ form.password2.id_for_label }}" class="form-label fw-500">
+          {{ form.password2.label }}
+        </label>
+        <input
+          type="password"
+          name="password2"
+          id="{{ form.password2.id_for_label }}"
+          class="form-control form-control-44{% if form.password2.errors %} is-invalid{% endif %}"
+          autocomplete="new-password"
+          required
+        >
+        {% for error in form.password2.errors %}
+          <div class="invalid-feedback">{{ error }}</div>
+        {% endfor %}
+      </div>
+
+      {% if form.non_field_errors %}
+        <div class="alert alert-danger">
+          {% for error in form.non_field_errors %}{{ error }}{% endfor %}
+        </div>
+      {% endif %}
+
+      <div class="cf-turnstile mb-3" data-sitekey="{{ turnstile_site_key }}"></div>
+
+      <div class="d-grid mt-4">
+        <button type="submit" class="btn btn-accent btn-lg">
+          {% trans "Create my account" %}
+        </button>
+      </div>
+    </form>
+
+    <hr class="my-4">
+
+    <div class="text-center">
+      <p class="mb-0">
+        {% trans "Already have an account?" %}
+        <a href="{% url 'accounts:login' %}{% if next_url %}?next={{ next_url }}{% endif %}" class="fw-600 text-decoration-none">
+          {% trans "Log in" %}
+        </a>
+      </p>
+    </div>
+
   </div>
 </div>
 {% endblock %}
