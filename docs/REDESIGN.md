@@ -445,9 +445,9 @@ Leaderboard: {% include "rankings/_table.html" %} — zero duplication
 │    Oval motif: 2 CSS-only ellipses (::before / ::after)         │
 ├──────────────────────────────────────────────────────────────────┤
 │ 2. Comment ça marche — cream, container                          │
-│    Scoring example: Clermont–Perpignan, Perpignan cote 6.30     │
+│    Scoring example: Clermont–Perpignan, odds 6.30 = 63 base pts │
 │    4 rows reusing match card Zone C result banner colors         │
-│    (EXACT gold 189 / GAP purple 126 / WIN lime 63 / MISS 0 pt)  │
+│    pts computed by get_example_points() — same source as /rules/ │
 ├──────────────────────────────────────────────────────────────────┤
 │ 3. Compétitions — surface-raised tint                            │
 │    Dynamic from Competition.objects.filter(is_active=True)      │
@@ -666,7 +666,7 @@ Four tier rows (EXACT / GAP / WIN / MISS) reusing `.home-example-rows` / `.home-
 CSS — same colours and icons as match result banners. Exact: gold / `ti-crown`. Gap: purple tint /
 `ti-target`. Win: lime tint / `ti-check`. Miss: neutral / `ti-x`.
 
-- Odds explanation: Unibet × 10 → base pts; multiplier per tier; formula spelled out (63 × 3 = 189)
+- Odds explanation: bookmakers × 10 → base pts (e.g. 6.30 → 63); multiplier per tier; formula spelled out (63 × 3 = 189)
 - Bon écart: |pred_gap − real_gap| ≤ threshold, with the 15–22 / 17–22 example
 - Threshold: live from DB (`good_gap_pts`); single value or per-competition list if they differ
 - Example pts: computed by `get_example_points()` in `apps/predictions/services.py` — used by both
@@ -836,9 +836,9 @@ Banners are graded by intensity — EXACT is the most salient, MISS the most sub
 | MISS | `--color-badge-miss` rgba(43,52,103,0.10) (neutral bg) | `--color-text-secondary` rgba(0.75) | ~5:1 ✓ |
 
 `--color-badge-miss` is a background variable only (neutral tint, 10% primary).
-Use `--color-badge-miss-text` for any text or icon expressing a MISS state (rules.html tier cards,
-admin badge labels, rankings). Current usages: `templates/matches/rules.html` (MISS tier icon + table
-cell), `static/css/admin.css` (result badge labels).
+Use `--color-badge-miss-text` for any text or icon expressing a MISS state (rules.html tier rows,
+admin badge labels, rankings). Current usages: `templates/matches/rules.html` (MISS tier row via
+`.home-example-row--miss`), `static/css/admin.css` (result badge labels).
 
 ---
 
