@@ -190,6 +190,10 @@ class Command(BaseCommand):
             {'username': 'demo_player19', 'display_name': 'Léa Thomas'},
             # demo_newcomer: no predictions at all — tests 0-pt display in active league leaderboard
             {'username': 'demo_newcomer',  'display_name': 'Nouveau Joueur'},
+            # demo_no_pronos: no predictions, no leagues — profile empty-state (both sections)
+            {'username': 'demo_no_pronos', 'display_name': 'Sans Pronos'},
+            # demo_no_league: has scored predictions, no leagues — profile stats + empty leagues
+            {'username': 'demo_no_league', 'display_name': 'Sans Ligue'},
         ]
         users = {}
         for spec in user_specs:
@@ -559,6 +563,17 @@ class Command(BaseCommand):
                 defaults={'predicted_home_score': h, 'predicted_away_score': a},
             )
 
+        # demo_no_league: EXACT on M-7 + WIN on M-11 — enough pts to show a real rank
+        # Not added to any league → tests profile stats section with empty leagues section
+        Prediction.objects.get_or_create(
+            user=users['demo_no_league'], match=m[-7],
+            defaults={'predicted_home_score': 24, 'predicted_away_score': 17},  # EXACT
+        )
+        Prediction.objects.get_or_create(
+            user=users['demo_no_league'], match=m[-11],
+            defaults={'predicted_home_score': 30, 'predicted_away_score': 0},   # WIN
+        )
+
         # --- Score calculation (via service, never manually) ---
         # _calculate_points_for_match() sets points_earned + result_type on each
         # Prediction, then calls refresh_user_scores_for_match() to update the
@@ -634,7 +649,29 @@ class Command(BaseCommand):
         ended_league.competitions.add(ended_comp)
         ended_league.members.add(main, users['demo_player6'])
 
+        # --- Avatar for demo_main (profile avatar vs initials fallback) ---
+        # Only generate if no avatar already set — safe to re-run.
+        if not main.avatar:
+            self._set_demo_avatar(main)
+
         return created_matches
+
+    def _set_demo_avatar(self, user):
+        import io
+        from django.core.files.base import ContentFile
+        from PIL import Image, ImageDraw
+
+        # 80×80 navy circle on transparent background — minimal PNG, no external assets needed
+        size = 80
+        img = Image.new('RGBA', (size, size), (0, 0, 0, 0))
+        draw = ImageDraw.Draw(img)
+        # Navy fill (#2B3467)
+        draw.ellipse([0, 0, size - 1, size - 1], fill=(43, 52, 103, 255))
+
+        buf = io.BytesIO()
+        img.save(buf, format='PNG')
+        buf.seek(0)
+        user.avatar.save('demo_main_avatar.png', ContentFile(buf.read()), save=True)
 
     # ------------------------------------------------------------------
     # Summary
@@ -644,7 +681,8 @@ class Command(BaseCommand):
         self.stdout.write('\n' + self.style.SUCCESS('=== Demo data seeded ===') + '\n')
         self.stdout.write(f'  Login:         demo_main  /  {MAIN_PASSWORD}')
         self.stdout.write(f'  All demo users share the same password: {MAIN_PASSWORD}')
-        self.stdout.write(f'  Usernames:     demo_main, demo_player1 … demo_player19\n')
+        self.stdout.write(f'  Usernames:     demo_main, demo_player1 … demo_player19, demo_newcomer\n')
+        self.stdout.write(f'  Profile states: demo_no_pronos (empty), demo_no_league (stats, no leagues)\n')
         self.stdout.write(f'  Rankings:      demo_main ~rank 15 globally, rank 1 in league')
         self.stdout.write(f'                 True ties: P8=P9 (top), P2=P6 (rank 17), P3=P7 (rank 19)\n')
 

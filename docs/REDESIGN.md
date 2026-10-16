@@ -584,8 +584,8 @@ Called from both `LoginView.get_context_data` (reads `GET['next']`) and
 
 **Profile page — section anatomy:**
 
-Four `.profile-section` blocks, separated by `border-top: 1px solid var(--color-logo-bg)` via the
-CSS `+` sibling selector:
+Four `.profile-section` blocks, separated by `margin-top: 2rem` via the CSS `+` sibling selector
+(no border — removed in mobile pass to reduce visual noise):
 
 1. **Identity** — `.profile-identity` (avatar + name block, flex row), edit button top-right.
    Avatar: `.profile-avatar` if set, else `.profile-avatar-initials` (circle, initials, fallback
@@ -608,6 +608,11 @@ CSS `+` sibling selector:
    Logout uses `.btn-nav-link` (discrete link style) — not `btn-outline-secondary`. Matches the
    design decision documented in §1 ("btn-accent on navbar logout" rejected).
 
+**Mobile bottom nav color:**
+`.mobile-bottom-nav` uses `background: var(--color-primary)` (navy). Was previously
+`var(--color-accent)` (red); changed during the profile pass — accent red is reserved for CTAs only.
+Inactive icon opacity `0.60` (cream at 60% = ~5.1:1 contrast on `--text-2xs`).
+
 **League card partial (`templates/partials/league_card.html`):**
 
 Extracted from `leagues/list.html` into a shared partial. Both `leagues/list.html` and
@@ -619,9 +624,9 @@ not via ORM `.count()` in the template). Existing CSS (`.league-card`, `.league-
 **Password reset flow:**
 
 All four password reset templates (`password_reset.html`, `password_reset_done.html`,
-`password_reset_confirm.html`, `password_reset_complete.html`) use `.auth-header` + `.auth-body`.
-`btn-accent` on all CTAs. `password_reset_done.html` and `password_reset_complete.html` use
-centered icon + copy layout (no form).
+`password_reset_confirm.html`, `password_reset_complete.html`) use the same standard cream container
+layout as login/register (no banner, no `.auth-header`/`.auth-body`). `btn-accent` on all CTAs.
+`password_reset_done.html` and `password_reset_complete.html` use centered icon + copy layout (no form).
 
 **Email template (`templates/accounts/emails/password_reset_email.html`):**
 
@@ -630,9 +635,14 @@ Converted from hardcoded French to `{% trans %}` / `{% blocktrans %}` for i18n. 
 values kept (approved exception — see §3 Email templates).
 
 **New CSS classes (added to `main.css`):**
-`.auth-header`, `.auth-header__logo`, `.auth-header__title`, `.auth-header__sub`, `.auth-body`,
-`.profile-identity`, `.profile-avatar`, `.profile-avatar-initials`, `.profile-stat-primary`,
-`.profile-stat-label`, `.profile-tier-row`, `.profile-tier-item`, `.profile-section + .profile-section`.
+`.auth-invite-context`, `.profile-identity`, `.profile-avatar`, `.profile-avatar-initials`,
+`.profile-stat-primary`, `.profile-stat-label`, `.profile-tier-row`, `.profile-tier-item`,
+`.profile-tier-item__value`, `.profile-tier-item__label`, `.profile-section + .profile-section`.
+
+**Seed (`seed_ui_states`):** Three profile states covered:
+- `demo_main` — predictions + leagues + generated navy avatar (80×80 PNG, Pillow)
+- `demo_no_pronos` — no predictions, no leagues (empty stats + empty leagues sections)
+- `demo_no_league` — scored predictions (EXACT M-7 + WIN M-11), not in any league
 
 **Tests (`apps/accounts/tests.py`):**
 - `RegisterAutoLoginTest` (3 cases) — pre-existing
