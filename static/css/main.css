@@ -36,6 +36,8 @@
   --color-badge-gap-light:  rgba(139, 53, 168, 0.35);   /* 35% gap — medium result banner bg */
   --color-badge-miss:       rgba(43, 52, 103, 0.10);  /* neutral — subdued, no points */
   --color-badge-miss-text:  rgba(43, 52, 103, 0.50);
+  /* Hero oval motif — cream at 7% opacity on navy background */
+  --color-hero-motif:       rgba(252, 255, 249, 0.07);
   /* League ended badge — neutral tone, distinct from badge-miss (wrong prediction) */
   --color-badge-ended-bg:   rgba(43, 52, 103, 0.08);
   --color-badge-ended-text: rgba(43, 52, 103, 0.55);
@@ -199,66 +201,297 @@ main {
 .bg-accent   { background-color: var(--color-accent); }
 .page-header-icon { font-size: 2rem; }
 
-/* ─── Hero Section ──────────────────────────────────────────────────────── */
-.hero-title {
-  font-size: clamp(2.5rem, 8vw, 5.25rem);
+/* ─── Home page ─────────────────────────────────────────────────────────── */
+
+/* Hide bottom nav + remove bottom padding on visitor-only pages (home, invite) */
+.home-visitor .mobile-bottom-nav { display: none !important; }
+@media (max-width: 991.98px) {
+  .home-visitor { padding-bottom: 0; }
+}
+
+/* Hero — full-bleed navy */
+.home-hero {
+  position: relative;
+  background: var(--color-primary);
+  overflow: hidden;
+  padding: 4rem 0 5rem;
+}
+
+/* Oval motif — two CSS-only ellipses, pure decoration */
+.home-hero::before,
+.home-hero::after {
+  content: '';
+  position: absolute;
+  border-radius: 50%;
+  border: 2px solid var(--color-hero-motif);
+  pointer-events: none;
+}
+.home-hero::before {
+  width: 560px;
+  height: 360px;
+  top: -120px;
+  right: -160px;
+  transform: rotate(-12deg);
+}
+.home-hero::after {
+  width: 380px;
+  height: 240px;
+  bottom: -90px;
+  left: -100px;
+  transform: rotate(8deg);
+}
+@media (prefers-reduced-motion: reduce) {
+  /* motif is already static — nothing to disable */
+}
+
+.home-hero__inner {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+}
+
+.home-hero__content {
+  flex: 1;
+  min-width: 0;
+}
+
+.home-hero__title {
+  font-size: clamp(2rem, 7.5vw, 5rem);
   font-weight: 800;
-  color: var(--color-primary);
+  color: var(--color-text-on-primary);
   line-height: 1.05;
   letter-spacing: -0.03em;
+  margin-bottom: 1.25rem;
 }
 
-.hero-body {
+.home-hero__sub {
   font-size: 1.05rem;
-  color: var(--color-text-body);
+  color: rgba(252, 255, 249, 0.80);
   line-height: 1.7;
+  margin-bottom: 2rem;
 }
 
-/* ─── Feature Sections ──────────────────────────────────────────────────── */
-.feature-section {
-  /* thin rule removed — sections separated by space and background steps */
+.home-hero__ctas {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  flex-wrap: wrap;
 }
 
-.feature-title {
-  font-size: clamp(2rem, 4.5vw, 3.25rem);
+.home-hero__cta-primary {
+  padding: 0.75rem 2rem;
+  font-size: 1.05rem;
+  min-height: 48px;
+}
+
+.home-hero__cta-secondary {
+  color: rgba(252, 255, 249, 0.80);
+  font-weight: 600;
+  font-size: 0.95rem;
+  text-decoration: none;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+}
+
+.home-hero__cta-secondary:hover {
+  color: var(--color-text-on-primary);
+}
+
+.home-hero__mascot {
+  flex-shrink: 0;
+  object-fit: contain;
+  position: relative;
+  z-index: 1;
+  opacity: 0.92;
+}
+
+/* How it works / social sections */
+.home-section__title {
+  font-size: clamp(1.5rem, 3.5vw, 2.25rem);
   font-weight: 800;
   color: var(--color-primary);
-  line-height: 1.1;
   letter-spacing: -0.02em;
 }
 
-.feature-body {
+.home-section__sub {
   font-size: 1rem;
   color: var(--color-text-body);
   line-height: 1.7;
 }
 
-.feature-mascot {
-  max-width: 220px;
-  width: 100%;
-  display: block;
-  margin: 0 auto;
-}
-
-.feature-badge-stack {
+/* Scoring example rows — reuse match card Zone C result banner colors */
+.home-example-rows {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
-  align-items: flex-end;
+  gap: 0.5rem;
+  max-width: 560px;
 }
 
-.comp-badge {
-  display: inline-block;
-  padding: 0.6rem 1.5rem;
-  border-radius: var(--radius-pill);
-  font-weight: 700;
+.home-example-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.625rem 1rem;
+  border-radius: var(--radius-md);
+  font-size: 0.9375rem;
+}
+
+.home-example-row--exact {
+  background: var(--color-badge-exact);
+  color: var(--color-badge-exact-text);
+}
+
+.home-example-row--gap {
+  background: var(--color-badge-gap-light);
+  color: var(--color-primary);
+}
+
+.home-example-row--win {
+  background: var(--color-badge-win-light);
+  color: var(--color-badge-win-text);
+}
+
+.home-example-row--miss {
+  background: var(--color-badge-miss);
+  color: var(--color-badge-miss-text);
+}
+
+.home-example-icon {
   font-size: 1rem;
-  color: white;
+  flex-shrink: 0;
 }
 
-.comp-badge.top14     { background: var(--color-primary); }
-.comp-badge.champions { background: var(--color-accent); }
-.comp-badge.sixnations { background: var(--color-brand-rugby); }
+.home-example-label {
+  flex: 1;
+  font-weight: 600;
+  min-width: 0;
+}
+
+.home-example-score {
+  font-weight: 400;
+  opacity: 0.75;
+  font-size: 0.875rem;
+}
+
+.home-example-pts {
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.home-example-mult {
+  font-size: 0.8125rem;
+  opacity: 0.7;
+  white-space: nowrap;
+}
+
+/* Competitions section */
+.home-comps-section {
+  background: var(--color-surface-raised);
+}
+
+.home-comps-label {
+  font-size: var(--text-sm);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-text-secondary);
+  margin: 0;
+}
+
+/* Social section */
+.home-social-row {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+}
+
+.home-social-content {
+  flex: 1;
+}
+
+.home-social-mascot {
+  flex-shrink: 0;
+  object-fit: contain;
+  opacity: 0.85;
+}
+
+/* Invite page hero — same navy block as home hero but simpler */
+.invite-hero {
+  background: var(--color-primary);
+  min-height: calc(100vh - 68px);
+  display: flex;
+  align-items: center;
+  padding: 3rem 0;
+}
+
+.invite-hero__inner {
+  width: 100%;
+}
+
+.invite-hero__logo {
+  display: block;
+  margin-bottom: 2rem;
+  height: 40px;
+  width: auto;
+}
+
+.invite-hero__title {
+  font-size: clamp(1.75rem, 5vw, 3rem);
+  font-weight: 800;
+  color: var(--color-text-on-primary);
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  margin-bottom: 1.25rem;
+}
+
+.invite-league-name {
+  color: var(--color-badge-exact);
+}
+
+.invite-hero__sub {
+  font-size: 1rem;
+  color: rgba(252, 255, 249, 0.80);
+  line-height: 1.7;
+  margin-bottom: 2rem;
+  max-width: 480px;
+}
+
+.invite-hero__ctas {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  flex-wrap: wrap;
+}
+
+.invite-hero__cta-primary {
+  padding: 0.75rem 2rem;
+  font-size: 1.05rem;
+  min-height: 48px;
+}
+
+.invite-hero__cta-secondary {
+  color: rgba(252, 255, 249, 0.80);
+  font-weight: 600;
+  font-size: 0.95rem;
+  text-decoration: none;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+}
+
+.invite-hero__cta-secondary:hover {
+  color: var(--color-text-on-primary);
+}
+
+/* Invite page (invalid state) */
+.invite-page {
+  min-height: 50vh;
+  display: flex;
+  align-items: center;
+}
 
 /* ─── Footer ────────────────────────────────────────────────────────────── */
 .footer {

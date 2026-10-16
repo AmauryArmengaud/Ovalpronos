@@ -422,9 +422,105 @@ Leaderboard: {% include "rankings/_table.html" %} — zero duplication
 - `?code=` pre-fills `initial_code` in join view
 - Unauthenticated GET `/leagues/join/?code=X` redirects preserving `?code=` in `?next=`
 
-### Home (TODO)
+### Home (DONE)
 
-Apply L'Ovale direction: pill CTAs, cream background, oval motif, Barlow large display type.
+**Route:** `/` — visitors only (authenticated users redirected to `/predictions/`).
+
+**Section anatomy:**
+
+```
+┌──────────────────────────────────────────────────────────────────┐
+│ 1. Hero — full-bleed navy (#2B3467)                              │
+│    Title: "Tu sais pas plaquer, viens pronostiquer"              │
+│    Sub: one sentence + "Gratuit."                                │
+│    CTA primary: [S'inscrire] btn-accent pill 48px               │
+│    CTA secondary: "Se connecter" — link style, cream 80% opacity│
+│    Mascot: 240×240px, d-none d-lg-block, right column           │
+│    Oval motif: 2 CSS-only ellipses (::before / ::after)         │
+├──────────────────────────────────────────────────────────────────┤
+│ 2. Comment ça marche — cream, container                          │
+│    Scoring example: Clermont–Perpignan, Perpignan cote 6.30     │
+│    4 rows reusing match card Zone C result banner colors         │
+│    (EXACT gold 189 / GAP purple 126 / WIN lime 63 / MISS 0 pt)  │
+├──────────────────────────────────────────────────────────────────┤
+│ 3. Compétitions — surface-raised tint                            │
+│    Dynamic from Competition.objects.filter(is_active=True)      │
+│    .comp-divider-chip pills — no hardcoded names                 │
+├──────────────────────────────────────────────────────────────────┤
+│ 4. Joue avec tes potes — cream, container                        │
+│    Short copy + repeated [S'inscrire] CTA                        │
+│    Mascot 100×100px, mobile only (d-lg-none)                    │
+└──────────────────────────────────────────────────────────────────┘
+```
+
+**Brand expression rules:**
+- Hero is always navy (`.home-hero`) — the one place where L'Ovale colours are fully expressed
+- Oval motif: `::before` (560×360, top-right, rotate -12°) and `::after` (380×240, bottom-left, rotate 8°), both using `var(--color-hero-motif)` — never hardcoded rgba in rules
+- Mascot (`boar-mascot.png`, 340×340 RGBA) appears in hero (desktop only) and social section (mobile only) — convivial, potache, never oversized
+- No unverifiable claims ("first app", fake user counts)
+- If `competitions` queryset is empty, the section is hidden (`{% if competitions %}`)
+
+**Mobile bottom nav:** hidden on home page via `.home-visitor .mobile-bottom-nav { display: none !important }`. Body gets class `home-visitor` via `{% block body_class %}`. `padding-bottom: 0` restored at `<992px`. CTA visible without scroll at 375×667.
+
+**`{% block main_class %}`** overridden to `p-0` — sections manage their own `.container`. Base default stays `container my-4`.
+
+**New CSS variable:**
+- `--color-hero-motif: rgba(252, 255, 249, 0.07)` — cream at 7% opacity for oval motif on navy
+
+**Open Graph** (via `{% block og_title %}` etc. in base.html):
+- Default title: "Oval'Pronos — Rugby predictions with friends" (i18n)
+- Default description: scoring + competitions (i18n)
+- Default image: `boar-mascot.png` (square, WhatsApp-compatible thumbnail)
+- **TODO:** Create a proper 1200×630 `og-image.png` (logo blanc + tagline on navy) and update `{% block og_image_path %}` default in `base.html`.
+
+**`SECURE_PROXY_SSL_HEADER`** added to `settings.py` so `request.scheme` returns `https` behind Gunicorn in production (correct OG image URLs).
+
+**New CSS classes:** `.home-hero`, `.home-hero__inner`, `.home-hero__content`, `.home-hero__title`, `.home-hero__sub`, `.home-hero__ctas`, `.home-hero__cta-primary`, `.home-hero__cta-secondary`, `.home-hero__mascot`, `.home-section__title`, `.home-section__sub`, `.home-example-rows`, `.home-example-row`, `.home-example-row--exact/gap/win/miss`, `.home-comps-section`, `.home-comps-label`, `.home-social-row`, `.home-social-content`, `.home-social-mascot`, `.home-visitor`.
+
+**Tests:** `/` returns 200 for anon, redirects to `/predictions/` for logged-in users (covered by `apps.matches.tests`).
+
+---
+
+### Page d'invitation publique (DONE)
+
+**Route:** `/leagues/invite/<code>/` — GET is public (no login required).
+
+**Flow:**
+```
+Visitor GET → show invite page (league name, signup/login CTAs)
+  ↓ clicks "Créer mon compte"
+  → /accounts/register/?next=/leagues/invite/<code>/
+  ↓ after registration, Django redirects to ?next
+  → GET /leagues/invite/<code>/ (authenticated)
+  → auto-join + redirect to /leagues/<pk>/
+
+Visitor GET → "J'ai déjà un compte"
+  → /accounts/login/?next=/leagues/invite/<code>/
+  → same auto-join path
+```
+
+- Invalid code: renders error state (HTTP 200) + link to home. No 404.
+- Authenticated non-member: added to `league.members` + redirect to detail.
+- Authenticated already-member: just redirect to detail (no duplicate).
+- Analytics: `league_joined` event captured with `via: 'invite_link'`.
+
+**OG overrides:**
+- `og:title`: "Rejoins {nom} sur Oval'Pronos" (`{% blocktrans %}` with league name)
+- `og:description`: "Prédit des scores de rugby et affronte tes potes. Gratuit."
+
+**Body class:** `home-visitor` — bottom nav hidden (same as home page).
+
+**Share URL:** `LeagueListView` and `LeagueDetailView` now build absolute URLs pointing to `/leagues/invite/<code>/` (not `/leagues/join/?code=`). The existing `join.html` remains for manual code entry by authenticated users.
+
+**New CSS classes:** `.invite-hero`, `.invite-hero__inner`, `.invite-hero__logo`, `.invite-hero__title`, `.invite-league-name` (accent gold for the league name), `.invite-hero__sub`, `.invite-hero__ctas`, `.invite-hero__cta-primary/secondary`, `.invite-page`.
+
+**Tests** (`apps/leagues/tests.py`, class `LeaguePublicInviteViewTest`, 6 cases):
+- Unauthenticated GET → 200 + league in context
+- Invalid code → 200 + `invalid=True` in context
+- Authenticated non-member → auto-joined + redirect to detail
+- Authenticated already-member → redirect only (no duplicate)
+- Post-register flow (simulated) → auto-joined ✓
+- Post-login flow (simulated) → auto-joined ✓
 
 ### Comptes (TODO)
 

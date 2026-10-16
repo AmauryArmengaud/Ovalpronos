@@ -17,6 +17,10 @@ DEBUG = config('DEBUG', default=False, cast=bool)
 ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='localhost,127.0.0.1', cast=Csv())
 SITE_URL = config('SITE_URL', default='http://localhost:8000')
 
+# Tell Django to trust the X-Forwarded-Proto header from the proxy (Gunicorn/nginx)
+# so that request.scheme returns 'https' in production for correct OG image URLs.
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
 
 # ─── Applications installées ─────────────────────────────────────────────────
 INSTALLED_APPS = [

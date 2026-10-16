@@ -2,52 +2,108 @@
 {% load i18n %}
 {% load static %}
 
-{% block title %}Oval'Pronos — {% trans "Rugby predictions" %}{% endblock %}
+{% block title %}Oval'Pronos — {% trans "Rugby predictions with friends" %}{% endblock %}
+
+{% block body_class %}home-visitor{% endblock %}
+{% block main_class %}p-0{% endblock %}
 
 {% block content %}
 
-{# Hero #}
-<div class="row py-5">
-  <div class="col-12 col-lg-8">
-    <h1 class="hero-title mb-4">{% trans "Tu sais pas plaquer, viens pronostiquer" %}</h1>
-    <p class="hero-body mb-3">{% trans "The first rugby predictions app is here!" %}</p>
-    <p class="hero-body mb-3">{% trans "Week after week, predict unlikely scores and rack up points against your friends." %}</p>
-    <p class="hero-body mb-5">{% trans "Don't wait any longer — sign up to join us." %}</p>
-    <div class="d-flex gap-3 flex-wrap">
-      <a href="{% url 'accounts:register' %}" class="btn btn-accent btn-hero">{% trans "Sign up" %}</a>
-      <a href="{% url 'accounts:login' %}" class="btn btn-outline-accent btn-hero">{% trans "Log in" %}</a>
+{# ── Hero (full-bleed navy) ─────────────────────────────────────────── #}
+<section class="home-hero">
+  <div class="container home-hero__inner">
+    <div class="home-hero__content">
+      <h1 class="home-hero__title">{% trans "Tu sais pas plaquer, viens pronostiquer" %}</h1>
+      <p class="home-hero__sub">
+        {% trans "Rugby predictions with friends." %}<br>
+        {% trans "Odds reward the bold. Free." %}
+      </p>
+      <div class="home-hero__ctas">
+        <a href="{% url 'accounts:register' %}" class="btn btn-accent home-hero__cta-primary">
+          {% trans "Sign up" %}
+        </a>
+        <a href="{% url 'accounts:login' %}" class="home-hero__cta-secondary">
+          {% trans "Log in" %}
+        </a>
+      </div>
     </div>
+    <img src="{% static 'img/boar-mascot.png' %}" alt="Mascotte Oval'Pronos"
+         class="home-hero__mascot d-none d-lg-block"
+         width="240" height="240">
   </div>
-</div>
+</section>
 
-{# Feature 1 — image left, text right #}
-<div class="row align-items-center py-5 feature-section">
-  <div class="col-12 col-md-5">
-    <div class="feature-image-placeholder">
-      <img src="{% static 'img/boar-mascot.png' %}" alt="Mascotte Oval'Pronos" class="feature-mascot">
-    </div>
-  </div>
-  <div class="col-12 col-md-7 text-md-end">
-    <h2 class="feature-title mb-4">{% trans "Oval'Pronos — simple and fun" %}</h2>
-    <p class="feature-body mb-3">{% trans "You don't need to be a rugby expert to play!" %}</p>
-    <p class="feature-body">{% trans "Every week, make predictions with friends and get live results." %}</p>
-  </div>
-</div>
+{# ── How it works ────────────────────────────────────────────────────── #}
+<section class="container py-5 home-section" id="how-it-works">
+  <h2 class="home-section__title mb-2">{% trans "How it works" %}</h2>
+  <p class="home-section__sub mb-4">
+    {% trans "An unlikely winner earns more points." %}
+    {% trans "Clermont — Perpignan, Perpignan wins (cote 6.30):" %}
+  </p>
 
-{# Feature 2 — text left, image right #}
-<div class="row align-items-center py-5 feature-section">
-  <div class="col-12 col-md-7">
-    <h2 class="feature-title mb-4">{% trans "Predict matches" %}</h2>
-    <p class="feature-body mb-3">{% trans "The odds system rewards risk-takers. The more precise your prediction, the more points you earn." %}</p>
-    <p class="feature-body">{% trans "Create or join a private league with your invite code and challenge your friends." %}</p>
+  <div class="home-example-rows">
+
+    <div class="home-example-row home-example-row--exact">
+      <i class="ti ti-crown home-example-icon" aria-hidden="true"></i>
+      <span class="home-example-label">{% trans "Exact score" %} <span class="home-example-score">17 — 22</span></span>
+      <span class="home-example-pts">189 pts</span>
+      <span class="home-example-mult">× 3</span>
+    </div>
+
+    <div class="home-example-row home-example-row--gap">
+      <i class="ti ti-target home-example-icon" aria-hidden="true"></i>
+      <span class="home-example-label">{% trans "Good gap" %} <span class="home-example-score">15 — 22</span></span>
+      <span class="home-example-pts">126 pts</span>
+      <span class="home-example-mult">× 2</span>
+    </div>
+
+    <div class="home-example-row home-example-row--win">
+      <i class="ti ti-check home-example-icon" aria-hidden="true"></i>
+      <span class="home-example-label">{% trans "Correct winner" %} <span class="home-example-score">10 — 20</span></span>
+      <span class="home-example-pts">63 pts</span>
+      <span class="home-example-mult">× 1</span>
+    </div>
+
+    <div class="home-example-row home-example-row--miss">
+      <i class="ti ti-x home-example-icon" aria-hidden="true"></i>
+      <span class="home-example-label">{% trans "Missed" %} <span class="home-example-score">21 — 15</span></span>
+      <span class="home-example-pts">0 pt</span>
+      <span class="home-example-mult">× 0</span>
+    </div>
+
   </div>
-  <div class="col-12 col-md-5 text-end">
-    <div class="feature-badge-stack">
-      <div class="comp-badge top14">Top 14</div>
-      <div class="comp-badge champions">Champions Cup</div>
-      <div class="comp-badge sixnations">6 Nations</div>
+</section>
+
+{# ── Competitions ────────────────────────────────────────────────────── #}
+{% if competitions %}
+<section class="home-comps-section py-4">
+  <div class="container">
+    <p class="home-comps-label mb-3">{% trans "Competitions" %}</p>
+    <div class="d-flex flex-wrap gap-2">
+      {% for comp in competitions %}
+        <span class="comp-divider-chip">{{ comp.name }}</span>
+      {% endfor %}
     </div>
   </div>
-</div>
+</section>
+{% endif %}
+
+{# ── Play with friends ───────────────────────────────────────────────── #}
+<section class="container py-5 home-section">
+  <div class="home-social-row">
+    <div class="home-social-content">
+      <h2 class="home-section__title mb-2">{% trans "Play with friends" %}</h2>
+      <p class="home-section__sub mb-4">
+        {% trans "Create a private league, share the code, compare predictions." %}
+      </p>
+      <a href="{% url 'accounts:register' %}" class="btn btn-accent home-hero__cta-primary">
+        {% trans "Sign up" %}
+      </a>
+    </div>
+    <img src="{% static 'img/boar-mascot.png' %}" alt="" aria-hidden="true"
+         class="home-social-mascot d-lg-none"
+         width="100" height="100">
+  </div>
+</section>
 
 {% endblock %}

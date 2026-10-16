@@ -35,9 +35,10 @@ class LeagueListView(LoginRequiredMixin, TemplateView):
             .prefetch_related('competitions', 'members')
             .all()
         )
-        join_base = self.request.build_absolute_uri(reverse('leagues:join'))
         for league in leagues:
-            league.join_url = f"{join_base}?code={league.invite_code}"
+            league.join_url = self.request.build_absolute_uri(
+                reverse('leagues:public_invite', kwargs={'code': league.invite_code})
+            )
             # Compute from prefetch cache — annotate(Count('members')) reuses the
             # filter JOIN (WHERE customuser_id = current_user) and always returns 1.
             league.member_count = len(league.members.all())
@@ -85,6 +86,29 @@ class LeagueJoinView(LoginRequiredMixin, View):
             from ovalpronos.analytics import capture
             capture(request.user.pk, 'league_joined', {'league_id': league.pk})
         return redirect('leagues:detail', pk=league.pk)
+
+
+class LeaguePublicInviteView(View):
+    """Public invite page — GET requires no login. Authenticated users are auto-joined."""
+
+    def get(self, request, code):
+        code = code.upper()
+        try:
+            league = League.objects.prefetch_related('competitions').get(invite_code=code)
+        except League.DoesNotExist:
+            return render(request, 'leagues/public_invite.html', {'invalid': True})
+
+        if request.user.is_authenticated:
+            if not league.members.filter(pk=request.user.pk).exists():
+                league.members.add(request.user)
+                from ovalpronos.analytics import capture
+                capture(request.user.pk, 'league_joined', {'league_id': league.pk, 'via': 'invite_link'})
+            return redirect('leagues:detail', pk=league.pk)
+
+        return render(request, 'leagues/public_invite.html', {
+            'league': league,
+            'code': code,
+        })
 
 
 class LeagueDetailView(LoginRequiredMixin, TemplateView):
@@ -164,7 +188,7 @@ class LeagueDetailView(LoginRequiredMixin, TemplateView):
         _assign_ranks(entries)
 
         join_url = self.request.build_absolute_uri(
-            reverse('leagues:join') + f'?code={league.invite_code}'
+            reverse('leagues:public_invite', kwargs={'code': league.invite_code})
         )
 
         ctx['league'] = league

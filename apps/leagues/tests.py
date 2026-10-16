@@ -139,3 +139,72 @@ class LeagueJoinCodePreservesNextTest(TestCase):
         # The login redirect URL must encode the join URL including the code
         login_url_with_next = response.redirect_chain[0][0]
         self.assertIn(code, login_url_with_next)
+
+
+class LeaguePublicInviteViewTest(TestCase):
+    """Public invite page: GET is public, authenticated users are auto-joined."""
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.comp = _make_comp('INVTEST')
+        cls.creator = _make_user('inv_creator')
+        cls.league = League.objects.create(name='Invite Test League', creator=cls.creator)
+        cls.league.competitions.add(cls.comp)
+        cls.league.members.add(cls.creator)
+
+    def test_unauthenticated_sees_invite_page(self):
+        """GET /leagues/invite/<code>/ is public and shows league name."""
+        response = self.client.get(
+            reverse('leagues:public_invite', kwargs={'code': self.league.invite_code})
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context['league'].pk, self.league.pk)
+
+    def test_invalid_code_shows_error(self):
+        """Unknown code renders the error state (not a 404)."""
+        response = self.client.get(
+            reverse('leagues:public_invite', kwargs={'code': 'XXXXX'})
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(response.context['invalid'])
+
+    def test_authenticated_non_member_is_auto_joined_and_redirected(self):
+        """Authenticated non-member GET auto-joins and redirects to league detail."""
+        joiner = _make_user('inv_joiner')
+        self.client.force_login(joiner)
+        response = self.client.get(
+            reverse('leagues:public_invite', kwargs={'code': self.league.invite_code})
+        )
+        self.assertRedirects(response, reverse('leagues:detail', kwargs={'pk': self.league.pk}))
+        self.assertTrue(self.league.members.filter(pk=joiner.pk).exists())
+
+    def test_authenticated_already_member_just_redirects(self):
+        """Already-member GET redirects without creating a duplicate membership."""
+        self.client.force_login(self.creator)
+        count_before = self.league.members.count()
+        response = self.client.get(
+            reverse('leagues:public_invite', kwargs={'code': self.league.invite_code})
+        )
+        self.assertRedirects(response, reverse('leagues:detail', kwargs={'pk': self.league.pk}))
+        self.assertEqual(self.league.members.count(), count_before)
+
+    def test_visitor_registers_then_joins(self):
+        """After registration, Django redirects to invite URL → auto-joins → league detail."""
+        joiner = _make_user('inv_reg_joiner')
+        # Simulate the user arriving at the invite URL after registration (Django ?next= redirect)
+        self.client.force_login(joiner)
+        response = self.client.get(
+            reverse('leagues:public_invite', kwargs={'code': self.league.invite_code})
+        )
+        self.assertRedirects(response, reverse('leagues:detail', kwargs={'pk': self.league.pk}))
+        self.assertTrue(self.league.members.filter(pk=joiner.pk).exists())
+
+    def test_visitor_logs_in_then_joins(self):
+        """After login, Django redirects to invite URL → auto-joins → league detail."""
+        joiner = _make_user('inv_login_joiner')
+        self.client.force_login(joiner)
+        response = self.client.get(
+            reverse('leagues:public_invite', kwargs={'code': self.league.invite_code})
+        )
+        self.assertRedirects(response, reverse('leagues:detail', kwargs={'pk': self.league.pk}))
+        self.assertTrue(self.league.members.filter(pk=joiner.pk).exists())

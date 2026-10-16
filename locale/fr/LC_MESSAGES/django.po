@@ -2274,6 +2274,85 @@ msgstr ""
 msgid "Connect, get help, or contribute"
 msgstr ""
 
+#: templates/matches/home.html
+msgid "Rugby predictions with friends"
+msgstr "Pronos rugby entre potes"
+
+#: templates/matches/home.html
+msgid "Rugby predictions with friends."
+msgstr "Pronos rugby entre potes."
+
+#: templates/matches/home.html
+msgid "Odds reward the bold. Free."
+msgstr "Les cotes récompensent les audacieux. Gratuit."
+
+#: templates/matches/home.html
+msgid "How it works"
+msgstr "Comment ça marche"
+
+#: templates/matches/home.html
+msgid "An unlikely winner earns more points."
+msgstr "Un vainqueur surprise rapporte plus de points."
+
+#: templates/matches/home.html
+msgid "Clermont — Perpignan, Perpignan wins (cote 6.30):"
+msgstr "Clermont — Perpignan, Perpignan gagne (cote 6,30) :"
+
+#: templates/matches/home.html
+msgid "Play with friends"
+msgstr "Joue avec tes potes"
+
+#: templates/matches/home.html
+msgid "Create a private league, share the code, compare predictions."
+msgstr "Crée une ligue privée, partage le code, comparez vos pronos."
+
+#: templates/leagues/public_invite.html
+msgid "Invalid invitation"
+msgstr "Invitation invalide"
+
+#: templates/leagues/public_invite.html
+#, python-format
+msgid "Join %(name)s — Oval'Pronos"
+msgstr "Rejoins %(name)s — Oval'Pronos"
+
+#: templates/leagues/public_invite.html
+#, python-format
+msgid "Join %(name)s on Oval'Pronos"
+msgstr "Rejoins %(name)s sur Oval'Pronos"
+
+#: templates/leagues/public_invite.html
+#, python-format
+msgid "You're invited to join <span class=\"invite-league-name\">%(name)s</span>"
+msgstr "Tu es invité à rejoindre <span class=\"invite-league-name\">%(name)s</span>"
+
+#: templates/leagues/public_invite.html
+msgid "Predict rugby scores and compete with your friends. Free."
+msgstr "Prédit des scores de rugby et affronte tes potes. Gratuit."
+
+#: templates/leagues/public_invite.html
+msgid "This invite link is invalid."
+msgstr "Ce lien d'invitation est invalide."
+
+#: templates/leagues/public_invite.html
+msgid "The code may have changed or the link may be broken."
+msgstr "Le code a peut-être changé ou le lien est cassé."
+
+#: templates/leagues/public_invite.html
+msgid "Go to home"
+msgstr "Retour à l'accueil"
+
+#: templates/leagues/public_invite.html
+msgid "I already have an account"
+msgstr "J'ai déjà un compte"
+
+#: templates/base.html
+msgid "Oval'Pronos — Rugby predictions with friends"
+msgstr "Oval'Pronos — Pronos rugby entre potes"
+
+#: templates/base.html
+msgid "Predict rugby scores for Top 14, Champions Cup, 6 Nations. Odds reward the bold."
+msgstr "Prédit les scores du Top 14, Champions Cup et 6 Nations. Les cotes récompensent les audacieux."
+
 #~ msgid "Leave league"
 #~ msgstr "Quitter la ligue"
 

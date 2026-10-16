@@ -18,6 +18,12 @@ class HomeView(TemplateView):
             return redirect('predictions:index')
         return super().dispatch(request, *args, **kwargs)
 
+    def get_context_data(self, **kwargs):
+        from apps.matches.models import Competition
+        ctx = super().get_context_data(**kwargs)
+        ctx['competitions'] = Competition.objects.filter(is_active=True).order_by('name')
+        return ctx
+
 
 class RulesView(TemplateView):
     template_name = 'matches/rules.html'
