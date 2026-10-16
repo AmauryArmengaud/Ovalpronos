@@ -157,7 +157,8 @@ SYNC_SECRET_TOKEN = config('SYNC_SECRET_TOKEN', default='')
 
 
 # ─── Email ────────────────────────────────────────────────────────────────────
-# Dev: console backend (EMAIL_BACKEND env var unset).
+# Dev: console backend (EMAIL_BACKEND env var unset) — never set BREVO_API_KEY
+#      locally so that no real email is sent from a dev machine.
 # Prod: set EMAIL_BACKEND=anymail.backends.brevo.EmailBackend + BREVO_API_KEY.
 EMAIL_BACKEND = config(
     'EMAIL_BACKEND',
@@ -169,6 +170,9 @@ EMAIL_USE_TLS = True
 EMAIL_HOST_USER = config('EMAIL_HOST_USER', default='noreply@ovalpronos.com')
 EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', default='')
 DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default="Oval'Pronos <noreply@ovalpronos.com>")
+
+# Password reset link validity — 24 h.
+PASSWORD_RESET_TIMEOUT = 86400
 
 ANYMAIL = {
     'BREVO_API_KEY': config('BREVO_API_KEY', default=''),

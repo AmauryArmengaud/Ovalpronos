@@ -1,0 +1,63 @@
+{% load i18n %}<!DOCTYPE html>
+<html lang="fr" xmlns:v="urn:schemas-microsoft-com:vml">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width">
+  <meta name="x-apple-disable-message-reformatting">
+  <title>{% block title %}Oval'Pronos{% endblock %}</title>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+  <style>
+    @media (prefers-color-scheme: dark) {
+      .email-wrapper  { background-color: #1c2040 !important; }
+      .email-card     { background-color: #252c52 !important; border-color: #3a4378 !important; }
+      .email-body-td  { background-color: #252c52 !important; }
+      .email-h1       { color: #c4cae8 !important; }
+      .email-text     { color: #dde0ef !important; }
+      .email-muted    { color: #8a94b8 !important; }
+    }
+  </style>
+</head>
+<body style="margin:0;padding:0;background-color:#FCFFF9;font-family:'Barlow',Arial,sans-serif;">
+
+<table width="100%" cellpadding="0" cellspacing="0" class="email-wrapper"
+       style="background-color:#FCFFF9;padding:32px 16px;">
+  <tr><td align="center">
+
+    <table width="100%" cellpadding="0" cellspacing="0" class="email-card"
+           style="max-width:560px;background:#ffffff;border-radius:12px;overflow:hidden;border:1px solid #e2e4ec;">
+
+      <!-- HEADER -->
+      <tr>
+        <td style="background-color:#2B3467;padding:22px 32px;text-align:center;">
+          <img src="{{ site_url }}/static/img/logo_blanc.png"
+               alt="Oval'Pronos" width="120" height="36"
+               style="display:block;margin:0 auto;border:0;outline:0;">
+        </td>
+      </tr>
+
+      <!-- BODY -->
+      <tr>
+        <td class="email-body-td" style="padding:36px 32px;background:#ffffff;">
+          {% block body %}{% endblock %}
+        </td>
+      </tr>
+
+      <!-- FOOTER -->
+      <tr>
+        <td style="background-color:#2B3467;padding:20px 32px;text-align:center;">
+          <p style="margin:0 0 5px;font-size:13px;color:#b0bdd6;font-family:'Barlow',Arial,sans-serif;">
+            {% trans "The Oval'Pronos team" %}
+          </p>
+          <p style="margin:0;font-size:12px;color:#8090b8;font-style:italic;font-family:'Barlow',Arial,sans-serif;">
+            "Tu sais pas plaquer, viens pronostiquer"
+          </p>
+        </td>
+      </tr>
+
+    </table>
+
+  </td></tr>
+</table>
+
+</body>
+</html>

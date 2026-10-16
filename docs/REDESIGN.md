@@ -829,3 +829,56 @@ Banners are graded by intensity — EXACT is the most salient, MISS the most sub
 Use `--color-badge-miss-text` for any text or icon expressing a MISS state (rules.html tier cards,
 admin badge labels, rankings). Current usages: `templates/matches/rules.html` (MISS tier icon + table
 cell), `static/css/admin.css` (result badge labels).
+
+---
+
+## 11. Email templates
+
+### Base template
+
+`templates/emails/base.html` — shared wrapper used by all transactional emails.
+
+- Table-based layout, inline hex colors (CSS variables not supported by mail clients — **approved exception**).
+- Max-width 560px, centered via `align="center"`.
+- Navy header (#2B3467) with `logo_blanc.png` via absolute `{{ site_url }}` URL. No SVG (Gmail).
+- Barlow via Google Fonts `<link>` with Arial fallback on all `font-family` declarations.
+- Dark-mode: `<style>` block in `<head>` with `@media (prefers-color-scheme: dark)` + `!important` class overrides. Covers Apple Mail and Outlook Mac; Gmail web ignores `<head>` styles.
+- Navy footer (#2B3467), text #b0bdd6 (≥5.5:1 on navy ✓).
+
+### Inline hex palette (email-only)
+
+| Role | Hex |
+|---|---|
+| Page background | `#FCFFF9` |
+| Card background | `#ffffff` |
+| Header/footer | `#2B3467` |
+| Body text | `#444444` |
+| Headings | `#2B3467` |
+| CTA button | `#EB455F` |
+| Footer text | `#b0bdd6` |
+| Muted text | `#888888` |
+
+Badge solid equivalents (RGBA → computed over white for email clients):
+
+| Tier | Bg | Text | Ratio |
+|---|---|---|---|
+| EXACT | `#F5C542` | `#5c4500` | 5.7:1 ✓ |
+| GAP | `#D6B8E1` | `#6a2585` | 5.3:1 ✓ |
+| WIN | `#E9F7D8` | `#235408` | 8.3:1 ✓ |
+| MISS | `#EAEBF0` | `#595c7a` | 5.6:1 ✓ |
+
+### Email inventory
+
+| Email | Templates | Sent by | Tracking |
+|---|---|---|---|
+| Password reset | `emails/password_reset.html` + `.txt` + `_subject.txt` | Django `PasswordResetView` via `TrackingFreePasswordResetForm` | clicks + opens **disabled** (Brevo rewrites reset links) |
+| Results summary | `emails/results_summary.html` + `.txt` | `tasks.send_results_summary()` | default (Brevo account setting) |
+| Deadline reminder | Brevo template #1 (external) | `tasks.send_deadline_reminders()` via `AnymailMessage(template_id=1)` | managed in Brevo template |
+
+### Technical constraints
+
+- `PASSWORD_RESET_TIMEOUT = 86400` (24 h). Displayed in the email via `{{ timeout_hours }}` from `extra_email_context`.
+- Click/open tracking disabled per-message on password reset via `msg.track_clicks = False` / `msg.track_opens = False` on `EmailMultiAlternatives`. Anymail Brevo backend reads these; console backend ignores them.
+- Dev: `EMAIL_BACKEND` defaults to console — never set `BREVO_API_KEY` locally.
+- Preview command (DEBUG only): `python manage.py preview_emails` → writes to `/tmp/ovalpronos_emails/`.
+- Tests: `apps/accounts/tests_emails.py` — 12 tests, locmem backend, no network calls.

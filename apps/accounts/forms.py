@@ -1,7 +1,30 @@
 from django import forms
-from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
+from django.contrib.auth.forms import UserCreationForm, AuthenticationForm, PasswordResetForm
+from django.core.mail import EmailMultiAlternatives
+from django.template import loader
 from django.utils.translation import gettext_lazy as _
 from .models import CustomUser
+
+
+class TrackingFreePasswordResetForm(PasswordResetForm):
+    """
+    Disables Brevo click/open tracking on the password reset email.
+    Tracking must be off so that the reset link is not rewritten.
+    """
+    def send_mail(self, subject_template_name, email_template_name, context,
+                  from_email, to_email, html_email_template_name=None):
+        subject = loader.render_to_string(subject_template_name, context)
+        subject = "".join(subject.splitlines())
+        body = loader.render_to_string(email_template_name, context)
+        msg = EmailMultiAlternatives(subject, body, from_email, [to_email])
+        if html_email_template_name is not None:
+            html_body = loader.render_to_string(html_email_template_name, context)
+            msg.attach_alternative(html_body, "text/html")
+        # Anymail reads these attributes when using the Brevo backend.
+        # Ignored silently by the console backend in development.
+        msg.track_clicks = False
+        msg.track_opens = False
+        msg.send()
 
 
 class EmailOrUsernameAuthenticationForm(AuthenticationForm):
