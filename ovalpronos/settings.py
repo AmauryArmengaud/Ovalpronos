@@ -129,7 +129,7 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
 # Cache-busting query string for locally-hosted CSS/JS. Increment after any
 # deploy that modifies static assets until ManifestStaticFilesStorage is set up.
-STATIC_VERSION = '2'
+STATIC_VERSION = '3'
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'

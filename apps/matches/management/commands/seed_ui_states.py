@@ -40,11 +40,21 @@ COMP_CODE = '__DEMO__'
 COMP_EXTERNAL_ID = -999
 ENDED_COMP_CODE = '__DEMO_ENDED__'
 ENDED_COMP_EXTERNAL_ID = -998
+# Extra competitions for chip-overflow visual testing (no matches needed)
+EXTRA_COMP_DEFS = [
+    ('__DEMO_C2__', -997, 'Champions Cup'),
+    ('__DEMO_C3__', -996, '6 Nations'),
+    ('__DEMO_C4__', -995, 'Top 14'),
+    ('__DEMO_C5__', -994, 'URC'),
+    ('__DEMO_C6__', -993, 'Premiership'),
+]
 USER_PREFIX = 'demo_'
 LEAGUE_NAME = 'Demo League'
 MEMBER_LEAGUE_NAME = 'Demo Potes'
 LONG_LEAGUE_NAME = 'Les Pronostiqueurs du Grand Stade du Midi-Pyrénées'
 ENDED_LEAGUE_NAME = 'Demo Saison Passée'
+THREE_COMP_LEAGUE_NAME = 'Demo 3 Comps'
+SIX_COMP_LEAGUE_NAME = 'Demo 6 Comps'
 MAIN_PASSWORD = 'demo1234'
 
 
@@ -84,11 +94,13 @@ class Command(BaseCommand):
         # Leagues first — creator FK would cascade anyway, but being explicit
         # avoids relying on cascade ordering.
         leagues_deleted, _ = League.objects.filter(name__in=[
-            LEAGUE_NAME, 'Demo Liga', MEMBER_LEAGUE_NAME, LONG_LEAGUE_NAME, ENDED_LEAGUE_NAME,
+            LEAGUE_NAME, 'Demo Liga', MEMBER_LEAGUE_NAME, LONG_LEAGUE_NAME,
+            ENDED_LEAGUE_NAME, THREE_COMP_LEAGUE_NAME, SIX_COMP_LEAGUE_NAME,
         ]).delete()
         # Competition cascade: Match → Prediction → UserScore (competition-scoped)
+        extra_codes = [c[0] for c in EXTRA_COMP_DEFS]
         comps_deleted, _ = Competition.objects.filter(
-            code__in=[COMP_CODE, ENDED_COMP_CODE]
+            code__in=[COMP_CODE, ENDED_COMP_CODE, *extra_codes]
         ).delete()
         # Users cascade: Prediction, UserScore (global), created leagues
         users_deleted, _ = User.objects.filter(username__startswith=USER_PREFIX).delete()
@@ -599,6 +611,23 @@ class Command(BaseCommand):
             },
         )
 
+        # --- Extra competitions (no matches) — for chip-overflow visual testing ---
+        extra_comps = []
+        for code, ext_id, name in EXTRA_COMP_DEFS:
+            c, _ = Competition.objects.update_or_create(
+                external_id=ext_id,
+                season='9999',
+                defaults={
+                    'code': code,
+                    'name': name,
+                    'country': 'Demo',
+                    'scoring_system': 'COTES',
+                    'good_gap_pts': 10,
+                    'is_active': True,
+                },
+            )
+            extra_comps.append(c)
+
         # --- Leagues ---
         # Demo League: 4 members — demo_main is creator and rank 1 (tests creator case)
         league, _ = League.objects.get_or_create(
@@ -648,6 +677,22 @@ class Command(BaseCommand):
         )
         ended_league.competitions.add(ended_comp)
         ended_league.members.add(main, users['demo_player6'])
+
+        # 3-comp league — tests chips at exactly the display limit (no +N shown).
+        three_comp_league, _ = League.objects.get_or_create(
+            name=THREE_COMP_LEAGUE_NAME,
+            defaults={'creator': main},
+        )
+        three_comp_league.competitions.set([comp, extra_comps[0], extra_comps[1]])
+        three_comp_league.members.add(main, users['demo_player1'])
+
+        # 6-comp league — tests +3 overflow chip.
+        six_comp_league, _ = League.objects.get_or_create(
+            name=SIX_COMP_LEAGUE_NAME,
+            defaults={'creator': main},
+        )
+        six_comp_league.competitions.set([comp, *extra_comps])
+        six_comp_league.members.add(main, users['demo_player2'])
 
         # --- Avatar for demo_main (profile avatar vs initials fallback) ---
         # Only generate if no avatar already set — safe to re-run.
@@ -700,6 +745,8 @@ class Command(BaseCommand):
             f'\n    "{MEMBER_LEAGUE_NAME}"            — demo_player1 creator, demo_main member (Leave button)'
             f'\n    "{LONG_LEAGUE_NAME}" — long name, ellipsis test'
             f'\n    "{ENDED_LEAGUE_NAME}"     — inactive comp, Ended badge'
+            f'\n    "{THREE_COMP_LEAGUE_NAME}"         — 3 comps, shows 2 chips + +1'
+            f'\n    "{SIX_COMP_LEAGUE_NAME}"           — 6 comps, shows 2 chips + +4'
             f'\n\n  To wipe and recreate:'
             f'\n    python manage.py seed_ui_states --reset\n'
         )
