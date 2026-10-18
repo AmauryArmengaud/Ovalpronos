@@ -279,6 +279,20 @@ Changes already synced to `admin.css`:
 
 V4 will consolidate these into a shared token file. Until then: both files must stay in sync.
 
+### Static file cache-busting
+
+nginx serves `/static/` directly without `Cache-Control` headers; browsers apply a heuristic cache
+of several days. To force cache invalidation after a deploy that modifies CSS or JS, increment
+`STATIC_VERSION` in `ovalpronos/settings.py`. The value is injected into all templates via the
+`static_version` context processor and appended as a query string on local CSS/JS references
+(`?2`, `?3`, etc.). No nginx or deployment changes required.
+
+After each deploy touching static assets, bump `STATIC_VERSION` in `settings.py`.
+
+**Post-merge task:** move to `ManifestStaticFilesStorage` (content-hash filenames) and configure
+nginx with a long `Cache-Control: max-age` on `/static/`. This makes cache busting automatic and
+removes the need for `STATIC_VERSION`.
+
 ---
 
 ## 4. Roadmap

@@ -194,6 +194,9 @@ python manage.py collectstatic --no-input
 sudo systemctl restart gunicorn
 ```
 
+Après chaque déploiement qui modifie des fichiers CSS ou JS, incrémenter `STATIC_VERSION` dans
+`ovalpronos/settings.py` pour invalider le cache navigateur (voir `docs/REDESIGN.md §3`).
+
 **GitHub Secrets requis :**
 
 | Secret | Usage |

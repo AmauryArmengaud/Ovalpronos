@@ -71,6 +71,7 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'ovalpronos.context_processors.analytics',
+                'ovalpronos.context_processors.static_version',
             ],
         },
     },
@@ -124,8 +125,11 @@ LOCALE_PATHS = [BASE_DIR / 'locale']
 # ─── Fichiers statiques ───────────────────────────────────────────────────────
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [BASE_DIR / 'static']
-STATIC_ROOT = BASE_DIR / 'staticfiles'  # Dossier créé par collectstatic pour Render
+STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
+# Cache-busting query string for locally-hosted CSS/JS. Increment after any
+# deploy that modifies static assets until ManifestStaticFilesStorage is set up.
+STATIC_VERSION = '2'
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
