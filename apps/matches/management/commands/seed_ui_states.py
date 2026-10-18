@@ -745,8 +745,8 @@ class Command(BaseCommand):
             f'\n    "{MEMBER_LEAGUE_NAME}"            — demo_player1 creator, demo_main member (Leave button)'
             f'\n    "{LONG_LEAGUE_NAME}" — long name, ellipsis test'
             f'\n    "{ENDED_LEAGUE_NAME}"     — inactive comp, Ended badge'
-            f'\n    "{THREE_COMP_LEAGUE_NAME}"         — 3 comps, no overflow chip'
-            f'\n    "{SIX_COMP_LEAGUE_NAME}"           — 6 comps, +3 overflow chip'
+            f'\n    "{THREE_COMP_LEAGUE_NAME}"         — 3 comps, shows 2 chips + +1'
+            f'\n    "{SIX_COMP_LEAGUE_NAME}"           — 6 comps, shows 2 chips + +4'
             f'\n\n  To wipe and recreate:'
             f'\n    python manage.py seed_ui_states --reset\n'
         )

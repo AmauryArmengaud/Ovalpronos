@@ -17,13 +17,13 @@
   <div class="league-card-zone-b">
     {% with comps=league.competitions.all %}
       {% with total=comps.count %}
-        {% for comp in comps|slice:":3" %}
+        {% for comp in comps|slice:":2" %}
           <span class="comp-divider-chip">{{ comp.name }}</span>
         {% endfor %}
-        {% if total > 3 %}
-          {% with extra=total|add:"-3" %}
+        {% if total > 2 %}
+          {% with extra=total|add:"-2" %}
             <span class="comp-divider-chip"
-                  title="{% for c in comps|slice:'3:' %}{{ c.name }}{% if not forloop.last %}, {% endif %}{% endfor %}"
+                  title="{% for c in comps|slice:'2:' %}{{ c.name }}{% if not forloop.last %}, {% endif %}{% endfor %}"
                   aria-label="+{{ extra }}">+{{ extra }}</span>
           {% endwith %}
         {% endif %}
