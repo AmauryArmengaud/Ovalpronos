@@ -1,5 +1,5 @@
 {% load i18n static match_tags %}
-<div class="card mb-3" id="match-card-{{ match.pk }}">
+<div class="card mb-3" id="match-card-{{ match.pk }}"{% if saved %} data-saved-msg="{% trans 'Saved' %}"{% endif %}>
   <div class="card-body match-card-body">
 
     {# ── Zone A — time · round + optional status ────────────────────────── #}

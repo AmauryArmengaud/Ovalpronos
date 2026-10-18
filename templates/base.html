@@ -1,7 +1,8 @@
 {% load i18n %}
 {% load static %}
+{% get_current_language as CURRENT_LANG %}
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="{{ CURRENT_LANG }}">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -41,6 +42,12 @@
 </head>
 <body class="{% block body_class %}{% endblock %}">
 
+<a href="#main-content" class="skip-link">{% trans "Skip to main content" %}</a>
+
+<!-- Persistent aria-live region for screen-reader announcements (e.g. save feedback) -->
+<div id="save-announcement" aria-live="polite" aria-atomic="true" class="visually-hidden"></div>
+
+<header>
 <!-- Navbar (desktop) -->
 <nav class="navbar navbar-expand-lg navbar-light">
   <div class="container">
@@ -85,7 +92,6 @@
             <a class="btn btn-accent btn-navbar" href="{% url 'accounts:register' %}?next={{ request.path }}">{% trans "Sign up" %}</a>
           </li>
         {% endif %}
-        {% get_current_language as CURRENT_LANG %}
         <li class="nav-item">
           <form method="post" action="{% url 'set_language' %}" class="d-flex align-items-center gap-1">
             {% csrf_token %}
@@ -100,6 +106,7 @@
     </div>
   </div>
 </nav>
+</header>
 
 <!-- Bottom nav (mobile only) -->
 <nav class="mobile-bottom-nav d-lg-none">
@@ -145,7 +152,7 @@
 {% endif %}
 
 <!-- Main content -->
-<main class="{% block main_class %}container my-4{% endblock %}">
+<main id="main-content" class="{% block main_class %}container my-4{% endblock %}">
   {% block content %}{% endblock %}
 </main>
 
@@ -168,7 +175,11 @@
     navigator.clipboard.writeText(btn.dataset.code).then(function() {
       var icon = btn.querySelector('i');
       icon.className = 'ti ti-check';
-      setTimeout(function() { icon.className = 'ti ti-copy'; }, 1500);
+      btn.classList.add('copy-success');
+      setTimeout(function() {
+        icon.className = 'ti ti-copy';
+        btn.classList.remove('copy-success');
+      }, 1500);
     });
   });
 

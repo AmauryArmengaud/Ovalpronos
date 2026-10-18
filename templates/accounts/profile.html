@@ -23,16 +23,16 @@
       <div>
         <h1 class="mb-0 fs-4 fw-bold">{{ user.get_display_name }}</h1>
         {% if show_username %}
-          <div class="text-muted" style="font-size: var(--text-sm);">@{{ user.username }}</div>
+          <div class="text-muted profile-username">@{{ user.username }}</div>
         {% endif %}
         {% if user.favorite_team %}
           <div class="d-flex align-items-center gap-1 mt-1">
             <img src="{% static 'img/teams/' %}{{ user.favorite_team.slug }}.png"
                  alt="{{ user.favorite_team.name }}"
                  width="16" height="16"
-                 style="object-fit:contain;"
+                 class="profile-team-logo"
                  onerror="this.style.display='none'">
-            <span style="font-size: var(--text-xs); color: var(--color-text-secondary);">{{ user.favorite_team.name }}</span>
+            <span class="profile-team-name">{{ user.favorite_team.name }}</span>
           </div>
         {% endif %}
       </div>
@@ -168,7 +168,7 @@
   <div class="modal-dialog modal-sm modal-dialog-centered">
     <div class="modal-content">
       <div class="modal-body text-center py-4">
-        <i class="ti ti-logout mb-2" style="font-size: 2rem; color: var(--color-accent);" aria-hidden="true"></i>
+        <i class="ti ti-logout mb-2 modal-accent-icon" aria-hidden="true"></i>
         <p class="mb-1 fw-semibold">{% trans "Leave this league?" %}</p>
         <p class="text-muted small mb-4" id="leaveModalName"></p>
         <div class="d-flex gap-2 justify-content-center">

@@ -9,18 +9,18 @@
 <h1 class="mb-4">{% trans "Predictions" %}</h1>
 
 {# ── Tab filter ──────────────────────────────────────────────────────── #}
-<div class="segment-control mb-4">
+<nav class="segment-control mb-4" aria-label="{% trans 'Match filter' %}">
   <a class="segment-control__item {% if active_tab == 'upcoming' %}active{% endif %}"
-     href="?tab=upcoming">{% trans "Upcoming" %}</a>
+     href="?tab=upcoming"{% if active_tab == 'upcoming' %} aria-current="page"{% endif %}>{% trans "Upcoming" %}</a>
   <a class="segment-control__item {% if active_tab == 'live' %}active{% endif %}"
-     href="?tab=live">{% if has_live_matches %}<span class="segment-control__live-dot"></span>{% endif %}{% trans "Live" %}</a>
+     href="?tab=live"{% if active_tab == 'live' %} aria-current="page"{% endif %}>{% if has_live_matches %}<span class="segment-control__live-dot" aria-hidden="true"></span>{% endif %}{% trans "Live" %}</a>
   <a class="segment-control__item {% if active_tab == 'past' %}active{% endif %}"
-     href="?tab=past">{% trans "Past" %}</a>
-</div>
+     href="?tab=past"{% if active_tab == 'past' %} aria-current="page"{% endif %}>{% trans "Past" %}</a>
+</nav>
 
 {% if no_leagues %}
   <div class="text-center text-muted py-5">
-    <i class="ti ti-users-group mb-3" style="font-size: 3rem; color: var(--color-icon-muted);"></i>
+    <i class="ti ti-users-group page-empty-icon" aria-hidden="true"></i>
     <p class="fw-semibold">{% trans "Join or create a league to start predicting." %}</p>
     <p class="small">{% trans "Leagues are tied to specific competitions. Your predictions will count toward your league's leaderboard." %}</p>
     <div class="d-flex gap-2 justify-content-center mt-3">
@@ -31,14 +31,14 @@
 {% elif not items and not items_without_odds %}
   <div class="text-center text-muted py-5">
     {% if active_tab == 'upcoming' %}
-      <i class="ti ti-calendar mb-3" style="font-size: 3rem; color: var(--color-icon-muted);"></i>
+      <i class="ti ti-calendar page-empty-icon" aria-hidden="true"></i>
       <p>{% trans "No upcoming matches yet. Fixtures are added weekly." %}</p>
     {% elif active_tab == 'live' %}
-      <i class="ti ti-player-play mb-3" style="font-size: 3rem; color: var(--color-icon-muted);"></i>
+      <i class="ti ti-player-play page-empty-icon" aria-hidden="true"></i>
       <p>{% trans "No matches in progress right now." %}</p>
       <a href="?tab=upcoming" class="btn btn-outline-secondary btn-sm mt-2">{% trans "See upcoming matches" %}</a>
     {% else %}
-      <i class="ti ti-history mb-3" style="font-size: 3rem; color: var(--color-icon-muted);"></i>
+      <i class="ti ti-history page-empty-icon" aria-hidden="true"></i>
       <p>{% trans "Your past predictions will appear here." %}</p>
     {% endif %}
   </div>
@@ -49,6 +49,10 @@
   <div class="d-flex align-items-center gap-2 prediction-progress-sticky">
     <div class="prediction-progress-track flex-grow-1">
       <div class="prediction-progress-bar{% if predicted_with_odds == total_with_odds %} prediction-progress-bar--complete{% endif %}"
+           role="progressbar"
+           aria-valuenow="{{ predicted_with_odds }}"
+           aria-valuemin="0"
+           aria-valuemax="{{ total_with_odds }}"
            style="width:{% widthratio predicted_with_odds total_with_odds 100 %}%"
            data-total="{{ total_with_odds }}">
       </div>
@@ -232,8 +236,20 @@
       var total = parseInt(bar.dataset.total);
       var predicted = document.querySelectorAll('.match-potential-points').length;
       bar.style.width = (predicted / total * 100) + '%';
+      bar.setAttribute('aria-valuenow', predicted);
       count.textContent = predicted;
       bar.classList.toggle('prediction-progress-bar--complete', predicted >= total);
+    }
+
+    // Announce save to screen readers via the persistent aria-live region
+    var savedMsg = e.target.dataset.savedMsg;
+    if (savedMsg) {
+      var region = document.getElementById('save-announcement');
+      if (region) {
+        region.textContent = savedMsg;
+        // Clear after announcement so it can fire again on next save
+        setTimeout(function() { region.textContent = ''; }, 1500);
+      }
     }
 
     // Restore focus if the swap destroyed the focused input (focus fell back to body)
@@ -253,5 +269,9 @@
   document.getElementById('no-odds-collapse') && document.getElementById('no-odds-collapse').addEventListener('hidden.bs.collapse', updateEnterkeyhint);
 
   updateEnterkeyhint();
+
+  // Card entrance animation — add class to body, remove after animations complete
+  document.body.classList.add('page-entering');
+  setTimeout(function() { document.body.classList.remove('page-entering'); }, 600);
 </script>
 {% endblock %}

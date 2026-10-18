@@ -24,8 +24,7 @@
   <div class="container py-5">
     <div class="row justify-content-center">
       <div class="col-12 col-md-6 text-center">
-        <i class="ti ti-link-off mb-3 d-block" aria-hidden="true"
-           style="font-size: 3rem; color: var(--color-text-secondary);"></i>
+        <i class="ti ti-link-off page-empty-icon" aria-hidden="true"></i>
         <h1 class="h4 mb-3">{% trans "This invite link is invalid." %}</h1>
         <p class="text-muted mb-4">{% trans "The code may have changed or the link may be broken." %}</p>
         <a href="{% url 'matches:home' %}" class="btn btn-accent">{% trans "Go to home" %}</a>
@@ -40,8 +39,7 @@
   <div class="container py-5">
     <div class="row justify-content-center">
       <div class="col-12 col-md-6 text-center">
-        <i class="ti ti-circle-check mb-3 d-block" aria-hidden="true"
-           style="font-size: 3rem; color: var(--color-accent);"></i>
+        <i class="ti ti-circle-check page-empty-icon page-empty-icon--accent" aria-hidden="true"></i>
         <h1 class="h4 mb-3">{% blocktrans with name=league.name %}You're already in {{ name }}.{% endblocktrans %}</h1>
         <p class="text-muted mb-4">{% trans "Head to the league to see the leaderboard." %}</p>
         <a href="{% url 'leagues:detail' pk=league.pk %}" class="btn btn-accent">{% trans "Go to the league" %}</a>

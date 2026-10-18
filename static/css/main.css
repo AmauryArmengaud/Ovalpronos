@@ -197,9 +197,31 @@ main {
 }
 
 /* ─── Utilities ─────────────────────────────────────────────────────────── */
-.text-accent { color: var(--color-accent); }
-.bg-accent   { background-color: var(--color-accent); }
-.page-header-icon { font-size: 2rem; }
+.text-accent        { color: var(--color-accent); }
+.bg-accent          { background-color: var(--color-accent); }
+.text-primary-brand { color: var(--color-primary); }
+
+/* Page header icon — used in h1 row on league create/join pages */
+.page-header-icon {
+  font-size: 2rem;
+  color: var(--color-primary);
+}
+
+/* Empty-state icon — large icon for empty/error states */
+.page-empty-icon {
+  font-size: 3rem;
+  color: var(--color-icon-muted);
+  display: block;
+  margin-bottom: 0.75rem;
+}
+
+/* Error page icon (404/500) */
+.error-page__icon {
+  font-size: 5rem;
+  color: var(--color-primary);
+}
+.page-empty-icon--accent      { color: var(--color-accent); }
+.page-empty-icon--brand-rugby { color: var(--color-brand-rugby); }
 
 /* ─── Home page ─────────────────────────────────────────────────────────── */
 
@@ -395,8 +417,6 @@ main {
 .home-comps-label {
   font-size: var(--text-sm);
   font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
   color: var(--color-text-secondary);
   margin: 0;
 }
@@ -982,11 +1002,15 @@ main {
   transition: border-color 0.15s, color 0.15s;
 }
 
-.btn-no-odds-toggle:hover,
-.btn-no-odds-toggle:focus {
+.btn-no-odds-toggle:hover {
   border-color: var(--color-primary);
   color: var(--color-primary);
-  outline: none;
+}
+.btn-no-odds-toggle:focus-visible {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
 }
 
 .collapse-chevron {
@@ -1326,15 +1350,17 @@ main {
   background: var(--color-background);
   border-top: 2px solid var(--color-you-highlight);
   box-shadow: 0 -2px 8px rgba(43, 52, 103, 0.12);
-  padding: 0 1rem;
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  min-height: 52px;
   opacity: 0;
   pointer-events: none;
   transform: translateY(6px);
   transition: opacity 0.15s, transform 0.15s;
+}
+
+.ranking-you-sticky__inner {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-height: 52px;
 }
 
 .ranking-you-sticky.visible {
@@ -1647,4 +1673,100 @@ main {
 
 .profile-section + .profile-section {
   margin-top: 2rem;
+}
+
+/* ─── Skip link ──────────────────────────────────────────────────────────── */
+.skip-link {
+  position: absolute;
+  top: -100%;
+  left: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: var(--color-primary);
+  color: var(--color-text-on-primary);
+  z-index: 9999;
+  border-radius: 0 0 var(--radius-sm) var(--radius-sm);
+  text-decoration: none;
+  font-weight: 600;
+  font-size: var(--text-sm);
+}
+.skip-link:focus {
+  top: 0;
+}
+
+/* ─── Additional CSS classes replacing inline styles ─────────────────────── */
+
+/* Rankings: tier header icon colors */
+.ranking-tier-icon--gap { color: var(--color-badge-gap); }
+.ranking-tier-icon--win { color: var(--color-badge-win-text); }
+
+/* Rankings: sticky bar points flexible width */
+.ranking-you-sticky .ranking-points { width: auto; }
+
+/* Profile: replace inline styles */
+.profile-username  { font-size: var(--text-sm); }
+.profile-team-name { font-size: var(--text-xs); color: var(--color-text-secondary); }
+.profile-team-logo { object-fit: contain; }
+.profile-avatar-preview { object-fit: cover; }
+
+/* Modal decorative icon */
+.modal-accent-icon { font-size: 2rem; color: var(--color-accent); }
+
+/* Rules page: override max-width from .home-example-rows */
+.home-example-rows--full { max-width: none; }
+
+/* Copy/share buttons: 44px tap target */
+.copy-code-btn,
+.share-link-btn { min-height: 44px; }
+
+/* ─── Micro-interactions ─────────────────────────────────────────────────── */
+
+/* Buttons: active scale (all devices) + hover lift (pointer devices only) */
+.btn { transition: transform 0.1s ease; }
+.btn:active { transform: scale(0.98); }
+@media (hover: hover) {
+  .btn:hover  { transform: translateY(-1px); }
+  .league-card:hover { transform: translateY(-2px); }
+}
+
+/* League card: hover lift */
+.league-card { transition: transform 0.15s ease; }
+
+/* Copy/share feedback: icon pulse on success */
+.copy-code-btn .ti,
+.share-link-btn .ti { transition: transform 0.15s ease; }
+.copy-code-btn.copy-success .ti,
+.share-link-btn.copy-success .ti { transform: scale(1.2); }
+
+/* Card entrance — initial page load only (.page-entering on <body>, removed after 600ms) */
+@keyframes card-enter {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.page-entering .predictions-grid > * {
+  animation: card-enter 0.25s ease both;
+}
+/* Cap stagger: children ≥9 appear instantly */
+.page-entering .predictions-grid > *:nth-child(n+9) { animation: none; opacity: 1; }
+.page-entering .predictions-grid > *:nth-child(1) { animation-delay: 0ms; }
+.page-entering .predictions-grid > *:nth-child(2) { animation-delay: 35ms; }
+.page-entering .predictions-grid > *:nth-child(3) { animation-delay: 70ms; }
+.page-entering .predictions-grid > *:nth-child(4) { animation-delay: 105ms; }
+.page-entering .predictions-grid > *:nth-child(5) { animation-delay: 140ms; }
+.page-entering .predictions-grid > *:nth-child(6) { animation-delay: 175ms; }
+.page-entering .predictions-grid > *:nth-child(7) { animation-delay: 210ms; }
+.page-entering .predictions-grid > *:nth-child(8) { animation-delay: 245ms; }
+
+/* ─── Accessibility: prefers-reduced-motion (comprehensive) ─────────────── */
+@media (prefers-reduced-motion: reduce) {
+  /* Disable all transitions and animations */
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  /* Live dots: stop pulsing, remain visible and colored */
+  .live-dot,
+  .segment-control__live-dot { animation: none; opacity: 1; }
+  /* Card entrance: skip, show immediately */
+  .page-entering .predictions-grid > * { animation: none; opacity: 1; }
 }

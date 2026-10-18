@@ -10,10 +10,10 @@
       <i class="ti ti-crown rank-icon--1"></i>
     </div>
     <div class="ranking-tier-col" role="columnheader" aria-label="{% trans 'Gap' %}">
-      <i class="ti ti-target" style="color:var(--color-badge-gap)"></i>
+      <i class="ti ti-target ranking-tier-icon--gap"></i>
     </div>
     <div class="ranking-tier-col" role="columnheader" aria-label="{% trans 'Winner' %}">
-      <i class="ti ti-check" style="color:var(--color-badge-win-text)"></i>
+      <i class="ti ti-check ranking-tier-icon--win"></i>
     </div>
   </div>
   <div class="ranking-points" role="columnheader">{% trans "Points" %}</div>
@@ -101,22 +101,24 @@
 {# Sticky "Toi" bar — shown on mobile when current-user-row exits viewport #}
 {% for entry in entries %}{% if entry.is_current_user %}
 <div class="ranking-you-sticky" id="you-sticky" aria-hidden="true">
-  <div class="ranking-rank">
-    {% if entry.rank == 1 %}<i class="ti ti-crown rank-icon--1"></i>
-    {% elif entry.rank == 2 %}<i class="ti ti-medal rank-icon--2"></i>
-    {% elif entry.rank == 3 %}<i class="ti ti-medal rank-icon--3"></i>
-    {% else %}{{ entry.rank }}{% endif %}
+  <div class="container ranking-you-sticky__inner">
+    <div class="ranking-rank">
+      {% if entry.rank == 1 %}<i class="ti ti-crown rank-icon--1"></i>
+      {% elif entry.rank == 2 %}<i class="ti ti-medal rank-icon--2"></i>
+      {% elif entry.rank == 3 %}<i class="ti ti-medal rank-icon--3"></i>
+      {% else %}{{ entry.rank }}{% endif %}
+    </div>
+    {% if entry.user.avatar %}
+      <img src="{{ entry.user.avatar.url }}" alt="" class="ranking-avatar">
+    {% else %}
+      <span class="ranking-avatar ranking-avatar--initials">
+        {{ entry.user.get_display_name|slice:":1"|upper }}
+      </span>
+    {% endif %}
+    <span class="ranking-name flex-grow-1">{{ entry.user.get_display_name }}</span>
+    <span class="badge badge-you">{% trans "You" %}</span>
+    <span class="ranking-points">{{ entry.total_points|intcomma }}</span>
   </div>
-  {% if entry.user.avatar %}
-    <img src="{{ entry.user.avatar.url }}" alt="" class="ranking-avatar">
-  {% else %}
-    <span class="ranking-avatar ranking-avatar--initials">
-      {{ entry.user.get_display_name|slice:":1"|upper }}
-    </span>
-  {% endif %}
-  <span class="ranking-name flex-grow-1" style="min-width:0">{{ entry.user.get_display_name }}</span>
-  <span class="badge badge-you">{% trans "You" %}</span>
-  <span class="ranking-points" style="width:auto">{{ entry.total_points|intcomma }}</span>
 </div>
 {% endif %}{% endfor %}
 

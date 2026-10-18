@@ -676,13 +676,54 @@ CSS — same colours and icons as match result banners. Exact: gold / `ti-crown`
 - OG tags: `og_title` / `og_description` blocks overridden
 - All text via `{% trans %}` / `{% blocktrans %}`; new FR translations added to `django.po`
 
-### Micro-interactions (TODO)
+### Micro-interactions (DONE)
 
-Shared polish pass: hover states, focus rings, transitions, haptics.
+Shared polish pass: hover states, focus rings, transitions, entrance animation.
 
-### Accessibilité finale (TODO)
+- **Button press:** all `.btn` get `transform: scale(0.98)` on `:active`. Hover lift
+  (`translateY(-1px)`) wrapped in `@media (hover: hover)` — pointer devices only.
+- **League cards:** `transform: translateY(-2px)` on hover, wrapped in `@media (hover: hover)`.
+- **Copy success:** `.copy-code-btn.copy-success i` scales to 1.2 for 200ms — icon pulse only,
+  no bounce.
+- **Card entrance:** `@keyframes card-enter` (fade + 6px slide up) on `.page-entering .predictions-grid > *`.
+  nth-child stagger: 50ms per card, capped at 8 positions (total animation window < 0.6s). JS adds
+  `page-entering` on `DOMContentLoaded`, removes it after 600ms. **Never triggered on HTMX swap.**
+- **Reduced motion:** global `*` override (`animation-duration: 0.01ms !important` etc.) inside
+  `@media (prefers-reduced-motion: reduce)`. Live dot `@keyframes live-pulse` gets `animation: none`
+  with explicit fallback `opacity: 1; transform: scale(1)` so the dot stays visible.
 
-Full keyboard navigation audit, ARIA labels, colour-contrast pass on remaining pages.
+### Accessibilité finale (DONE)
+
+Full keyboard navigation audit, ARIA labels, colour-contrast pass.
+
+- **`<html lang>`:** dynamic via `{% get_current_language as CURRENT_LANG %}` — changes with
+  language toggle. Never hardcoded `lang="fr"`.
+- **Skip link:** `<a href="#main-content" class="skip-link">` in `base.html`, visually hidden until
+  focused (`.skip-link` in CSS: `position: absolute; top: -100%; left: 0; ...`).
+- **Landmarks:** `<header>` wraps the navbar; `<main id="main-content">` is the content anchor.
+- **Predictions tabs:** `<nav aria-label="{% trans 'Match filter' %}">` — nav links, NOT tablist.
+  Active tab gets `aria-current="page"`.
+- **Progress bar:** `role="progressbar" aria-valuenow aria-valuemin="0" aria-valuemax="100"`. JS in
+  `htmx:afterSwap` updates `aria-valuenow` alongside the visual bar.
+- **HTMX aria-live:** persistent `<div id="save-announcement" aria-live="polite" aria-atomic="true" class="visually-hidden">` in `base.html` — outside swapped cards. Card partial emits
+  `data-saved-msg="{% trans 'Saved' %}"` on success. `htmx:afterSwap` reads the attribute and
+  updates the region for 1.5s. Screen readers announce each save without losing focus.
+
+**Inline style rules (enforced by guard tests):**
+
+- No `style=""` in any app template. Approved exception: progress bar fill width (`widthratio`) —
+  dynamic value with no static CSS alternative.
+- No hardcoded hex colors in app templates. Exceptions: `templates/500.html` (standalone, no
+  Django context processor — inline CSS required), `templates/emails/` and
+  `templates/accounts/emails/` (mail clients don't support CSS variables).
+
+**Quality guard tests (`apps/matches/tests_quality.py`, 4 tests):**
+- `InlineStyleTest.test_no_inline_styles` — fails if `style=""` added outside approved exceptions.
+- `HardcodedColorTest.test_no_hex_colors` — fails if hex color added outside excluded dirs.
+- `PoFileQualityTest.test_no_fuzzy_app_entries` — fails if `#, fuzzy` in app-level .po entries.
+- `PoFileQualityTest.test_no_empty_msgstr_for_app_strings` — fails if untranslated app string.
+
+Run with: `python manage.py test apps.matches.tests_quality`
 
 ---
 
