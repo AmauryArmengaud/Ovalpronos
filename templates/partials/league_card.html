@@ -13,11 +13,22 @@
     {% endif %}
   </div>
 
-  {# Zone B: competition chips #}
+  {# Zone B: competition chips — max 3 visible, +N chip for the rest #}
   <div class="league-card-zone-b">
-    {% for comp in league.competitions.all %}
-      <span class="comp-divider-chip">{{ comp.name }}</span>
-    {% endfor %}
+    {% with comps=league.competitions.all %}
+      {% with total=comps.count %}
+        {% for comp in comps|slice:":3" %}
+          <span class="comp-divider-chip">{{ comp.name }}</span>
+        {% endfor %}
+        {% if total > 3 %}
+          {% with extra=total|add:"-3" %}
+            <span class="comp-divider-chip"
+                  title="{% for c in comps|slice:'3:' %}{{ c.name }}{% if not forloop.last %}, {% endif %}{% endfor %}"
+                  aria-label="+{{ extra }}">+{{ extra }}</span>
+          {% endwith %}
+        {% endif %}
+      {% endwith %}
+    {% endwith %}
   </div>
 
   {# Zone C: member count, invite code, copy/share #}
