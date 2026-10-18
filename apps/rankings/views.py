@@ -5,6 +5,7 @@ from django.views.generic import TemplateView
 
 from apps.matches.models import Competition
 from apps.rankings.models import UserScore
+from apps.rankings.services import _assign_ranks
 
 User = get_user_model()
 
@@ -27,12 +28,10 @@ def _build_leaderboard(score_qs, all_users_qs, current_user_pk):
             'count_win': score.win_count if score else 0,
         })
     entries.sort(key=lambda e: (-e['total_points'], -e['count_exact'], -e['count_gap']))
-    ranked = []
-    for rank, entry in enumerate(entries, start=1):
-        entry['rank'] = rank
+    _assign_ranks(entries)
+    for entry in entries:
         entry['is_current_user'] = entry['user'].pk == current_user_pk
-        ranked.append(entry)
-    return ranked
+    return entries
 
 
 class RankingsView(LoginRequiredMixin, TemplateView):
@@ -41,7 +40,13 @@ class RankingsView(LoginRequiredMixin, TemplateView):
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
 
-        competitions = list(Competition.objects.filter(is_active=True))
+        competitions = list(Competition.objects.filter(is_active=True).order_by('name', '-season'))
+        # When a name appears more than once, append the season so chips are distinguishable
+        name_counts = {}
+        for c in competitions:
+            name_counts[c.name] = name_counts.get(c.name, 0) + 1
+        for c in competitions:
+            c.chip_label = f"{c.name} {c.season}" if name_counts[c.name] > 1 else c.name
         ctx['competitions'] = competitions
         ctx['user_leagues'] = self.request.user.leagues.filter(competitions__is_active=True).distinct()
 
@@ -80,8 +85,8 @@ class RankingsView(LoginRequiredMixin, TemplateView):
                         'count_win': row['win'] if row else 0,
                     })
                 league_leaderboard.sort(key=lambda e: (-e['total_points'], -e['count_exact'], -e['count_gap']))
-                for rank, entry in enumerate(league_leaderboard, start=1):
-                    entry['rank'] = rank
+                _assign_ranks(league_leaderboard)
+                for entry in league_leaderboard:
                     entry['is_current_user'] = entry['user'].pk == self.request.user.pk
             except League.DoesNotExist:
                 pass

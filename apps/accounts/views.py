@@ -1,18 +1,53 @@
 import urllib.request
 import urllib.parse
 import json
+from urllib.parse import urlparse
 
 from django.conf import settings
 from django.contrib import messages
-from django.contrib.auth import views as auth_views
+from django.contrib.auth import login, views as auth_views
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Count, Q, Sum
-from django.urls import reverse_lazy
+from django.shortcuts import redirect
+from django.urls import reverse, resolve, Resolver404, reverse_lazy
+from django.utils.http import url_has_allowed_host_and_scheme
 from django.views.generic import CreateView, TemplateView, UpdateView
 
 from apps.predictions.models import Prediction
+from apps.rankings.services import _assign_ranks
 from .forms import EmailOrUsernameAuthenticationForm, ProfileForm, RegistrationForm
 from .models import CustomUser
+
+
+def _verify_turnstile(token, remote_ip):
+    data = urllib.parse.urlencode({
+        'secret': settings.TURNSTILE_SECRET_KEY,
+        'response': token,
+        'remoteip': remote_ip,
+    }).encode()
+    req = urllib.request.Request(
+        'https://challenges.cloudflare.com/turnstile/v0/siteverify',
+        data=data,
+    )
+    with urllib.request.urlopen(req, timeout=5) as resp:
+        return json.loads(resp.read()).get('success', False)
+
+
+def _get_invite_league(next_url, request_host):
+    """Return the League if next_url points to /leagues/invite/<code>/ and the code exists, else None."""
+    if not next_url:
+        return None
+    if not url_has_allowed_host_and_scheme(next_url, allowed_hosts={request_host}):
+        return None
+    path = urlparse(next_url).path
+    try:
+        match = resolve(path)
+    except Resolver404:
+        return None
+    if match.view_name != 'leagues:public_invite':
+        return None
+    from apps.leagues.models import League
+    return League.objects.filter(invite_code=match.kwargs.get('code', '')).first()
 
 
 class ProfileView(LoginRequiredMixin, TemplateView):
@@ -31,18 +66,36 @@ class ProfileView(LoginRequiredMixin, TemplateView):
         )
         stats['total_points'] = stats['total_points'] or 0
 
-        # Global rank
-        all_scores = (
+        # Shared rank — same convention as rankings page (1,1,3 ties)
+        all_scores = list(
             Prediction.objects.filter(points_earned__isnull=False)
             .values('user_id')
-            .annotate(total=Sum('points_earned'))
-            .order_by('-total')
+            .annotate(
+                total_points=Sum('points_earned'),
+                count_exact=Count('pk', filter=Q(result_type='EXACT')),
+                count_gap=Count('pk', filter=Q(result_type='GAP')),
+            )
+            .order_by('-total_points', '-count_exact', '-count_gap')
         )
-        rank = next((i + 1 for i, s in enumerate(all_scores) if s['user_id'] == user.pk), None)
+        _assign_ranks(all_scores)
+        rank_entry = next((e for e in all_scores if e['user_id'] == user.pk), None)
+        rank = rank_entry['rank'] if rank_entry else None
+        total_ranked = len(all_scores)
+
+        # Leagues with member_count and join_url (mirrors leagues/views.py)
+        leagues = list(user.leagues.prefetch_related('competitions', 'members').all())
+        for league in leagues:
+            league.member_count = len(league.members.all())
+            league.join_url = self.request.build_absolute_uri(
+                reverse('leagues:public_invite', kwargs={'code': league.invite_code})
+            )
 
         ctx['stats'] = stats
         ctx['rank'] = rank
-        ctx['leagues'] = user.leagues.all()
+        ctx['total_ranked'] = total_ranked
+        # Show @username only if display_name is set and differs from username
+        ctx['show_username'] = bool(user.display_name) and user.display_name != user.username
+        ctx['leagues'] = leagues
         return ctx
 
 
@@ -56,20 +109,6 @@ class ProfileEditView(LoginRequiredMixin, UpdateView):
         return self.request.user
 
 
-def _verify_turnstile(token, remote_ip):
-    data = urllib.parse.urlencode({
-        'secret': settings.TURNSTILE_SECRET_KEY,
-        'response': token,
-        'remoteip': remote_ip,
-    }).encode()
-    req = urllib.request.Request(
-        'https://challenges.cloudflare.com/turnstile/v0/siteverify',
-        data=data,
-    )
-    with urllib.request.urlopen(req, timeout=5) as resp:
-        return json.loads(resp.read()).get('success', False)
-
-
 class LoginView(auth_views.LoginView):
     template_name = 'accounts/login.html'
     authentication_form = EmailOrUsernameAuthenticationForm
@@ -77,6 +116,8 @@ class LoginView(auth_views.LoginView):
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
         ctx['turnstile_site_key'] = settings.TURNSTILE_SITE_KEY
+        next_url = self.request.GET.get('next', '')
+        ctx['invite_league'] = _get_invite_league(next_url, self.request.get_host())
         return ctx
 
     def form_valid(self, form):
@@ -102,17 +143,24 @@ class RegisterView(CreateView):
     model = CustomUser
     form_class = RegistrationForm
     template_name = 'accounts/register.html'
-    success_url = reverse_lazy('accounts:login')
+    success_url = reverse_lazy('predictions:index')
 
     def form_valid(self, form):
         response = super().form_valid(form)
+        login(self.request, self.object)
         from ovalpronos.analytics import capture
         capture(self.object.pk, 'user_registered')
+        next_url = self.request.POST.get('next') or self.request.GET.get('next')
+        if next_url and url_has_allowed_host_and_scheme(next_url, allowed_hosts={self.request.get_host()}):
+            return redirect(next_url)
         return response
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
         ctx['turnstile_site_key'] = settings.TURNSTILE_SITE_KEY
+        next_url = self.request.POST.get('next', '') or self.request.GET.get('next', '')
+        ctx['next_url'] = next_url
+        ctx['invite_league'] = _get_invite_league(next_url, self.request.get_host())
         return ctx
 
     def post(self, request, *args, **kwargs):

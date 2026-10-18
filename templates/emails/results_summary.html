@@ -1,0 +1,67 @@
+{% extends 'emails/base.html' %}{% load i18n %}
+
+{% block title %}{% trans "Your results" %} — {{ competition_name }}{% endblock %}
+
+{% block body %}
+  <h1 class="email-h1" style="margin:0 0 8px;font-size:20px;font-weight:700;color:#2B3467;font-family:'Barlow',Arial,sans-serif;">
+    {% trans "Your results" %} — J{{ round_label }}
+  </h1>
+  <p class="email-text" style="margin:0 0 24px;font-size:15px;color:#444444;line-height:1.65;font-family:'Barlow',Arial,sans-serif;">
+    Salut {{ user.get_display_name }}&nbsp;! Voici tes résultats pour {{ competition_name }}.
+  </p>
+
+  <!-- Score hero -->
+  <table cellpadding="0" cellspacing="0" style="margin:0 0 28px;width:100%;">
+    <tr>
+      <td style="background-color:#2B3467;border-radius:8px;padding:20px 24px;text-align:center;">
+        <p style="margin:0 0 4px;font-size:13px;color:#b0bdd6;font-family:'Barlow',Arial,sans-serif;">
+          {% trans "Points scored this round" %}
+        </p>
+        <p style="margin:0;font-size:32px;font-weight:700;color:#FCFFF9;line-height:1.2;font-family:'Barlow',Arial,sans-serif;">
+          {{ round_points }} {% trans "pts" %}
+        </p>
+      </td>
+    </tr>
+  </table>
+
+  <!-- Predictions table -->
+  <table cellpadding="0" cellspacing="0" style="width:100%;border-collapse:collapse;margin:0 0 28px;">
+    {% for p in predictions %}
+    <tr style="border-bottom:1px solid #e8eaf0;">
+      <td style="padding:10px 0;font-size:13px;color:#2B3467;font-family:'Barlow',Arial,sans-serif;font-weight:600;">
+        {{ p.match.home_team.short_name|default:p.match.home_team.name }}
+        {{ p.predicted_home_score }}–{{ p.predicted_away_score }}
+        {{ p.match.away_team.short_name|default:p.match.away_team.name }}
+        <br>
+        <span style="font-weight:400;font-size:12px;color:#595c7a;">
+          {% trans "Final" %}&nbsp;: {{ p.match.home_score }}–{{ p.match.away_score }}
+        </span>
+      </td>
+      <td style="padding:10px 0 10px 8px;text-align:right;white-space:nowrap;vertical-align:middle;font-family:'Barlow',Arial,sans-serif;">
+        {% if p.result_type == 'EXACT' %}
+          <span style="display:inline-block;padding:3px 10px;border-radius:4px;background:#F5C542;color:#5c4500;font-size:11px;font-weight:700;letter-spacing:0.5px;">EXACT</span>
+        {% elif p.result_type == 'GAP' %}
+          <span style="display:inline-block;padding:3px 10px;border-radius:4px;background:#D6B8E1;color:#6a2585;font-size:11px;font-weight:700;letter-spacing:0.5px;">GAP</span>
+        {% elif p.result_type == 'WIN' %}
+          <span style="display:inline-block;padding:3px 10px;border-radius:4px;background:#E9F7D8;color:#235408;font-size:11px;font-weight:700;letter-spacing:0.5px;">WIN</span>
+        {% else %}
+          <span style="display:inline-block;padding:3px 10px;border-radius:4px;background:#EAEBF0;color:#595c7a;font-size:11px;font-weight:700;letter-spacing:0.5px;">—</span>
+        {% endif %}
+        <span style="margin-left:8px;font-size:13px;font-weight:700;color:#2B3467;">{{ p.points_earned }} pts</span>
+      </td>
+    </tr>
+    {% endfor %}
+  </table>
+
+  <!-- CTA -->
+  <table cellpadding="0" cellspacing="0">
+    <tr>
+      <td style="background-color:#EB455F;border-radius:99px;">
+        <a href="{{ site_url }}/rankings/"
+           style="display:inline-block;padding:14px 32px;font-size:15px;font-weight:700;color:#ffffff;text-decoration:none;letter-spacing:0.2px;font-family:'Barlow',Arial,sans-serif;">
+          {% trans "See the full rankings" %}
+        </a>
+      </td>
+    </tr>
+  </table>
+{% endblock %}

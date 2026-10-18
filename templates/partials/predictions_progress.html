@@ -1,0 +1,14 @@
+{% load i18n %}
+<div class="d-flex align-items-center gap-2 prediction-progress-sticky"
+     id="predictions-progress"{% if oob %} hx-swap-oob="true"{% endif %}>
+  <div class="prediction-progress-track flex-grow-1">
+    <div class="prediction-progress-bar{% if predicted_with_odds == total_with_odds %} prediction-progress-bar--complete{% endif %}"
+         role="progressbar"
+         aria-valuenow="{{ predicted_with_odds }}"
+         aria-valuemin="0"
+         aria-valuemax="{{ total_with_odds }}"
+         style="width:{% widthratio predicted_with_odds total_with_odds 100 %}%">
+    </div>
+  </div>
+  <span class="flex-shrink-0 prediction-progress-counter"><span class="prediction-progress-count">{{ predicted_with_odds }}</span>/{{ total_with_odds }} {% blocktrans count n=total_with_odds %}prediction{% plural %}predictions{% endblocktrans %}</span>
+</div>

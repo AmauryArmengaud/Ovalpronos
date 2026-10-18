@@ -5,7 +5,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Oval'Pronos\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-12 17:07+0200\n"
+"POT-Creation-Date: 2026-10-18 11:09+0200\n"
 "PO-Revision-Date: 2026-05-21 17:00+0200\n"
 "Last-Translator: Oval'Pronos\n"
 "Language-Team: French\n"
@@ -15,36 +15,37 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
-#: apps/accounts/forms.py:8
+#: apps/accounts/forms.py:31
 msgid "Email address or username"
 msgstr "Adresse e-mail ou nom d'utilisateur"
 
-#: apps/accounts/forms.py:16 apps/accounts/forms.py:29
+#: apps/accounts/forms.py:39 apps/accounts/forms.py:52
 #: apps/accounts/models.py:24
 msgid "Display name"
 msgstr "Pseudo affiché"
 
-#: apps/accounts/forms.py:17 apps/accounts/models.py:32
+#: apps/accounts/forms.py:40 apps/accounts/models.py:32
 msgid "Profile picture"
 msgstr "Photo de profil"
 
-#: apps/accounts/forms.py:18 apps/accounts/models.py:42
+#: apps/accounts/forms.py:41 apps/accounts/models.py:42
 msgid "Favourite team"
 msgstr "Équipe favorite"
 
-#: apps/accounts/forms.py:23 apps/accounts/models.py:17
+#: apps/accounts/forms.py:46 apps/accounts/models.py:17
+#: venv/lib/python3.12/site-packages/django/db/models/fields/__init__.py:1920
 msgid "Email address"
 msgstr "Adresse e-mail"
 
-#: apps/accounts/forms.py:24
+#: apps/accounts/forms.py:47
 msgid "First name"
 msgstr "Prénom"
 
-#: apps/accounts/forms.py:25
+#: apps/accounts/forms.py:48
 msgid "Last name"
 msgstr "Nom de famille"
 
-#: apps/accounts/forms.py:30
+#: apps/accounts/forms.py:53
 msgid "Public nickname shown in rankings. Defaults to your username."
 msgstr ""
 "Pseudo public affiché dans le classement. Par défaut, c'est ton nom "
@@ -52,7 +53,7 @@ msgstr ""
 
 #: apps/accounts/models.py:48
 msgid "Last reminder sent"
-msgstr ""
+msgstr "Dernier rappel envoyé"
 
 #: apps/accounts/models.py:52
 msgid "User"
@@ -62,15 +63,16 @@ msgstr "Utilisateur"
 msgid "Users"
 msgstr "Utilisateurs"
 
-#: apps/accounts/views.py:96 apps/accounts/views.py:126
+#: apps/accounts/views.py:137 apps/accounts/views.py:174
 msgid "CAPTCHA verification failed. Please try again."
-msgstr ""
+msgstr "La vérification CAPTCHA a échoué. Veuillez réessayer."
 
 #: apps/leagues/models.py:14 apps/matches/models.py:13
 msgid "Name"
 msgstr "Nom"
 
-#: apps/leagues/models.py:19 templates/leagues/detail.html:32
+#: apps/leagues/models.py:19 templates/leagues/detail.html:45
+#: templates/partials/league_card.html:26
 msgid "Invite code"
 msgstr "Code d'invitation"
 
@@ -82,7 +84,8 @@ msgstr "Créateur"
 msgid "Members"
 msgstr "Membres"
 
-#: apps/leagues/models.py:35 apps/leagues/views.py:19 apps/matches/models.py:49
+#: apps/leagues/models.py:35 apps/leagues/views.py:20 apps/matches/models.py:49
+#: templates/leagues/create.html:36 templates/matches/home.html:81
 msgid "Competitions"
 msgstr "Compétitions"
 
@@ -90,41 +93,41 @@ msgstr "Compétitions"
 msgid "League"
 msgstr "Ligue"
 
-#: apps/leagues/models.py:45 templates/rankings/index.html:27
+#: apps/leagues/models.py:45 templates/rankings/index.html:29
 msgid "Leagues"
 msgstr "Ligues"
 
-#: apps/leagues/views.py:46
+#: apps/leagues/views.py:61
 #, python-format
 msgid "League created! Your invite code: %(code)s"
 msgstr "Ligue créée ! Ton code d'invitation : %(code)s"
 
-#: apps/leagues/views.py:63
+#: apps/leagues/views.py:84
 #, python-format
 msgid "No league found with code %(code)s."
 msgstr "Aucune ligue trouvée avec le code %(code)s."
 
-#: apps/leagues/views.py:67
+#: apps/leagues/views.py:88
 #, python-format
 msgid "You are already a member of %(name)s."
 msgstr "Tu es déjà membre de %(name)s."
 
-#: apps/leagues/views.py:70
+#: apps/leagues/views.py:91
 #, python-format
 msgid "You joined %(name)s!"
 msgstr "Tu as rejoint %(name)s !"
 
-#: apps/leagues/views.py:140
+#: apps/leagues/views.py:225
 msgid "The creator cannot leave their own league."
 msgstr "Le créateur ne peut pas quitter sa propre ligue."
 
-#: apps/leagues/views.py:143
+#: apps/leagues/views.py:228
 #, python-format
 msgid "You left %(name)s."
 msgstr "Tu as quitté %(name)s."
 
 #: apps/matches/models.py:12 apps/matches/models.py:64
-#: apps/matches/models.py:113
+#: apps/matches/models.py:114
 msgid "API ID"
 msgstr "ID API"
 
@@ -180,7 +183,7 @@ msgstr "COTES = basé sur les cotes, FIXED = points fixes"
 msgid "Good gap threshold (pts)"
 msgstr "Seuil bon écart (pts)"
 
-#: apps/matches/models.py:48 apps/matches/models.py:119
+#: apps/matches/models.py:48 apps/matches/models.py:120
 #: apps/rankings/models.py:27
 msgid "Competition"
 msgstr "Compétition"
@@ -205,127 +208,157 @@ msgstr "Ex : STA, ASM, LOU"
 msgid "Country"
 msgstr "Pays"
 
-#: apps/matches/models.py:77
+#: apps/matches/models.py:75
+msgid "Logo"
+msgstr "Logo"
+
+#: apps/matches/models.py:78
 msgid "Team"
 msgstr "Équipe"
 
-#: apps/matches/models.py:78
+#: apps/matches/models.py:79
 msgid "Teams"
 msgstr "Équipes"
 
-#: apps/matches/models.py:104
+#: apps/matches/models.py:105
 msgid "Scheduled"
 msgstr "Planifié"
 
-#: apps/matches/models.py:105
+#: apps/matches/models.py:106
 msgid "In play"
 msgstr "En cours"
 
-#: apps/matches/models.py:106
+#: apps/matches/models.py:107
 msgid "Finished"
 msgstr "Terminé"
 
-#: apps/matches/models.py:107
+#: apps/matches/models.py:108
 msgid "Postponed"
 msgstr "Reporté"
 
-#: apps/matches/models.py:108 apps/predictions/models.py:19
-#: templates/partials/match_card.html:26
+#: apps/matches/models.py:109 apps/predictions/models.py:19
+#: templates/partials/match_card.html:11
 msgid "Cancelled"
 msgstr "Annulé"
 
-#: apps/matches/models.py:125
+#: apps/matches/models.py:126
 msgid "Home team"
 msgstr "Équipe domicile"
 
-#: apps/matches/models.py:131
+#: apps/matches/models.py:132
 msgid "Away team"
 msgstr "Équipe extérieur"
 
-#: apps/matches/models.py:138
+#: apps/matches/models.py:139
 msgid "Round"
 msgstr "Journée / Tour"
 
-#: apps/matches/models.py:139
+#: apps/matches/models.py:140
 msgid "e.g. 1, 22, Semi-final, Final"
 msgstr "Ex : J1, J22, Demi-finale, Finale"
 
-#: apps/matches/models.py:141
+#: apps/matches/models.py:142
 msgid "Kickoff date and time"
 msgstr "Date et heure du coup d'envoi"
 
-#: apps/matches/models.py:142
+#: apps/matches/models.py:143
 msgid "Venue"
 msgstr "Stade"
 
-#: apps/matches/models.py:149
+#: apps/matches/models.py:150
 msgid "Status"
 msgstr "Statut"
 
-#: apps/matches/models.py:153
+#: apps/matches/models.py:154
 msgid "Hidden"
 msgstr "Masqué"
 
-#: apps/matches/models.py:154
+#: apps/matches/models.py:155
 msgid "If True, this match is not shown to users in the prediction UI."
 msgstr ""
 "Si coché, ce match n'est pas affiché aux utilisateurs dans l'interface des "
 "pronos."
 
-#: apps/matches/models.py:156 templates/partials/match_card.html:105
+#: apps/matches/models.py:157 templates/partials/match_card.html:81
 msgid "Home score"
 msgstr "Score domicile"
 
-#: apps/matches/models.py:157 templates/partials/match_card.html:115
+#: apps/matches/models.py:158 templates/partials/match_card.html:94
 msgid "Away score"
 msgstr "Score extérieur"
 
-#: apps/matches/models.py:158
+#: apps/matches/models.py:159
 msgid "Home odds (×10)"
 msgstr "Cote domicile (×10)"
 
-#: apps/matches/models.py:159
+#: apps/matches/models.py:160
 msgid "Draw odds (×10)"
 msgstr "Cote nul (×10)"
 
-#: apps/matches/models.py:160
+#: apps/matches/models.py:161
 msgid "Away odds (×10)"
 msgstr "Cote extérieur (×10)"
 
-#: apps/matches/models.py:167 apps/predictions/models.py:32
+#: apps/matches/models.py:168 apps/predictions/models.py:32
 msgid "Match"
 msgstr "Match"
 
-#: apps/matches/models.py:168
+#: apps/matches/models.py:169
 msgid "Matches"
 msgstr "Matchs"
 
-#: apps/predictions/models.py:15 templates/matches/rules.html:20
-#: templates/matches/rules.html:77 templates/partials/match_card.html:39
-#: templates/partials/match_card.html:131
+#: apps/matches/templatetags/match_tags.py:10
+#: templates/emails/results_summary.html:37
+#: templates/emails/results_summary.txt:7
+msgid "Final"
+msgstr "Score final"
+
+#: apps/matches/templatetags/match_tags.py:11
+msgid "Semi-finals"
+msgstr "Demi-finales"
+
+#: apps/matches/templatetags/match_tags.py:12
+msgid "Quarter-finals"
+msgstr "Quarts de finale"
+
+#: apps/matches/templatetags/match_tags.py:13
+msgid "Semi Finals"
+msgstr "Demi-finales"
+
+#: apps/matches/templatetags/match_tags.py:14
+msgid "Quarter Finals"
+msgstr "Quarts de finale"
+
+#: apps/predictions/models.py:15 templates/matches/home.html:48
+#: templates/matches/rules.html:23 templates/matches/rules.html:60
+#: templates/partials/match_card.html:136
+#: templates/partials/match_card.html:166
 msgid "Exact score"
 msgstr "Score exact"
 
-#: apps/predictions/models.py:16 templates/matches/rules.html:28
-#: templates/matches/rules.html:83 templates/partials/match_card.html:44
-#: templates/partials/match_card.html:132
+#: apps/predictions/models.py:16 templates/matches/home.html:55
+#: templates/matches/rules.html:29 templates/matches/rules.html:67
+#: templates/matches/rules.html:143 templates/partials/match_card.html:136
+#: templates/partials/match_card.html:167
 msgid "Good gap"
 msgstr "Bon écart"
 
-#: apps/predictions/models.py:17 templates/matches/rules.html:36
-#: templates/matches/rules.html:89 templates/partials/match_card.html:49
-#: templates/partials/match_card.html:133
+#: apps/predictions/models.py:17 templates/matches/home.html:62
+#: templates/matches/rules.html:35 templates/matches/rules.html:74
+#: templates/matches/rules.html:144 templates/partials/match_card.html:136
+#: templates/partials/match_card.html:168
 msgid "Correct winner"
 msgstr "Bon vainqueur"
 
-#: apps/predictions/models.py:18 templates/accounts/profile.html:86
-#: templates/matches/rules.html:44 templates/matches/rules.html:95
-#: templates/partials/match_card.html:54
+#: apps/predictions/models.py:18 templates/accounts/profile.html:97
+#: templates/matches/home.html:69 templates/matches/rules.html:41
+#: templates/matches/rules.html:81 templates/matches/rules.html:145
+#: templates/partials/match_card.html:136
 msgid "Missed"
 msgstr "Raté"
 
 #: apps/predictions/models.py:26 apps/rankings/models.py:20
-#: templates/leagues/detail.html:71 templates/rankings/_table.html:9
+#: templates/rankings/_table.html:7
 msgid "Player"
 msgstr "Joueur"
 
@@ -345,19 +378,21 @@ msgstr "Points gagnés"
 msgid "Result type"
 msgstr "Type de résultat"
 
-#: apps/predictions/models.py:51 templates/matches/rules.html:67
+#: apps/predictions/models.py:51
 msgid "Prediction"
 msgstr "Pronostic"
 
-#: apps/predictions/models.py:52 templates/base.html:52 templates/base.html:102
-#: templates/predictions/index.html:4 templates/predictions/index.html:7
-#: templates/rankings/_table.html:11
+#: apps/predictions/models.py:52 templates/base.html:66 templates/base.html:116
+#: templates/predictions/index.html:4 templates/predictions/index.html:9
 msgid "Predictions"
 msgstr "Pronos"
 
-#: apps/rankings/models.py:36 templates/accounts/profile.html:46
-#: templates/leagues/detail.html:72 templates/matches/rules.html:70
-#: templates/rankings/_table.html:10
+#: apps/predictions/tasks.py:225
+#, python-format
+msgid "[Oval'Pronos] Résultats %(comp)s J%(rnd)s — %(pts)s pts"
+msgstr "[Oval'Pronos] Résultats %(comp)s J%(rnd)s — %(pts)s pts"
+
+#: apps/rankings/models.py:36 templates/rankings/_table.html:19
 msgid "Points"
 msgstr "Points"
 
@@ -377,7 +412,7 @@ msgstr "Bons écarts"
 msgid "Correct winners"
 msgstr "Bons vainqueurs"
 
-#: apps/rankings/models.py:41 templates/accounts/profile.html:54
+#: apps/rankings/models.py:41 templates/rankings/_table.html:6
 msgid "Rank"
 msgstr "Rang"
 
@@ -401,44 +436,44 @@ msgstr "La page que tu cherches n'existe pas ou a été déplacée."
 msgid "Back to home"
 msgstr "Retour à l'accueil"
 
-#: templates/accounts/login.html:4 templates/accounts/login.html:15
-#: templates/accounts/login.html:64
-#: templates/accounts/password_reset_complete.html:19
-#: templates/accounts/register.html:65 templates/base.html:75
-#: templates/base.html:119 templates/matches/home.html:18
+#: templates/accounts/login.html:4 templates/accounts/login.html:14
+#: templates/accounts/login.html:69
+#: templates/accounts/password_reset_complete.html:16
+#: templates/accounts/register.html:185 templates/base.html:89
+#: templates/base.html:133 templates/matches/home.html:26
 msgid "Log in"
 msgstr "Se connecter"
 
-#: templates/accounts/login.html:74 templates/accounts/password_reset.html:11
+#: templates/accounts/login.html:19 templates/accounts/register.html:19
+#, python-format
+msgid "To join %(name)s"
+msgstr "Pour rejoindre %(name)s"
+
+#: templates/accounts/login.html:79 templates/accounts/password_reset.html:4
+#: templates/accounts/password_reset.html:10
 msgid "Forgot your password?"
 msgstr "Mot de passe oublié ?"
 
-#: templates/accounts/login.html:78
+#: templates/accounts/login.html:83
 msgid "No account yet?"
 msgstr "Pas encore de compte ?"
 
-#: templates/accounts/login.html:80 templates/base.html:78
-#: templates/base.html:123 templates/matches/home.html:17
+#: templates/accounts/login.html:85 templates/base.html:92
+#: templates/base.html:137 templates/matches/home.html:23
+#: templates/matches/home.html:100
 msgid "Sign up"
 msgstr "S'inscrire"
 
-#: templates/accounts/password_reset.html:4
-msgid "Password reset"
-msgstr "Réinitialisation du mot de passe"
+#: templates/accounts/password_reset.html:11
+msgid "We'll send you a reset link."
+msgstr "Nous t'enverrons un lien de réinitialisation."
 
-#: templates/accounts/password_reset.html:15
-msgid ""
-"Enter your email address and we'll send you a link to reset your password."
-msgstr ""
-"Saisis ton adresse e-mail et nous t'enverrons un lien pour réinitialiser ton "
-"mot de passe."
-
-#: templates/accounts/password_reset.html:40
+#: templates/accounts/password_reset.html:35
 msgid "Send reset link"
 msgstr "Envoyer le lien"
 
-#: templates/accounts/password_reset.html:49
-#: templates/accounts/password_reset_done.html:22
+#: templates/accounts/password_reset.html:44
+#: templates/accounts/password_reset_done.html:19
 msgid "Back to login"
 msgstr "Retour à la connexion"
 
@@ -450,27 +485,27 @@ msgstr "Mot de passe modifié"
 msgid "Password changed!"
 msgstr "Mot de passe modifié !"
 
-#: templates/accounts/password_reset_complete.html:16
+#: templates/accounts/password_reset_complete.html:13
 msgid "Your password has been changed successfully. You can now log in."
 msgstr ""
 "Ton mot de passe a été modifié avec succès. Tu peux maintenant te connecter."
 
 #: templates/accounts/password_reset_confirm.html:4
-#: templates/accounts/password_reset_confirm.html:11
+#: templates/accounts/password_reset_confirm.html:10
 msgid "New password"
 msgstr "Nouveau mot de passe"
 
-#: templates/accounts/password_reset_confirm.html:62
+#: templates/accounts/password_reset_confirm.html:60
 msgid "Change my password"
 msgstr "Changer mon mot de passe"
 
-#: templates/accounts/password_reset_confirm.html:69
+#: templates/accounts/password_reset_confirm.html:67
 msgid "This reset link is invalid or has expired. Please make a new request."
 msgstr ""
 "Ce lien de réinitialisation est invalide ou a expiré. Veuillez faire une "
 "nouvelle demande."
 
-#: templates/accounts/password_reset_confirm.html:73
+#: templates/accounts/password_reset_confirm.html:71
 msgid "New request"
 msgstr "Nouvelle demande"
 
@@ -482,7 +517,7 @@ msgstr "E-mail envoyé"
 msgid "Email sent!"
 msgstr "E-mail envoyé !"
 
-#: templates/accounts/password_reset_done.html:16
+#: templates/accounts/password_reset_done.html:13
 msgid ""
 "If an account is associated with this email address, you will receive a "
 "reset link."
@@ -490,107 +525,131 @@ msgstr ""
 "Si un compte est associé à cette adresse e-mail, tu vas recevoir un lien de "
 "réinitialisation."
 
-#: templates/accounts/password_reset_done.html:19
+#: templates/accounts/password_reset_done.html:16
 msgid "Check your inbox (and spam folder if needed)."
 msgstr "Vérifie ta boîte de réception (et tes spams si nécessaire)."
 
-#: templates/accounts/profile.html:5 templates/base.html:114
+#: templates/accounts/profile.html:7 templates/base.html:128
 msgid "Profile"
 msgstr "Profil"
 
-#: templates/accounts/profile.html:12
+#: templates/accounts/profile.html:41
 msgid "Edit"
 msgstr "Modifier"
 
-#: templates/accounts/profile.html:62 templates/leagues/detail.html:74
-#: templates/rankings/_table.html:13
+#: templates/accounts/profile.html:51
+msgid "No predictions yet."
+msgstr "Aucun prono pour l'instant."
+
+#: templates/accounts/profile.html:52 templates/predictions/index.html:39
+msgid "See upcoming matches"
+msgstr "Voir les matchs à venir"
+
+#: templates/accounts/profile.html:59
+msgid "points"
+msgstr "points"
+
+#: templates/accounts/profile.html:64
+#, python-format
+msgid "out of %(total)s"
+msgstr "sur %(total)s"
+
+#: templates/accounts/profile.html:76 templates/matches/rules.html:142
+#: templates/rankings/_table.html:9
 msgid "Exact"
 msgstr "Exact"
 
-#: templates/accounts/profile.html:70 templates/leagues/detail.html:77
-#: templates/rankings/_table.html:16
+#: templates/accounts/profile.html:83 templates/rankings/_table.html:12
 msgid "Gap"
 msgstr "Écart"
 
-#: templates/accounts/profile.html:78 templates/leagues/detail.html:80
-#: templates/rankings/_table.html:19
+#: templates/accounts/profile.html:90 templates/rankings/_table.html:15
 msgid "Winner"
 msgstr "Vainqueur"
 
-#: templates/accounts/profile.html:94 templates/leagues/list.html:4
+#: templates/accounts/profile.html:106 templates/leagues/list.html:4
 #: templates/leagues/list.html:10
 msgid "My Leagues"
 msgstr "Mes Ligues"
 
-#: templates/accounts/profile.html:97 templates/leagues/join.html:26
-#: templates/leagues/list.html:14
+#: templates/accounts/profile.html:109 templates/leagues/join.html:34
+#: templates/leagues/list.html:13
 msgid "Join"
 msgstr "Rejoindre"
 
-#: templates/accounts/profile.html:100 templates/leagues/create.html:21
-#: templates/leagues/list.html:17
+#: templates/accounts/profile.html:112 templates/leagues/create.html:55
+#: templates/leagues/list.html:16
 msgid "Create"
 msgstr "Créer"
 
-#: templates/accounts/profile.html:114 templates/leagues/detail.html:13
-#: templates/leagues/list.html:33
-msgid "members"
-msgstr "membres"
-
-#: templates/accounts/profile.html:123 templates/leagues/detail.html:43
-msgid "Copy invite link"
-msgstr "Copier le lien d'invitation"
-
-#: templates/accounts/profile.html:131 templates/accounts/profile.html:171
-#: templates/leagues/detail.html:19 templates/leagues/detail.html:135
-msgid "Leave"
-msgstr "Quitter"
-
-#: templates/accounts/profile.html:143 templates/leagues/list.html:63
+#: templates/accounts/profile.html:126 templates/leagues/list.html:31
 msgid "You are not in any league yet."
 msgstr "Tu n'es encore dans aucune ligue."
 
-#: templates/accounts/profile.html:149 templates/base.html:58
-#: templates/base.html:110
-msgid "Rules"
-msgstr "Règles"
+#: templates/accounts/profile.html:128 templates/leagues/list.html:33
+#: templates/predictions/index.html:27
+msgid "Join a league"
+msgstr "Rejoindre une ligue"
 
-#: templates/accounts/profile.html:154 templates/base.html:70
+#: templates/accounts/profile.html:129 templates/leagues/list.html:34
+#: templates/predictions/index.html:28
+msgid "Create a league"
+msgstr "Créer une ligue"
+
+#: templates/accounts/profile.html:137
+msgid "Settings"
+msgstr "Réglages"
+
+#: templates/accounts/profile.html:148
+msgid "Switch to English"
+msgstr "Switch to English"
+
+#: templates/accounts/profile.html:148
+msgid "Passer en français"
+msgstr "Passer en français"
+
+#: templates/accounts/profile.html:158 templates/base.html:84
 msgid "Log out"
 msgstr "Déconnexion"
 
-#: templates/accounts/profile.html:165 templates/leagues/detail.html:129
+#: templates/accounts/profile.html:172 templates/leagues/detail.html:84
 msgid "Leave this league?"
 msgstr "Quitter cette ligue ?"
 
-#: templates/accounts/profile.html:168 templates/accounts/profile_edit.html:32
-#: templates/admin/matches/import.html:10 templates/leagues/create.html:23
-#: templates/leagues/detail.html:132 templates/leagues/join.html:28
+#: templates/accounts/profile.html:175 templates/accounts/profile_edit.html:78
+#: templates/admin/matches/import.html:10 templates/leagues/create.html:57
+#: templates/leagues/detail.html:89 templates/leagues/join.html:36
 msgid "Cancel"
 msgstr "Annuler"
 
-#: templates/accounts/profile_edit.html:4
-#: templates/accounts/profile_edit.html:11
+#: templates/accounts/profile.html:178 templates/leagues/detail.html:23
+#: templates/leagues/detail.html:92
+msgid "Leave"
+msgstr "Quitter"
+
+#: templates/accounts/profile_edit.html:5
+#: templates/accounts/profile_edit.html:12
 msgid "Edit profile"
 msgstr "Modifier mon profil"
 
-#: templates/accounts/profile_edit.html:31
+#: templates/accounts/profile_edit.html:9
+msgid "Back to profile"
+msgstr "Retour au profil"
+
+#: templates/accounts/profile_edit.html:77
 msgid "Save"
 msgstr "Enregistrer"
 
 #: templates/accounts/register.html:4
-msgid "Register"
-msgstr "Inscription"
-
-#: templates/accounts/register.html:15
 msgid "Create an account"
 msgstr "Créer un compte"
 
-#: templates/accounts/register.html:54
+#: templates/accounts/register.html:14 templates/accounts/register.html:174
+#: templates/leagues/public_invite.html:84
 msgid "Create my account"
 msgstr "Créer mon compte"
 
-#: templates/accounts/register.html:63
+#: templates/accounts/register.html:183
 msgid "Already have an account?"
 msgstr "Déjà inscrit ?"
 
@@ -623,20 +682,134 @@ msgstr ""
 msgid "Run sync"
 msgstr "Lancer la synchronisation"
 
-#: templates/base.html:55 templates/base.html:106
-#: templates/rankings/index.html:4 templates/rankings/index.html:8
+#: templates/base.html:23
+msgid "Oval'Pronos — Rugby predictions with friends"
+msgstr "Oval'Pronos — Pronos rugby entre potes"
+
+#: templates/base.html:24
+msgid ""
+"Predict rugby scores for Top 14, Champions Cup, 6 Nations. Odds reward the "
+"bold."
+msgstr ""
+"Prédit les scores du Top 14, Champions Cup et 6 Nations. Les cotes "
+"récompensent les audacieux."
+
+#: templates/base.html:45
+msgid "Skip to main content"
+msgstr "Aller au contenu principal"
+
+#: templates/base.html:69 templates/base.html:120
+#: templates/rankings/index.html:4 templates/rankings/index.html:10
 msgid "Rankings"
 msgstr "Classement"
 
-#: templates/base.html:148 templates/matches/home.html:12
+#: templates/base.html:72 templates/base.html:124
+msgid "Rules"
+msgstr "Règles"
+
+#: templates/base.html:162 templates/matches/home.html:16
 msgid "Tu sais pas plaquer, viens pronostiquer"
 msgstr "Tu sais pas plaquer, viens pronostiquer"
 
-#: templates/leagues/create.html:4 templates/leagues/create.html:9
+#: templates/emails/base.html:49 templates/emails/password_reset.txt:13
+#: templates/emails/results_summary.txt:12
+msgid "The Oval'Pronos team"
+msgstr "L'équipe Oval'Pronos"
+
+#: templates/emails/password_reset.html:3 templates/emails/password_reset.txt:1
+#: templates/emails/password_reset_subject.txt:1
+msgid "Reset your password — Oval'Pronos"
+msgstr "Réinitialise ton mot de passe — Oval'Pronos"
+
+#: templates/emails/password_reset.html:7
+msgid "Reset your password"
+msgstr "Réinitialise ton mot de passe"
+
+#: templates/emails/password_reset.html:10
+msgid ""
+"We received a password reset request for your Oval'Pronos account. If that "
+"was you, click the button below."
+msgstr ""
+"On a reçu une demande de réinitialisation pour ton compte Oval'Pronos. Si "
+"c'est bien toi, clique sur le bouton ci-dessous."
+
+#: templates/emails/password_reset.html:13
+#, python-format
+msgid "This link is valid for <strong>%(hours)sh</strong>."
+msgstr "Ce lien est valable <strong>%(hours)sh</strong>."
+
+#: templates/emails/password_reset.html:22
+msgid "Choose a new password"
+msgstr "Choisir un nouveau mot de passe"
+
+#: templates/emails/password_reset.html:30
+msgid "Button not showing? Copy and paste this link into your browser:"
+msgstr "Le bouton ne s'affiche pas ? Copie-colle ce lien dans ton navigateur :"
+
+#: templates/emails/password_reset.html:36
+#: templates/emails/password_reset.txt:10
+msgid ""
+"Didn't request this? Just ignore this email — your password won't change."
+msgstr ""
+"Tu n'as pas fait cette demande ? Ignore cet email — ton mot de passe ne "
+"changera pas."
+
+#: templates/emails/password_reset.txt:3
+msgid ""
+"We received a password reset request for your Oval'Pronos account. If that "
+"was you, copy and paste the link below into your browser."
+msgstr ""
+"On a reçu une demande de réinitialisation pour ton compte Oval'Pronos. Si "
+"c'est bien toi, copie-colle le lien ci-dessous dans ton navigateur."
+
+#: templates/emails/password_reset.txt:5
+#, python-format
+msgid "This link is valid for %(hours)sh."
+msgstr "Ce lien est valable %(hours)sh."
+
+#: templates/emails/password_reset.txt:7
+msgid "Choose a new password:"
+msgstr "Choisir un nouveau mot de passe :"
+
+#: templates/emails/results_summary.html:3
+#: templates/emails/results_summary.html:7
+msgid "Your results"
+msgstr "Tes résultats"
+
+#: templates/emails/results_summary.html:18
+msgid "Points scored this round"
+msgstr "Points cette journée"
+
+#: templates/emails/results_summary.html:21
+msgid "pts"
+msgstr "pts"
+
+#: templates/emails/results_summary.html:62
+msgid "See the full rankings"
+msgstr "Voir le classement"
+
+#: templates/emails/results_summary.txt:3
+#, python-format
+msgid "Tu as marqué %(pts)s point(s) cette journée."
+msgstr "Tu as marqué %(pts)s point(s) cette journée."
+
+#: templates/emails/results_summary.txt:5
+msgid "Detail:"
+msgstr "Détail :"
+
+#: templates/emails/results_summary.txt:9
+msgid "See the full rankings:"
+msgstr "Voir le classement :"
+
+#: templates/leagues/create.html:4 templates/leagues/create.html:11
 msgid "Create a League"
 msgstr "Créer une Ligue"
 
-#: templates/leagues/create.html:30
+#: templates/leagues/create.html:22
+msgid "League name"
+msgstr "Nom de la ligue"
+
+#: templates/leagues/create.html:65
 msgid ""
 "A 5-character invite code will be generated automatically. Share it with "
 "friends to let them join."
@@ -644,7 +817,7 @@ msgstr ""
 "Un code d'invitation de 5 caractères sera généré automatiquement. Partage-le "
 "avec tes amis pour les inviter."
 
-#: templates/leagues/create.html:34
+#: templates/leagues/create.html:69
 msgid ""
 "Only predictions for matches in the selected competitions will count toward "
 "this league's leaderboard."
@@ -652,224 +825,349 @@ msgstr ""
 "Seuls les pronos pour les matchs des compétitions sélectionnées comptent "
 "dans le classement de cette ligue."
 
-#: templates/leagues/detail.html:23
-msgid "Back"
-msgstr "Retour"
-
-#: templates/leagues/detail.html:37 templates/leagues/list.html:51
-msgid "Copy code"
-msgstr "Copier le code"
-
-#: templates/leagues/detail.html:45
-msgid "Copy link"
-msgstr "Copier le lien"
-
-#: templates/leagues/detail.html:47
-msgid "Share this code to invite friends"
-msgstr "Partage ce code pour inviter des amis"
-
-#: templates/leagues/detail.html:96 templates/rankings/_table.html:35
-msgid "You"
-msgstr "Vous"
-
-#: templates/leagues/detail.html:118 templates/rankings/_table.html:63
-msgid "No scores yet. Points appear after matches finish."
-msgstr ""
-"Aucun score pour le moment. Les points s'affichent après la fin des matchs."
-
-#: templates/leagues/join.html:4 templates/leagues/join.html:9
-msgid "Join a League"
-msgstr "Rejoindre une Ligue"
-
-#: templates/leagues/join.html:19
-msgid "Invite Code"
-msgstr "Code d'invitation"
-
-#: templates/leagues/list.html:31
+#: templates/leagues/detail.html:14 templates/partials/league_card.html:12
 msgid "Ended"
 msgstr "Terminée"
 
-#: templates/leagues/list.html:65 templates/predictions/index.html:25
-msgid "Join a league"
-msgstr "Rejoindre une ligue"
+#: templates/leagues/detail.html:27
+msgid "Back"
+msgstr "Retour"
 
-#: templates/leagues/list.html:66 templates/predictions/index.html:26
-msgid "Create a league"
-msgstr "Créer une ligue"
+#: templates/leagues/detail.html:52 templates/leagues/detail.html:53
+#: templates/partials/league_card.html:31
+msgid "Copy code"
+msgstr "Copier le code"
+
+#: templates/leagues/detail.html:60 templates/partials/league_card.html:39
+#, python-format
+msgid "Join my league %(name)s on Oval'Pronos, code %(code)s"
+msgstr "Rejoins ma ligue %(name)s sur Oval'Pronos, code %(code)s"
+
+#: templates/leagues/detail.html:61 templates/leagues/detail.html:62
+#: templates/partials/league_card.html:40
+msgid "Share invitation"
+msgstr "Partager l'invitation"
+
+#: templates/leagues/detail.html:66 templates/partials/league_card.html:45
+msgid "Invite link"
+msgstr "Lien d'invitation"
+
+#: templates/leagues/join.html:4 templates/leagues/join.html:11
+msgid "Join a League"
+msgstr "Rejoindre une Ligue"
+
+#: templates/leagues/join.html:21
+msgid "Invite Code"
+msgstr "Code d'invitation"
+
+#: templates/leagues/public_invite.html:7
+msgid "Invalid invitation"
+msgstr "Invitation invalide"
+
+#: templates/leagues/public_invite.html:9
+#, python-format
+msgid "Join %(name)s — Oval'Pronos"
+msgstr "Rejoins %(name)s — Oval'Pronos"
+
+#: templates/leagues/public_invite.html:13
+#, python-format
+msgid "Join %(name)s on Oval'Pronos"
+msgstr "Rejoins %(name)s sur Oval'Pronos"
+
+#: templates/leagues/public_invite.html:14
+msgid "Predict rugby scores, beat your friends. Free."
+msgstr "Prédis des scores de rugby, affronte tes potes. Gratuit."
+
+#: templates/leagues/public_invite.html:77
+msgid "Predict rugby scores, earn points based on odds — free."
+msgstr ""
+"Prédit des scores de rugby, gagne des points selon les cotes — c'est gratuit."
+
+#: templates/leagues/public_invite.html:28
+msgid "This invite link is invalid."
+msgstr "Ce lien d'invitation est invalide."
+
+#: templates/leagues/public_invite.html:29
+msgid "The code may have changed or the link may be broken."
+msgstr "Le code a peut-être changé ou le lien est cassé."
+
+#: templates/leagues/public_invite.html:30
+msgid "Go to home"
+msgstr "Retour à l'accueil"
+
+#: templates/leagues/public_invite.html:43
+#, python-format
+msgid "You're already in %(name)s."
+msgstr "Tu es déjà dans %(name)s."
+
+#: templates/leagues/public_invite.html:44
+msgid "Head to the league to see the leaderboard."
+msgstr "Voir le classement de la ligue."
+
+#: templates/leagues/public_invite.html:45
+msgid "Go to the league"
+msgstr "Voir la ligue"
+
+#: templates/leagues/public_invite.html:59
+msgid "We're waiting for you in"
+msgstr "On t'attend dans"
+
+#: templates/leagues/public_invite.html:64
+#, python-format
+msgid "%(creator)s invites you"
+msgstr "%(creator)s t'invite"
+
+#: templates/leagues/public_invite.html:66
+#: templates/partials/league_card.html:25
+#, python-format
+msgid "%(count)s member"
+msgid_plural "%(count)s members"
+msgstr[0] "%(count)s membre"
+msgstr[1] "%(count)s membres"
+
+#: templates/leagues/public_invite.html:88
+msgid "I already have an account"
+msgstr "J'ai déjà un compte"
 
 #: templates/matches/home.html:5
-msgid "Rugby predictions"
-msgstr "Pronostics rugby"
+msgid "Rugby predictions with friends"
+msgstr "Pronos rugby entre potes"
 
-#: templates/matches/home.html:13
-msgid "The first rugby predictions app is here!"
-msgstr "La première appli de pronostics rugby est disponible !"
+#: templates/matches/home.html:18
+msgid "Rugby predictions with friends."
+msgstr "Pronos rugby entre potes."
 
-#: templates/matches/home.html:14
-msgid ""
-"Week after week, predict unlikely scores and rack up points against your "
-"friends."
-msgstr ""
-"Journée après journée, prédis des scores improbables et marque des points "
-"face à tes potes."
+#: templates/matches/home.html:19
+msgid "Odds reward the bold. Free."
+msgstr "Les cotes récompensent les audacieux. Gratuit."
 
-#: templates/matches/home.html:15
-msgid "Don't wait any longer — sign up to join us."
-msgstr "Alors n'hésite plus, inscris-toi pour nous rejoindre."
-
-#: templates/matches/home.html:31
-msgid "Oval'Pronos — simple and fun"
-msgstr "Oval'Pronos, c'est simple et c'est drôle"
-
-#: templates/matches/home.html:32
-msgid "You don't need to be a rugby expert to play!"
-msgstr "Pas besoin d'être un crack du rugby pour jouer !"
-
-#: templates/matches/home.html:33
-msgid "Every week, make predictions with friends and get live results."
-msgstr ""
-"Chaque semaine, tu pronostiques avec tes potes et tu as les résultats en "
-"direct."
+#: templates/matches/home.html:38
+msgid "How it works"
+msgstr "Comment ça marche"
 
 #: templates/matches/home.html:40
-msgid "Predict matches"
-msgstr "Pronostique tes matchs"
+msgid "An unlikely winner earns more points."
+msgstr "Un vainqueur surprise rapporte plus de points."
 
-#: templates/matches/home.html:41
-msgid ""
-"The odds system rewards risk-takers. The more precise your prediction, the "
-"more points you earn."
-msgstr ""
-"Le système de cotes récompense les prises de risque. Plus ton pronostic est "
-"précis, plus tu marques de points."
+#: templates/matches/home.html:41 templates/matches/rules.html:54
+msgid "Clermont — Perpignan, Perpignan wins (odds 6.30 = 63 base pts):"
+msgstr "Clermont — Perpignan, Perpignan gagne (cote 6,30 = 63 pts de base) :"
 
-#: templates/matches/home.html:42
-msgid ""
-"Create or join a private league with your invite code and challenge your "
-"friends."
-msgstr ""
-"Crée ou rejoins une ligue privée avec ton code d'invitation et affronte tes "
-"amis."
+#: templates/matches/home.html:95
+msgid "Play with friends"
+msgstr "Joue avec tes potes"
 
-#: templates/matches/rules.html:4
+#: templates/matches/home.html:97
+msgid "Create a private league, share the code, compare predictions."
+msgstr "Crée une ligue privée, partage le code, comparez vos pronos."
+
+#: templates/matches/rules.html:4 templates/matches/rules.html:5
 msgid "Scoring rules"
 msgstr "Règles du jeu"
 
-#: templates/matches/rules.html:10
+#: templates/matches/rules.html:6
+msgid ""
+"Exact score, good gap, correct winner — how points are calculated in "
+"Oval'Pronos."
+msgstr ""
+"Score exact, bon écart, bon vainqueur — comment les points sont calculés "
+"dans Oval'Pronos."
+
+#: templates/matches/rules.html:14
 msgid "Crouch, bind, set"
 msgstr "Flexion, liez, jeu"
 
-#: templates/matches/rules.html:11
+#: templates/matches/rules.html:15
 msgid "How does the scoring system work?"
 msgstr "Comment fonctionne le système de points ?"
 
-#: templates/matches/rules.html:14
+#: templates/matches/rules.html:18
 msgid "Scoring tiers"
 msgstr "Le barème"
 
-#: templates/matches/rules.html:21
-msgid "Odds × 3"
-msgstr "Cote × 3"
-
-#: templates/matches/rules.html:29
-msgid "Odds × 2"
-msgstr "Cote × 2"
-
-#: templates/matches/rules.html:37
-msgid "Odds × 1"
-msgstr "Cote × 1"
-
-#: templates/matches/rules.html:45
-msgid "point"
-msgstr "point"
-
-#: templates/matches/rules.html:52 templates/partials/match_card.html:160
+#: templates/matches/rules.html:48
 msgid "Odds"
 msgstr "Les cotes"
 
-#: templates/matches/rules.html:54
+#: templates/matches/rules.html:50
 msgid ""
-"Odds are based on Unibet odds (multiplied by 10 to avoid decimals). A match "
-"with high odds on the winner scores more points, but you take more risk."
+"Odds are sourced from bookmakers and stored × 10 as integers to avoid "
+"decimals (e.g. 6.30 → 63 base pts). Apply the tier multiplier: exact 63 × 3 "
+"= 189 pts, good gap 63 × 2 = 126 pts, correct winner 63 × 1 = 63 pts."
 msgstr ""
-"Les cotes sont basées sur les cotes Unibet (multipliées par 10 pour éviter "
-"les décimales). Un match avec une forte cote sur le vainqueur rapporte plus "
-"de points, mais tu prends plus de risque."
+"Les cotes sont issues de bookmakers et stockées × 10 en entiers pour éviter "
+"les décimales (ex. 6,30 → 63 pts de base). Applique le multiplicateur de "
+"palier : score exact 63 × 3 = 189 pts, bon écart 63 × 2 = 126 pts, bon "
+"vainqueur 63 × 1 = 63 pts."
 
-#: templates/matches/rules.html:58
-msgid "Example"
-msgstr "Exemple"
+#: templates/matches/rules.html:89
+msgid "What is a good gap?"
+msgstr "C'est quoi le bon écart ?"
 
-#: templates/matches/rules.html:60
+#: templates/matches/rules.html:91
 msgid ""
-"Clermont — Perpignan, Perpignan odds: 63 (= 6.3 at Unibet), good gap "
-"threshold: 3 pts"
+"The gap is the score difference (home − away). A good gap means the absolute "
+"difference between your predicted gap and the real gap is within the "
+"threshold."
 msgstr ""
-"Clermont — Perpignan, cote Perpignan : 63 (= 6,3 chez Unibet), seuil bon "
-"écart : 3 pts"
+"L'écart, c'est la différence de score (domicile − extérieur). Un bon écart "
+"signifie que la valeur absolue de (écart prédit − écart réel) est dans le "
+"seuil."
 
-#: templates/matches/rules.html:68
-msgid "Actual score"
-msgstr "Score réel"
-
-#: templates/matches/rules.html:69
-msgid "Result"
-msgstr "Résultat"
-
-#: templates/matches/rules.html:104
-msgid "Draw rule"
-msgstr "Cas du match nul"
-
-#: templates/matches/rules.html:106
+#: templates/matches/rules.html:94
 msgid ""
-"If the match ends in a draw, only a draw prediction (gap of 0) scores "
-"points. Predicting any winner counts as a miss."
+"Example: predict 15–22 (Perpignan by 7), real score 17–22 (Perpignan by 5). |"
+"7 − 5| = 2. Within the threshold → Good gap."
 msgstr ""
-"Si le match se termine sur un score nul, seul un pronostic de nul (écart de "
-"0) est valide pour marquer des points. Pronostiquer n'importe quel vainqueur "
-"compte comme raté."
+"Exemple : prono 15–22 (Perpignan de 7 pts d'écart), réel 17–22 (Perpignan de "
+"5 pts d'écart). |7 − 5| = 2. Dans le seuil → Bon écart."
 
-#: templates/partials/match_card.html:57
-msgid "No prediction"
-msgstr "Pas de prono"
+#: templates/matches/rules.html:100
+#, python-format
+msgid "Threshold for all active competitions: %(n)s pts."
+msgstr "Seuil pour toutes les compétitions actives : %(n)s pts."
 
-#: templates/partials/match_card.html:65 templates/predictions/index.html:14
-msgid "Live"
-msgstr "En direct"
+#: templates/matches/rules.html:110
+msgid "Default threshold: 3 pts."
+msgstr "Seuil par défaut : 3 pts."
 
-#: templates/partials/match_card.html:69
-msgid "Predictions close at kickoff"
-msgstr "Les pronos ferment au coup d'envoi"
+#: templates/matches/rules.html:114
+msgid "Edge cases"
+msgstr "Cas particuliers"
 
-#: templates/partials/match_card.html:70
-msgid "Locked"
-msgstr "Verrouillé"
+#: templates/matches/rules.html:118
+msgid "Draw"
+msgstr "Match nul"
 
-#: templates/partials/match_card.html:81
+#: templates/matches/rules.html:121
+msgid ""
+"Real draw + predicted draw: exact score → Exact, wrong score → Good gap."
+msgstr ""
+"Nul réel + prono nul : score exact → Score exact, mauvais score → Bon écart."
+
+#: templates/matches/rules.html:122
+msgid "Real draw + predicted winner → 0 pts."
+msgstr "Nul réel + prono vainqueur → 0 pt."
+
+#: templates/matches/rules.html:123
+msgid "Predicted draw + real winner → 0 pts."
+msgstr "Prono nul + vainqueur réel → 0 pt."
+
+#: templates/matches/rules.html:127
+msgid "Cancelled match"
+msgstr "Match annulé"
+
+#: templates/matches/rules.html:128
+msgid "A cancelled match always scores 0 pts, whatever your prediction."
+msgstr "Un match annulé rapporte toujours 0 pt, quel que soit ton pronostic."
+
+#: templates/matches/rules.html:130
+msgid "Kickoff lock"
+msgstr "Verrouillage au coup d'envoi"
+
+#: templates/matches/rules.html:131
+msgid "Predictions are locked at kickoff. No changes possible after that."
+msgstr ""
+"Les pronostics sont verrouillés au coup d'envoi. Aucune modification "
+"possible ensuite."
+
+#: templates/matches/rules.html:133 templates/partials/match_card.html:155
 msgid "Odds coming soon"
 msgstr "Cotes à venir"
 
-#: templates/partials/match_card.html:87
+#: templates/matches/rules.html:134
+msgid ""
+"Matches without odds are hidden. They are not counted in the prediction "
+"progress bar and submissions are blocked."
+msgstr ""
+"Les matchs sans cotes sont masqués. Ils ne comptent pas dans la barre de "
+"progression et les soumissions sont bloquées."
+
+#: templates/matches/rules.html:137
+msgid "Fixed points mode"
+msgstr "Mode points fixes"
+
+#: templates/matches/rules.html:139
+msgid "Some competitions use flat points instead of odds:"
+msgstr ""
+"Certaines compétitions utilisent des points fixes à la place des cotes :"
+
+#: templates/matches/rules.html:152
+msgid "Rankings and leagues"
+msgstr "Classement et ligues"
+
+#: templates/matches/rules.html:154
+msgid "Scores update after each match. Equal points → shared rank."
+msgstr ""
+"Les scores sont mis à jour après chaque match. Égalité de points → rang "
+"partagé."
+
+#: templates/matches/rules.html:155
+msgid "Play in private leagues with custom rankings among friends and family."
+msgstr ""
+"Joue dans des ligues privées avec un classement personnalisé entre amis et "
+"famille."
+
+#: templates/partials/match_card.html:2 templates/partials/match_card.html:161
+msgid "Saved"
+msgstr "Enregistré"
+
+#: templates/partials/match_card.html:8
+#, python-format
+msgid "J%(r)s"
+msgstr "J%(r)s"
+
+#: templates/partials/match_card.html:15 templates/predictions/index.html:16
+msgid "Live"
+msgstr "En direct"
+
+#: templates/partials/match_card.html:17
+msgid "Locked"
+msgstr "Verrouillé"
+
+#: templates/partials/match_card.html:19
 msgid "Closes in"
 msgstr "Ferme dans"
 
-#: templates/partials/match_card.html:124
-msgid "Fill both scores to save"
-msgstr "Remplis les deux scores pour enregistrer"
+#: templates/partials/match_card.html:136
+#, python-format
+msgid "%(counter)s pt"
+msgid_plural "%(counter)s pts"
+msgstr[0] "%(counter)s pt"
+msgstr[1] "%(counter)s pts"
+
+#: templates/partials/match_card.html:138
+#: templates/partials/match_card.html:149
+#: templates/partials/match_card.html:170
+msgid "Your prediction:"
+msgstr "Ton prono :"
+
+#: templates/partials/match_card.html:141
+#: templates/partials/match_card.html:151
+msgid "No prediction"
+msgstr "Pas de prono"
+
+#: templates/partials/match_card.html:145
+msgid "Match cancelled, 0 pts"
+msgstr "Match annulé, 0 pt"
 
 #: templates/predictions/index.html:12
+msgid "Match filter"
+msgstr "Filtre des matchs"
+
+#: templates/predictions/index.html:14
 msgid "Upcoming"
 msgstr "À venir"
 
-#: templates/predictions/index.html:16
+#: templates/predictions/index.html:18
 msgid "Past"
 msgstr "Passés"
 
-#: templates/predictions/index.html:22
+#: templates/predictions/index.html:24
 msgid "Join or create a league to start predicting."
 msgstr "Rejoins ou crée une ligue pour commencer à pronostiquer."
 
-#: templates/predictions/index.html:23
+#: templates/predictions/index.html:25
 msgid ""
 "Leagues are tied to specific competitions. Your predictions will count "
 "toward your league's leaderboard."
@@ -877,68 +1175,1414 @@ msgstr ""
 "Les ligues sont liées à des compétitions spécifiques. Tes pronos comptent "
 "dans le classement de ta ligue."
 
-#: templates/predictions/index.html:33
+#: templates/predictions/index.html:35
 msgid "No upcoming matches yet. Fixtures are added weekly."
 msgstr "Pas de matchs à venir. Les rencontres sont ajoutées chaque semaine."
 
-#: templates/predictions/index.html:36
+#: templates/predictions/index.html:38
 msgid "No matches in progress right now."
 msgstr "Aucun match en cours pour l'instant."
 
-#: templates/predictions/index.html:39
+#: templates/predictions/index.html:42
 msgid "Your past predictions will appear here."
 msgstr "Tes pronos passés s'afficheront ici."
 
-#: templates/predictions/index.html:74
+#: templates/predictions/index.html:60
+msgid "prediction"
+msgid_plural "predictions"
+msgstr[0] "prono"
+msgstr[1] "pronos"
+
+#: templates/predictions/index.html:86
 #, python-format
 msgid "See %(n)s match without odds"
 msgid_plural "See %(n)s matches without odds"
 msgstr[0] "Voir %(n)s match sans cote"
 msgstr[1] "Voir %(n)s matchs sans cote"
 
-#: templates/rankings/index.html:16
+#: templates/rankings/_table.html:22
+msgid "Leaderboard"
+msgstr "Classement"
+
+#: templates/rankings/_table.html:27
+#, python-format
+msgid "Rank %(rank)s, %(name)s, %(pts)s points"
+msgstr "%(rank)s, %(name)s, %(pts)s points"
+
+#: templates/rankings/_table.html:59 templates/rankings/_table.html:119
+msgid "You"
+msgstr "Vous"
+
+#: templates/rankings/_table.html:93
+#, python-format
+msgid "%(n)s scored"
+msgstr "%(n)s joués"
+
+#: templates/rankings/_table.html:131
+msgid "No scores in this competition yet."
+msgstr "Aucun score dans cette compétition pour l'instant."
+
+#: templates/rankings/_table.html:133
+msgid "This league has ended. Final rankings are frozen."
+msgstr "Cette ligue est terminée. Le classement final est figé."
+
+#: templates/rankings/_table.html:135
+msgid "Your league has no scores yet."
+msgstr "Ta ligue n'a pas encore de points."
+
+#: templates/rankings/_table.html:136 templates/rankings/_table.html:139
+msgid "Make predictions"
+msgstr "Faire des pronos"
+
+#: templates/rankings/_table.html:138
+msgid "No scores yet. Points appear after matches finish."
+msgstr ""
+"Aucun score pour le moment. Les points s'affichent après la fin des matchs."
+
+#: templates/rankings/index.html:18
 msgid "Global"
 msgstr "Général"
 
-#: templates/rankings/index.html:27
+#: templates/rankings/index.html:29
 msgid "Manage leagues"
 msgstr "Gérer mes ligues"
 
-#: templates/rankings/index.html:37
+#: templates/rankings/index.html:38
 msgid "All"
 msgstr "Toutes"
 
-#~ msgid "You requested a password reset for your Oval'Pronos account."
-#~ msgstr ""
-#~ "Tu as demandé la réinitialisation du mot de passe de ton compte "
-#~ "Oval'Pronos."
+#: venv/lib/python3.12/site-packages/django/contrib/messages/apps.py:16
+msgid "Messages"
+msgstr ""
 
-#~ msgid "Click the link below to set a new password:"
-#~ msgstr ""
-#~ "Clique sur le lien ci-dessous pour définir un nouveau mot de passe :"
+#: venv/lib/python3.12/site-packages/django/contrib/sitemaps/apps.py:8
+msgid "Site Maps"
+msgstr ""
 
-#~ msgid "If you didn't request this, you can safely ignore this email."
+#: venv/lib/python3.12/site-packages/django/contrib/staticfiles/apps.py:9
+msgid "Static Files"
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/contrib/syndication/apps.py:7
+#, fuzzy
+#| msgid "Prediction"
+msgid "Syndication"
+msgstr "Pronostic"
+
+#. Translators: String used to replace omitted page numbers in elided page
+#. range generated by paginators, e.g. [1, 2, '…', 5, 6, 7, '…', 9, 10].
+#: venv/lib/python3.12/site-packages/django/core/paginator.py:33
+msgid "…"
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/core/paginator.py:35
+msgid "That page number is not an integer"
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/core/paginator.py:36
+msgid "That page number is less than 1"
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/core/paginator.py:37
+msgid "That page contains no results"
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/core/validators.py:22
+msgid "Enter a valid value."
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/core/validators.py:70
+msgid "Enter a valid domain name."
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/core/validators.py:153
+#: venv/lib/python3.12/site-packages/django/forms/fields.py:773
+msgid "Enter a valid URL."
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/core/validators.py:200
+msgid "Enter a valid integer."
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/core/validators.py:211
+#, fuzzy
+#| msgid "Email address"
+msgid "Enter a valid email address."
+msgstr "Adresse e-mail"
+
+#. Translators: "letters" means latin letters: a-z and A-Z.
+#: venv/lib/python3.12/site-packages/django/core/validators.py:289
+msgid ""
+"Enter a valid “slug” consisting of letters, numbers, underscores or hyphens."
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/core/validators.py:297
+msgid ""
+"Enter a valid “slug” consisting of Unicode letters, numbers, underscores, or "
+"hyphens."
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/core/validators.py:309
+#: venv/lib/python3.12/site-packages/django/core/validators.py:318
+#: venv/lib/python3.12/site-packages/django/core/validators.py:332
+#: venv/lib/python3.12/site-packages/django/db/models/fields/__init__.py:2220
+#, python-format
+msgid "Enter a valid %(protocol)s address."
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/core/validators.py:311
+msgid "IPv4"
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/core/validators.py:320
+#: venv/lib/python3.12/site-packages/django/utils/ipv6.py:43
+msgid "IPv6"
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/core/validators.py:334
+msgid "IPv4 or IPv6"
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/core/validators.py:375
+msgid "Enter only digits separated by commas."
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/core/validators.py:381
+#, python-format
+msgid "Ensure this value is %(limit_value)s (it is %(show_value)s)."
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/core/validators.py:416
+#, python-format
+msgid "Ensure this value is less than or equal to %(limit_value)s."
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/core/validators.py:425
+#, python-format
+msgid "Ensure this value is greater than or equal to %(limit_value)s."
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/core/validators.py:434
+#, python-format
+msgid "Ensure this value is a multiple of step size %(limit_value)s."
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/core/validators.py:441
+#, python-format
+msgid ""
+"Ensure this value is a multiple of step size %(limit_value)s, starting from "
+"%(offset)s, e.g. %(offset)s, %(valid_value1)s, %(valid_value2)s, and so on."
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/core/validators.py:473
+#, python-format
+msgid ""
+"Ensure this value has at least %(limit_value)d character (it has "
+"%(show_value)d)."
+msgid_plural ""
+"Ensure this value has at least %(limit_value)d characters (it has "
+"%(show_value)d)."
+msgstr[0] ""
+msgstr[1] ""
+
+#: venv/lib/python3.12/site-packages/django/core/validators.py:491
+#, python-format
+msgid ""
+"Ensure this value has at most %(limit_value)d character (it has "
+"%(show_value)d)."
+msgid_plural ""
+"Ensure this value has at most %(limit_value)d characters (it has "
+"%(show_value)d)."
+msgstr[0] ""
+msgstr[1] ""
+
+#: venv/lib/python3.12/site-packages/django/core/validators.py:514
+#: venv/lib/python3.12/site-packages/django/forms/fields.py:364
+#: venv/lib/python3.12/site-packages/django/forms/fields.py:403
+msgid "Enter a number."
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/core/validators.py:516
+#, python-format
+msgid "Ensure that there are no more than %(max)s digit in total."
+msgid_plural "Ensure that there are no more than %(max)s digits in total."
+msgstr[0] ""
+msgstr[1] ""
+
+#: venv/lib/python3.12/site-packages/django/core/validators.py:521
+#, python-format
+msgid "Ensure that there are no more than %(max)s decimal place."
+msgid_plural "Ensure that there are no more than %(max)s decimal places."
+msgstr[0] ""
+msgstr[1] ""
+
+#: venv/lib/python3.12/site-packages/django/core/validators.py:526
+#, python-format
+msgid ""
+"Ensure that there are no more than %(max)s digit before the decimal point."
+msgid_plural ""
+"Ensure that there are no more than %(max)s digits before the decimal point."
+msgstr[0] ""
+msgstr[1] ""
+
+#: venv/lib/python3.12/site-packages/django/core/validators.py:597
+#, python-format
+msgid ""
+"File extension “%(extension)s” is not allowed. Allowed extensions are: "
+"%(allowed_extensions)s."
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/core/validators.py:659
+msgid "Null characters are not allowed."
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/db/models/base.py:1633
+#: venv/lib/python3.12/site-packages/django/forms/models.py:932
+msgid "and"
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/db/models/base.py:1635
+#, python-format
+msgid "%(model_name)s with this %(field_labels)s already exists."
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/db/models/constraints.py:20
+#, python-format
+msgid "Constraint “%(name)s” is violated."
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/db/models/fields/__init__.py:134
+#, python-format
+msgid "Value %(value)r is not a valid choice."
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/db/models/fields/__init__.py:135
+msgid "This field cannot be null."
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/db/models/fields/__init__.py:136
+msgid "This field cannot be blank."
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/db/models/fields/__init__.py:137
+#, python-format
+msgid "%(model_name)s with this %(field_label)s already exists."
+msgstr ""
+
+#. Translators: The 'lookup_type' is one of 'date', 'year' or
+#. 'month'. Eg: "Title must be unique for pub_date year"
+#: venv/lib/python3.12/site-packages/django/db/models/fields/__init__.py:141
+#, python-format
+msgid ""
+"%(field_label)s must be unique for %(date_field_label)s %(lookup_type)s."
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/db/models/fields/__init__.py:180
+#, python-format
+msgid "Field of type: %(field_type)s"
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/db/models/fields/__init__.py:1161
+#, python-format
+msgid "“%(value)s” value must be either True or False."
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/db/models/fields/__init__.py:1162
+#, python-format
+msgid "“%(value)s” value must be either True, False, or None."
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/db/models/fields/__init__.py:1164
+msgid "Boolean (Either True or False)"
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/db/models/fields/__init__.py:1214
+#, python-format
+msgid "String (up to %(max_length)s)"
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/db/models/fields/__init__.py:1216
+msgid "String (unlimited)"
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/db/models/fields/__init__.py:1325
+msgid "Comma-separated integers"
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/db/models/fields/__init__.py:1426
+#, python-format
+msgid ""
+"“%(value)s” value has an invalid date format. It must be in YYYY-MM-DD "
+"format."
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/db/models/fields/__init__.py:1430
+#: venv/lib/python3.12/site-packages/django/db/models/fields/__init__.py:1565
+#, python-format
+msgid ""
+"“%(value)s” value has the correct format (YYYY-MM-DD) but it is an invalid "
+"date."
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/db/models/fields/__init__.py:1434
+msgid "Date (without time)"
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/db/models/fields/__init__.py:1561
+#, python-format
+msgid ""
+"“%(value)s” value has an invalid format. It must be in YYYY-MM-DD "
+"HH:MM[:ss[.uuuuuu]][TZ] format."
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/db/models/fields/__init__.py:1569
+#, python-format
+msgid ""
+"“%(value)s” value has the correct format (YYYY-MM-DD HH:MM[:ss[.uuuuuu]]"
+"[TZ]) but it is an invalid date/time."
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/db/models/fields/__init__.py:1574
+msgid "Date (with time)"
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/db/models/fields/__init__.py:1701
+#, python-format
+msgid "“%(value)s” value must be a decimal number."
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/db/models/fields/__init__.py:1703
+msgid "Decimal number"
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/db/models/fields/__init__.py:1864
+#, python-format
+msgid ""
+"“%(value)s” value has an invalid format. It must be in [DD] "
+"[[HH:]MM:]ss[.uuuuuu] format."
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/db/models/fields/__init__.py:1868
+msgid "Duration"
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/db/models/fields/__init__.py:1945
+msgid "File path"
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/db/models/fields/__init__.py:2023
+#, python-format
+msgid "“%(value)s” value must be a float."
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/db/models/fields/__init__.py:2025
+msgid "Floating point number"
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/db/models/fields/__init__.py:2065
+#, python-format
+msgid "“%(value)s” value must be an integer."
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/db/models/fields/__init__.py:2067
+msgid "Integer"
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/db/models/fields/__init__.py:2163
+msgid "Big (8 byte) integer"
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/db/models/fields/__init__.py:2180
+msgid "Small integer"
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/db/models/fields/__init__.py:2188
+#, fuzzy
+#| msgid "Email address"
+msgid "IPv4 address"
+msgstr "Adresse e-mail"
+
+#: venv/lib/python3.12/site-packages/django/db/models/fields/__init__.py:2219
+#, fuzzy
+#| msgid "Email address"
+msgid "IP address"
+msgstr "Adresse e-mail"
+
+#: venv/lib/python3.12/site-packages/django/db/models/fields/__init__.py:2310
+#: venv/lib/python3.12/site-packages/django/db/models/fields/__init__.py:2311
+#, python-format
+msgid "“%(value)s” value must be either None, True or False."
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/db/models/fields/__init__.py:2313
+msgid "Boolean (Either True, False or None)"
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/db/models/fields/__init__.py:2364
+msgid "Positive big integer"
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/db/models/fields/__init__.py:2379
+msgid "Positive integer"
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/db/models/fields/__init__.py:2394
+msgid "Positive small integer"
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/db/models/fields/__init__.py:2410
+#, python-format
+msgid "Slug (up to %(max_length)s)"
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/db/models/fields/__init__.py:2446
+msgid "Text"
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/db/models/fields/__init__.py:2526
+#, python-format
+msgid ""
+"“%(value)s” value has an invalid format. It must be in HH:MM[:ss[.uuuuuu]] "
+"format."
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/db/models/fields/__init__.py:2530
+#, python-format
+msgid ""
+"“%(value)s” value has the correct format (HH:MM[:ss[.uuuuuu]]) but it is an "
+"invalid time."
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/db/models/fields/__init__.py:2534
+msgid "Time"
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/db/models/fields/__init__.py:2642
+msgid "URL"
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/db/models/fields/__init__.py:2666
+msgid "Raw binary data"
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/db/models/fields/__init__.py:2731
+#, python-format
+msgid "“%(value)s” is not a valid UUID."
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/db/models/fields/__init__.py:2733
+msgid "Universally unique identifier"
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/db/models/fields/files.py:244
+msgid "File"
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/db/models/fields/files.py:420
+msgid "Image"
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/db/models/fields/json.py:24
+msgid "A JSON object"
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/db/models/fields/json.py:26
+msgid "Value must be valid JSON."
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/db/models/fields/related.py:974
+#, python-format
+msgid "%(model)s instance with %(field)s %(value)r is not a valid choice."
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/db/models/fields/related.py:977
+msgid "Foreign Key (type determined by related field)"
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/db/models/fields/related.py:1271
+msgid "One-to-one relationship"
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/db/models/fields/related.py:1328
+#, python-format
+msgid "%(from)s-%(to)s relationship"
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/db/models/fields/related.py:1330
+#, python-format
+msgid "%(from)s-%(to)s relationships"
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/db/models/fields/related.py:1378
+msgid "Many-to-many relationship"
+msgstr ""
+
+#. Translators: If found as last label character, these punctuation
+#. characters will prevent the default label_suffix to be appended to
+#. the label
+#: venv/lib/python3.12/site-packages/django/forms/boundfield.py:188
+msgid ":?.!"
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/forms/fields.py:91
+msgid "This field is required."
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/forms/fields.py:313
+msgid "Enter a whole number."
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/forms/fields.py:484
+#: venv/lib/python3.12/site-packages/django/forms/fields.py:1241
+msgid "Enter a valid date."
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/forms/fields.py:507
+#: venv/lib/python3.12/site-packages/django/forms/fields.py:1242
+msgid "Enter a valid time."
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/forms/fields.py:534
+msgid "Enter a valid date/time."
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/forms/fields.py:568
+msgid "Enter a valid duration."
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/forms/fields.py:569
+#, python-brace-format
+msgid "The number of days must be between {min_days} and {max_days}."
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/forms/fields.py:638
+msgid "No file was submitted. Check the encoding type on the form."
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/forms/fields.py:639
+msgid "No file was submitted."
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/forms/fields.py:640
+msgid "The submitted file is empty."
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/forms/fields.py:642
+#, python-format
+msgid "Ensure this filename has at most %(max)d character (it has %(length)d)."
+msgid_plural ""
+"Ensure this filename has at most %(max)d characters (it has %(length)d)."
+msgstr[0] ""
+msgstr[1] ""
+
+#: venv/lib/python3.12/site-packages/django/forms/fields.py:647
+msgid "Please either submit a file or check the clear checkbox, not both."
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/forms/fields.py:715
+msgid ""
+"Upload a valid image. The file you uploaded was either not an image or a "
+"corrupted image."
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/forms/fields.py:862
+#: venv/lib/python3.12/site-packages/django/forms/fields.py:949
+#: venv/lib/python3.12/site-packages/django/forms/models.py:1621
+#, python-format
+msgid "Select a valid choice. %(value)s is not one of the available choices."
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/forms/fields.py:951
+#: venv/lib/python3.12/site-packages/django/forms/fields.py:1070
+#: venv/lib/python3.12/site-packages/django/forms/models.py:1619
+msgid "Enter a list of values."
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/forms/fields.py:1071
+msgid "Enter a complete value."
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/forms/fields.py:1313
+msgid "Enter a valid UUID."
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/forms/fields.py:1343
+msgid "Enter a valid JSON."
+msgstr ""
+
+#. Translators: This is the default suffix added to form field labels
+#: venv/lib/python3.12/site-packages/django/forms/forms.py:97
+msgid ":"
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/forms/forms.py:239
+#, python-format
+msgid "(Hidden field %(name)s) %(error)s"
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/forms/formsets.py:61
+#, python-format
+msgid ""
+"ManagementForm data is missing or has been tampered with. Missing fields: "
+"%(field_names)s. You may need to file a bug report if the issue persists."
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/forms/formsets.py:65
+#, python-format
+msgid "Please submit at most %(num)d form."
+msgid_plural "Please submit at most %(num)d forms."
+msgstr[0] ""
+msgstr[1] ""
+
+#: venv/lib/python3.12/site-packages/django/forms/formsets.py:70
+#, python-format
+msgid "Please submit at least %(num)d form."
+msgid_plural "Please submit at least %(num)d forms."
+msgstr[0] ""
+msgstr[1] ""
+
+#: venv/lib/python3.12/site-packages/django/forms/formsets.py:484
+#: venv/lib/python3.12/site-packages/django/forms/formsets.py:491
+msgid "Order"
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/forms/formsets.py:499
+msgid "Delete"
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/forms/models.py:925
+#, python-format
+msgid "Please correct the duplicate data for %(field)s."
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/forms/models.py:930
+#, python-format
+msgid "Please correct the duplicate data for %(field)s, which must be unique."
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/forms/models.py:937
+#, python-format
+msgid ""
+"Please correct the duplicate data for %(field_name)s which must be unique "
+"for the %(lookup)s in %(date_field)s."
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/forms/models.py:946
+msgid "Please correct the duplicate values below."
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/forms/models.py:1383
+msgid "The inline value did not match the parent instance."
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/forms/models.py:1474
+msgid "Select a valid choice. That choice is not one of the available choices."
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/forms/models.py:1623
+#, python-format
+msgid "“%(pk)s” is not a valid value."
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/forms/utils.py:229
+#, python-format
+msgid ""
+"%(datetime)s couldn’t be interpreted in time zone %(current_timezone)s; it "
+"may be ambiguous or it may not exist."
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/forms/widgets.py:528
+msgid "Clear"
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/forms/widgets.py:529
+msgid "Currently"
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/forms/widgets.py:530
+msgid "Change"
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/forms/widgets.py:869
+msgid "Unknown"
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/forms/widgets.py:870
+msgid "Yes"
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/forms/widgets.py:871
+msgid "No"
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/tasks/base.py:34
+msgctxt "Task"
+msgid "Ready"
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/tasks/base.py:36
+msgctxt "Task"
+msgid "Running"
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/tasks/base.py:38
+msgctxt "Task"
+msgid "Failed"
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/tasks/base.py:40
+msgctxt "Task"
+msgid "Successful"
+msgstr ""
+
+#. Translators: Please do not add spaces around commas.
+#: venv/lib/python3.12/site-packages/django/template/defaultfilters.py:878
+msgid "yes,no,maybe"
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/template/defaultfilters.py:908
+#: venv/lib/python3.12/site-packages/django/template/defaultfilters.py:925
+#, python-format
+msgid "%(size)d byte"
+msgid_plural "%(size)d bytes"
+msgstr[0] ""
+msgstr[1] ""
+
+#: venv/lib/python3.12/site-packages/django/template/defaultfilters.py:927
+#, python-format
+msgid "%s KB"
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/template/defaultfilters.py:929
+#, python-format
+msgid "%s MB"
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/template/defaultfilters.py:931
+#, python-format
+msgid "%s GB"
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/template/defaultfilters.py:933
+#, python-format
+msgid "%s TB"
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/template/defaultfilters.py:935
+#, python-format
+msgid "%s PB"
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/utils/dateformat.py:74
+msgid "p.m."
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/utils/dateformat.py:75
+msgid "a.m."
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/utils/dateformat.py:80
+msgid "PM"
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/utils/dateformat.py:81
+msgid "AM"
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/utils/dateformat.py:153
+msgid "midnight"
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/utils/dateformat.py:155
+msgid "noon"
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/utils/dates.py:7
+msgid "Monday"
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/utils/dates.py:8
+msgid "Tuesday"
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/utils/dates.py:9
+msgid "Wednesday"
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/utils/dates.py:10
+msgid "Thursday"
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/utils/dates.py:11
+msgid "Friday"
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/utils/dates.py:12
+msgid "Saturday"
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/utils/dates.py:13
+msgid "Sunday"
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/utils/dates.py:16
+msgid "Mon"
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/utils/dates.py:17
+msgid "Tue"
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/utils/dates.py:18
+msgid "Wed"
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/utils/dates.py:19
+msgid "Thu"
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/utils/dates.py:20
+msgid "Fri"
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/utils/dates.py:21
+#, fuzzy
+#| msgid "Status"
+msgid "Sat"
+msgstr "Statut"
+
+#: venv/lib/python3.12/site-packages/django/utils/dates.py:22
+msgid "Sun"
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/utils/dates.py:25
+msgid "January"
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/utils/dates.py:26
+msgid "February"
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/utils/dates.py:27
+msgid "March"
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/utils/dates.py:28
+msgid "April"
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/utils/dates.py:29
+msgid "May"
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/utils/dates.py:30
+msgid "June"
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/utils/dates.py:31
+msgid "July"
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/utils/dates.py:32
+msgid "August"
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/utils/dates.py:33
+#, fuzzy
+#| msgid "Members"
+msgid "September"
+msgstr "Membres"
+
+#: venv/lib/python3.12/site-packages/django/utils/dates.py:34
+msgid "October"
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/utils/dates.py:35
+#, fuzzy
+#| msgid "Members"
+msgid "November"
+msgstr "Membres"
+
+#: venv/lib/python3.12/site-packages/django/utils/dates.py:36
+#, fuzzy
+#| msgid "Members"
+msgid "December"
+msgstr "Membres"
+
+#: venv/lib/python3.12/site-packages/django/utils/dates.py:39
+msgid "jan"
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/utils/dates.py:40
+msgid "feb"
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/utils/dates.py:41
+msgid "mar"
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/utils/dates.py:42
+#, fuzzy
+#| msgid "Gap"
+msgid "apr"
+msgstr "Écart"
+
+#: venv/lib/python3.12/site-packages/django/utils/dates.py:43
+msgid "may"
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/utils/dates.py:44
+msgid "jun"
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/utils/dates.py:45
+msgid "jul"
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/utils/dates.py:46
+msgid "aug"
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/utils/dates.py:47
+msgid "sep"
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/utils/dates.py:48
+msgid "oct"
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/utils/dates.py:49
+msgid "nov"
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/utils/dates.py:50
+msgid "dec"
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/utils/dates.py:53
+msgctxt "abbrev. month"
+msgid "Jan."
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/utils/dates.py:54
+msgctxt "abbrev. month"
+msgid "Feb."
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/utils/dates.py:55
+msgctxt "abbrev. month"
+msgid "March"
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/utils/dates.py:56
+msgctxt "abbrev. month"
+msgid "April"
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/utils/dates.py:57
+msgctxt "abbrev. month"
+msgid "May"
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/utils/dates.py:58
+msgctxt "abbrev. month"
+msgid "June"
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/utils/dates.py:59
+msgctxt "abbrev. month"
+msgid "July"
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/utils/dates.py:60
+msgctxt "abbrev. month"
+msgid "Aug."
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/utils/dates.py:61
+msgctxt "abbrev. month"
+msgid "Sept."
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/utils/dates.py:62
+msgctxt "abbrev. month"
+msgid "Oct."
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/utils/dates.py:63
+msgctxt "abbrev. month"
+msgid "Nov."
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/utils/dates.py:64
+msgctxt "abbrev. month"
+msgid "Dec."
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/utils/dates.py:67
+msgctxt "alt. month"
+msgid "January"
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/utils/dates.py:68
+msgctxt "alt. month"
+msgid "February"
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/utils/dates.py:69
+msgctxt "alt. month"
+msgid "March"
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/utils/dates.py:70
+msgctxt "alt. month"
+msgid "April"
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/utils/dates.py:71
+msgctxt "alt. month"
+msgid "May"
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/utils/dates.py:72
+msgctxt "alt. month"
+msgid "June"
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/utils/dates.py:73
+msgctxt "alt. month"
+msgid "July"
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/utils/dates.py:74
+msgctxt "alt. month"
+msgid "August"
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/utils/dates.py:75
+#, fuzzy
+#| msgid "Members"
+msgctxt "alt. month"
+msgid "September"
+msgstr "Membres"
+
+#: venv/lib/python3.12/site-packages/django/utils/dates.py:76
+msgctxt "alt. month"
+msgid "October"
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/utils/dates.py:77
+#, fuzzy
+#| msgid "Members"
+msgctxt "alt. month"
+msgid "November"
+msgstr "Membres"
+
+#: venv/lib/python3.12/site-packages/django/utils/dates.py:78
+#, fuzzy
+#| msgid "Members"
+msgctxt "alt. month"
+msgid "December"
+msgstr "Membres"
+
+#: venv/lib/python3.12/site-packages/django/utils/ipv6.py:20
+msgid "This is not a valid IPv6 address."
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/utils/text.py:76
+#, python-format
+msgctxt "String to return when truncating text"
+msgid "%(truncated_text)s…"
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/utils/text.py:282
+msgid "or"
+msgstr ""
+
+#. Translators: This string is used as a separator between list elements
+#: venv/lib/python3.12/site-packages/django/utils/text.py:301
+#: venv/lib/python3.12/site-packages/django/utils/timesince.py:135
+msgid ", "
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/utils/timesince.py:8
+#, python-format
+msgid "%(num)d year"
+msgid_plural "%(num)d years"
+msgstr[0] ""
+msgstr[1] ""
+
+#: venv/lib/python3.12/site-packages/django/utils/timesince.py:9
+#, python-format
+msgid "%(num)d month"
+msgid_plural "%(num)d months"
+msgstr[0] ""
+msgstr[1] ""
+
+#: venv/lib/python3.12/site-packages/django/utils/timesince.py:10
+#, python-format
+msgid "%(num)d week"
+msgid_plural "%(num)d weeks"
+msgstr[0] ""
+msgstr[1] ""
+
+#: venv/lib/python3.12/site-packages/django/utils/timesince.py:11
+#, python-format
+msgid "%(num)d day"
+msgid_plural "%(num)d days"
+msgstr[0] ""
+msgstr[1] ""
+
+#: venv/lib/python3.12/site-packages/django/utils/timesince.py:12
+#, python-format
+msgid "%(num)d hour"
+msgid_plural "%(num)d hours"
+msgstr[0] ""
+msgstr[1] ""
+
+#: venv/lib/python3.12/site-packages/django/utils/timesince.py:13
+#, python-format
+msgid "%(num)d minute"
+msgid_plural "%(num)d minutes"
+msgstr[0] ""
+msgstr[1] ""
+
+#: venv/lib/python3.12/site-packages/django/views/csrf.py:29
+#, fuzzy
+#| msgid "Hidden"
+msgid "Forbidden"
+msgstr "Masqué"
+
+#: venv/lib/python3.12/site-packages/django/views/csrf.py:30
+msgid "CSRF verification failed. Request aborted."
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/views/csrf.py:34
+msgid ""
+"You are seeing this message because this HTTPS site requires a “Referer "
+"header” to be sent by your web browser, but none was sent. This header is "
+"required for security reasons, to ensure that your browser is not being "
+"hijacked by third parties."
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/views/csrf.py:40
+msgid ""
+"If you have configured your browser to disable “Referer” headers, please re-"
+"enable them, at least for this site, or for HTTPS connections, or for “same-"
+"origin” requests."
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/views/csrf.py:45
+msgid ""
+"If you are using the <meta name=\"referrer\" content=\"no-referrer\"> tag or "
+"including the “Referrer-Policy: no-referrer” header, please remove them. The "
+"CSRF protection requires the “Referer” header to do strict referer checking. "
+"If you’re concerned about privacy, use alternatives like <a "
+"rel=\"noreferrer\" …> for links to third-party sites."
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/views/csrf.py:54
+msgid ""
+"You are seeing this message because this site requires a CSRF cookie when "
+"submitting forms. This cookie is required for security reasons, to ensure "
+"that your browser is not being hijacked by third parties."
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/views/csrf.py:60
+msgid ""
+"If you have configured your browser to disable cookies, please re-enable "
+"them, at least for this site, or for “same-origin” requests."
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/views/csrf.py:66
+msgid "More information is available with DEBUG=True."
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/views/generic/dates.py:44
+msgid "No year specified"
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/views/generic/dates.py:64
+#: venv/lib/python3.12/site-packages/django/views/generic/dates.py:115
+#: venv/lib/python3.12/site-packages/django/views/generic/dates.py:214
+msgid "Date out of range"
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/views/generic/dates.py:94
+msgid "No month specified"
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/views/generic/dates.py:147
+msgid "No day specified"
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/views/generic/dates.py:194
+msgid "No week specified"
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/views/generic/dates.py:353
+#: venv/lib/python3.12/site-packages/django/views/generic/dates.py:384
+#, python-format
+msgid "No %(verbose_name_plural)s available"
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/views/generic/dates.py:680
+#, python-format
+msgid ""
+"Future %(verbose_name_plural)s not available because "
+"%(class_name)s.allow_future is False."
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/views/generic/dates.py:720
+#, python-format
+msgid "Invalid date string “%(datestr)s” given format “%(format)s”"
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/views/generic/detail.py:56
+#, python-format
+msgid "No %(verbose_name)s found matching the query"
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/views/generic/list.py:70
+msgid "Page is not “last”, nor can it be converted to an int."
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/views/generic/list.py:77
+#, python-format
+msgid "Invalid page (%(page_number)s): %(message)s"
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/views/generic/list.py:173
+#, python-format
+msgid "Empty list and “%(class_name)s.allow_empty” is False."
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/views/static.py:49
+msgid "Directory indexes are not allowed here."
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/views/static.py:51
+#, python-format
+msgid "“%(path)s” does not exist"
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/views/static.py:68
+#: venv/lib/python3.12/site-packages/django/views/templates/directory_index.html:8
+#: venv/lib/python3.12/site-packages/django/views/templates/directory_index.html:11
+#, python-format
+msgid "Index of %(directory)s"
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/views/templates/default_urlconf.html:7
+#: venv/lib/python3.12/site-packages/django/views/templates/default_urlconf.html:204
+msgid "The install worked successfully! Congratulations!"
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/views/templates/default_urlconf.html:206
+#, python-format
+msgid ""
+"View <a href=\"https://docs.djangoproject.com/en/%(version)s/releases/\" "
+"target=\"_blank\" rel=\"noopener\">release notes</a> for Django %(version)s"
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/views/templates/default_urlconf.html:208
+#, python-format
+msgid ""
+"You are seeing this page because <a href=\"https://docs.djangoproject.com/en/"
+"%(version)s/ref/settings/#debug\" target=\"_blank\" "
+"rel=\"noopener\">DEBUG=True</a> is in your settings file and you have not "
+"configured any URLs."
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/views/templates/default_urlconf.html:217
+msgid "Django Documentation"
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/views/templates/default_urlconf.html:218
+msgid "Topics, references, &amp; how-to’s"
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/views/templates/default_urlconf.html:226
+msgid "Tutorial: A Polling App"
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/views/templates/default_urlconf.html:227
+msgid "Get started with Django"
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/views/templates/default_urlconf.html:235
+msgid "Django Community"
+msgstr ""
+
+#: venv/lib/python3.12/site-packages/django/views/templates/default_urlconf.html:236
+msgid "Connect, get help, or contribute"
+msgstr ""
+
+#~ msgid "You requested to reset the password for your Oval'Pronos account."
 #~ msgstr ""
-#~ "Si tu n'es pas à l'origine de cette demande, ignore simplement cet e-mail."
+#~ "Tu as demandé à réinitialiser le mot de passe de ton compte Oval'Pronos."
 
 #~ msgid ""
-#~ "League is automatically deactivated after this date. Leave blank for no "
-#~ "expiry."
+#~ "Click the button below to choose a new password. This link is valid for "
+#~ "<strong>24 hours</strong>."
 #~ msgstr ""
-#~ "La ligue est automatiquement désactivée après cette date. Laisser vide "
-#~ "pour aucune expiration."
+#~ "Clique sur le bouton ci-dessous pour choisir un nouveau mot de passe. Ce "
+#~ "lien est valable <strong>24 heures</strong>."
 
-#~ msgid "Closes soon"
-#~ msgstr "Ferme bientôt"
+#~ msgid "Reset my password"
+#~ msgstr "Réinitialiser mon mot de passe"
 
-#~ msgid "No matches available."
-#~ msgstr "Aucun match disponible."
+#~ msgid ""
+#~ "If you didn't request this, just ignore this email — your password won't "
+#~ "change."
+#~ msgstr ""
+#~ "Si tu n'es pas à l'origine de cette demande, ignore simplement cet e-mail "
+#~ "— ton mot de passe restera inchangé."
 
-#~ msgid "Home"
-#~ msgstr "Domicile"
+#~ msgid "Odds × 3"
+#~ msgstr "Cote × 3"
 
-#~ msgid "Draw"
-#~ msgstr "Nul"
+#~ msgid "Odds × 2"
+#~ msgstr "Cote × 2"
 
-#~ msgid "Away"
-#~ msgstr "Extérieur"
+#~ msgid "Odds × 1"
+#~ msgstr "Cote × 1"
+
+#~ msgid "point"
+#~ msgstr "point"
+
+#~ msgid ""
+#~ "Odds are based on Unibet odds (multiplied by 10 to avoid decimals). A "
+#~ "match with high odds on the winner scores more points, but you take more "
+#~ "risk."
+#~ msgstr ""
+#~ "Les cotes sont basées sur les cotes Unibet (multipliées par 10 pour "
+#~ "éviter les décimales). Un match avec une forte cote sur le vainqueur "
+#~ "rapporte plus de points, mais tu prends plus de risque."
+
+#~ msgid "Example"
+#~ msgstr "Exemple"
+
+#~ msgid ""
+#~ "Clermont — Perpignan, Perpignan odds: 63 (= 6.3 at Unibet), good gap "
+#~ "threshold: 3 pts"
+#~ msgstr ""
+#~ "Clermont — Perpignan, cote Perpignan : 63 (= 6,3 chez Unibet), seuil bon "
+#~ "écart : 3 pts"
+
+#~ msgid "Actual score"
+#~ msgstr "Score réel"
+
+#~ msgid "Result"
+#~ msgstr "Résultat"
+
+#~ msgid "Draw rule"
+#~ msgstr "Cas du match nul"
+
+#~ msgid ""
+#~ "If the match ends in a draw, only a draw prediction (gap of 0) scores "
+#~ "points. Predicting any winner counts as a miss."
+#~ msgstr ""
+#~ "Si le match se termine sur un score nul, seul un pronostic de nul (écart "
+#~ "de 0) est valide pour marquer des points. Pronostiquer n'importe quel "
+#~ "vainqueur compte comme raté."

@@ -18,9 +18,33 @@ class HomeView(TemplateView):
             return redirect('predictions:index')
         return super().dispatch(request, *args, **kwargs)
 
+    def get_context_data(self, **kwargs):
+        from apps.matches.models import Competition
+        from apps.predictions.services import get_example_points
+        ctx = super().get_context_data(**kwargs)
+        ctx['competitions'] = Competition.objects.filter(is_active=True).order_by('name')
+        ctx['example'] = get_example_points()
+        return ctx
+
 
 class RulesView(TemplateView):
     template_name = 'matches/rules.html'
+
+    def get_context_data(self, **kwargs):
+        from apps.matches.models import Competition
+        from apps.predictions.services import get_example_points
+        ctx = super().get_context_data(**kwargs)
+        ctx['example'] = get_example_points()
+        comps = Competition.objects.filter(is_active=True).order_by('name')
+        ctx['active_competitions'] = comps
+        gap_values = list(comps.values_list('good_gap_pts', flat=True).distinct())
+        ctx['good_gap_values'] = gap_values
+        ctx['good_gap_uniform'] = len(gap_values) <= 1
+        fixed_comps = list(comps.filter(scoring_system='FIXED'))
+        ctx['fixed_competitions'] = fixed_comps
+        if fixed_comps:
+            ctx['fixed_example'] = get_example_points(scoring_system='FIXED')
+        return ctx
 
 
 def _check_bearer(request):

@@ -1,13 +1,50 @@
 """
-Scoring tests for calculate_points().
-
-All tests use MagicMock — no database access required.
+Scoring tests for calculate_points(), and view tests for the progress bar OOB update.
 """
+from datetime import timedelta
 from unittest.mock import MagicMock
 
-from django.test import SimpleTestCase
+from django.contrib.auth import get_user_model
+from django.test import SimpleTestCase, TestCase
+from django.urls import reverse
+from django.utils import timezone
 
-from apps.predictions.services import calculate_points
+from apps.matches.models import Competition, Match, Team
+from apps.predictions.models import Prediction
+from apps.predictions.services import calculate_points, get_example_points
+
+User = get_user_model()
+
+
+# ── helpers for DB-backed tests ────────────────────────────────────────────────
+
+def _make_user(username):
+    return User.objects.create_user(username=username, password='pass', email=f'{username}@test.local')
+
+
+def _make_comp(code):
+    return Competition.objects.create(
+        name=f'Comp {code}', code=code,
+        external_id=-(hash(code) % 90000 + 10000),
+        season='2025', scoring_system='FIXED', good_gap_pts=3, is_active=True,
+    )
+
+
+def _make_team(suffix):
+    return Team.objects.create(
+        external_id=-(hash(suffix) % 90000 + 50000),
+        name=f'Team {suffix}', slug=f'team-{suffix}-prog', country='France',
+    )
+
+
+def _make_match(comp, home, away, external_id):
+    return Match.objects.create(
+        external_id=external_id, competition=comp,
+        home_team=home, away_team=away,
+        datetime=timezone.now() + timedelta(days=7),
+        status='SCHEDULED',
+        cote_home=18, cote_draw=30, cote_away=22,
+    )
 
 
 def make_match(
@@ -124,3 +161,120 @@ class CalculatePointsTests(SimpleTestCase):
         pred = make_pred(15, 10)
         result = calculate_points(pred, match)
         self.assertIsNone(result)
+
+
+class ExamplePointsTest(SimpleTestCase):
+    """get_example_points() values must match calculate_points() — if the formula
+    changes these break, forcing an update of the rules and home pages."""
+
+    def test_cotes_values(self):
+        example = get_example_points()
+        self.assertEqual(example['exact_pts'], 189)  # 63 × 3
+        self.assertEqual(example['gap_pts'], 126)    # 63 × 2
+        self.assertEqual(example['win_pts'], 63)     # 63 × 1
+        self.assertEqual(example['miss_pts'], 0)
+
+    def test_fixed_values(self):
+        example = get_example_points(scoring_system='FIXED')
+        self.assertEqual(example['exact_pts'], 5)
+        self.assertEqual(example['gap_pts'], 3)
+        self.assertEqual(example['win_pts'], 1)
+        self.assertEqual(example['miss_pts'], 0)
+
+
+class PredictionProgressOOBTest(TestCase):
+    """SubmitPredictionView returns an hx-swap-oob progress bar; count is server-authoritative."""
+
+    @classmethod
+    def setUpTestData(cls):
+        from apps.leagues.models import League
+        cls.user = _make_user('oob_user')
+        cls.comp = _make_comp('OOBTEST')
+        cls.league = League.objects.create(name='OOB League', creator=cls.user)
+        cls.league.competitions.add(cls.comp)
+        cls.league.members.add(cls.user)
+        cls.team_a = _make_team('oob-a')
+        cls.team_b = _make_team('oob-b')
+        cls.match1 = _make_match(cls.comp, cls.team_a, cls.team_b, external_id=-88001)
+        cls.match2 = _make_match(cls.comp, cls.team_b, cls.team_a, external_id=-88002)
+
+    def setUp(self):
+        self.client.force_login(self.user)
+
+    def _submit(self, match, h, a):
+        return self.client.post(
+            reverse('predictions:submit', kwargs={'match_pk': match.pk}),
+            {'score_h': str(h), 'score_a': str(a)},
+        )
+
+    def test_response_includes_oob_progress_bar(self):
+        """A successful save returns the progress bar fragment with hx-swap-oob."""
+        response = self._submit(self.match1, 14, 10)
+        self.assertEqual(response.status_code, 200)
+        content = response.content.decode()
+        self.assertIn('id="predictions-progress"', content)
+        self.assertIn('hx-swap-oob="true"', content)
+
+    def test_count_is_1_of_2_after_first_save(self):
+        """Progress reflects exactly one saved prediction out of two matches."""
+        response = self._submit(self.match1, 14, 10)
+        content = response.content.decode()
+        self.assertIn('aria-valuenow="1"', content)
+        self.assertIn('aria-valuemax="2"', content)
+
+    def test_100_percent_on_last_save(self):
+        """Saving the final prediction yields aria-valuenow == total and --complete class."""
+        Prediction.objects.create(
+            user=self.user, match=self.match1,
+            predicted_home_score=14, predicted_away_score=10,
+        )
+        response = self._submit(self.match2, 20, 15)
+        content = response.content.decode()
+        self.assertIn('aria-valuenow="2"', content)
+        self.assertIn('aria-valuemax="2"', content)
+        self.assertIn('prediction-progress-bar--complete', content)
+
+    def test_page_context_shows_correct_initial_count(self):
+        """GET /predictions/ exposes the right predicted_with_odds in context."""
+        Prediction.objects.create(
+            user=self.user, match=self.match1,
+            predicted_home_score=14, predicted_away_score=10,
+        )
+        response = self.client.get(reverse('predictions:index'))
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context['predicted_with_odds'], 1)
+        self.assertEqual(response.context['total_with_odds'], 2)
+
+    def test_locked_match_excluded_from_progress(self):
+        """A locked match (past kickoff, SCHEDULED) is excluded from the progress bar denominator."""
+        from apps.leagues.models import League
+        locked_user = _make_user('oob_locked')
+        locked_league = League.objects.create(name='Locked League', creator=locked_user)
+        locked_league.competitions.add(self.comp)
+        locked_league.members.add(locked_user)
+        self.client.force_login(locked_user)
+
+        # Match in the past — is_locked returns True; must not appear in denominator
+        locked_match = Match.objects.create(
+            external_id=-88003, competition=self.comp,
+            home_team=self.team_a, away_team=self.team_b,
+            datetime=timezone.now() - timedelta(hours=1),
+            status='SCHEDULED',
+            cote_home=18, cote_draw=30, cote_away=22,
+        )
+        Prediction.objects.create(
+            user=locked_user, match=locked_match,
+            predicted_home_score=10, predicted_away_score=5,
+        )
+        # Also predict the two future matches
+        Prediction.objects.create(
+            user=locked_user, match=self.match1,
+            predicted_home_score=14, predicted_away_score=10,
+        )
+        # Save the last prediction via view
+        response = self._submit(self.match2, 20, 15)
+        content = response.content.decode()
+        # total = 2 (only future matches), locked match excluded
+        self.assertIn('aria-valuenow="2"', content)
+        self.assertIn('aria-valuemax="2"', content)
+        self.assertIn('prediction-progress-bar--complete', content)

@@ -1,0 +1,14 @@
+{% autoescape off %}{% load i18n %}Salut {{ user.get_display_name }} ! Résultats {{ competition_name }} — Journée {{ round_label }}.
+
+{% blocktrans with pts=round_points %}Tu as marqué {{ pts }} point(s) cette journée.{% endblocktrans %}
+
+{% trans "Detail:" %}
+{% for p in predictions %}  {{ p.match.home_team.short_name|default:p.match.home_team.name }} {{ p.predicted_home_score }}-{{ p.predicted_away_score }} {{ p.match.away_team.short_name|default:p.match.away_team.name }}
+  {% trans "Final" %} : {{ p.match.home_score }}-{{ p.match.away_score }} — {{ p.points_earned }} pts ({{ p.get_result_type_display }})
+{% endfor %}
+{% trans "See the full rankings:" %} {{ site_url }}/rankings/
+
+—
+{% trans "The Oval'Pronos team" %}
+"Tu sais pas plaquer, viens pronostiquer"
+{% endautoescape %}

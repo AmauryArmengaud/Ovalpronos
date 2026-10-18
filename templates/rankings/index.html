@@ -5,9 +5,11 @@
 {% block nav_active_rankings %}active{% endblock %}
 
 {% block content %}
+<div class="ranking-page-wrap">
+
 <h1 class="mb-4">{% trans "Rankings" %}</h1>
 
-{# ── Tabs ────────────────────────────────────────────────────────────── #}
+{# ── Tabs ─────────────────────────────────────────────────────────────── #}
 <div class="d-flex align-items-center gap-3 mb-4">
   <div class="nav-tabs-scroll-wrapper flex-grow-1">
     <div class="segment-control" hx-boost="true">
@@ -30,40 +32,34 @@
 
 {# ── Competition filter chips (global tab only) ───────────────────────── #}
 {% if active_tab == 'global' and competitions %}
-<div class="nav-tabs-scroll-wrapper mb-4">
-  <div class="d-flex gap-2">
-    <a href="{% url 'rankings:index' %}"
-       class="badge rounded-pill {% if not selected_comp %}badge-comp-active{% else %}badge-comp{% endif %}">
-      {% trans "All" %}
-    </a>
-    {% for comp in competitions %}
-    <a href="{% url 'rankings:index' %}?comp={{ comp.pk }}"
-       class="badge rounded-pill {% if selected_comp.pk == comp.pk %}badge-comp-active{% else %}badge-comp{% endif %}">
-      {{ comp.name }}
-    </a>
-    {% endfor %}
-  </div>
+<div class="ranking-comp-chips mb-4">
+  <a href="{% url 'rankings:index' %}"
+     class="ranking-comp-chip {% if not selected_comp %}ranking-comp-chip--active{% endif %}">
+    {% trans "All" %}
+  </a>
+  {% for comp in competitions %}
+  <a href="{% url 'rankings:index' %}?comp={{ comp.pk }}"
+     class="ranking-comp-chip {% if selected_comp.pk == comp.pk %}ranking-comp-chip--active{% endif %}">
+    {{ comp.chip_label }}
+  </a>
+  {% endfor %}
 </div>
 {% endif %}
 
 {# ── Leaderboard ──────────────────────────────────────────────────────── #}
 {% if active_tab == 'global' %}
-  {% with entries=active_leaderboard %}
+  {% with entries=active_leaderboard empty_reason=selected_comp|yesno:'competition,' %}
     {% include "rankings/_table.html" %}
   {% endwith %}
 {% else %}
-  {% with entries=league_leaderboard %}
+  {% with entries=league_leaderboard empty_reason='league' %}
     {% include "rankings/_table.html" %}
   {% endwith %}
 {% endif %}
 
+</div>{# /ranking-page-wrap #}
 {% endblock %}
 
 {% block extra_js %}
-<script>
-  var row = document.getElementById('current-user-row');
-  if (row) {
-    row.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-  }
-</script>
+{% include "partials/_ranking_sticky_js.html" with scroll_on_load=True %}
 {% endblock %}

@@ -11,18 +11,27 @@
   --color-background:       #FCFFF9;
   --color-text-on-primary:  #FCFFF9;
   --color-text:             #404771;
-  --color-text-secondary:   rgba(43, 52, 103, 0.55);
+  --color-text-secondary:   rgba(43, 52, 103, 0.75);  /* synced with main.css — was 0.55 */
   --color-surface-raised:   rgba(43, 52, 103, 0.06);
   --color-brand-rugby:      #1a7f37;
 
   /* Result badges */
   --color-badge-exact:      #F5C542;
-  --color-badge-exact-text: #705500;
+  --color-badge-exact-text: #5c4500;
   --color-badge-gap:        #8B35A8;
   --color-badge-win:        #A8E063;
-  --color-badge-win-text:   #2d6b0e;
+  --color-badge-win-text:   #235408;
   --color-badge-miss:       rgba(43, 52, 103, 0.10);
-  --color-badge-miss-text:  rgba(43, 52, 103, 0.50);
+  --color-badge-miss-text:  rgba(43, 52, 103, 0.75);  /* synced with main.css — ~5.4:1 on cream */
+  --color-logo-bg:          rgba(43, 52, 103, 0.08);
+  --color-badge-win-light:  rgba(168, 224, 99, 0.25);
+  --color-badge-gap-light:  rgba(139, 53, 168, 0.35);
+  /* Rankings podium medals */
+  --color-rank-silver:      rgba(43, 52, 103, 0.65);  /* synced with main.css — 4.1:1 on cream */
+  --color-rank-bronze:      rgba(184, 105, 37, 0.75);
+  /* League ended badge */
+  --color-badge-ended-bg:   rgba(43, 52, 103, 0.08);
+  --color-badge-ended-text: rgba(43, 52, 103, 0.75);  /* synced with main.css — ~5.4:1 on cream */
 
   /* Radius */
   --radius-sm:  0.375rem;

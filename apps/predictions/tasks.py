@@ -212,19 +212,24 @@ def send_results_summary(competition_id=None, round_label=None):
             )
             round_points = sum(p.points_earned or 0 for p in user_predictions)
 
+            site_url = getattr(settings, 'SITE_URL', '').rstrip('/')
             context = {
                 'user': user,
                 'competition_name': competition_name,
                 'round_label': rnd,
                 'predictions': user_predictions,
                 'round_points': round_points,
-                'site_url': getattr(settings, 'SITE_URL', ''),
+                'site_url': site_url,
             }
-            subject = f"[Oval'Pronos] Résultats {competition_name} J{rnd} — {round_points} pts"
-            html_body = render_to_string('accounts/emails/results_summary.html', context)
+            from django.utils.translation import gettext as _
+            subject = _("[Oval'Pronos] Résultats %(comp)s J%(rnd)s — %(pts)s pts") % {
+                'comp': competition_name, 'rnd': rnd, 'pts': round_points,
+            }
+            text_body = render_to_string('emails/results_summary.txt', context)
+            html_body = render_to_string('emails/results_summary.html', context)
             msg = EmailMultiAlternatives(
                 subject=subject,
-                body=html_body,
+                body=text_body,
                 from_email=settings.DEFAULT_FROM_EMAIL,
                 to=[user.email],
             )

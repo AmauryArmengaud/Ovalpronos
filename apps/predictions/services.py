@@ -93,3 +93,29 @@ def calculate_points(prediction, match):
 
     # Step 9: correct winner only
     return (pts(1), 'WIN')
+
+
+def get_example_points(scoring_system='COTES', good_gap_pts=3):
+    """
+    Points for the canonical Clermont–Perpignan example (real 17-22, cote_away=63).
+    Used by both the home page and the rules page — single source of truth.
+    """
+    import types
+
+    comp = types.SimpleNamespace(scoring_system=scoring_system, good_gap_pts=good_gap_pts)
+    match = types.SimpleNamespace(
+        status='FINISHED', has_odds=True,
+        home_score=17, away_score=22,
+        cote_home=18, cote_draw=30, cote_away=63,
+        competition=comp,
+    )
+
+    def pred(home, away):
+        return types.SimpleNamespace(predicted_home_score=home, predicted_away_score=away)
+
+    return {
+        'exact_pts': calculate_points(pred(17, 22), match)[0],
+        'gap_pts':   calculate_points(pred(15, 22), match)[0],
+        'win_pts':   calculate_points(pred(14, 25), match)[0],
+        'miss_pts':  calculate_points(pred(20, 10), match)[0],
+    }

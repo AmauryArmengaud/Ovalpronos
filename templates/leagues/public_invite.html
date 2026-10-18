@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% load static %}
+
+{% block title %}
+{% if invalid %}
+{% trans "Invalid invitation" %} — Oval'Pronos
+{% else %}
+{% blocktrans with name=league.name %}Join {{ name }} — Oval'Pronos{% endblocktrans %}
+{% endif %}
+{% endblock %}
+
+{% block og_title %}{% if not invalid %}{% blocktrans with name=league.name %}Join {{ name }} on Oval'Pronos{% endblocktrans %}{% endif %}{% endblock %}
+{% block og_description %}{% trans "Predict rugby scores, beat your friends. Free." %}{% endblock %}
+
+{% block body_class %}home-visitor{% endblock %}
+{% block main_class %}p-0{% endblock %}
+
+{% block content %}
+
+{% if invalid %}
+{# ── Invalid code ─────────────────────────────────────────────────────── #}
+<div class="invite-invalid">
+  <div class="container py-5">
+    <div class="row justify-content-center">
+      <div class="col-12 col-md-6 text-center">
+        <i class="ti ti-link-off page-empty-icon" aria-hidden="true"></i>
+        <h1 class="h4 mb-3">{% trans "This invite link is invalid." %}</h1>
+        <p class="text-muted mb-4">{% trans "The code may have changed or the link may be broken." %}</p>
+        <a href="{% url 'matches:home' %}" class="btn btn-accent">{% trans "Go to home" %}</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% elif already_member %}
+{# ── Already a member ─────────────────────────────────────────────────── #}
+<div class="invite-invalid">
+  <div class="container py-5">
+    <div class="row justify-content-center">
+      <div class="col-12 col-md-6 text-center">
+        <i class="ti ti-circle-check page-empty-icon page-empty-icon--accent" aria-hidden="true"></i>
+        <h1 class="h4 mb-3">{% blocktrans with name=league.name %}You're already in {{ name }}.{% endblocktrans %}</h1>
+        <p class="text-muted mb-4">{% trans "Head to the league to see the leaderboard." %}</p>
+        <a href="{% url 'leagues:detail' pk=league.pk %}" class="btn btn-accent">{% trans "Go to the league" %}</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% else %}
+{# ── Valid invite — reuses home-hero CSS ──────────────────────────────── #}
+<section class="home-hero">
+  <div class="container home-hero__inner">
+
+    <div class="home-hero__content">
+
+      <h1 class="home-hero__title">
+        {% trans "We're waiting for you in" %} <span class="invite-league-name">{{ league.name }}</span>
+      </h1>
+
+      {# ── Social proof ──────────────────────────────────────────────── #}
+      <div class="invite-meta mb-3">
+        <span>{% blocktrans with creator=league.creator.get_display_name %}{{ creator }} invites you{% endblocktrans %}</span>
+        <span class="invite-meta__sep" aria-hidden="true">·</span>
+        <span>{% blocktrans count count=member_count %}{{ count }} member{% plural %}{{ count }} members{% endblocktrans %}</span>
+      </div>
+
+      {% if league.competitions.all %}
+      <div class="d-flex flex-wrap gap-2 mb-4">
+        {% for comp in league.competitions.all %}
+          <span class="comp-divider-chip comp-divider-chip--dark">{{ comp.name }}</span>
+        {% endfor %}
+      </div>
+      {% endif %}
+
+      <p class="home-hero__sub">
+        {% trans "Predict rugby scores, earn points based on odds — free." %}
+      </p>
+
+      <div class="home-hero__ctas">
+        <a href="{% url 'accounts:register' %}?next={{ request.path }}"
+           class="btn btn-accent home-hero__cta-primary">
+          {% trans "Create my account" %}
+        </a>
+        <a href="{% url 'accounts:login' %}?next={{ request.path }}"
+           class="home-hero__cta-secondary">
+          {% trans "I already have an account" %}
+        </a>
+      </div>
+
+    </div>
+
+  </div>
+</section>
+{% endif %}
+
+{% endblock %}

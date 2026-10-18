@@ -2,6 +2,10 @@
 {% load i18n %}
 
 {% block title %}{% trans "Scoring rules" %} — Oval'Pronos{% endblock %}
+{% block og_title %}{% trans "Scoring rules" %} — Oval'Pronos{% endblock %}
+{% block og_description %}{% trans "Exact score, good gap, correct winner — how points are calculated in Oval'Pronos." %}{% endblock %}
+
+{% block nav_active_rules %}active{% endblock %}
 
 {% block content %}
 <div class="row justify-content-center">
@@ -10,100 +14,145 @@
     <h1 class="mb-1">{% trans "Crouch, bind, set" %}</h1>
     <p class="text-muted mb-5">{% trans "How does the scoring system work?" %}</p>
 
-    {# Scoring tiers #}
-    <h2 class="h5 mb-3">{% trans "Scoring tiers" %}</h2>
-    <div class="row g-3 mb-5">
+    {# ── Scoring tiers ──────────────────────────────────────────────── #}
+    <h2 class="h5 mb-3" id="scoring">{% trans "Scoring tiers" %}</h2>
+    <div class="home-example-rows home-example-rows--full mb-5">
 
-      <div class="col-12 col-sm-6 col-lg-3">
-        <div class="card text-center p-3 h-100">
-          <div class="fw-bold mb-1" style="color: var(--color-badge-exact); font-size: 1.5rem;">👑</div>
-          <div class="fw-bold">{% trans "Exact score" %}</div>
-          <div class="text-muted small mt-1">{% trans "Odds × 3" %}</div>
-        </div>
+      <div class="home-example-row home-example-row--exact">
+        <i class="ti ti-crown home-example-icon" aria-hidden="true"></i>
+        <span class="home-example-label">{% trans "Exact score" %}</span>
+        <span class="home-example-pts">× 3</span>
       </div>
 
-      <div class="col-12 col-sm-6 col-lg-3">
-        <div class="card text-center p-3 h-100">
-          <div class="fw-bold mb-1" style="color: var(--color-badge-gap); font-size: 1.5rem;">🎯</div>
-          <div class="fw-bold">{% trans "Good gap" %}</div>
-          <div class="text-muted small mt-1">{% trans "Odds × 2" %}</div>
-        </div>
+      <div class="home-example-row home-example-row--gap">
+        <i class="ti ti-target home-example-icon" aria-hidden="true"></i>
+        <span class="home-example-label">{% trans "Good gap" %}</span>
+        <span class="home-example-pts">× 2</span>
       </div>
 
-      <div class="col-12 col-sm-6 col-lg-3">
-        <div class="card text-center p-3 h-100">
-          <div class="fw-bold mb-1" style="color: var(--color-badge-win); font-size: 1.5rem;">✓</div>
-          <div class="fw-bold">{% trans "Correct winner" %}</div>
-          <div class="text-muted small mt-1">{% trans "Odds × 1" %}</div>
-        </div>
+      <div class="home-example-row home-example-row--win">
+        <i class="ti ti-check home-example-icon" aria-hidden="true"></i>
+        <span class="home-example-label">{% trans "Correct winner" %}</span>
+        <span class="home-example-pts">× 1</span>
       </div>
 
-      <div class="col-12 col-sm-6 col-lg-3">
-        <div class="card text-center p-3 h-100">
-          <div class="fw-bold mb-1" style="color: var(--color-badge-miss); font-size: 1.5rem;">✗</div>
-          <div class="fw-bold">{% trans "Missed" %}</div>
-          <div class="text-muted small mt-1">0 {% trans "point" %}</div>
-        </div>
+      <div class="home-example-row home-example-row--miss">
+        <i class="ti ti-x home-example-icon" aria-hidden="true"></i>
+        <span class="home-example-label">{% trans "Missed" %}</span>
+        <span class="home-example-pts">× 0</span>
       </div>
 
     </div>
 
-    {# Cotes explanation #}
-    <h2 class="h5 mb-3">{% trans "Odds" %}</h2>
+    {# ── Odds ───────────────────────────────────────────────────────── #}
+    <h2 class="h5 mb-3" id="odds">{% trans "Odds" %}</h2>
     <p class="text-muted mb-4">
-      {% trans "Odds are based on Unibet odds (multiplied by 10 to avoid decimals). A match with high odds on the winner scores more points, but you take more risk." %}
+      {% trans "Odds are sourced from bookmakers and stored × 10 as integers to avoid decimals (e.g. 6.30 → 63 base pts). Apply the tier multiplier: exact 63 × 3 = 189 pts, good gap 63 × 2 = 126 pts, correct winner 63 × 1 = 63 pts." %}
     </p>
 
-    {# Example #}
-    <h2 class="h5 mb-3">{% trans "Example" %}</h2>
     <p class="text-muted mb-3">
-      {% trans "Clermont — Perpignan, Perpignan odds: 63 (= 6.3 at Unibet), good gap threshold: 3 pts" %}
+      {% trans "Clermont — Perpignan, Perpignan wins (odds 6.30 = 63 base pts):" %}
     </p>
-    <div class="card mb-5">
-      <div class="table-responsive">
-        <table class="table mb-0 align-middle">
-          <thead>
-            <tr>
-              <th>{% trans "Prediction" %}</th>
-              <th>{% trans "Actual score" %}</th>
-              <th>{% trans "Result" %}</th>
-              <th class="text-end">{% trans "Points" %}</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>17 — 22</td>
-              <td>17 — 22</td>
-              <td><span style="color: var(--color-badge-exact);">👑 {% trans "Exact score" %}</span></td>
-              <td class="text-end fw-bold">189</td>
-            </tr>
-            <tr>
-              <td>15 — 22</td>
-              <td>17 — 22</td>
-              <td><span style="color: var(--color-badge-gap);">🎯 {% trans "Good gap" %}</span></td>
-              <td class="text-end fw-bold">126</td>
-            </tr>
-            <tr>
-              <td>14 — 25</td>
-              <td>17 — 22</td>
-              <td><span style="color: var(--color-badge-win);">✓ {% trans "Correct winner" %}</span></td>
-              <td class="text-end fw-bold">63</td>
-            </tr>
-            <tr>
-              <td>20 — 10</td>
-              <td>17 — 22</td>
-              <td><span style="color: var(--color-badge-miss);">✗ {% trans "Missed" %}</span></td>
-              <td class="text-end fw-bold">0</td>
-            </tr>
-          </tbody>
-        </table>
+    <div class="home-example-rows home-example-rows--full mb-5">
+
+      <div class="home-example-row home-example-row--exact">
+        <i class="ti ti-crown home-example-icon" aria-hidden="true"></i>
+        <span class="home-example-label">{% trans "Exact score" %} <span class="home-example-score">17 — 22</span></span>
+        <span class="home-example-pts tabular-nums">{{ example.exact_pts }} pts</span>
+        <span class="home-example-mult">× 3</span>
       </div>
+
+      <div class="home-example-row home-example-row--gap">
+        <i class="ti ti-target home-example-icon" aria-hidden="true"></i>
+        <span class="home-example-label">{% trans "Good gap" %} <span class="home-example-score">15 — 22</span></span>
+        <span class="home-example-pts tabular-nums">{{ example.gap_pts }} pts</span>
+        <span class="home-example-mult">× 2</span>
+      </div>
+
+      <div class="home-example-row home-example-row--win">
+        <i class="ti ti-check home-example-icon" aria-hidden="true"></i>
+        <span class="home-example-label">{% trans "Correct winner" %} <span class="home-example-score">14 — 25</span></span>
+        <span class="home-example-pts tabular-nums">{{ example.win_pts }} pts</span>
+        <span class="home-example-mult">× 1</span>
+      </div>
+
+      <div class="home-example-row home-example-row--miss">
+        <i class="ti ti-x home-example-icon" aria-hidden="true"></i>
+        <span class="home-example-label">{% trans "Missed" %} <span class="home-example-score">20 — 10</span></span>
+        <span class="home-example-pts tabular-nums">{{ example.miss_pts }} pt</span>
+        <span class="home-example-mult">× 0</span>
+      </div>
+
     </div>
 
-    {# Draw rule #}
-    <h2 class="h5 mb-3">{% trans "Draw rule" %}</h2>
+    {# ── Good gap ───────────────────────────────────────────────────── #}
+    <h2 class="h5 mb-3" id="good-gap">{% trans "What is a good gap?" %}</h2>
+    <p class="text-muted mb-3">
+      {% trans "The gap is the score difference (home − away). A good gap means the absolute difference between your predicted gap and the real gap is within the threshold." %}
+    </p>
+    <p class="text-muted mb-4">
+      {% trans "Example: predict 15–22 (Perpignan by 7), real score 17–22 (Perpignan by 5). |7 − 5| = 2. Within the threshold → Good gap." %}
+    </p>
+
+    {% if active_competitions %}
+      {% if good_gap_uniform %}
+        <p class="text-muted mb-5">
+          {% blocktrans with n=good_gap_values.0 %}Threshold for all active competitions: {{ n }} pts.{% endblocktrans %}
+        </p>
+      {% else %}
+        <ul class="text-muted mb-5">
+          {% for comp in active_competitions %}
+            <li>{{ comp.name }} — <span class="tabular-nums">{{ comp.good_gap_pts }} pts</span></li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+    {% else %}
+      <p class="text-muted mb-5">{% trans "Default threshold: 3 pts." %}</p>
+    {% endif %}
+
+    {# ── Edge cases ─────────────────────────────────────────────────── #}
+    <h2 class="h5 mb-3" id="edge-cases">{% trans "Edge cases" %}</h2>
+
+    <dl class="mb-5">
+
+      <dt class="mb-1">{% trans "Draw" %}</dt>
+      <dd class="text-muted mb-3">
+        <ul class="ps-3 mb-0">
+          <li>{% trans "Real draw + predicted draw: exact score → Exact, wrong score → Good gap." %}</li>
+          <li>{% trans "Real draw + predicted winner → 0 pts." %}</li>
+          <li>{% trans "Predicted draw + real winner → 0 pts." %}</li>
+        </ul>
+      </dd>
+
+      <dt class="mb-1">{% trans "Cancelled match" %}</dt>
+      <dd class="text-muted mb-3">{% trans "A cancelled match always scores 0 pts, whatever your prediction." %}</dd>
+
+      <dt class="mb-1">{% trans "Kickoff lock" %}</dt>
+      <dd class="text-muted mb-3">{% trans "Predictions are locked at kickoff. No changes possible after that." %}</dd>
+
+      <dt class="mb-1">{% trans "Odds coming soon" %}</dt>
+      <dd class="text-muted mb-3">{% trans "Matches without odds are hidden. They are not counted in the prediction progress bar and submissions are blocked." %}</dd>
+
+      {% if fixed_competitions %}
+      <dt class="mb-1">{% trans "Fixed points mode" %}</dt>
+      <dd class="text-muted mb-3">
+        {% trans "Some competitions use flat points instead of odds:" %}
+        {% for comp in fixed_competitions %}{{ comp.name }}{% if not forloop.last %}, {% endif %}{% endfor %}.
+        <br>
+        {% trans "Exact" %}: <span class="tabular-nums fw-semibold">{{ fixed_example.exact_pts }} pts</span> &mdash;
+        {% trans "Good gap" %}: <span class="tabular-nums fw-semibold">{{ fixed_example.gap_pts }} pts</span> &mdash;
+        {% trans "Correct winner" %}: <span class="tabular-nums fw-semibold">{{ fixed_example.win_pts }} pt</span> &mdash;
+        {% trans "Missed" %}: <span class="tabular-nums fw-semibold">{{ fixed_example.miss_pts }} pt</span>.
+      </dd>
+      {% endif %}
+
+    </dl>
+
+    {# ── Rankings ───────────────────────────────────────────────────── #}
+    <h2 class="h5 mb-3" id="rankings">{% trans "Rankings and leagues" %}</h2>
     <p class="text-muted mb-0">
-      {% trans "If the match ends in a draw, only a draw prediction (gap of 0) scores points. Predicting any winner counts as a miss." %}
+      {% trans "Scores update after each match. Equal points → shared rank." %}
+      {% trans "Play in private leagues with custom rankings among friends and family." %}
     </p>
 
   </div>

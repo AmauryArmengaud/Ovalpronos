@@ -73,6 +73,14 @@ Strong success criteria let you loop independently. Weak criteria ("make it work
 
 ---
 
+## UI / Frontend work
+
+Before any work on templates, CSS, or JS: read **`docs/REDESIGN.md`**. It documents the L'Ovale
+direction, all numerical decisions, technical constraints (HTMX contract, saved feedback, focus
+restoration, i18n, admin.css debt), step status, and the test checklist.
+
+---
+
 ## Project Overview
 
 **Oval'Pronos** is a Django 5 rugby predictions web app. Users predict match scores for Top 14, Champions Cup, and 6 Nations, then compete in a global ranking or private leagues. Match data is synced from the rugby-live-data RapidAPI via VPS cron jobs.

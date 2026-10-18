@@ -1,0 +1,17 @@
+<script>
+  var _row = document.getElementById('current-user-row');
+  {% if scroll_on_load %}
+  /* Scroll to current-user row on page load (opt-in per page) */
+  if (_row) {
+    _row.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+  {% endif %}
+
+  /* Sticky "Toi" bar: show when current-user row leaves viewport (mobile) */
+  var _stickyBar = document.getElementById('you-sticky');
+  if (_row && _stickyBar && 'IntersectionObserver' in window) {
+    new IntersectionObserver(function(entries) {
+      _stickyBar.classList.toggle('visible', !entries[0].isIntersecting);
+    }, { threshold: 0 }).observe(_row);
+  }
+</script>

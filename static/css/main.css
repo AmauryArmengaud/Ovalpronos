@@ -10,21 +10,37 @@
   --color-text:             #404771;     /* body text — distinct from brand primary */
   --color-text-on-primary:  #FCFFF9;
   --color-text-body:        #3d3d3d;     /* prose / feature copy */
-  --color-text-secondary:   rgba(43, 52, 103, 0.55);
+  --color-text-secondary:   rgba(43, 52, 103, 0.75);  /* was 0.55 (~3.2:1) → now ~5.4:1 on cream */
 
   /* Surfaces */
   --color-surface-raised:   rgba(43, 52, 103, 0.06);
   --color-light:            #BAD7E9;     /* legacy — prefer --color-icon-muted for icons */
   --color-icon-muted:       rgba(43, 52, 103, 0.28);
+  /* Rankings "You" row — primary-tinted, dark text passes 6.9:1 */
+  --color-you-highlight:    rgba(43, 52, 103, 0.12);
+  /* Rankings podium medals */
+  --color-rank-silver:      rgba(43, 52, 103, 0.65);  /* silver-toned — 4.1:1 on cream, passes 3:1 icon minimum */
+  --color-rank-bronze:      rgba(184, 105, 37, 0.75); /* amber — bronze-toned */
+  /* Team logo initials fallback — visible against card background (was 0.06, invisible) */
+  --color-logo-fallback-bg: rgba(43, 52, 103, 0.15);
+  /* Team logo circle background — subtle tint behind all logos (pale logos, shape harmony) */
+  --color-logo-bg:          rgba(43, 52, 103, 0.08);
 
   /* Result badges — ordered best to worst */
   --color-badge-exact:      #F5C542;     /* gold — best outcome */
-  --color-badge-exact-text: #705500;     /* dark amber — legible on cream/white */
+  --color-badge-exact-text: #5c4500;     /* dark amber — 5.7:1 on badge-exact gold (#F5C542) */
   --color-badge-gap:        #8B35A8;     /* muted purple — dark enough for bg and text */
   --color-badge-win:        #A8E063;     /* lime green — badge background */
-  --color-badge-win-text:   #2d6b0e;     /* dark green — legible on cream/white */
+  --color-badge-win-text:   #235408;     /* dark green — 5.8:1 on badge-win lime (#A8E063) */
+  --color-badge-win-light:  rgba(168, 224, 99, 0.25);   /* 25% win — light result banner bg */
+  --color-badge-gap-light:  rgba(139, 53, 168, 0.35);   /* 35% gap — medium result banner bg */
   --color-badge-miss:       rgba(43, 52, 103, 0.10);  /* neutral — subdued, no points */
-  --color-badge-miss-text:  rgba(43, 52, 103, 0.50);
+  --color-badge-miss-text:  rgba(43, 52, 103, 0.75);  /* ~5.4:1 on cream — matches --color-text-secondary */
+  /* Hero oval motif — cream at 7% opacity on navy background */
+  --color-hero-motif:       rgba(252, 255, 249, 0.07);
+  /* League ended badge — neutral tone, distinct from badge-miss (wrong prediction) */
+  --color-badge-ended-bg:   rgba(43, 52, 103, 0.08);
+  --color-badge-ended-text: rgba(43, 52, 103, 0.75);  /* ~5.4:1 on cream — AA for text */
 
   /* Type scale */
   --text-sm:   0.875rem;
@@ -42,6 +58,8 @@ body {
   background: var(--color-background);
   color: var(--color-text);
   font-family: 'Barlow', sans-serif;
+  font-size: 1.0625rem;  /* 17px — up from default 16px */
+  line-height: 1.6;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
@@ -54,7 +72,6 @@ main {
 /* ─── Navbar ────────────────────────────────────────────────────────────── */
 .navbar {
   background: var(--color-background);
-  border-bottom: 1px solid rgba(43, 52, 103, 0.08);
   padding-top: 0.75rem;
   padding-bottom: 0.75rem;
 }
@@ -79,9 +96,26 @@ main {
   border-color: var(--color-primary);
 }
 
+/* Discrete logout button — same weight as nav links, no fill */
+.btn-nav-link {
+  background: transparent;
+  border: none;
+  padding: 0;
+  color: var(--color-primary);
+  font-weight: 500;
+  font-size: inherit;
+  opacity: 0.7;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.btn-nav-link:hover {
+  opacity: 1;
+}
+
 /* ─── Buttons ───────────────────────────────────────────────────────────── */
 
-/* Unified 0.5rem radius across all button variants used in the app */
+/* All buttons are pill — "L'Ovale" direction */
 .btn-primary,
 .btn-outline-secondary,
 .btn-outline-danger,
@@ -89,7 +123,7 @@ main {
 .btn-accent,
 .btn-hero,
 .btn-outline-accent {
-  border-radius: 0.5rem;
+  border-radius: var(--radius-pill);
 }
 
 .btn-primary {
@@ -133,8 +167,7 @@ main {
   font-size: 0.75rem;
   font-weight: 600;
   padding: 0.2rem 0.5rem;
-  border-radius: 0.375rem;
-  letter-spacing: 0.05em;
+  border-radius: var(--radius-pill);
 }
 
 .lang-toggle:hover {
@@ -164,68 +197,283 @@ main {
 }
 
 /* ─── Utilities ─────────────────────────────────────────────────────────── */
-.text-accent { color: var(--color-accent); }
-.bg-accent   { background-color: var(--color-accent); }
-.page-header-icon { font-size: 2rem; }
+.text-accent        { color: var(--color-accent); }
+.bg-accent          { background-color: var(--color-accent); }
+.text-primary-brand { color: var(--color-primary); }
 
-/* ─── Hero Section ──────────────────────────────────────────────────────── */
-.hero-title {
-  font-size: clamp(2rem, 5vw, 3.25rem);
-  font-weight: 800;
+/* Page header icon — used in h1 row on league create/join pages */
+.page-header-icon {
+  font-size: 2rem;
   color: var(--color-primary);
-  line-height: 1.15;
 }
 
-.hero-body {
+/* Empty-state icon — large icon for empty/error states */
+.page-empty-icon {
+  font-size: 3rem;
+  color: var(--color-icon-muted);
+  display: block;
+  margin-bottom: 0.75rem;
+}
+
+/* Error page icon (404/500) */
+.error-page__icon {
+  font-size: 5rem;
+  color: var(--color-primary);
+}
+.page-empty-icon--accent      { color: var(--color-accent); }
+.page-empty-icon--brand-rugby { color: var(--color-brand-rugby); }
+
+/* ─── Home page ─────────────────────────────────────────────────────────── */
+
+/* Hide bottom nav + remove bottom padding on visitor-only pages (home, invite) */
+.home-visitor .mobile-bottom-nav { display: none !important; }
+@media (max-width: 991.98px) {
+  .home-visitor { padding-bottom: 0; }
+}
+
+/* Hero — full-bleed navy */
+.home-hero {
+  position: relative;
+  background: var(--color-primary);
+  overflow: hidden;
+  padding: 4rem 0 5rem;
+}
+
+/* Oval motif — two CSS-only ellipses, pure decoration */
+.home-hero::before,
+.home-hero::after {
+  content: '';
+  position: absolute;
+  border-radius: 50%;
+  border: 2px solid var(--color-hero-motif);
+  pointer-events: none;
+}
+.home-hero::before {
+  width: 560px;
+  height: 360px;
+  top: -120px;
+  right: -160px;
+  transform: rotate(-12deg);
+}
+.home-hero::after {
+  width: 380px;
+  height: 240px;
+  bottom: -90px;
+  left: -100px;
+  transform: rotate(8deg);
+}
+@media (prefers-reduced-motion: reduce) {
+  /* motif is already static — nothing to disable */
+}
+
+.home-hero__inner {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+}
+
+.home-hero__content {
+  flex: 1;
+  min-width: 0;
+}
+
+.home-hero__title {
+  font-size: clamp(2rem, 7.5vw, 5rem);
+  font-weight: 800;
+  color: var(--color-text-on-primary);
+  line-height: 1.05;
+  letter-spacing: -0.03em;
+  margin-bottom: 1.25rem;
+}
+
+.home-hero__sub {
   font-size: 1.05rem;
-  color: var(--color-text-body);
+  color: rgba(252, 255, 249, 0.80);
   line-height: 1.7;
+  margin-bottom: 2rem;
 }
 
-/* ─── Feature Sections ──────────────────────────────────────────────────── */
-.feature-section {
-  border-top: 1px solid rgba(43, 52, 103, 0.08);
+.home-hero__ctas {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  flex-wrap: wrap;
 }
 
-.feature-title {
-  font-size: clamp(1.75rem, 4vw, 2.5rem);
+.home-hero__cta-primary {
+  padding: 0.75rem 2rem;
+  font-size: 1.05rem;
+  min-height: 48px;
+}
+
+.home-hero__cta-secondary {
+  color: rgba(252, 255, 249, 0.80);
+  font-weight: 600;
+  font-size: 0.95rem;
+  text-decoration: none;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+}
+
+.home-hero__cta-secondary:hover {
+  color: var(--color-text-on-primary);
+}
+
+.home-hero__mascot {
+  flex-shrink: 0;
+  object-fit: contain;
+  position: relative;
+  z-index: 1;
+  opacity: 0.92;
+}
+
+/* How it works / social sections */
+.home-section__title {
+  font-size: clamp(1.5rem, 3.5vw, 2.25rem);
   font-weight: 800;
   color: var(--color-primary);
-  line-height: 1.2;
+  letter-spacing: -0.02em;
 }
 
-.feature-body {
+.home-section__sub {
   font-size: 1rem;
   color: var(--color-text-body);
   line-height: 1.7;
 }
 
-.feature-mascot {
-  max-width: 220px;
-  width: 100%;
-  display: block;
-  margin: 0 auto;
-}
-
-.feature-badge-stack {
+/* Scoring example rows — reuse match card Zone C result banner colors */
+.home-example-rows {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
-  align-items: flex-end;
+  gap: 0.5rem;
+  max-width: 560px;
 }
 
-.comp-badge {
-  display: inline-block;
-  padding: 0.6rem 1.5rem;
-  border-radius: var(--radius-pill);
-  font-weight: 700;
+.home-example-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.625rem 1rem;
+  border-radius: var(--radius-md);
+  font-size: 0.9375rem;
+}
+
+.home-example-row--exact {
+  background: var(--color-badge-exact);
+  color: var(--color-badge-exact-text);
+}
+
+.home-example-row--gap {
+  background: var(--color-badge-gap-light);
+  color: var(--color-primary);
+}
+
+.home-example-row--win {
+  background: var(--color-badge-win-light);
+  color: var(--color-badge-win-text);
+}
+
+.home-example-row--miss {
+  background: var(--color-badge-miss);
+  color: var(--color-badge-miss-text);
+}
+
+.home-example-icon {
   font-size: 1rem;
-  color: white;
+  flex-shrink: 0;
 }
 
-.comp-badge.top14     { background: var(--color-primary); }
-.comp-badge.champions { background: var(--color-accent); }
-.comp-badge.sixnations { background: var(--color-brand-rugby); }
+.home-example-label {
+  flex: 1;
+  font-weight: 600;
+  min-width: 0;
+}
+
+.home-example-score {
+  font-weight: 400;
+  opacity: 0.75;
+  font-size: 0.875rem;
+}
+
+.home-example-pts {
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.home-example-mult {
+  font-size: 0.8125rem;
+  opacity: 0.7;
+  white-space: nowrap;
+}
+
+/* Competitions section */
+.home-comps-section {
+  background: var(--color-surface-raised);
+}
+
+.home-comps-label {
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  margin: 0;
+}
+
+/* Social section */
+.home-social-row {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+}
+
+.home-social-content {
+  flex: 1;
+}
+
+.home-social-mascot {
+  flex-shrink: 0;
+  object-fit: contain;
+  opacity: 0.85;
+}
+
+/* Invite page — league name in hero (full cream = stands out vs 80%-opacity sub text) */
+.invite-league-name {
+  color: var(--color-text-on-primary);
+  font-weight: 800;
+  /* word-break ensures long league names wrap at any point, no overflow at 320px */
+  overflow-wrap: anywhere;
+}
+
+/* Social proof line (creator · member count) */
+.invite-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  font-size: var(--text-sm);
+  color: rgba(252, 255, 249, 0.75);
+  font-weight: 500;
+}
+
+.invite-meta__sep {
+  opacity: 0.5;
+}
+
+/* Competition chips on dark (navy) background */
+.comp-divider-chip--dark {
+  background: rgba(252, 255, 249, 0.10);
+  color: var(--color-text-on-primary);
+  border-color: rgba(252, 255, 249, 0.20);
+}
+
+/* Invalid state centering */
+.invite-invalid {
+  min-height: 60vh;
+  display: flex;
+  align-items: center;
+}
 
 /* ─── Footer ────────────────────────────────────────────────────────────── */
 .footer {
@@ -241,7 +489,7 @@ main {
   left: 0;
   right: 0;
   height: 64px;
-  background: var(--color-accent);
+  background: var(--color-primary);
   border-top: none;
   display: flex;
   align-items: stretch;
@@ -258,10 +506,9 @@ main {
   gap: 3px;
   text-decoration: none;
   color: var(--color-text-on-primary);
-  opacity: 0.72;
+  opacity: 0.60;
   font-size: var(--text-2xs);
   font-weight: 600;
-  letter-spacing: 0.02em;
   transition: opacity 0.15s;
 }
 
@@ -299,6 +546,7 @@ main {
 
 .segment-control__item {
   padding: 0.45rem 1.25rem;
+  min-height: 44px;
   border-radius: calc(var(--radius-md) - 0.25rem);
   font-size: var(--text-sm);
   font-weight: 600;
@@ -321,7 +569,6 @@ main {
   background: var(--color-background);
   opacity: 1;
   color: var(--color-primary);
-  box-shadow: 0 1px 6px rgba(43, 52, 103, 0.12);
 }
 
 .segment-control__live-dot {
@@ -338,11 +585,6 @@ main {
   50%       { opacity: 0.4; transform: scale(0.75); }
 }
 
-/* ─── HTMX save indicator ───────────────────────────────────────────────── */
-.save-form.htmx-request input[type="number"] {
-  opacity: 0.4;
-  transition: opacity 0.15s;
-}
 
 /* ─── Flash messages ────────────────────────────────────────────────────── */
 .messages .alert {
@@ -352,7 +594,8 @@ main {
 /* ─── Cards ─────────────────────────────────────────────────────────────── */
 .card {
   border: none;
-  box-shadow: 0 2px 12px rgba(43, 52, 103, 0.08);
+  box-shadow: none;
+  background: var(--color-surface-raised);  /* tone step replaces shadow */
   border-radius: var(--radius-md);
 }
 
@@ -381,126 +624,79 @@ main {
 
 /* ─── Match card ────────────────────────────────────────────────────────── */
 
-/* Layout classes — replace previous inline styles, enable mobile overrides */
+/* Layout columns */
 .match-team-col    { width: 38%; }
 .match-center-col  { width: 24%; }
-.match-score-input { width: 48px; }
 
-.match-score {
-  font-size: 1.15rem;
-  letter-spacing: 0.03em;
-  font-weight: 700;
+/* Logo circle wrapper — neutral background behind all logos */
+.match-team-logo-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: var(--color-logo-bg);
+  margin: 0 auto;
 }
 
-.match-predicted-score {
-  font-size: 1.1rem;
-  font-weight: 600;
+/* Team logos — centered inside wrap */
+.match-team-logo {
+  height: 56px;
+  max-width: 56px;
+  object-fit: contain;
+  display: block;
 }
 
-.match-card-footer {
-  font-size: var(--text-xs);
-}
-
-.match-closes-soon {
-  font-size: var(--text-2xs);
-  color: var(--color-accent);
-  font-weight: 600;
-}
-
-.match-no-odds {
-  font-size: var(--text-xs);
-}
-
-.match-microcopy {
-  font-size: var(--text-2xs);
-}
-
-.match-potential-points {
-  font-size: 0.7rem;
-  line-height: 1.3;
-}
-
-.match-potential-preview {
-  font-size: var(--text-2xs);
-  opacity: 0.55;
-}
-
-/* Odds bar */
-.match-odds-label {
-  font-size: var(--text-2xs);
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  color: var(--color-text-secondary);
-}
-
-.match-odds-bar {
-  background: var(--color-surface-raised);
-}
-
-.match-odds-col {
-  border-right: 1px solid rgba(43, 52, 103, 0.1);
-}
-
-.match-odds-col:last-child {
-  border-right: none;
-}
-
-.match-odds-value {
-  font-size: var(--text-sm);
+/* Initials fallback — fills wrap circle, shown via onerror when PNG fails */
+.match-team-logo-fallback {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: var(--color-logo-fallback-bg);
+  display: none;               /* shown via JS: this.nextElementSibling.style.display='flex' */
+  align-items: center;
+  justify-content: center;
+  font-size: 0.875rem;
   font-weight: 700;
   color: var(--color-primary);
+  flex-shrink: 0;
 }
 
-/* Result badges */
-.badge-result {
+/* ── Zone A — time · round + optional status ─────────────────────────────── */
+.match-zone-a {
+  min-height: 44px;  /* 2 lines at text-xs/1.6 + 2px gap ≈ 42.8px — 36px was too small */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  text-align: center;
   font-size: var(--text-xs);
+  margin-bottom: 0.25rem;
 }
 
-.badge-result-exact {
-  background: var(--color-badge-exact);
-  color: var(--color-text);
-}
-
-.badge-result-gap {
-  background: var(--color-badge-gap);
-  color: var(--color-text-on-primary);
-}
-
-.badge-result-win {
-  background: var(--color-badge-win);
-  color: var(--color-text);
-}
-
-.badge-result-miss {
-  background: var(--color-badge-miss);
-  color: var(--color-badge-miss-text);
-}
-
-.badge-result-cancelled {
-  background: rgba(43, 52, 103, 0.12);
+.match-zone-a-time {
   color: var(--color-text-secondary);
-  font-size: var(--text-sm);
-  padding: 0.4em 0.75em;
+  font-weight: 500;
 }
 
-.badge-result-locked {
-  background: rgba(43, 52, 103, 0.12);
-  color: var(--color-text);
-  font-size: var(--text-2xs);
+.match-status-label {
+  color: var(--color-text-secondary);
+  font-weight: 500;
 }
 
-.badge-live {
-  background: rgba(235, 69, 95, 0.12);
+.match-status-closes-soon {
   color: var(--color-accent);
-  font-size: var(--text-2xs);
+  font-weight: 600;
 }
 
-@keyframes pulse-live {
-  0%, 100% { opacity: 1; }
-  50%       { opacity: 0.5; }
+.match-status-live {
+  color: var(--color-accent);
 }
 
-.badge-live .live-dot {
+/* Live pulsing dot — used in Zone A in-play label */
+.live-dot {
   display: inline-block;
   width: 6px;
   height: 6px;
@@ -511,7 +707,216 @@ main {
   margin-right: 3px;
 }
 
-/* Result badge labels — darker shades for legibility on cream/white backgrounds */
+@keyframes pulse-live {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.5; }
+}
+
+/* ── Zone B centre — single element, fixed min-height ───────────────────── */
+.match-center-content {
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.match-center-dash {
+  color: var(--color-icon-muted);
+  font-size: 1.25rem;
+  font-weight: 600;
+  line-height: 1;
+}
+
+/* Card body: 0.75rem desktop (mobile XS overrides to 0.625rem below) */
+.match-card-body {
+  padding: 0.75rem;
+}
+
+/* Score inputs — tabular-nums, no Bootstrap border, tinted surface */
+.match-score-input {
+  width: 52px;
+  height: 44px;
+  background: var(--color-surface-raised);
+  border: none;
+  border-radius: var(--radius-sm);
+  text-align: center;
+  font-size: 1.5rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-primary);
+  padding: 0;
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+
+/* Saved state — green tint + inset border when prediction exists */
+.match-score-input--saved {
+  background: rgba(26, 127, 55, 0.08);
+  box-shadow: inset 0 0 0 1px rgba(26, 127, 55, 0.4);
+}
+
+.match-score-input--saved:focus {
+  background: rgba(43, 52, 103, 0.12);
+  box-shadow: none;
+}
+
+/* Small checkmark below inputs when prediction exists */
+.match-inputs-saved-mark {
+  text-align: center;
+  font-size: 11px;
+  color: var(--color-brand-rugby);
+  line-height: 1;
+  margin-top: 3px;
+}
+
+.match-score-input:focus {
+  background: rgba(43, 52, 103, 0.12);
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+  box-shadow: none;
+}
+
+/* HTMX save indicator — dim inputs while request is in flight */
+.save-form.htmx-request .match-score-input {
+  opacity: 0.4;
+  transition: opacity 0.15s;
+}
+
+/* Unified score display — same style for live, finished, and any other state */
+.match-score {
+  font-size: 1.5rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.02em;
+}
+
+/* ── Zone C — player context ─────────────────────────────────────────────── */
+.match-zone-c {
+  min-height: 56px;
+  margin-top: 0.5rem;
+  display: flex;
+  align-items: flex-start;
+}
+
+.match-zone-c-placeholder {
+  font-size: var(--text-xs);
+  color: var(--color-text-secondary);
+  text-align: center;
+  width: 100%;
+}
+
+/* Odds bar */
+.match-odds-bar {
+  background: rgba(43, 52, 103, 0.10);
+  width: 100%;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+}
+
+.match-odds-value {
+  font-size: var(--text-sm);
+  font-weight: 700;
+  color: var(--color-primary);
+}
+
+/* Saved zone — Zone C when open + prediction exists */
+.match-saved-zone {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+}
+
+/* Flash on save: "Enregistré" overlays and fades; potential points reveal after */
+.match-saved-zone--flash .match-saved-indicator {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--text-xs);
+  font-weight: 600;
+  color: var(--color-brand-rugby);
+  animation: saved-fade 2s ease-out forwards;
+}
+
+.match-saved-zone--flash .match-result-banner-pending {
+  animation: pts-delay-reveal 2.2s ease-out forwards;
+}
+
+@keyframes saved-fade {
+  0%   { opacity: 1; }
+  70%  { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+@keyframes pts-delay-reveal {
+  0%, 70% { opacity: 0; }
+  100%    { opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .match-saved-zone--flash .match-saved-indicator { animation: none; opacity: 0; }
+  .match-saved-zone--flash .match-result-banner-pending { animation: none; opacity: 1; }
+}
+
+.match-potential-points {
+  font-size: var(--text-sm);
+  line-height: 1.4;
+}
+
+/* Result banner (Zone C, finished) — graded: WIN light → GAP medium → EXACT full */
+.match-result-banner {
+  width: 100%;
+  border-radius: var(--radius-sm);
+  padding: 0.375rem 0.75rem;
+  line-height: 1.4;
+  text-align: center;
+}
+
+.match-result-banner-pred {
+  font-size: var(--text-xs);
+  margin-top: 0.125rem;
+  opacity: 0.85;
+}
+
+/* EXACT — full gold, peak impact */
+.match-result-banner-exact {
+  background: var(--color-badge-exact);
+  color: var(--color-badge-exact-text);  /* #5c4500 — 5.7:1 on gold */
+}
+
+/* GAP — medium purple tint, --color-primary text (7.8:1 on tinted bg) */
+.match-result-banner-gap {
+  background: var(--color-badge-gap-light);
+  color: var(--color-primary);
+}
+
+/* WIN — light lime tint, dark green text (7.8:1 on tinted bg) */
+.match-result-banner-win {
+  background: var(--color-badge-win-light);
+  color: var(--color-badge-win-text);
+}
+
+/* MISS — neutral, subdued */
+.match-result-banner-miss {
+  background: var(--color-badge-miss);
+  color: var(--color-text-secondary);    /* rgba 0.75 — ~5:1 on near-white miss bg */
+}
+
+/* PENDING — open card with prediction: transparent, same structure as result banners */
+.match-result-banner-pending {
+  background: transparent;
+  color: var(--color-text);
+}
+
+/* ── Zone D — footer ─────────────────────────────────────────────────────── */
+.match-card-footer {
+  font-size: var(--text-xs);
+}
+
+/* Result tier labels — used in potential points display in Zone C */
 .match-badge-label-exact { color: var(--color-badge-exact-text); }
 .match-badge-label-gap   { color: var(--color-badge-gap); }
 .match-badge-label-win   { color: var(--color-badge-win-text); }
@@ -524,64 +929,82 @@ main {
   font-size: var(--text-2xs);
 }
 
-/* ─── Rankings: competition filter chips ──────────────────────────────── */
-.badge.badge-comp {
-  background: rgba(43, 52, 103, 0.12);
+/* ─── Rankings: competition filter chips (44px tap target) ────────────── */
+.ranking-comp-chip {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 1rem;
+  border-radius: var(--radius-pill);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  text-decoration: none;
+  /* inactive — matches comp-divider-chip on pronos page */
+  background: rgba(43, 52, 103, 0.07);
+  border: 1px solid rgba(43, 52, 103, 0.2);
   color: var(--color-primary);
-  border: 1.5px solid var(--color-primary);
-  font-size: var(--text-xs);
-  font-weight: 600;
-  text-decoration: none;
-  padding: 0.3rem 0.7rem;
-  opacity: 1;
+  transition: background 0.1s;
+  white-space: nowrap;
 }
-.badge.badge-comp:hover {
-  background: rgba(43, 52, 103, 0.2);
+.ranking-comp-chip:hover {
+  background: rgba(43, 52, 103, 0.13);
+  color: var(--color-primary);
 }
-.badge.badge-comp-active {
+.ranking-comp-chip--active {
   background: var(--color-primary);
+  border-color: var(--color-primary);
   color: var(--color-text-on-primary);
-  border: 1.5px solid var(--color-primary);
-  font-size: var(--text-xs);
-  font-weight: 600;
-  text-decoration: none;
-  padding: 0.3rem 0.7rem;
-  opacity: 1;
+}
+.ranking-comp-chip--active:hover {
+  opacity: 0.92;
+  color: var(--color-text-on-primary);
 }
 
-/* ─── Predictions: competition divider chip ────────────────────────────── */
+/* ─── Predictions: day separator ──────────────────────────────────────── */
+.day-divider {
+  font-size: var(--text-xs);
+  font-weight: 700;
+  color: var(--color-text-secondary);
+  padding: 0.5rem 0 0.25rem;
+}
+
+/* ─── Predictions: competition divider chip (filter style) ────────────── */
 .comp-divider-chip {
   display: inline-flex;
   align-items: center;
   padding: 0.2rem 0.75rem;
   border-radius: var(--radius-pill);
-  background: var(--color-primary);
-  color: var(--color-text-on-primary);
+  background: rgba(43, 52, 103, 0.07);
+  border: 1px solid rgba(43, 52, 103, 0.2);
+  color: var(--color-primary);
   font-size: var(--text-xs);
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  margin-bottom: 0.75rem;
+  font-weight: 600;
+  margin-bottom: 0.375rem;
 }
 
 /* ─── Predictions: no-odds collapse toggle ─────────────────────────────── */
 .btn-no-odds-toggle {
   background: transparent;
-  border: 1px dashed var(--color-icon-muted);
+  border: 1px solid rgba(43, 52, 103, 0.25);
   color: var(--color-text-secondary);
   font-size: var(--text-xs);
   font-weight: 500;
   border-radius: var(--radius-pill);
-  padding: 0.25rem 0.875rem;
+  padding: 0.5rem 1rem;
+  min-height: 44px;
   cursor: pointer;
   transition: border-color 0.15s, color 0.15s;
 }
 
-.btn-no-odds-toggle:hover,
-.btn-no-odds-toggle:focus {
+.btn-no-odds-toggle:hover {
   border-color: var(--color-primary);
   color: var(--color-primary);
-  outline: none;
+}
+.btn-no-odds-toggle:focus-visible {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
 }
 
 .collapse-chevron {
@@ -599,10 +1022,50 @@ main {
 .prediction-progress-sticky {
   position: sticky;
   top: 0;
-  z-index: 10;
+  z-index: 100;
   background: var(--color-background);
   padding: 0.5rem 0;
   margin-bottom: 1rem;
+}
+
+/* Pill-shaped track — replaces Bootstrap .progress */
+.prediction-progress-track {
+  height: 8px;
+  border-radius: var(--radius-pill);
+  background: rgba(43, 52, 103, 0.10);
+  overflow: hidden;
+}
+
+/* Fill — primary while in progress, green on completion */
+.prediction-progress-bar {
+  height: 100%;
+  border-radius: var(--radius-pill);
+  background: var(--color-primary);
+  transition: width 0.3s ease, background-color 0.3s ease;
+}
+
+.prediction-progress-bar--complete {
+  background: var(--color-brand-rugby);
+}
+
+.prediction-progress-counter {
+  font-size: var(--text-xs);
+  color: var(--color-text-secondary);
+  white-space: nowrap;
+}
+
+/* Hide sticky progress bar on touch devices while a score input has focus.
+   Keyboard shifts the visual viewport; opacity+transform avoids layout shift.
+   Body class .score-input-active is toggled by JS in predictions/index.html. */
+@media (hover: none) {
+  #predictions-progress {
+    transition: opacity 0.15s ease, transform 0.15s ease;
+  }
+  .score-input-active #predictions-progress {
+    opacity: 0;
+    transform: translateY(-6px);
+    pointer-events: none;
+  }
 }
 
 /* ─── Rankings segment scroll ────────────────────────────────────────────── */
@@ -626,9 +1089,9 @@ main {
 
 /* ─── Mobile XS fixes (< 576px) ─────────────────────────────────────────── */
 @media (max-width: 575.98px) {
-  /* Tighter horizontal padding so teams have more room */
+  /* Uniform padding all sides */
   .match-card-body {
-    padding: 0.75rem 0.625rem;
+    padding: 0.625rem;
   }
 
   /* Wider center col fixes score input overflow (24% → 30%) */
@@ -641,14 +1104,677 @@ main {
     width: 35%;
   }
 
-  /* Inputs slightly narrower to fit in the wider center col:
-     44 + 4 (gap-1) + 44 + ~10 (dash) = 102px < 112px (30% of 375px) */
-  .match-score-input {
-    width: 44px;
+  /* Logos: 60px wrap / 52px logo on XS (<576px) — desktop is 72px wrap / 56px logo */
+  .match-team-logo-wrap {
+    width: 60px;
+    height: 60px;
   }
 
-  /* Hide sub-pixel potential-points preview — unreadable on mobile */
-  .match-potential-preview {
-    display: none;
+  .match-team-logo {
+    height: 52px;
+    max-width: 52px;
   }
+
+  .match-team-logo-fallback {
+    font-size: 0.75rem;
+  }
+
+  /* Inputs 44px to fit center col: 44+4(gap)+~12(dash)+4(gap)+44 = 108px < 112px (30% of 375px) */
+  .match-score-input {
+    width: 44px;
+    font-size: 1.5rem;
+  }
+
+  /* Reserve 2-line height on all cards — prevents height variation between teams */
+  .match-team-name {
+    min-height: 2.6rem;
+  }
+}
+
+/* ─── Predictions page — centred wrapper, caps at 1140px on wide screens ── */
+.predictions-page-wrap {
+  max-width: 1140px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* ─── Predictions: 2-column grid at lg ──────────────────────────────────── */
+@media (min-width: 992px) {
+  .predictions-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    column-gap: 1rem;
+    align-items: start;
+  }
+
+  /* Full-width span forces a row break so the next card starts in col 1 */
+  .predictions-grid > .day-divider,
+  .predictions-grid > .comp-divider-chip {
+    grid-column: 1 / -1;
+  }
+
+  /* Chip keeps its natural pill shape — only the invisible row span is full-width */
+  .predictions-grid > .comp-divider-chip {
+    width: fit-content;
+  }
+}
+
+/* ─── Rankings page ──────────────────────────────────────────────────────── */
+
+.ranking-page-wrap {
+  max-width: 1140px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* ── List (replaces <table>) ── */
+.ranking-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.ranking-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-height: 56px;
+  padding: 0.5rem 0.75rem;
+  border-radius: var(--radius-sm);
+}
+
+.ranking-row + .ranking-row {
+  border-top: 1px solid rgba(43, 52, 103, 0.07);
+}
+
+.ranking-row--you {
+  background: var(--color-you-highlight);
+  border-left: 3px solid var(--color-primary);
+  padding-left: calc(0.75rem - 3px);
+}
+
+/* ── Zone 1: rank ── */
+.ranking-rank {
+  width: 40px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+  font-variant-numeric: tabular-nums;
+}
+
+.rank-icon--1 { color: var(--color-badge-exact); font-size: 1.125rem; }
+.rank-icon--2 { color: var(--color-rank-silver); font-size: 1.125rem; }
+.rank-icon--3 { color: var(--color-rank-bronze); font-size: 1.125rem; }
+
+/* ── Zone 2: player ── */
+.ranking-player {
+  flex: 1;
+  min-width: 0; /* allow truncation */
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.ranking-player-main {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 0;
+}
+
+.ranking-name {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+}
+
+/* ── Avatar ── */
+.ranking-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  object-fit: cover;
+}
+
+.ranking-avatar--initials {
+  background: var(--color-logo-fallback-bg);
+  color: var(--color-primary);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--text-xs);
+  font-weight: 700;
+  user-select: none;
+}
+
+/* ── Tier chips ── */
+.ranking-tiers {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.ranking-tier-item {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  font-size: var(--text-xs);
+  font-variant-numeric: tabular-nums;
+}
+
+.ranking-tier-item--exact { color: var(--color-badge-exact-text); }
+.ranking-tier-item--gap   { color: var(--color-badge-gap); }
+.ranking-tier-item--win   { color: var(--color-badge-win-text); }
+
+/* Mobile: tier row inside Zone 2 */
+.ranking-tiers-mobile { display: flex; }
+
+/* ── Zone 3: tier columns (desktop only) ── */
+.ranking-tier-cols {
+  display: none;
+}
+
+@media (min-width: 992px) {
+  .ranking-tiers-mobile { display: none; }
+  .ranking-tier-cols {
+    display: flex;
+    gap: 1.5rem;
+    flex-shrink: 0;
+  }
+  /* Each column fixed-width so numbers align across rows */
+  .ranking-tier-col {
+    width: 3rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+}
+
+/* ── Zone 4: points ── */
+.ranking-points {
+  width: 80px;
+  flex-shrink: 0;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+  color: var(--color-primary);
+}
+
+.ranking-pred-count {
+  font-size: var(--text-xs);
+  color: var(--color-text-secondary);
+  display: none;
+  font-variant-numeric: tabular-nums;
+}
+
+@media (min-width: 992px) {
+  .ranking-pred-count { display: block; }
+}
+
+/* ── Desktop header row ── */
+.ranking-header {
+  display: none;
+}
+
+@media (min-width: 992px) {
+  .ranking-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0 0.75rem 0.375rem;
+    border-bottom: 1px solid rgba(43, 52, 103, 0.12);
+    margin-bottom: 0.25rem;
+    font-size: var(--text-xs);
+    font-weight: 600;
+    color: var(--color-text-secondary);
+  }
+  /* Header reuses data-row column classes — reset styles that only apply to data cells */
+  .ranking-header > .ranking-rank,
+  .ranking-header > .ranking-points {
+    color: inherit;
+    font-weight: inherit;
+    font-variant-numeric: initial;
+    flex-direction: initial;
+  }
+  /* .ranking-player inside header: no column/avatar layout, just label */
+  .ranking-header > .ranking-player {
+    flex-direction: initial;
+    gap: 0;
+  }
+}
+
+/* ── Sticky "Toi" bar (mobile only, above bottom nav) ── */
+.ranking-you-sticky {
+  position: fixed;
+  bottom: 64px; /* height of .mobile-bottom-nav */
+  left: 0;
+  right: 0;
+  z-index: 1020;
+  background: var(--color-background);
+  border-top: 2px solid var(--color-you-highlight);
+  box-shadow: 0 -2px 8px rgba(43, 52, 103, 0.12);
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(6px);
+  transition: opacity 0.15s, transform 0.15s;
+}
+
+.ranking-you-sticky__inner {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-height: 52px;
+}
+
+.ranking-you-sticky.visible {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0);
+}
+
+@media (min-width: 992px) {
+  .ranking-you-sticky { display: none !important; }
+}
+
+/* ── Empty state ── */
+.ranking-empty {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: var(--color-text-secondary);
+}
+
+.ranking-empty__icon {
+  font-size: 3rem;
+  color: var(--color-icon-muted);
+  display: block;
+  margin-bottom: 0.75rem;
+}
+
+/* ── Comp chips row ── */
+.ranking-comp-chips {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+/* ─── League pages ────────────────────────────────────────────────────── */
+
+.league-page-wrap {
+  max-width: 1140px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Allow long league names to wrap rather than overflow */
+.league-detail-title {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+/* ── Form field — 44px touch target ── */
+.form-control-44 {
+  min-height: 44px;
+}
+
+/* ── League list rows — individual rounded cards like match cards ── */
+.league-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 0.75rem 1rem;
+  background: var(--color-surface-raised);
+  border-radius: var(--radius-md);
+}
+
+/* Zone A: name row */
+.league-card-zone-a {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.league-card-name {
+  font-weight: 600;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  color: var(--color-text);
+  flex: 1;
+  min-width: 0;
+}
+
+/* Zone B: comp chips — compact, single line, no min-height forced */
+.league-card-zone-b {
+  display: flex;
+  gap: 0.375rem;
+  flex-wrap: nowrap;
+  align-items: center;
+  overflow: hidden;
+}
+
+/* Zone C: members + code + actions */
+.league-card-zone-c {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--color-text-secondary);
+  font-size: var(--text-sm);
+}
+
+.league-card-code {
+  font-family: ui-monospace, SFMono-Regular, monospace;
+  color: var(--color-text-secondary);
+  font-size: var(--text-sm);
+  letter-spacing: 0.05em;
+}
+
+.league-card-actions {
+  display: flex;
+  gap: 0.375rem;
+  align-items: center;
+  margin-left: auto;
+  position: relative;
+  z-index: 2; /* above stretched-link ::after (z-index 1) */
+}
+
+/* ── Badge: ended league ── */
+.badge-ended {
+  background: var(--color-badge-ended-bg);
+  color: var(--color-badge-ended-text);
+  font-size: var(--text-xs);
+  flex-shrink: 0;
+  padding: 0.2em 0.5em;
+  border-radius: var(--radius-sm);
+  font-weight: 600;
+}
+
+/* ── Invite block (detail page) ── */
+.league-invite-block {
+  background: var(--color-surface-raised);
+  border-radius: var(--radius-md);
+  padding: 1rem 1.25rem;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.league-invite-code {
+  font-family: ui-monospace, SFMono-Regular, monospace;
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  color: var(--color-text);
+  font-variant-numeric: tabular-nums;
+}
+
+.league-invite-actions {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 575px) {
+  .league-invite-block {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+  .league-invite-actions {
+    width: 100%;
+  }
+  .league-invite-actions .btn {
+    flex: 1;
+    justify-content: center;
+  }
+}
+
+/* Share fallback — shown when Web Share and clipboard are both unavailable */
+.share-fallback-input {
+  border-radius: var(--radius-sm);
+  font-size: var(--text-sm);
+  font-family: ui-monospace, SFMono-Regular, monospace;
+  width: 100%;
+}
+
+/* ── Competition checkbox pills (create form) ── */
+.league-comp-checkbox {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 0 1rem;
+  border-radius: var(--radius-pill);
+  background: rgba(43, 52, 103, 0.07);
+  border: 1.5px solid rgba(43, 52, 103, 0.20);
+  color: var(--color-text-secondary);
+  font-size: var(--text-sm);
+  cursor: pointer;
+  user-select: none;
+  transition: background 0.12s, color 0.12s, border-color 0.12s;
+}
+
+.league-comp-checkbox input[type="checkbox"] {
+  position: absolute;
+  opacity: 0;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
+.league-comp-checkbox:has(input:checked) {
+  background: var(--color-primary);
+  color: var(--color-text-on-primary);
+  border-color: var(--color-primary);
+}
+
+/* ─── Auth pages (login, register, password reset) ────────────────────── */
+/* Navy background is RESERVED for .home-hero and .invite page only.       */
+/* Auth forms use the default cream container — no hero, no logo repeat.   */
+
+.auth-invite-context {
+  background: var(--color-surface-raised);
+  border: 1px solid rgba(43, 52, 103, 0.12);
+  border-radius: var(--radius-md);
+  padding: 0.625rem 0.875rem;
+  font-size: var(--text-sm);
+  font-weight: 500;
+  color: var(--color-text-secondary);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* ─── Profile page ────────────────────────────────────────────────────── */
+
+.profile-identity {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+.profile-avatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  object-fit: cover;
+}
+
+.profile-avatar-initials {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  background: var(--color-logo-fallback-bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--color-primary);
+}
+
+@media (min-width: 576px) {
+  .profile-avatar,
+  .profile-avatar-initials {
+    width: 96px;
+    height: 96px;
+  }
+
+  .profile-avatar-initials {
+    font-size: 1.75rem;
+  }
+}
+
+.profile-stat-primary {
+  font-size: 2rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  color: var(--color-primary);
+}
+
+.profile-stat-label {
+  font-size: var(--text-xs);
+  color: var(--color-text-secondary);
+  margin-top: 0.25rem;
+}
+
+.profile-tier-row {
+  display: flex;
+  gap: 1.25rem;
+  flex-wrap: wrap;
+}
+
+.profile-tier-item {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.1rem;
+  font-variant-numeric: tabular-nums;
+  min-width: 3rem;
+}
+
+.profile-tier-item__value {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.profile-tier-item__label {
+  font-size: var(--text-2xs);
+  font-weight: 500;
+  color: inherit;
+}
+
+.profile-section + .profile-section {
+  margin-top: 2rem;
+}
+
+/* ─── Skip link ──────────────────────────────────────────────────────────── */
+.skip-link {
+  position: absolute;
+  top: -100%;
+  left: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: var(--color-primary);
+  color: var(--color-text-on-primary);
+  z-index: 9999;
+  border-radius: 0 0 var(--radius-sm) var(--radius-sm);
+  text-decoration: none;
+  font-weight: 600;
+  font-size: var(--text-sm);
+}
+.skip-link:focus {
+  top: 0;
+}
+
+/* ─── Additional CSS classes replacing inline styles ─────────────────────── */
+
+/* Rankings: tier header icon colors */
+.ranking-tier-icon--gap { color: var(--color-badge-gap); }
+.ranking-tier-icon--win { color: var(--color-badge-win-text); }
+
+/* Rankings: sticky bar points flexible width */
+.ranking-you-sticky .ranking-points { width: auto; }
+
+/* Profile: replace inline styles */
+.profile-username  { font-size: var(--text-sm); }
+.profile-team-name { font-size: var(--text-xs); color: var(--color-text-secondary); }
+.profile-team-logo { object-fit: contain; }
+.profile-avatar-preview { object-fit: cover; }
+
+/* Modal decorative icon */
+.modal-accent-icon { font-size: 2rem; color: var(--color-accent); }
+
+/* Rules page: override max-width from .home-example-rows */
+.home-example-rows--full { max-width: none; }
+
+/* Copy/share buttons: 44px tap target */
+.copy-code-btn,
+.share-link-btn { min-height: 44px; }
+
+/* ─── Micro-interactions ─────────────────────────────────────────────────── */
+
+/* Buttons: active scale (all devices) + hover lift (pointer devices only) */
+.btn { transition: transform 0.1s ease; }
+.btn:active { transform: scale(0.98); }
+@media (hover: hover) {
+  .btn:hover  { transform: translateY(-1px); }
+  .league-card:hover { transform: translateY(-2px); }
+}
+
+/* League card: hover lift */
+.league-card { transition: transform 0.15s ease; }
+
+/* Copy/share feedback: icon pulse on success */
+.copy-code-btn .ti,
+.share-link-btn .ti { transition: transform 0.15s ease; }
+.copy-code-btn.copy-success .ti,
+.share-link-btn.copy-success .ti { transform: scale(1.2); }
+
+/* Card entrance — initial page load only (.page-entering on <body>, removed after 600ms) */
+@keyframes card-enter {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.page-entering .predictions-grid > * {
+  animation: card-enter 0.25s ease both;
+}
+/* Cap stagger: children ≥9 appear instantly */
+.page-entering .predictions-grid > *:nth-child(n+9) { animation: none; opacity: 1; }
+.page-entering .predictions-grid > *:nth-child(1) { animation-delay: 0ms; }
+.page-entering .predictions-grid > *:nth-child(2) { animation-delay: 35ms; }
+.page-entering .predictions-grid > *:nth-child(3) { animation-delay: 70ms; }
+.page-entering .predictions-grid > *:nth-child(4) { animation-delay: 105ms; }
+.page-entering .predictions-grid > *:nth-child(5) { animation-delay: 140ms; }
+.page-entering .predictions-grid > *:nth-child(6) { animation-delay: 175ms; }
+.page-entering .predictions-grid > *:nth-child(7) { animation-delay: 210ms; }
+.page-entering .predictions-grid > *:nth-child(8) { animation-delay: 245ms; }
+
+/* ─── Accessibility: prefers-reduced-motion (comprehensive) ─────────────── */
+@media (prefers-reduced-motion: reduce) {
+  /* Disable all transitions and animations */
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  /* Live dots: stop pulsing, remain visible and colored */
+  .live-dot,
+  .segment-control__live-dot { animation: none; opacity: 1; }
+  /* Card entrance: skip, show immediately */
+  .page-entering .predictions-grid > * { animation: none; opacity: 1; }
 }

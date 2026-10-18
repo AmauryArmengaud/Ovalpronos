@@ -1,6 +1,7 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.http import HttpResponseBadRequest, HttpResponseForbidden
+from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseForbidden
 from django.shortcuts import get_object_or_404, render
+from django.template.loader import render_to_string
 from django.utils import timezone
 from django.views import View
 from django.views.generic import TemplateView
@@ -9,6 +10,33 @@ from django.db.models.functions import TruncDate
 
 from apps.matches.models import Competition, Match
 from .models import Prediction
+
+
+def _prediction_progress(user):
+    """Return (predicted_with_odds, total_with_odds) for the upcoming tab scope.
+
+    Single source of truth used by SubmitPredictionView (OOB progress update).
+    Counts SCHEDULED/POSTPONED matches with full odds in the user's active leagues.
+    """
+    competition_ids = list(
+        Competition.objects.filter(
+            is_active=True,
+            leagues__members=user,
+        ).distinct().values_list('pk', flat=True)
+    )
+    upcoming_with_odds = Match.objects.filter(
+        competition_id__in=competition_ids,
+        status__in=['SCHEDULED', 'POSTPONED'],
+        datetime__gt=timezone.now(),  # exclude matches past kickoff (locked)
+        cote_home__isnull=False,
+        cote_draw__isnull=False,
+        cote_away__isnull=False,
+    )
+    total = upcoming_with_odds.count()
+    if total == 0:
+        return 0, 0
+    predicted = Prediction.objects.filter(user=user, match__in=upcoming_with_odds).count()
+    return predicted, total
 
 
 class PredictionsView(LoginRequiredMixin, TemplateView):
@@ -86,8 +114,8 @@ class SubmitPredictionView(LoginRequiredMixin, View):
         if not match.has_odds:
             return HttpResponseBadRequest("No odds available.")
 
-        home_raw = request.POST.get('home', '').strip()
-        away_raw = request.POST.get('away', '').strip()
+        home_raw = request.POST.get('score_h', '').strip()
+        away_raw = request.POST.get('score_a', '').strip()
 
         # Both fields must be present and valid integers
         if not home_raw or not away_raw:
@@ -130,7 +158,18 @@ class SubmitPredictionView(LoginRequiredMixin, View):
             'is_update': not created,
         })
 
-        return render(
-            request, 'partials/match_card.html',
-            {'match': match, 'prediction': prediction}
+        card_html = render_to_string(
+            'partials/match_card.html',
+            {'match': match, 'prediction': prediction, 'saved': True},
+            request=request,
         )
+        predicted, total = _prediction_progress(request.user)
+        if total:
+            progress_html = render_to_string(
+                'partials/predictions_progress.html',
+                {'predicted_with_odds': predicted, 'total_with_odds': total, 'oob': True},
+                request=request,
+            )
+        else:
+            progress_html = ''
+        return HttpResponse(card_html + progress_html, content_type='text/html')

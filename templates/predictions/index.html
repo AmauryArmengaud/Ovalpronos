@@ -4,21 +4,23 @@
 {% block title %}{% trans "Predictions" %} — Oval'Pronos{% endblock %}
 
 {% block content %}
+<div class="predictions-page-wrap">
+
 <h1 class="mb-4">{% trans "Predictions" %}</h1>
 
 {# ── Tab filter ──────────────────────────────────────────────────────── #}
-<div class="segment-control mb-4">
+<nav class="segment-control mb-4" aria-label="{% trans 'Match filter' %}">
   <a class="segment-control__item {% if active_tab == 'upcoming' %}active{% endif %}"
-     href="?tab=upcoming">{% trans "Upcoming" %}</a>
+     href="?tab=upcoming"{% if active_tab == 'upcoming' %} aria-current="page"{% endif %}>{% trans "Upcoming" %}</a>
   <a class="segment-control__item {% if active_tab == 'live' %}active{% endif %}"
-     href="?tab=live">{% if has_live_matches %}<span class="segment-control__live-dot"></span>{% endif %}{% trans "Live" %}</a>
+     href="?tab=live"{% if active_tab == 'live' %} aria-current="page"{% endif %}>{% if has_live_matches %}<span class="segment-control__live-dot" aria-hidden="true"></span>{% endif %}{% trans "Live" %}</a>
   <a class="segment-control__item {% if active_tab == 'past' %}active{% endif %}"
-     href="?tab=past">{% trans "Past" %}</a>
-</div>
+     href="?tab=past"{% if active_tab == 'past' %} aria-current="page"{% endif %}>{% trans "Past" %}</a>
+</nav>
 
 {% if no_leagues %}
   <div class="text-center text-muted py-5">
-    <i class="ti ti-users-group mb-3" style="font-size: 3rem; color: var(--color-icon-muted);"></i>
+    <i class="ti ti-users-group page-empty-icon" aria-hidden="true"></i>
     <p class="fw-semibold">{% trans "Join or create a league to start predicting." %}</p>
     <p class="small">{% trans "Leagues are tied to specific competitions. Your predictions will count toward your league's leaderboard." %}</p>
     <div class="d-flex gap-2 justify-content-center mt-3">
@@ -29,13 +31,14 @@
 {% elif not items and not items_without_odds %}
   <div class="text-center text-muted py-5">
     {% if active_tab == 'upcoming' %}
-      <i class="ti ti-calendar mb-3" style="font-size: 3rem; color: var(--color-icon-muted);"></i>
+      <i class="ti ti-calendar page-empty-icon" aria-hidden="true"></i>
       <p>{% trans "No upcoming matches yet. Fixtures are added weekly." %}</p>
     {% elif active_tab == 'live' %}
-      <i class="ti ti-player-play mb-3" style="font-size: 3rem; color: var(--color-icon-muted);"></i>
+      <i class="ti ti-player-play page-empty-icon" aria-hidden="true"></i>
       <p>{% trans "No matches in progress right now." %}</p>
+      <a href="?tab=upcoming" class="btn btn-outline-secondary btn-sm mt-2">{% trans "See upcoming matches" %}</a>
     {% else %}
-      <i class="ti ti-history mb-3" style="font-size: 3rem; color: var(--color-icon-muted);"></i>
+      <i class="ti ti-history page-empty-icon" aria-hidden="true"></i>
       <p>{% trans "Your past predictions will appear here." %}</p>
     {% endif %}
   </div>
@@ -43,24 +46,21 @@
 
   {# ── Progress bar (upcoming only) ──────────────────────────────────── #}
   {% if active_tab == 'upcoming' and total_with_odds %}
-  <div class="d-flex align-items-center gap-2 prediction-progress-sticky">
-    <div class="progress flex-grow-1" style="height:4px;">
-      <div class="progress-bar bg-accent prediction-progress-bar"
-           style="width:{% widthratio predicted_with_odds total_with_odds 100 %}%"
-           data-total="{{ total_with_odds }}">
-      </div>
-    </div>
-    <span class="small text-muted flex-shrink-0 prediction-progress-counter">{{ predicted_with_odds }}/{{ total_with_odds }}</span>
-  </div>
+  {% include "partials/predictions_progress.html" with predicted_with_odds=predicted_with_odds total_with_odds=total_with_odds %}
   {% endif %}
 
   {# ── Flat chronological list ────────────────────────────────────────── #}
+  <div class="predictions-grid">
   {% for item in items %}
-    {% ifchanged item.match.competition_id %}
-    <div class="comp-divider-chip{% if not forloop.first %} mt-4{% endif %}">{{ item.match.competition.name }}</div>
+    {% ifchanged item.match.datetime|date:"Y-m-d" %}
+    <div class="day-divider{% if not forloop.first %} mt-4{% endif %}">{{ item.match.datetime|date:"D j M" }}</div>
+    {% endifchanged %}
+    {% ifchanged item.match.competition_id item.match.datetime|date:"Y-m-d" %}
+    <div class="comp-divider-chip">{{ item.match.competition.name }}</div>
     {% endifchanged %}
     {% include "partials/match_card.html" with match=item.match prediction=item.prediction %}
   {% endfor %}
+  </div>
 
   {# ── Matches without odds (collapsed) ──────────────────────────────── #}
   {% if items_without_odds %}
@@ -75,16 +75,23 @@
     </button>
   </div>
   <div class="collapse" id="no-odds-collapse">
+    <div class="predictions-grid">
     {% for item in items_without_odds %}
-      {% ifchanged item.match.competition_id %}
-      <div class="comp-divider-chip{% if not forloop.first %} mt-4{% endif %}">{{ item.match.competition.name }}</div>
+      {% ifchanged item.match.datetime|date:"Y-m-d" %}
+      <div class="day-divider{% if not forloop.first %} mt-4{% endif %}">{{ item.match.datetime|date:"D j M" }}</div>
+      {% endifchanged %}
+      {% ifchanged item.match.competition_id item.match.datetime|date:"Y-m-d" %}
+      <div class="comp-divider-chip">{{ item.match.competition.name }}</div>
       {% endifchanged %}
       {% include "partials/match_card.html" with match=item.match prediction=item.prediction %}
     {% endfor %}
+    </div>
   </div>
   {% endif %}
 
 {% endif %}
+
+</div>{# /predictions-page-wrap #}
 {% endblock %}
 
 {% block extra_js %}
@@ -94,13 +101,17 @@
     row.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
   }
 
+  function isVisible(el) {
+    return !el.closest('.collapse:not(.show)');
+  }
+
   function findNextCardHomeInput(fromInput) {
     var currentCard = fromInput.closest('[id^="match-card-"]');
     var allCards = Array.from(document.querySelectorAll('[id^="match-card-"]'));
     var idx = allCards.indexOf(currentCard);
     for (var i = idx + 1; i < allCards.length; i++) {
-      var next = allCards[i].querySelector('input[name="home"]');
-      if (next) return next;
+      var next = allCards[i].querySelector('input[name="score_h"]');
+      if (next && isVisible(next)) return next;
     }
     return null;
   }
@@ -110,27 +121,45 @@
     var allCards = Array.from(document.querySelectorAll('[id^="match-card-"]'));
     var idx = allCards.indexOf(currentCard);
     for (var i = idx - 1; i >= 0; i--) {
-      var prev = allCards[i].querySelector('input[name="away"]');
-      if (prev) return prev;
+      var prev = allCards[i].querySelector('input[name="score_a"]');
+      if (prev && isVisible(prev)) return prev;
     }
     return null;
   }
 
   function focusInput(input) {
     input.focus();
-    input.select();
+    // select-all is handled by the focusin handler via setTimeout
   }
 
-  // Auto-advance when 2 digits typed
+  function updateEnterkeyhint() {
+    var allAway = Array.from(document.querySelectorAll('input[name="score_a"].match-score-input'));
+    var visibleAway = allAway.filter(isVisible);
+    allAway.forEach(function(inp) { inp.setAttribute('enterkeyhint', 'next'); });
+    if (visibleAway.length > 0) {
+      visibleAway[visibleAway.length - 1].setAttribute('enterkeyhint', 'done');
+    }
+  }
+
+  // Auto-advance when 2 digits typed; strip non-digit chars first
   document.addEventListener('input', function(e) {
     var input = e.target;
     if (!input.matches('.match-score-input')) return;
-    if (String(input.value).length < 2) return;
-    if (input.name === 'home') {
-      focusInput(input.closest('form').querySelector('[name="away"]'));
+    // Strip non-numeric characters (type=text allows any char)
+    var digits = input.value.replace(/[^0-9]/g, '');
+    if (digits !== input.value) { input.value = digits; return; }
+    if (input.value.length < 2) return;
+    if (input.name === 'score_h') {
+      focusInput(input.closest('form').querySelector('[name="score_a"]'));
     } else {
       var nextHome = findNextCardHomeInput(input);
-      if (nextHome) focusInput(nextHome);
+      if (nextHome) {
+        focusInput(nextHome);
+      } else {
+        // Last visible away input — blur triggers the change event and auto-save
+        pendingFocusId = null;
+        input.blur();
+      }
     }
   });
 
@@ -141,21 +170,26 @@
 
     if (e.key === 'Backspace' && input.value === '') {
       e.preventDefault();
-      if (input.name === 'away') {
-        focusInput(input.closest('form').querySelector('[name="home"]'));
+      if (input.name === 'score_a') {
+        focusInput(input.closest('form').querySelector('[name="score_h"]'));
       } else {
         var prevAway = findPrevCardAwayInput(input);
         if (prevAway) focusInput(prevAway);
       }
     } else if (e.key === 'Enter') {
       e.preventDefault();
-      if (input.name === 'home') {
-        focusInput(input.closest('form').querySelector('[name="away"]'));
+      if (input.name === 'score_h') {
+        focusInput(input.closest('form').querySelector('[name="score_a"]'));
       } else {
         var nextHomeEnter = findNextCardHomeInput(input);
-        if (nextHomeEnter) focusInput(nextHomeEnter);
+        if (nextHomeEnter) {
+          focusInput(nextHomeEnter);
+        } else {
+          pendingFocusId = null;
+          input.blur();
+        }
       }
-    } else if (e.key === 'Tab' && !e.shiftKey && input.name === 'away') {
+    } else if (e.key === 'Tab' && !e.shiftKey && input.name === 'score_a') {
       var nextHomeTab = findNextCardHomeInput(input);
       if (nextHomeTab) {
         e.preventDefault();
@@ -164,16 +198,66 @@
     }
   });
 
-  // Update progress bar after each card save
+  // Track last focused score input for focus restoration after HTMX swap.
+  // Also select all content on focus so existing values are replaced on first keystroke.
+  // setTimeout defers past iOS Safari's touchend which cancels a synchronous select().
+  // Body class .score-input-active hides the sticky progress bar on touch devices (CSS).
+  var pendingFocusId = null;
+  document.addEventListener('focusin', function(e) {
+    var input = e.target;
+    if (!input.matches('.match-score-input')) return;
+    document.body.classList.add('score-input-active');
+    if (input.id) pendingFocusId = input.id;
+    if (!input.value) return;
+    setTimeout(function() { input.setSelectionRange(0, input.value.length); }, 0);
+  });
+
+  // setTimeout(0): defer past focusin on the next input to avoid flicker during auto-advance
+  document.addEventListener('focusout', function(e) {
+    if (!e.target.matches('.match-score-input')) return;
+    setTimeout(function() {
+      if (!document.activeElement || !document.activeElement.matches('.match-score-input')) {
+        document.body.classList.remove('score-input-active');
+      }
+    }, 0);
+  });
+
+  // Restore keyboard focus + announce save after each card swap.
+  // Progress bar is updated server-side via hx-swap-oob on the predictions-progress element.
   document.body.addEventListener('htmx:afterSwap', function(e) {
     if (!e.target.id || !e.target.id.startsWith('match-card-')) return;
-    var bar = document.querySelector('.prediction-progress-bar');
-    var counter = document.querySelector('.prediction-progress-counter');
-    if (!bar || !counter) return;
-    var total = parseInt(bar.dataset.total);
-    var predicted = document.querySelectorAll('.match-potential-points').length;
-    bar.style.width = (predicted / total * 100) + '%';
-    counter.textContent = predicted + '/' + total;
+
+    // Announce save to screen readers via the persistent aria-live region
+    var savedMsg = e.target.dataset.savedMsg;
+    if (savedMsg) {
+      var region = document.getElementById('save-announcement');
+      if (region) {
+        region.textContent = savedMsg;
+        // Clear after announcement so it can fire again on next save
+        setTimeout(function() { region.textContent = ''; }, 1500);
+      }
+    }
+
+    // Restore focus if the swap destroyed the focused input (focus fell back to body)
+    // Note: on iOS Safari programmatic focus() after async may not reopen the keyboard —
+    // see ARCHITECTURE.md §morph-swap for the definitive fix if this is insufficient.
+    if (pendingFocusId && (document.activeElement === document.body || document.activeElement === document.documentElement)) {
+      var el = document.getElementById(pendingFocusId);
+      if (el) el.focus();
+    }
+    pendingFocusId = null;
+
+    updateEnterkeyhint();
   });
+
+  // Update enterkeyhint when no-odds collapse opens or closes
+  document.getElementById('no-odds-collapse') && document.getElementById('no-odds-collapse').addEventListener('shown.bs.collapse', updateEnterkeyhint);
+  document.getElementById('no-odds-collapse') && document.getElementById('no-odds-collapse').addEventListener('hidden.bs.collapse', updateEnterkeyhint);
+
+  updateEnterkeyhint();
+
+  // Card entrance animation — add class to body, remove after animations complete
+  document.body.classList.add('page-entering');
+  setTimeout(function() { document.body.classList.remove('page-entering'); }, 600);
 </script>
 {% endblock %}
