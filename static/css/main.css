@@ -1054,6 +1054,20 @@ main {
   white-space: nowrap;
 }
 
+/* Hide sticky progress bar on touch devices while a score input has focus.
+   Keyboard shifts the visual viewport; opacity+transform avoids layout shift.
+   Body class .score-input-active is toggled by JS in predictions/index.html. */
+@media (hover: none) {
+  #predictions-progress {
+    transition: opacity 0.15s ease, transform 0.15s ease;
+  }
+  .score-input-active #predictions-progress {
+    opacity: 0;
+    transform: translateY(-6px);
+    pointer-events: none;
+  }
+}
+
 /* ─── Rankings segment scroll ────────────────────────────────────────────── */
 .nav-tabs-scroll-wrapper {
   overflow-x: auto;

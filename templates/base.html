@@ -5,7 +5,10 @@
 <html lang="{{ CURRENT_LANG }}">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- interactive-widget=resizes-content: Chrome Android resizes the layout viewport
+       when the soft keyboard opens, so position:sticky behaves correctly.
+       Ignored by iOS Safari (which uses resizes-visual by default). -->
+  <meta name="viewport" content="width=device-width, initial-scale=1, interactive-widget=resizes-content">
   <title>{% block title %}Oval'Pronos{% endblock %}</title>
   <!-- Barlow font -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
