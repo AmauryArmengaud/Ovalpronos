@@ -114,11 +114,24 @@ Day separator date format: `date:"D j M"` — uses locale-aware abbreviated day 
 - **Fill:** `.prediction-progress-bar` — primary color (`--color-primary`) while in progress.
 - **Complete state:** `.prediction-progress-bar--complete` — switches fill to `--color-brand-rugby` at 100%.
 - **Label:** `X/Y pronos` (French) / `X/Y predictions` (English) via `{% blocktrans count %}` — plural based on total `Y`.
-- JS in `htmx:afterSwap` updates `.prediction-progress-count` (the `X` span), bar width, and toggles `--complete`.
+- **Server-authoritative:** `SubmitPredictionView` appends an OOB fragment (`hx-swap-oob="true"`) after every save. `_prediction_progress(user)` is the single source of truth — counts `SCHEDULED/POSTPONED` matches with full odds across active leagues. No JS counting.
+- **Partial:** `templates/partials/predictions_progress.html` — rendered by both `PredictionsView` (initial page) and `SubmitPredictionView` (OOB update). Pass `oob=True` for the post-save fragment.
+- **Touch-device hide:** while a `.match-score-input` is focused, body gets `.score-input-active`. `@media (hover: none)` fades `#predictions-progress` out via `opacity: 0; transform: translateY(-6px); pointer-events: none` — no layout shift. Restored on `focusout` (debounced via `setTimeout(0)` to avoid flicker during auto-advance). Body class is on `<body>` so it survives OOB swaps.
 
 ---
 
 ## 3. Technical constraints
+
+### Viewport meta
+
+```html
+<meta name="viewport" content="width=device-width, initial-scale=1, interactive-widget=resizes-content">
+```
+
+`interactive-widget=resizes-content` makes Chrome Android resize the **layout** viewport (not just
+the visual viewport) when the soft keyboard opens. This keeps `position: sticky` working correctly
+without JS. iOS Safari ignores this hint (it uses `resizes-visual` by default) — the opacity/transform
+hide on touch devices is the fallback for iOS.
 
 ### HTMX contract — do not break
 
@@ -194,8 +207,8 @@ Activate Plan B if users report keyboard closing on iOS when updating an existin
 user save. If the animation should NOT replay (e.g., on initial page load), do not include
 `saved=True` in the view context on GET — only on POST responses.
 
-The `htmx:afterSwap` progress bar update reads `.match-potential-points` elements to count
-predicted matches. This count must stay accurate; do not add that class to non-prediction elements.
+The `htmx:afterSwap` progress bar update is server-driven (OOB swap) — no JS counting. Do not
+read `.match-potential-points` to update the bar.
 
 ### i18n
 
@@ -691,7 +704,8 @@ Shared polish pass: hover states, focus rings, transitions, entrance animation.
   `page-entering` on `DOMContentLoaded`, removes it after 600ms. **Never triggered on HTMX swap.**
 - **Reduced motion:** global `*` override (`animation-duration: 0.01ms !important` etc.) inside
   `@media (prefers-reduced-motion: reduce)`. Live dot `@keyframes live-pulse` gets `animation: none`
-  with explicit fallback `opacity: 1; transform: scale(1)` so the dot stays visible.
+  with explicit fallback `opacity: 1; transform: scale(1)` so the dot stays visible. The progress bar
+  touch-hide transition (`opacity 0.15s ease, transform 0.15s ease`) becomes instant under this override.
 
 ### Accessibilité finale (DONE)
 
@@ -704,8 +718,9 @@ Full keyboard navigation audit, ARIA labels, colour-contrast pass.
 - **Landmarks:** `<header>` wraps the navbar; `<main id="main-content">` is the content anchor.
 - **Predictions tabs:** `<nav aria-label="{% trans 'Match filter' %}">` — nav links, NOT tablist.
   Active tab gets `aria-current="page"`.
-- **Progress bar:** `role="progressbar" aria-valuenow aria-valuemin="0" aria-valuemax="100"`. JS in
-  `htmx:afterSwap` updates `aria-valuenow` alongside the visual bar.
+- **Progress bar:** `role="progressbar" aria-valuenow aria-valuemin="0" aria-valuemax`. Updated
+  server-side via OOB swap on every save — `aria-valuenow` and `aria-valuemax` always reflect the
+  authoritative server count.
 - **HTMX aria-live:** persistent `<div id="save-announcement" aria-live="polite" aria-atomic="true" class="visually-hidden">` in `base.html` — outside swapped cards. Card partial emits
   `data-saved-msg="{% trans 'Saved' %}"` on success. `htmx:afterSwap` reads the attribute and
   updates the region for 1.5s. Screen readers announce each save without losing focus.
@@ -797,6 +812,11 @@ Checklist:
 - [x] Live empty state (access ?tab=live when no live match): message + "Voir les matchs à venir" link
 - [x] No-odds toggle: solid border, 44px height — tap target comfortable
 - [x] Saved state on match -2: green tint + `ti-check` below inputs visible on page load (server-rendered)
+- [ ] **Autofill suppression:** tap a score input — keyboard shows digits only, no password/address/card suggestions above it
+- [ ] **Select-all on tap:** tapping an existing score selects the whole value; typing replaces it; auto-advance still works
+- [ ] **Progress bar touch hide (Android):** open keyboard → bar fades out; close keyboard → bar reappears; bar shows correct count after OOB swap
+- [ ] **Progress bar touch hide (iOS):** same fade; scroll with keyboard open — bar stays hidden, no misposition; auto-advance between inputs no flicker
+- [ ] **Last prediction at 100%:** saving the last card → bar reappears green at 100% after keyboard closes
 - [x] **Priority — keyboard on iOS:** modify only the home score of match -2 (existing prediction, not the first card). Keyboard must stay open after the card swaps. If it closes, activate Plan B morph.
 - [x] **Priority — last card:** enter a prediction on the last visible card (no-odds section expanded if needed). "OK" / done key should save via blur, keyboard closes, card swaps correctly.
 
