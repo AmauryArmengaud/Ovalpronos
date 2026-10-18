@@ -32,7 +32,7 @@ live states and CTAs only. Brand green (#1a7f37) for positive feedback (saved st
 | `clip-path` on team logo images | PNG logos are cutout (transparent BG); clip-path bleeds fallback circle through transparency |
 | Overlay approach for logo fallback (fallback always visible behind img) | Same issue — transparent PNG reveals the circle beneath |
 | Dark background on score inputs | Feels like a separate widget; tinted surface integrates with card tone |
-| `hx-trigger="blur from:[name=away]"` | (a) editing only home score, never touching away = save never fires = data loss; (b) HTMX `from:` resolves document-wide, not per-form — all cards fire on any `[name=away]` blur |
+| `hx-trigger="blur from:[name=score_a]"` | (a) editing only home score, never touching away = save never fires = data loss; (b) HTMX `from:` resolves document-wide, not per-form — all cards fire on any `[name=score_a]` blur |
 | Ellipsis truncation on `.match-team-name` | Content should never be silently hidden; use `min-height` to reserve space instead |
 | JS-only saved feedback (animation only) | Animation may not fire if input is auto-advanced; persistent server-rendered state is the ground truth |
 | Zone D footer | Round + time moved to Zone A; competition shown in comp-divider-chip above the card |
@@ -126,17 +126,18 @@ The predictions page swaps the entire `#match-card-{pk}` div on every save:
 
 ```html
 <form hx-post="{% url 'predictions:submit' match.pk %}"
-      hx-trigger="change[this.querySelector('[name=home]').value !== '' && this.querySelector('[name=away]').value !== '']"
+      hx-trigger="change[this.querySelector('[name=score_h]').value !== '' && this.querySelector('[name=score_a]').value !== '']"
       hx-swap="outerHTML"
       hx-target="#match-card-{{ match.pk }}">
 ```
 
 Rules:
+- Field names are `score_h` / `score_a` (not `home`/`away` — avoids address-autofill heuristics on iOS).
 - `hx-trigger` must stay `change[both non-empty]` — never switch to `blur from:`.
 - `hx-swap="outerHTML"` replaces the whole card including the `<form>`. The view must return the full
   card partial, not just the form.
 - Server-side lock/odds validation on every POST — never rely on client-side gate only.
-- Input IDs must stay stable: `id="home-{pk}"` and `id="away-{pk}"`. These IDs are used by
+- Input IDs must stay stable: `id="score-h-{pk}"` and `id="score-a-{pk}"`. These IDs are used by
   `htmx:afterSwap` to restore keyboard focus.
 
 ### Server-driven saved feedback

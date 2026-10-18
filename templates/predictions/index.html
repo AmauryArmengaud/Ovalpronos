@@ -122,7 +122,7 @@
     var allCards = Array.from(document.querySelectorAll('[id^="match-card-"]'));
     var idx = allCards.indexOf(currentCard);
     for (var i = idx + 1; i < allCards.length; i++) {
-      var next = allCards[i].querySelector('input[name="home"]');
+      var next = allCards[i].querySelector('input[name="score_h"]');
       if (next && isVisible(next)) return next;
     }
     return null;
@@ -133,7 +133,7 @@
     var allCards = Array.from(document.querySelectorAll('[id^="match-card-"]'));
     var idx = allCards.indexOf(currentCard);
     for (var i = idx - 1; i >= 0; i--) {
-      var prev = allCards[i].querySelector('input[name="away"]');
+      var prev = allCards[i].querySelector('input[name="score_a"]');
       if (prev && isVisible(prev)) return prev;
     }
     return null;
@@ -141,11 +141,11 @@
 
   function focusInput(input) {
     input.focus();
-    input.select();
+    // select-all is handled by the focusin handler via setTimeout
   }
 
   function updateEnterkeyhint() {
-    var allAway = Array.from(document.querySelectorAll('input[name="away"].match-score-input'));
+    var allAway = Array.from(document.querySelectorAll('input[name="score_a"].match-score-input'));
     var visibleAway = allAway.filter(isVisible);
     allAway.forEach(function(inp) { inp.setAttribute('enterkeyhint', 'next'); });
     if (visibleAway.length > 0) {
@@ -153,23 +153,16 @@
     }
   }
 
-  // On click, position cursor at end rather than letting the browser default to position 0.
-  // type=number doesn't support setSelectionRange everywhere — try/catch is the safe wrapper.
-  // Only runs on user-initiated clicks; auto-advance (focusInput) is unaffected.
-  document.addEventListener('click', function(e) {
-    var input = e.target;
-    if (!input.matches('.match-score-input') || input.value === '') return;
-    var len = String(input.value).length;
-    try { input.setSelectionRange(len, len); } catch(e) {}
-  });
-
-  // Auto-advance when 2 digits typed
+  // Auto-advance when 2 digits typed; strip non-digit chars first
   document.addEventListener('input', function(e) {
     var input = e.target;
     if (!input.matches('.match-score-input')) return;
-    if (String(input.value).length < 2) return;
-    if (input.name === 'home') {
-      focusInput(input.closest('form').querySelector('[name="away"]'));
+    // Strip non-numeric characters (type=text allows any char)
+    var digits = input.value.replace(/[^0-9]/g, '');
+    if (digits !== input.value) { input.value = digits; return; }
+    if (input.value.length < 2) return;
+    if (input.name === 'score_h') {
+      focusInput(input.closest('form').querySelector('[name="score_a"]'));
     } else {
       var nextHome = findNextCardHomeInput(input);
       if (nextHome) {
@@ -189,16 +182,16 @@
 
     if (e.key === 'Backspace' && input.value === '') {
       e.preventDefault();
-      if (input.name === 'away') {
-        focusInput(input.closest('form').querySelector('[name="home"]'));
+      if (input.name === 'score_a') {
+        focusInput(input.closest('form').querySelector('[name="score_h"]'));
       } else {
         var prevAway = findPrevCardAwayInput(input);
         if (prevAway) focusInput(prevAway);
       }
     } else if (e.key === 'Enter') {
       e.preventDefault();
-      if (input.name === 'home') {
-        focusInput(input.closest('form').querySelector('[name="away"]'));
+      if (input.name === 'score_h') {
+        focusInput(input.closest('form').querySelector('[name="score_a"]'));
       } else {
         var nextHomeEnter = findNextCardHomeInput(input);
         if (nextHomeEnter) {
@@ -208,7 +201,7 @@
           input.blur();
         }
       }
-    } else if (e.key === 'Tab' && !e.shiftKey && input.name === 'away') {
+    } else if (e.key === 'Tab' && !e.shiftKey && input.name === 'score_a') {
       var nextHomeTab = findNextCardHomeInput(input);
       if (nextHomeTab) {
         e.preventDefault();
@@ -217,12 +210,16 @@
     }
   });
 
-  // Track the last focused score input so focus can be restored after HTMX swap
+  // Track last focused score input for focus restoration after HTMX swap.
+  // Also select all content on focus so existing values are replaced on first keystroke.
+  // setTimeout defers past iOS Safari's touchend which cancels a synchronous select().
   var pendingFocusId = null;
   document.addEventListener('focusin', function(e) {
-    if (e.target.classList.contains('match-score-input') && e.target.id) {
-      pendingFocusId = e.target.id;
-    }
+    var input = e.target;
+    if (!input.matches('.match-score-input')) return;
+    if (input.id) pendingFocusId = input.id;
+    if (!input.value) return;
+    setTimeout(function() { input.setSelectionRange(0, input.value.length); }, 0);
   });
 
   // Update progress bar + restore keyboard focus after each card swap

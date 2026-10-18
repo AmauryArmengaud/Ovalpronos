@@ -61,36 +61,46 @@
           {% else %}
             {# Open — editable inputs #}
             <form hx-post="{% url 'predictions:submit' match.pk %}"
-                  hx-trigger="change[this.querySelector('[name=home]').value !== '' && this.querySelector('[name=away]').value !== '']"
+                  hx-trigger="change[this.querySelector('[name=score_h]').value !== '' && this.querySelector('[name=score_a]').value !== '']"
                   hx-swap="outerHTML"
                   hx-target="#match-card-{{ match.pk }}"
                   class="save-form">
               {% csrf_token %}
               <div class="d-flex align-items-center justify-content-center gap-1">
-                <input type="number"
-                       id="home-{{ match.pk }}"
-                       name="home"
-                       min="0"
-                       max="200"
+                <input type="text"
+                       id="score-h-{{ match.pk }}"
+                       name="score_h"
                        value="{{ prediction.predicted_home_score|default:'' }}"
                        class="match-score-input{% if prediction %} match-score-input--saved{% endif %}"
                        hx-disabled-elt="this"
                        inputmode="numeric"
+                       pattern="[0-9]*"
                        enterkeyhint="next"
                        autocomplete="off"
+                       autocorrect="off"
+                       autocapitalize="off"
+                       spellcheck="false"
+                       data-lpignore="true"
+                       data-1p-ignore
+                       data-form-type="other"
                        aria-label="{% trans 'Home score' %}">
                 <span class="fw-bold text-muted">–</span>
-                <input type="number"
-                       id="away-{{ match.pk }}"
-                       name="away"
-                       min="0"
-                       max="200"
+                <input type="text"
+                       id="score-a-{{ match.pk }}"
+                       name="score_a"
                        value="{{ prediction.predicted_away_score|default:'' }}"
                        class="match-score-input{% if prediction %} match-score-input--saved{% endif %}"
                        hx-disabled-elt="this"
                        inputmode="numeric"
+                       pattern="[0-9]*"
                        enterkeyhint="next"
                        autocomplete="off"
+                       autocorrect="off"
+                       autocapitalize="off"
+                       spellcheck="false"
+                       data-lpignore="true"
+                       data-1p-ignore
+                       data-form-type="other"
                        aria-label="{% trans 'Away score' %}">
               </div>
               {% if prediction %}

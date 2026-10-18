@@ -86,8 +86,8 @@ class SubmitPredictionView(LoginRequiredMixin, View):
         if not match.has_odds:
             return HttpResponseBadRequest("No odds available.")
 
-        home_raw = request.POST.get('home', '').strip()
-        away_raw = request.POST.get('away', '').strip()
+        home_raw = request.POST.get('score_h', '').strip()
+        away_raw = request.POST.get('score_a', '').strip()
 
         # Both fields must be present and valid integers
         if not home_raw or not away_raw:

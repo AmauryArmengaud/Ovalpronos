@@ -769,12 +769,6 @@ main {
   margin-top: 3px;
 }
 
-.match-score-input::-webkit-outer-spin-button,
-.match-score-input::-webkit-inner-spin-button {
-  -webkit-appearance: none;
-  margin: 0;
-}
-
 .match-score-input:focus {
   background: rgba(43, 52, 103, 0.12);
   outline: 2px solid var(--color-primary);
@@ -1028,7 +1022,7 @@ main {
 .prediction-progress-sticky {
   position: sticky;
   top: 0;
-  z-index: 10;
+  z-index: 100;
   background: var(--color-background);
   padding: 0.5rem 0;
   margin-bottom: 1rem;
