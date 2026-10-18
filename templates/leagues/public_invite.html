@@ -11,7 +11,7 @@
 {% endblock %}
 
 {% block og_title %}{% if not invalid %}{% blocktrans with name=league.name %}Join {{ name }} on Oval'Pronos{% endblocktrans %}{% endif %}{% endblock %}
-{% block og_description %}{% trans "Predict rugby scores, earn points based on odds — free." %}{% endblock %}
+{% block og_description %}{% trans "Predict rugby scores, beat your friends. Free." %}{% endblock %}
 
 {% block body_class %}home-visitor{% endblock %}
 {% block main_class %}p-0{% endblock %}
@@ -90,10 +90,6 @@
       </div>
 
     </div>
-
-    <img src="{% static 'img/boar-mascot.png' %}" alt="" aria-hidden="true"
-         class="home-hero__mascot d-none d-lg-block"
-         width="240" height="240">
 
   </div>
 </section>

@@ -2,6 +2,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseForbidden
 from django.shortcuts import get_object_or_404, render
 from django.template.loader import render_to_string
+from django.utils import timezone
 from django.views import View
 from django.views.generic import TemplateView
 
@@ -26,6 +27,7 @@ def _prediction_progress(user):
     upcoming_with_odds = Match.objects.filter(
         competition_id__in=competition_ids,
         status__in=['SCHEDULED', 'POSTPONED'],
+        datetime__gt=timezone.now(),  # exclude matches past kickoff (locked)
         cote_home__isnull=False,
         cote_draw__isnull=False,
         cote_away__isnull=False,

@@ -875,7 +875,10 @@ msgid "Join %(name)s on Oval'Pronos"
 msgstr "Rejoins %(name)s sur Oval'Pronos"
 
 #: templates/leagues/public_invite.html:14
-#: templates/leagues/public_invite.html:78
+msgid "Predict rugby scores, beat your friends. Free."
+msgstr "Prédis des scores de rugby, affronte tes potes. Gratuit."
+
+#: templates/leagues/public_invite.html:77
 msgid "Predict rugby scores, earn points based on odds — free."
 msgstr ""
 "Prédit des scores de rugby, gagne des points selon les cotes — c'est gratuit."

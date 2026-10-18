@@ -245,8 +245,8 @@ class PredictionProgressOOBTest(TestCase):
         self.assertEqual(response.context['predicted_with_odds'], 1)
         self.assertEqual(response.context['total_with_odds'], 2)
 
-    def test_locked_match_counted_in_total_and_prediction(self):
-        """A locked match (past kickoff, SCHEDULED) counts in total AND in predicted count."""
+    def test_locked_match_excluded_from_progress(self):
+        """A locked match (past kickoff, SCHEDULED) is excluded from the progress bar denominator."""
         from apps.leagues.models import League
         locked_user = _make_user('oob_locked')
         locked_league = League.objects.create(name='Locked League', creator=locked_user)
@@ -254,7 +254,7 @@ class PredictionProgressOOBTest(TestCase):
         locked_league.members.add(locked_user)
         self.client.force_login(locked_user)
 
-        # Match in the past — is_locked will return True
+        # Match in the past — is_locked returns True; must not appear in denominator
         locked_match = Match.objects.create(
             external_id=-88003, competition=self.comp,
             home_team=self.team_a, away_team=self.team_b,
@@ -274,7 +274,7 @@ class PredictionProgressOOBTest(TestCase):
         # Save the last prediction via view
         response = self._submit(self.match2, 20, 15)
         content = response.content.decode()
-        # total = 3 (locked + 2 future), predicted = 3
-        self.assertIn('aria-valuenow="3"', content)
-        self.assertIn('aria-valuemax="3"', content)
+        # total = 2 (only future matches), locked match excluded
+        self.assertIn('aria-valuenow="2"', content)
+        self.assertIn('aria-valuemax="2"', content)
         self.assertIn('prediction-progress-bar--complete', content)

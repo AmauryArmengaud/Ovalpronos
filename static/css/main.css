@@ -19,7 +19,7 @@
   /* Rankings "You" row — primary-tinted, dark text passes 6.9:1 */
   --color-you-highlight:    rgba(43, 52, 103, 0.12);
   /* Rankings podium medals */
-  --color-rank-silver:      rgba(43, 52, 103, 0.45);  /* muted navy — silver-toned */
+  --color-rank-silver:      rgba(43, 52, 103, 0.65);  /* silver-toned — 4.1:1 on cream, passes 3:1 icon minimum */
   --color-rank-bronze:      rgba(184, 105, 37, 0.75); /* amber — bronze-toned */
   /* Team logo initials fallback — visible against card background (was 0.06, invisible) */
   --color-logo-fallback-bg: rgba(43, 52, 103, 0.15);
@@ -35,12 +35,12 @@
   --color-badge-win-light:  rgba(168, 224, 99, 0.25);   /* 25% win — light result banner bg */
   --color-badge-gap-light:  rgba(139, 53, 168, 0.35);   /* 35% gap — medium result banner bg */
   --color-badge-miss:       rgba(43, 52, 103, 0.10);  /* neutral — subdued, no points */
-  --color-badge-miss-text:  rgba(43, 52, 103, 0.50);
+  --color-badge-miss-text:  rgba(43, 52, 103, 0.75);  /* ~5.4:1 on cream — matches --color-text-secondary */
   /* Hero oval motif — cream at 7% opacity on navy background */
   --color-hero-motif:       rgba(252, 255, 249, 0.07);
   /* League ended badge — neutral tone, distinct from badge-miss (wrong prediction) */
   --color-badge-ended-bg:   rgba(43, 52, 103, 0.08);
-  --color-badge-ended-text: rgba(43, 52, 103, 0.55);
+  --color-badge-ended-text: rgba(43, 52, 103, 0.75);  /* ~5.4:1 on cream — AA for text */
 
   /* Type scale */
   --text-sm:   0.875rem;

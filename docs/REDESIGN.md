@@ -114,7 +114,8 @@ Day separator date format: `date:"D j M"` — uses locale-aware abbreviated day 
 - **Fill:** `.prediction-progress-bar` — primary color (`--color-primary`) while in progress.
 - **Complete state:** `.prediction-progress-bar--complete` — switches fill to `--color-brand-rugby` at 100%.
 - **Label:** `X/Y pronos` (French) / `X/Y predictions` (English) via `{% blocktrans count %}` — plural based on total `Y`.
-- **Server-authoritative:** `SubmitPredictionView` appends an OOB fragment (`hx-swap-oob="true"`) after every save. `_prediction_progress(user)` is the single source of truth — counts `SCHEDULED/POSTPONED` matches with full odds across active leagues. No JS counting.
+- **Server-authoritative:** `SubmitPredictionView` appends an OOB fragment (`hx-swap-oob="true"`) after every save. `_prediction_progress(user)` is the single source of truth — counts `SCHEDULED/POSTPONED` matches with full odds and a future kickoff (`datetime > now`) across active leagues. No JS counting.
+- **Denominator scope:** only matches with `datetime > now` are counted — matches past kickoff (even if still SCHEDULED in the DB) are excluded. POSTPONED matches are included only if their stored `datetime` is in the future (i.e., rescheduled); locked-postponed matches are excluded by the same rule.
 - **Partial:** `templates/partials/predictions_progress.html` — rendered by both `PredictionsView` (initial page) and `SubmitPredictionView` (OOB update). Pass `oob=True` for the post-save fragment.
 - **Touch-device hide:** while a `.match-score-input` is focused, body gets `.score-input-active`. `@media (hover: none)` fades `#predictions-progress` out via `opacity: 0; transform: translateY(-6px); pointer-events: none` — no layout shift. Restored on `focusout` (debounced via `setTimeout(0)` to avoid flicker during auto-advance). Body class is on `<body>` so it survives OOB swaps.
 
@@ -185,21 +186,30 @@ document.body.addEventListener('htmx:afterSwap', function(e) {
 });
 ```
 
+**Select-all on focus:** score inputs use a `focusin` handler that calls `input.select()` — tapping
+an existing score selects the whole value so typing replaces it immediately. This handler runs on the
+original `focusin` event, before any swap.
+
 **`pendingFocusId = null` before `blur()`:** When the last `away` input triggers a save via `blur()`,
 `pendingFocusId` is cleared first. This prevents the `htmx:afterSwap` handler from re-focusing that
 input after the swap, which would reopen the mobile keyboard unnecessarily.
+
+**Select-all excluded from focus restoration:** The `htmx:afterSwap` restoration calls `el.focus()`
+only — it does NOT call `el.select()`. Programmatic `select()` after a swap would fight with the
+user's cursor intent when navigating between predictions.
 
 **iOS Safari limitation:** Programmatic `focus()` after an async request does not reopen the
 keyboard on iOS Safari. The above is best-effort for updating an existing prediction; the keyboard
 stays open if the user is already typing (first prediction entry typically works).
 
-**Plan B (not yet implemented):** Idiomorph morph swap — `hx-swap="morph:outerHTML"` +
+**Plan B (decided: not needed):** iOS keyboard was tested and remains open across card swaps when
+updating an existing prediction. The current `htmx:afterSwap` focus restoration is sufficient.
+
+**Appendix — Plan B morph (retain for reference):** Idiomorph morph swap — `hx-swap="morph:outerHTML"` +
 `htmx-ext-morph.js` (~2KB). Diffs the new HTML against the existing DOM and patches in place; the
 focused `<input>` is never destroyed, so focus is naturally preserved without any JS restoration.
-To implement: add `htmx-ext-morph.js` to `base.html`, add `hx-ext="morph"` to the form or a parent,
-change `hx-swap` to `morph:outerHTML`. See `ARCHITECTURE.md §morph-swap`.
-
-Activate Plan B if users report keyboard closing on iOS when updating an existing prediction.
+To implement if ever needed: add `htmx-ext-morph.js` to `base.html`, add `hx-ext="morph"` to the
+form or a parent, change `hx-swap` to `morph:outerHTML`. See `ARCHITECTURE.md §morph-swap`.
 
 ### Animation replay
 
@@ -263,7 +273,9 @@ Changes already synced to `admin.css`:
 - `--color-badge-gap-light`: added (rgba purple 0.35)
 - `--color-logo-bg`: added (rgba 0.08)
 - `--color-badge-miss`: added (rgba 0.10) — background-only
-- `--color-badge-miss-text`: added (rgba 0.50) — for text/icons expressing a MISS state
+- `--color-badge-miss-text`: rgba 0.50 → 0.75 — for text/icons expressing a MISS state — ~5.4:1 on cream (AA)
+- `--color-badge-ended-text`: rgba 0.55 → 0.75 — ended league badge text — ~5.4:1 on cream (AA)
+- `--color-rank-silver`: rgba 0.45 → 0.65 — rank 2 medal icon — ~4.1:1 on cream (>3:1 icon minimum)
 
 V4 will consolidate these into a shared token file. Until then: both files must stay in sync.
 
@@ -325,7 +337,7 @@ Rankings leaderboard, row anatomy, competition filter chips, sticky "Toi" bar.
 **Row rules:**
 - `min-height: 56px` — matches Zone C of match cards.
 - "You" row: `--color-you-highlight` bg + `3px solid var(--color-primary)` left border.
-- `aria-current="true"` + `aria-label` (rank / name / pts) on each `<li>`.
+- `aria-current="true"` on the current user's `<li>` only (conditional on `entry.is_current_user`). `aria-label` (rank / name / pts) is on every `<li>`.
 - Use `<ol aria-label="{% trans 'Leaderboard' %}">` — semantically ordered list.
 
 **Shared ranks (sports convention 1,1,3):**
@@ -351,7 +363,7 @@ Django blocks attribute access on names starting with `_`. Never set `obj._attr`
 **Points formatting:** `{{ entry.total_points|intcomma }}` — locale-aware thousands separator via `django.contrib.humanize` (space in French, comma in English).
 
 **New CSS variables** (added to both `main.css` and `admin.css`):
-- `--color-rank-silver: rgba(43,52,103,0.45)` — rank 2 medal icon
+- `--color-rank-silver: rgba(43,52,103,0.65)` — rank 2 medal icon — ~4.1:1 on cream (>3:1 icon minimum)
 - `--color-rank-bronze: rgba(184,105,37,0.75)` — rank 3 medal icon
 
 **Tests** (`apps/rankings/tests.py`): 10 unit tests on `_assign_ranks` + 5 `RankingsViewTest` smoke tests covering `/rankings/`, `?comp=`, `?league=`, duplicate-name season disambiguation, and unknown comp pk.
@@ -364,7 +376,7 @@ League list, create, join, and detail pages.
 
 **New CSS variables** (added to both `main.css` and `admin.css`):
 - `--color-badge-ended-bg: rgba(43,52,103,0.08)` — ended league badge background
-- `--color-badge-ended-text: rgba(43,52,103,0.55)` — ended league badge text (distinct from `--color-badge-miss` which means "wrong prediction")
+- `--color-badge-ended-text: rgba(43,52,103,0.75)` — ended league badge text — ~5.4:1 on cream (AA); distinct from `--color-badge-miss` which means "wrong prediction"
 
 **League card anatomy** (`templates/leagues/list.html`): single-column stacking list, same rhythm as ranking rows.
 
@@ -490,8 +502,8 @@ Leaderboard: {% include "rankings/_table.html" %} — zero duplication
 **Open Graph** (via `{% block og_title %}` etc. in base.html):
 - Default title: "Oval'Pronos — Rugby predictions with friends" (i18n)
 - Default description: scoring + competitions (i18n)
-- Default image: `boar-mascot.png` (square, WhatsApp-compatible thumbnail)
-- **TODO:** Create a proper 1200×630 `og-image.png` (logo blanc + tagline on navy) and update `{% block og_image_path %}` default in `base.html`.
+- Default image: `static/img/og-img.png` (1200×630, logo blanc + tagline on navy). `og:image:width=1200`, `og:image:height=630`, `og:image:alt` mirrors the page title.
+- All four OG image meta tags use the `{% block og_image_path/width/height/alt %}` block system — overridable per page.
 
 **`SECURE_PROXY_SSL_HEADER`** added to `settings.py` so `request.scheme` returns `https` behind Gunicorn in production (correct OG image URLs).
 
@@ -526,13 +538,15 @@ Visitor GET → "J'ai déjà un compte"
 
 **OG overrides:**
 - `og:title`: "Rejoins {nom} sur Oval'Pronos" (`{% blocktrans %}` with league name)
-- `og:description`: "Prédit des scores de rugby et affronte tes potes. Gratuit."
+- `og:description`: "Prédis des scores de rugby, affronte tes potes. Gratuit." (FR) / "Predict rugby scores, beat your friends. Free." (EN)
 
 **Body class:** `home-visitor` — bottom nav hidden (same as home page).
 
 **Share URL:** `LeagueListView` and `LeagueDetailView` now build absolute URLs pointing to `/leagues/invite/<code>/` (not `/leagues/join/?code=`). The existing `join.html` remains for manual code entry by authenticated users.
 
-**New CSS classes:** `.invite-hero`, `.invite-hero__inner`, `.invite-hero__logo`, `.invite-hero__title`, `.invite-league-name` (accent gold for the league name), `.invite-hero__sub`, `.invite-hero__ctas`, `.invite-hero__cta-primary/secondary`, `.invite-page`.
+**New CSS classes:** `.invite-hero`, `.invite-hero__inner`, `.invite-hero__title`, `.invite-league-name` (full cream `--color-text-on-primary`, not gold — stands out vs 80%-opacity sub text), `.invite-hero__sub`, `.invite-hero__ctas`, `.invite-hero__cta-primary/secondary`, `.invite-page`.
+
+**Hero — no mascot:** the invite hero omits the boar mascot image. Hero content only; no right-column image.
 
 **Registration → auto-join fix (`RegisterView`):**
 - After successful registration, user is auto-logged-in (`login(request, self.object)`).
@@ -606,6 +620,9 @@ Four `.profile-section` blocks, separated by `margin-top: 2rem` via the CSS `+` 
    bg `--color-logo-fallback-bg`). 80px mobile / 96px `sm+`. Below avatar: display_name as `h1`,
    `@username` shown only when `bool(display_name) and display_name != username` — hidden if no
    display_name set or if it matches the username exactly. Favorite team logo + name below.
+   **Username origin:** username is user-chosen at registration (explicit form field), never derived
+   from email — safe to display. The `show_username` guard still applies so it only shows when the
+   user has set a distinct display_name.
 
 2. **Stats** — hidden entirely when zero scored predictions (shows CTA to predictions instead).
    Primary stat row: `profile-stat-primary` (2rem, tabular-nums) for points (`|intcomma`) and rank
@@ -906,7 +923,7 @@ admin badge labels, rankings). Current usages: `templates/matches/rules.html` (M
 
 ## 11. Email templates
 
-### Base template
+### 11.1 Base template
 
 `templates/emails/base.html` — shared wrapper used by all transactional emails.
 
@@ -917,7 +934,7 @@ admin badge labels, rankings). Current usages: `templates/matches/rules.html` (M
 - Dark-mode: `<style>` block in `<head>` with `@media (prefers-color-scheme: dark)` + `!important` class overrides. Covers Apple Mail and Outlook Mac; Gmail web ignores `<head>` styles.
 - Navy footer (#2B3467), text #b0bdd6 (≥5.5:1 on navy ✓).
 
-### Inline hex palette (email-only)
+### 11.2 Inline hex palette (email-only)
 
 | Role | Hex |
 |---|---|
@@ -928,7 +945,7 @@ admin badge labels, rankings). Current usages: `templates/matches/rules.html` (M
 | Headings | `#2B3467` |
 | CTA button | `#EB455F` |
 | Footer text | `#b0bdd6` |
-| Muted text | `#888888` |
+| Muted text | `#595c7a` | desaturated navy — 6.5:1 on white (replaces #888888/#666666 which failed 4.5:1) |
 
 Badge solid equivalents (RGBA → computed over white for email clients):
 
@@ -939,15 +956,17 @@ Badge solid equivalents (RGBA → computed over white for email clients):
 | WIN | `#E9F7D8` | `#235408` | 8.3:1 ✓ |
 | MISS | `#EAEBF0` | `#595c7a` | 5.6:1 ✓ |
 
-### Email inventory
+### 11.3 Email inventory
 
 | Email | Templates | Sent by | Tracking |
 |---|---|---|---|
 | Password reset | `emails/password_reset.html` + `.txt` + `_subject.txt` | Django `PasswordResetView` via `TrackingFreePasswordResetForm` | clicks + opens **disabled** (Brevo rewrites reset links) |
 | Results summary | `emails/results_summary.html` + `.txt` | `tasks.send_results_summary()` | default (Brevo account setting) |
-| Deadline reminder | Brevo template #1 (external) | `tasks.send_deadline_reminders()` via `AnymailMessage(template_id=1)` | managed in Brevo template |
+| Deadline reminder | **Brevo template #1 (external)** — no local HTML file | `tasks.send_deadline_reminders()` via `AnymailMessage(template_id=1)` | managed in Brevo template |
 
-### Technical constraints
+**Deadline reminder stays on Brevo template #1.** Migration to a local HTML template is out of scope for this redesign — the Brevo template is the single location for that email's content and tracking config.
+
+### 11.4 Technical constraints
 
 - `PASSWORD_RESET_TIMEOUT = 86400` (24 h). Displayed in the email via `{{ timeout_hours }}` from `extra_email_context`.
 - Click/open tracking disabled per-message on password reset via `msg.track_clicks = False` / `msg.track_opens = False` on `EmailMultiAlternatives`. Anymail Brevo backend reads these; console backend ignores them.
