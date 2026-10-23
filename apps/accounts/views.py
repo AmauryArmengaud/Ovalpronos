@@ -120,7 +120,7 @@ class AccountDeleteView(LoginRequiredMixin, FormView):
         from django.utils.translation import gettext as _
         from ovalpronos.analytics import capture
         user = self.request.user
-        capture(user.pk, 'account_deleted')
+        capture(self.request, 'account_deleted')
         logout(self.request)
         # predictions, scores and memberships cascade; created leagues are handed over
         user.delete()
@@ -142,7 +142,7 @@ class LoginView(auth_views.LoginView):
     def form_valid(self, form):
         response = super().form_valid(form)
         from ovalpronos.analytics import capture
-        capture(self.request.user.pk, 'user_logged_in')
+        capture(self.request, 'user_logged_in')
         return response
 
     def post(self, request, *args, **kwargs):
@@ -168,7 +168,7 @@ class RegisterView(CreateView):
         response = super().form_valid(form)
         login(self.request, self.object)
         from ovalpronos.analytics import capture
-        capture(self.object.pk, 'user_registered')
+        capture(self.request, 'user_registered')
         next_url = self.request.POST.get('next') or self.request.GET.get('next')
         if next_url and url_has_allowed_host_and_scheme(next_url, allowed_hosts={self.request.get_host()}):
             return redirect(next_url)

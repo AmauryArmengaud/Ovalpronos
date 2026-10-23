@@ -421,8 +421,8 @@ Analytics must never cause a 500. The PostHog SDK makes network calls; any trans
 **Why PostHog is identified by `user.pk`, not email or username.**
 `user.pk` is an opaque integer in PostHog's database — it cannot be reverse-engineered to a real person without access to the Django DB. This avoids sending PII to a third-party service and keeps GDPR compliance structural rather than procedural.
 
-**Why `localStorage` persistence instead of cookies.**
-The ePrivacy Directive's cookie consent requirement does not apply to `localStorage` when no PII is stored. This eliminates the need for a cookie consent banner while keeping GDPR compliance.
+**Why analytics wait for an explicit "Accept".**
+The earlier assumption (no consent needed because PostHog uses `localStorage`, not cookies) was wrong: article 82 of the French Loi Informatique et Libertés (ePrivacy) covers any storage on the device, `localStorage` included, and identifying users as `user_<pk>` takes PostHog out of the CNIL audience-measurement exemption. `templates/partials/consent_banner.html` therefore injects PostHog only after "Accept" (refusing is one click too); the choice lives in the `op_analytics` cookie (13 months if accepted, 6 if refused), which `analytics.capture(request, ...)` also checks so server-side events stop on refusal. Error tracking (`ErrorTrackingMiddleware`) stores nothing on the device and runs on legitimate interest.
 
 **Why `League.is_active` is a computed property.**
 A league's activity is derived from its linked competitions — having a separate boolean field

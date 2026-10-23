@@ -1,0 +1,70 @@
+{% extends "legal/base_legal.html" %}
+
+{% block title %}Conditions générales d'utilisation · Oval'Pronos{% endblock %}
+
+{% block legal_content %}
+<h1 class="mb-4">Conditions générales d'utilisation</h1>
+
+<p>
+  En créant un compte sur Oval'Pronos, tu acceptes ces conditions. Le site est édité par Amaury
+  LEMAUR-ARMENGAUD (voir les <a href="{% url 'matches:legal_notice' %}">mentions légales</a>).
+</p>
+
+<h2 class="h5 mt-4">1. Le jeu</h2>
+<p>
+  Oval'Pronos est un jeu de pronostics sur des matchs de rugby. Il est <strong>entièrement gratuit</strong> :
+  il n'y a <strong>aucune mise, aucun gain d'argent et aucun lot</strong>. Ce n'est pas un site de paris
+  sportifs.
+</p>
+<p>
+  Les cotes affichées servent uniquement à calculer les points du jeu. Elles sont relevées automatiquement
+  chez des bookmakers ou, à défaut, estimées automatiquement. Elles sont données à titre indicatif et
+  peuvent contenir des erreurs. Les règles de calcul des points sont décrites sur la page
+  <a href="{% url 'matches:rules' %}">Règles</a>.
+</p>
+<p>
+  Les scores des matchs sont collectés automatiquement et peuvent être corrigés après coup. Les points sont
+  alors recalculés. En cas d'erreur, la décision de l'éditeur sur le score retenu est définitive.
+</p>
+
+<h2 class="h5 mt-4">2. Ton compte</h2>
+<ul>
+  <li>Une personne, un compte. Les informations que tu donnes doivent être exactes.</li>
+  <li>Tu es responsable de la confidentialité de ton mot de passe.</li>
+  <li>Si tu as moins de 15 ans, il te faut l'accord d'un de tes parents.</li>
+  <li>Tu peux supprimer ton compte à tout moment depuis ton profil.</li>
+</ul>
+
+<h2 class="h5 mt-4">3. Règles de conduite</h2>
+<p>Il est interdit :</p>
+<ul>
+  <li>de choisir un pseudo, un nom de ligue ou une photo injurieux, discriminatoires, illégaux ou qui usurpent l'identité de quelqu'un ;</li>
+  <li>d'utiliser des robots, des scripts ou plusieurs comptes pour fausser le jeu ou les classements ;</li>
+  <li>de tenter de perturber le fonctionnement du site ou d'accéder à des données qui ne sont pas les tiennes.</li>
+</ul>
+<p>
+  En cas de manquement, l'éditeur peut modifier un pseudo ou un nom de ligue, retirer une photo, suspendre
+  ou supprimer un compte, si possible après t'avoir prévenu.
+</p>
+
+<h2 class="h5 mt-4">4. Disponibilité et responsabilité</h2>
+<p>
+  Le site est proposé gratuitement, sans garantie de disponibilité permanente. Il peut être interrompu pour
+  maintenance ou en cas de panne, ou arrêté. Comme aucune somme n'est en jeu, l'éditeur ne peut être tenu
+  responsable des conséquences d'une erreur de cote, de score, de calcul de points ou d'une indisponibilité
+  du service.
+</p>
+
+<h2 class="h5 mt-4">5. Données personnelles</h2>
+<p>
+  Le traitement de tes données est décrit dans la
+  <a href="{% url 'matches:legal_privacy' %}">politique de confidentialité</a>.
+</p>
+
+<h2 class="h5 mt-4">6. Modifications et droit applicable</h2>
+<p>
+  Ces conditions peuvent évoluer. En cas de changement important, tu en seras informé sur le site ou par
+  email. Elles sont soumises au droit français. Pour toute question :
+  <a href="mailto:contact@ovalpronos.com">contact@ovalpronos.com</a>.
+</p>
+{% endblock %}

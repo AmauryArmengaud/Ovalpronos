@@ -1,0 +1,73 @@
+{% load i18n %}
+{# Statistics consent (CNIL): PostHog is only injected after "Accept"; refusing is one click, like accepting. #}
+{# The choice lives in the op_analytics cookie, also read server-side by ovalpronos.analytics.capture(). #}
+<div id="consent-banner" class="container mt-3" hidden>
+  <div class="consent-banner" role="region" aria-label="{% trans 'Statistics' %}">
+    <p class="mb-2">
+      {% trans "We would like to measure how Oval'Pronos is used (pages visited, predictions saved) to improve it. Nothing is sold or used for advertising." %}
+      <a href="{% url 'matches:legal_privacy' %}">{% trans "Learn more" %}</a>
+    </p>
+    <div class="d-flex gap-2">
+      <button type="button" class="btn btn-outline-secondary btn-sm" data-consent="granted">{% trans "Accept" %}</button>
+      <button type="button" class="btn btn-outline-secondary btn-sm" data-consent="denied">{% trans "Refuse" %}</button>
+    </div>
+  </div>
+</div>
+<script>
+(function () {
+  var COOKIE = 'op_analytics';
+  // CNIL guidance: ask again after 13 months for a consent, 6 months for a refusal
+  var MAX_AGE = {granted: 395 * 86400, denied: 182 * 86400};
+  var banner = document.getElementById('consent-banner');
+
+  function current() {
+    var m = document.cookie.match(/(?:^|; )op_analytics=(granted|denied)/);
+    return m ? m[1] : null;
+  }
+
+  function startAnalytics() {
+    {% if POSTHOG_API_KEY %}
+    if (window.posthog) { posthog.opt_in_capturing(); return; }
+    var s = document.createElement('script');
+    s.src = 'https://eu-assets.i.posthog.com/static/array.js';
+    s.onload = function () {
+      posthog.init('{{ POSTHOG_API_KEY }}', {
+        api_host: 'https://eu.i.posthog.com',
+        persistence: 'localStorage',
+        autocapture: false,
+        capture_pageview: true,
+        loaded: function (ph) { {% if user.is_authenticated %}ph.identify('user_{{ user.pk }}');{% endif %} }
+      });
+    };
+    document.head.appendChild(s);
+    {% endif %}
+  }
+
+  function stopAnalytics() {
+    if (window.posthog && posthog.opt_out_capturing) { posthog.opt_out_capturing(); }
+    try {
+      Object.keys(localStorage).forEach(function (k) { if (k.indexOf('ph_') === 0) { localStorage.removeItem(k); } });
+    } catch (e) { /* storage blocked: nothing was stored */ }
+  }
+
+  function choose(value) {
+    document.cookie = COOKIE + '=' + value + '; max-age=' + MAX_AGE[value] + '; path=/; SameSite=Lax' +
+      (location.protocol === 'https:' ? '; Secure' : '');
+    banner.hidden = true;
+    if (value === 'granted') { startAnalytics(); } else { stopAnalytics(); }
+  }
+
+  document.addEventListener('click', function (e) {
+    var btn = e.target.closest('[data-consent]');
+    if (btn) { choose(btn.dataset.consent); return; }
+    if (e.target.closest('[data-consent-open]')) {
+      e.preventDefault();
+      banner.hidden = false;
+      banner.scrollIntoView({block: 'nearest'});
+    }
+  });
+
+  var choice = current();
+  if (choice === 'granted') { startAnalytics(); } else if (choice === null) { banner.hidden = false; }
+})();
+</script>

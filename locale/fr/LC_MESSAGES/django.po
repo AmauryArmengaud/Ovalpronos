@@ -2630,3 +2630,52 @@ msgstr "Mot de passe incorrect."
 #: apps/accounts/views.py
 msgid "Your account has been deleted. See you on the pitch!"
 msgstr "Ton compte a été supprimé. À bientôt sur le terrain !"
+
+#: templates/partials/consent_banner.html:5
+msgid "Statistics"
+msgstr "Statistiques"
+
+#: templates/partials/consent_banner.html:7
+msgid "We would like to measure how Oval'Pronos is used (pages visited, predictions saved) to improve it. Nothing is sold or used for advertising."
+msgstr "On aimerait mesurer comment Oval'Pronos est utilisé (pages vues, pronos enregistrés) pour l'améliorer. Rien n'est vendu ni utilisé pour de la publicité."
+
+#: templates/partials/consent_banner.html:8
+msgid "Learn more"
+msgstr "En savoir plus"
+
+#: templates/partials/consent_banner.html:11
+msgid "Accept"
+msgstr "Accepter"
+
+#: templates/partials/consent_banner.html:12
+msgid "Refuse"
+msgstr "Refuser"
+
+#: templates/base.html
+msgid "Legal"
+msgstr "Informations légales"
+
+#: templates/base.html
+msgid "Legal notice"
+msgstr "Mentions légales"
+
+#: templates/base.html
+msgid "Privacy"
+msgstr "Confidentialité"
+
+#: templates/base.html
+msgid "Terms of use"
+msgstr "CGU"
+
+#: templates/base.html
+msgid "Manage cookies"
+msgstr "Gérer les cookies"
+
+#: templates/legal/base_legal.html:10
+msgid "This page is only available in French, which is its legally binding version."
+msgstr "Cette page n'existe qu'en français, qui est sa version faisant foi."
+
+#: templates/accounts/register.html
+#, python-format
+msgid "By creating an account, you accept the <a href=\"%(terms_url)s\">terms of use</a> and the <a href=\"%(privacy_url)s\">privacy policy</a>."
+msgstr "En créant un compte, tu acceptes les <a href=\"%(terms_url)s\">CGU</a> et la <a href=\"%(privacy_url)s\">politique de confidentialité</a>."
