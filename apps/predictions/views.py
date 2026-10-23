@@ -3,7 +3,9 @@ from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, render
 from django.template.loader import render_to_string
 from django.utils import timezone
+from django.utils.decorators import method_decorator
 from django.views import View
+from django_ratelimit.decorators import ratelimit
 from django.views.generic import TemplateView
 
 from django.db.models.functions import TruncDate
@@ -26,6 +28,7 @@ def _prediction_progress(user):
     )
     upcoming_with_odds = Match.objects.filter(
         competition_id__in=competition_ids,
+        is_hidden=False,
         status__in=['SCHEDULED', 'POSTPONED'],
         datetime__gt=timezone.now(),  # exclude matches past kickoff (locked)
         cote_home__isnull=False,
@@ -57,6 +60,7 @@ class PredictionsView(LoginRequiredMixin, TemplateView):
         if tab == 'upcoming':
             matches = Match.objects.filter(
                 competition_id__in=user_competition_ids,
+                is_hidden=False,
                 status__in=['SCHEDULED', 'POSTPONED'],
             ).select_related('competition', 'home_team', 'away_team').annotate(
                 match_date=TruncDate('datetime')
@@ -64,6 +68,7 @@ class PredictionsView(LoginRequiredMixin, TemplateView):
         elif tab == 'live':
             matches = Match.objects.filter(
                 competition_id__in=user_competition_ids,
+                is_hidden=False,
                 status='IN_PLAY',
             ).select_related('competition', 'home_team', 'away_team').annotate(
                 match_date=TruncDate('datetime')
@@ -71,6 +76,7 @@ class PredictionsView(LoginRequiredMixin, TemplateView):
         else:  # past
             matches = Match.objects.filter(
                 competition_id__in=user_competition_ids,
+                is_hidden=False,
                 status__in=['FINISHED', 'CANCELLED'],
             ).select_related('competition', 'home_team', 'away_team').annotate(
                 match_date=TruncDate('datetime')
@@ -96,16 +102,18 @@ class PredictionsView(LoginRequiredMixin, TemplateView):
             ctx['items_without_odds'] = []
         ctx['active_tab'] = tab
         ctx['has_live_matches'] = Match.objects.filter(
-            competition_id__in=user_competition_ids, status='IN_PLAY'
+            competition_id__in=user_competition_ids, status='IN_PLAY', is_hidden=False
         ).exists()
         return ctx
 
 
+@method_decorator(ratelimit(key='user', rate='60/m', method='POST'), name='post')
 class SubmitPredictionView(LoginRequiredMixin, View):
     def post(self, request, match_pk):
         match = get_object_or_404(
             Match.objects.select_related('competition', 'home_team', 'away_team'),
-            pk=match_pk
+            pk=match_pk,
+            is_hidden=False,
         )
 
         # Race condition: match locked or odds removed after the form was loaded.
@@ -143,7 +151,7 @@ class SubmitPredictionView(LoginRequiredMixin, View):
                 {'match': match, 'prediction': prediction}
             )
 
-        if home < 0 or away < 0:
+        if not (0 <= home <= 200 and 0 <= away <= 200):
             prediction = Prediction.objects.filter(user=request.user, match=match).first()
             return render(
                 request, 'partials/match_card.html',

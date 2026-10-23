@@ -20,6 +20,9 @@ google-genai>=1.0.0
 # Gestion des assets statiques
 whitenoise==6.8.2
 
+# Rate limiting (login, password reset, league join, predictions)
+django-ratelimit==4.1.0
+
 # Formulaires améliorés
 django-crispy-forms==2.3
 crispy-bootstrap5==2024.10

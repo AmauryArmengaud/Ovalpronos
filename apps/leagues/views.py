@@ -7,10 +7,18 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse, reverse_lazy
 from django.utils.translation import gettext_lazy as _
 from django.views.generic import CreateView, TemplateView, View
+from django_ratelimit.core import is_ratelimited
+from django_ratelimit.exceptions import Ratelimited
 
 from apps.matches.models import Competition
 from apps.rankings.services import _assign_ranks
 from .models import League
+
+
+def _check_join_rate(request):
+    # 36^5 invite codes: cap guesses per player across the join form and invite links
+    if is_ratelimited(request, group='leagues:join', key='user', rate='10/m', increment=True):
+        raise Ratelimited()
 
 
 class LeagueCreateForm(forms.ModelForm):
@@ -77,6 +85,7 @@ class LeagueJoinView(LoginRequiredMixin, View):
         return render(request, 'leagues/join.html', {'initial_code': code})
 
     def post(self, request):
+        _check_join_rate(request)
         code = request.POST.get('invite_code', '').strip().upper()
         try:
             league = League.objects.get(invite_code=code)
@@ -98,6 +107,8 @@ class LeaguePublicInviteView(View):
     """Public invite page — GET requires no login. Authenticated users are auto-joined."""
 
     def get(self, request, code):
+        if request.user.is_authenticated:
+            _check_join_rate(request)
         code = code.upper()
         try:
             league = (

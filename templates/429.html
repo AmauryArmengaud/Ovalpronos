@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}429 · Oval'Pronos{% endblock %}
+
+{% block content %}
+<div class="text-center py-5">
+  <i class="ti ti-ball-rugby error-page__icon mt-3" aria-hidden="true"></i>
+  <h1 class="display-4 fw-bold mt-3 text-primary-brand">429</h1>
+  <p class="lead mb-2">{% trans "Offside! Too many attempts in a row." %}</p>
+  <p class="text-muted mb-4">{% trans "Wait a minute, then try again." %}</p>
+  <a href="/" class="btn btn-primary px-4">
+    <i class="ti ti-home me-2"></i>{% trans "Back to home" %}
+  </a>
+</div>
+{% endblock %}
