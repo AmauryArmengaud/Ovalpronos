@@ -623,6 +623,11 @@ main {
 }
 
 /* ─── Match card ────────────────────────────────────────────────────────── */
+/* scroll-margin-top: ensures cross-card auto-advance never hides the top of
+   the card under the fixed header when scrollIntoView is called */
+[id^="match-card-"] {
+  scroll-margin-top: 72px;
+}
 
 /* Layout columns */
 .match-team-col    { width: 38%; }

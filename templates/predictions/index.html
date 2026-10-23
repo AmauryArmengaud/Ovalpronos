@@ -127,12 +127,17 @@
     return null;
   }
 
-  // allowScroll=true for cross-card advances (browser must position the next card).
-  // Default (false) uses preventScroll:true to avoid a second native scroll when
-  // advancing within the same card (score_h → score_a), which caused a visible
-  // two-step jump on Chrome Android.
+  // allowScroll=true for cross-card advances: focus without native scroll, then
+  // explicitly scrollIntoView the card so it lands comfortably in the viewport
+  // (not just barely clipped in at the bottom edge).
+  // Default (false) keeps preventScroll:true to avoid the two-step jump when
+  // advancing within the same card (score_h → score_a).
   function focusInput(input, allowScroll) {
     input.focus({ preventScroll: !allowScroll });
+    if (allowScroll) {
+      var card = input.closest('[id^="match-card-"]');
+      if (card) card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
   }
 
   function updateEnterkeyhint() {
