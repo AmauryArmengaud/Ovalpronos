@@ -760,6 +760,17 @@ main {
   box-shadow: none;
 }
 
+/* After first save, Zone C carries data-state="saved"; apply saved styling to inputs
+   without requiring a server-driven class on the inputs themselves (Zone C swap only). */
+.card:has([data-state="saved"]) .match-score-input {
+  background: rgba(26, 127, 55, 0.08);
+  box-shadow: inset 0 0 0 1px rgba(26, 127, 55, 0.4);
+}
+.card:has([data-state="saved"]) .match-score-input:focus {
+  background: rgba(43, 52, 103, 0.12);
+  box-shadow: none;
+}
+
 /* Small checkmark below inputs when prediction exists */
 .match-inputs-saved-mark {
   text-align: center;
@@ -792,10 +803,22 @@ main {
 
 /* ── Zone C — player context ─────────────────────────────────────────────── */
 .match-zone-c {
-  min-height: 56px;
   margin-top: 0.5rem;
-  display: flex;
-  align-items: flex-start;
+  display: grid;
+}
+
+/* All direct children overlap in grid row 1; tallest cell defines the row height */
+.match-zone-c > * {
+  grid-row: 1;
+  grid-column: 1;
+  width: 100%;
+  align-self: start;
+}
+
+/* Inactive slot in the open-card grid stack: invisible but preserves layout height */
+.match-zone-c-cell--hidden {
+  visibility: hidden;
+  pointer-events: none;
 }
 
 .match-zone-c-placeholder {
@@ -1055,8 +1078,9 @@ main {
   white-space: nowrap;
 }
 
-/* Hide sticky progress bar on touch devices while a score input has focus.
-   Keyboard shifts the visual viewport; opacity+transform avoids layout shift.
+/* On touch devices, while a score input has focus (keyboard open):
+   - hide the sticky progress bar (above keyboard, wastes space)
+   - slide the bottom nav out (frees ~64px of visible area)
    Body class .score-input-active is toggled by JS in predictions/index.html. */
 @media (hover: none) {
   #predictions-progress {
@@ -1066,6 +1090,19 @@ main {
     opacity: 0;
     transform: translateY(-6px);
     pointer-events: none;
+  }
+  .mobile-bottom-nav {
+    transition: transform 0.2s ease;
+  }
+  .score-input-active .mobile-bottom-nav {
+    transform: translateY(100%);
+  }
+}
+
+/* Release the body bottom padding reserved for the nav when the nav is hidden */
+@media (max-width: 991.98px) {
+  body.score-input-active {
+    padding-bottom: 0;
   }
 }
 

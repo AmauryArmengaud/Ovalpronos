@@ -1,5 +1,5 @@
 {% load i18n static match_tags %}
-<div class="card mb-3" id="match-card-{{ match.pk }}"{% if saved %} data-saved-msg="{% trans 'Saved' %}"{% endif %}>
+<div class="card mb-3" id="match-card-{{ match.pk }}">
   <div class="card-body match-card-body">
 
     {# ── Zone A — time · round + optional status ────────────────────────── #}
@@ -62,8 +62,10 @@
             {# Open — editable inputs #}
             <form hx-post="{% url 'predictions:submit' match.pk %}"
                   hx-trigger="change[this.querySelector('[name=score_h]').value !== '' && this.querySelector('[name=score_a]').value !== '']"
+                  hx-select="#match-zone-c-{{ match.pk }}"
+                  hx-target="#match-zone-c-{{ match.pk }}"
                   hx-swap="outerHTML"
-                  hx-target="#match-card-{{ match.pk }}"
+                  hx-sync="closest form:queue last"
                   class="save-form">
               {% csrf_token %}
               <div class="d-flex align-items-center justify-content-center gap-1">
@@ -72,7 +74,6 @@
                        name="score_h"
                        value="{{ prediction.predicted_home_score|default:'' }}"
                        class="match-score-input{% if prediction %} match-score-input--saved{% endif %}"
-                       hx-disabled-elt="this"
                        inputmode="numeric"
                        pattern="[0-9]*"
                        enterkeyhint="next"
@@ -90,7 +91,6 @@
                        name="score_a"
                        value="{{ prediction.predicted_away_score|default:'' }}"
                        class="match-score-input{% if prediction %} match-score-input--saved{% endif %}"
-                       hx-disabled-elt="this"
                        inputmode="numeric"
                        pattern="[0-9]*"
                        enterkeyhint="next"
@@ -132,7 +132,9 @@
     {# end teams row #}
 
     {# ── Zone C — player context ───────────────────────────────────────── #}
-    <div class="match-zone-c">
+    {# match-status: persistent aria-live wrapper, never swapped by HTMX ── #}
+    <div id="match-status-{{ match.pk }}" role="status" aria-live="polite">
+    <div class="match-zone-c" id="match-zone-c-{{ match.pk }}"{% if saved %} data-state="saved"{% endif %}>
 
       {% if match.status == 'FINISHED' %}
         {% if prediction %}
@@ -165,24 +167,10 @@
         <span class="match-zone-c-placeholder">{% trans "Odds coming soon" %}</span>
 
       {% else %}
-        {# Open — odds bar if no prediction, pending banner if prediction #}
-        {% if prediction %}
-          <div class="match-saved-zone{% if saved %} match-saved-zone--flash{% endif %}">
-            {% if saved %}<span class="match-saved-indicator">{% trans "Saved" %}</span>{% endif %}
-            {% if prediction.predicted_cote %}
-              {% with pp=prediction.potential_points %}
-              <div class="match-result-banner match-result-banner-pending">
-                <div class="match-potential-points">
-                  <span class="match-badge-label-exact" title="{% trans 'Exact score' %}"><i class="ti ti-crown" aria-hidden="true"></i> {{ pp.exact }}</span>
-                  <span class="match-badge-label-gap ms-1" title="{% trans 'Good gap' %}"><i class="ti ti-target" aria-hidden="true"></i> {{ pp.gap }}</span>
-                  <span class="match-badge-label-win ms-1" title="{% trans 'Correct winner' %}"><i class="ti ti-check" aria-hidden="true"></i> {{ pp.win }}</span>
-                </div>
-                <div class="match-result-banner-pred">{% trans "Your prediction:" %} {{ prediction.predicted_home_score }}–{{ prediction.predicted_away_score }}</div>
-              </div>
-              {% endwith %}
-            {% endif %}
-          </div>
-        {% else %}
+        {# Open — grid stack: both cells always rendered so height is stable ── #}
+        {# Cell 1: odds bar (hidden once a prediction exists) ── #}
+        <div class="match-zone-c-cell{% if prediction %} match-zone-c-cell--hidden{% endif %}"
+             {% if prediction %}aria-hidden="true"{% endif %}>
           <div class="d-flex match-odds-bar">
             <div class="text-center flex-fill py-1 match-odds-col">
               <div class="match-odds-value">{{ match.cote_home|format_cote }}</div>
@@ -194,9 +182,39 @@
               <div class="match-odds-value">{{ match.cote_away|format_cote }}</div>
             </div>
           </div>
-        {% endif %}
+        </div>
+        {# Cell 2: saved/pending banner (hidden until first prediction, same structure as placeholder) ── #}
+        <div class="match-zone-c-cell{% if not prediction %} match-zone-c-cell--hidden{% endif %}"
+             {% if not prediction %}aria-hidden="true"{% endif %}>
+          {% if prediction %}
+            <div class="match-saved-zone{% if saved %} match-saved-zone--flash{% endif %}">
+              {% if saved %}<span class="match-saved-indicator">{% trans "Saved" %}</span>{% endif %}
+              {% if prediction.predicted_cote %}
+                {% with pp=prediction.potential_points %}
+                <div class="match-result-banner match-result-banner-pending">
+                  <div class="match-potential-points">
+                    <span class="match-badge-label-exact" title="{% trans 'Exact score' %}"><i class="ti ti-crown" aria-hidden="true"></i> {{ pp.exact }}</span>
+                    <span class="match-badge-label-gap ms-1" title="{% trans 'Good gap' %}"><i class="ti ti-target" aria-hidden="true"></i> {{ pp.gap }}</span>
+                    <span class="match-badge-label-win ms-1" title="{% trans 'Correct winner' %}"><i class="ti ti-check" aria-hidden="true"></i> {{ pp.win }}</span>
+                  </div>
+                  <div class="match-result-banner-pred">{% trans "Your prediction:" %} {{ prediction.predicted_home_score }}–{{ prediction.predicted_away_score }}</div>
+                </div>
+                {% endwith %}
+              {% endif %}
+            </div>
+          {% else %}
+            {# Invisible placeholder: same structure as banner, keeps cell height stable ── #}
+            <div class="match-result-banner match-result-banner-pending" aria-hidden="true">
+              <div class="match-potential-points">
+                <span>0</span><span class="ms-1">0</span><span class="ms-1">0</span>
+              </div>
+              <div class="match-result-banner-pred">&nbsp;</div>
+            </div>
+          {% endif %}
+        </div>
       {% endif %}
 
+    </div>
     </div>
     {# end Zone C #}
 

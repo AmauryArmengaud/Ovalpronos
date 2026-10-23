@@ -22,6 +22,7 @@ Implementation plan for Oval'Pronos. Current state: **V2 complete** (Sprints 1�
 
 ### On hold / not worth it now
 - `rankings.UserScore` — `rank` field exists in the model but is never written; ranking is computed in Python in `_build_leaderboard()`. Pre-calculating it in DB would only help at scale (thousands of users/leagues). Parked until there's a real need.
+- **iOS Safari — keyboard scroll UX**: Zone C targeted swap fixes Chrome Android (keyboard never closes, no scroll jump). iOS Safari ignores `interactive-widget=resizes-content` and uses `resizes-visual` by default, so the layout viewport doesn't shrink when the keyboard opens. Result: `position:fixed` bottom nav stays at screen bottom (below keyboard), which is correct. The remaining iOS caveat is that programmatic `focus()` post-async may not reopen a dismissed keyboard — not a regression from the current fix (inputs are never destroyed so keyboard stays open). A `visualViewport` listener to scroll the focused card into view on iOS is a potential future improvement.
 
 ---
 

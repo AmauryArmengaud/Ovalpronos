@@ -1,5 +1,5 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseForbidden
+from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, render
 from django.template.loader import render_to_string
 from django.utils import timezone
@@ -108,11 +108,19 @@ class SubmitPredictionView(LoginRequiredMixin, View):
             pk=match_pk
         )
 
-        if match.is_locked:
-            return HttpResponseForbidden("Match is locked.")
-
-        if not match.has_odds:
-            return HttpResponseBadRequest("No odds available.")
+        # Race condition: match locked or odds removed after the form was loaded.
+        # Return the full card so HTMX replaces the stale open card with the locked state.
+        if match.is_locked or not match.has_odds:
+            prediction = Prediction.objects.filter(user=request.user, match=match).first()
+            html = render_to_string(
+                'partials/match_card.html',
+                {'match': match, 'prediction': prediction},
+                request=request,
+            )
+            response = HttpResponse(html)
+            response['HX-Retarget'] = f'#match-card-{match.pk}'
+            response['HX-Reswap'] = 'outerHTML'
+            return response
 
         home_raw = request.POST.get('score_h', '').strip()
         away_raw = request.POST.get('score_a', '').strip()

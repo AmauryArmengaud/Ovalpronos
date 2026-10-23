@@ -157,7 +157,6 @@
         focusInput(nextHome);
       } else {
         // Last visible away input — blur triggers the change event and auto-save
-        pendingFocusId = null;
         input.blur();
       }
     }
@@ -185,7 +184,6 @@
         if (nextHomeEnter) {
           focusInput(nextHomeEnter);
         } else {
-          pendingFocusId = null;
           input.blur();
         }
       }
@@ -198,16 +196,13 @@
     }
   });
 
-  // Track last focused score input for focus restoration after HTMX swap.
-  // Also select all content on focus so existing values are replaced on first keystroke.
+  // Select all content on focus so existing values are replaced on first keystroke.
   // setTimeout defers past iOS Safari's touchend which cancels a synchronous select().
-  // Body class .score-input-active hides the sticky progress bar on touch devices (CSS).
-  var pendingFocusId = null;
+  // Body class .score-input-active hides the sticky progress bar and bottom nav (CSS).
   document.addEventListener('focusin', function(e) {
     var input = e.target;
     if (!input.matches('.match-score-input')) return;
     document.body.classList.add('score-input-active');
-    if (input.id) pendingFocusId = input.id;
     if (!input.value) return;
     setTimeout(function() { input.setSelectionRange(0, input.value.length); }, 0);
   });
@@ -222,31 +217,12 @@
     }, 0);
   });
 
-  // Restore keyboard focus + announce save after each card swap.
-  // Progress bar is updated server-side via hx-swap-oob on the predictions-progress element.
+  // Update enterkeyhint after Zone C swap (normal save) or full card swap (locked/no-odds).
+  // Inputs are never destroyed in Zone C swaps, so no focus restoration is needed.
+  // Screen-reader "Saved" announcement is handled by the aria-live wrapper in the template.
   document.body.addEventListener('htmx:afterSwap', function(e) {
-    if (!e.target.id || !e.target.id.startsWith('match-card-')) return;
-
-    // Announce save to screen readers via the persistent aria-live region
-    var savedMsg = e.target.dataset.savedMsg;
-    if (savedMsg) {
-      var region = document.getElementById('save-announcement');
-      if (region) {
-        region.textContent = savedMsg;
-        // Clear after announcement so it can fire again on next save
-        setTimeout(function() { region.textContent = ''; }, 1500);
-      }
-    }
-
-    // Restore focus if the swap destroyed the focused input (focus fell back to body)
-    // Note: on iOS Safari programmatic focus() after async may not reopen the keyboard —
-    // see ARCHITECTURE.md §morph-swap for the definitive fix if this is insufficient.
-    if (pendingFocusId && (document.activeElement === document.body || document.activeElement === document.documentElement)) {
-      var el = document.getElementById(pendingFocusId);
-      if (el) el.focus();
-    }
-    pendingFocusId = null;
-
+    var id = e.target.id || '';
+    if (!id.startsWith('match-zone-c-') && !id.startsWith('match-card-')) return;
     updateEnterkeyhint();
   });
 

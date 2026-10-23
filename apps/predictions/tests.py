@@ -1,5 +1,6 @@
 """
-Scoring tests for calculate_points(), and view tests for the progress bar OOB update.
+Scoring tests for calculate_points(), and view tests for the progress bar OOB update
+and the HX-Retarget fallback for locked / no-odds races.
 """
 from datetime import timedelta
 from unittest.mock import MagicMock
@@ -278,3 +279,56 @@ class PredictionProgressOOBTest(TestCase):
         self.assertIn('aria-valuenow="2"', content)
         self.assertIn('aria-valuemax="2"', content)
         self.assertIn('prediction-progress-bar--complete', content)
+
+
+class SubmitPredictionRetargetTest(TestCase):
+    """Zone C swap: locked/no-odds races return HX-Retarget so the full card is replaced."""
+
+    @classmethod
+    def setUpTestData(cls):
+        from apps.leagues.models import League
+        cls.user = _make_user('retarget_user')
+        cls.comp = _make_comp('RTGTEST')
+        cls.league = League.objects.create(name='RTG League', creator=cls.user)
+        cls.league.competitions.add(cls.comp)
+        cls.league.members.add(cls.user)
+        cls.team_a = _make_team('rtg-a')
+        cls.team_b = _make_team('rtg-b')
+
+    def setUp(self):
+        self.client.force_login(self.user)
+
+    def _submit(self, pk):
+        return self.client.post(
+            reverse('predictions:submit', kwargs={'match_pk': pk}),
+            {'score_h': '10', 'score_a': '5'},
+        )
+
+    def test_locked_match_returns_retarget_headers(self):
+        """POST on a locked match returns 200 with HX-Retarget pointing at the card."""
+        locked = Match.objects.create(
+            external_id=-77001, competition=self.comp,
+            home_team=self.team_a, away_team=self.team_b,
+            datetime=timezone.now() - timedelta(hours=1),
+            status='SCHEDULED',
+            cote_home=18, cote_draw=30, cote_away=22,
+        )
+        resp = self._submit(locked.pk)
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp['HX-Retarget'], f'#match-card-{locked.pk}')
+        self.assertEqual(resp['HX-Reswap'], 'outerHTML')
+        self.assertIn(f'id="match-card-{locked.pk}"', resp.content.decode())
+
+    def test_no_odds_match_returns_retarget_headers(self):
+        """POST on a no-odds match returns 200 with HX-Retarget pointing at the card."""
+        no_odds = Match.objects.create(
+            external_id=-77002, competition=self.comp,
+            home_team=self.team_a, away_team=self.team_b,
+            datetime=timezone.now() + timedelta(days=3),
+            status='SCHEDULED',
+        )
+        resp = self._submit(no_odds.pk)
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp['HX-Retarget'], f'#match-card-{no_odds.pk}')
+        self.assertEqual(resp['HX-Reswap'], 'outerHTML')
+        self.assertIn(f'id="match-card-{no_odds.pk}"', resp.content.decode())
