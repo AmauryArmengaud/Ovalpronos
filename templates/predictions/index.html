@@ -127,9 +127,12 @@
     return null;
   }
 
-  function focusInput(input) {
-    input.focus();
-    // select-all is handled by the focusin handler via setTimeout
+  // allowScroll=true for cross-card advances (browser must position the next card).
+  // Default (false) uses preventScroll:true to avoid a second native scroll when
+  // advancing within the same card (score_h → score_a), which caused a visible
+  // two-step jump on Chrome Android.
+  function focusInput(input, allowScroll) {
+    input.focus({ preventScroll: !allowScroll });
   }
 
   function updateEnterkeyhint() {
@@ -154,7 +157,7 @@
     } else {
       var nextHome = findNextCardHomeInput(input);
       if (nextHome) {
-        focusInput(nextHome);
+        focusInput(nextHome, true);  // cross-card: let browser scroll next card into view
       } else {
         // Last visible away input — blur triggers the change event and auto-save
         input.blur();
@@ -170,19 +173,19 @@
     if (e.key === 'Backspace' && input.value === '') {
       e.preventDefault();
       if (input.name === 'score_a') {
-        focusInput(input.closest('form').querySelector('[name="score_h"]'));
+        focusInput(input.closest('form').querySelector('[name="score_h"]'));  // intra-card
       } else {
         var prevAway = findPrevCardAwayInput(input);
-        if (prevAway) focusInput(prevAway);
+        if (prevAway) focusInput(prevAway, true);  // cross-card
       }
     } else if (e.key === 'Enter') {
       e.preventDefault();
       if (input.name === 'score_h') {
-        focusInput(input.closest('form').querySelector('[name="score_a"]'));
+        focusInput(input.closest('form').querySelector('[name="score_a"]'));  // intra-card
       } else {
         var nextHomeEnter = findNextCardHomeInput(input);
         if (nextHomeEnter) {
-          focusInput(nextHomeEnter);
+          focusInput(nextHomeEnter, true);  // cross-card
         } else {
           input.blur();
         }
@@ -191,7 +194,7 @@
       var nextHomeTab = findNextCardHomeInput(input);
       if (nextHomeTab) {
         e.preventDefault();
-        focusInput(nextHomeTab);
+        focusInput(nextHomeTab, true);  // cross-card
       }
     }
   });
