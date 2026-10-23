@@ -5,17 +5,17 @@ from urllib.parse import urlparse
 
 from django.conf import settings
 from django.contrib import messages
-from django.contrib.auth import login, views as auth_views
+from django.contrib.auth import login, logout, views as auth_views
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Count, Q, Sum
 from django.shortcuts import redirect
 from django.urls import reverse, resolve, Resolver404, reverse_lazy
 from django.utils.http import url_has_allowed_host_and_scheme
-from django.views.generic import CreateView, TemplateView, UpdateView
+from django.views.generic import CreateView, FormView, TemplateView, UpdateView
 
 from apps.predictions.models import Prediction
 from apps.rankings.services import _assign_ranks
-from .forms import EmailOrUsernameAuthenticationForm, ProfileForm, RegistrationForm
+from .forms import AccountDeleteForm, EmailOrUsernameAuthenticationForm, ProfileForm, RegistrationForm
 from .models import CustomUser
 
 
@@ -107,6 +107,25 @@ class ProfileEditView(LoginRequiredMixin, UpdateView):
 
     def get_object(self):
         return self.request.user
+
+
+class AccountDeleteView(LoginRequiredMixin, FormView):
+    template_name = 'accounts/delete.html'
+    form_class = AccountDeleteForm
+
+    def get_form_kwargs(self):
+        return {**super().get_form_kwargs(), 'user': self.request.user}
+
+    def form_valid(self, form):
+        from django.utils.translation import gettext as _
+        from ovalpronos.analytics import capture
+        user = self.request.user
+        capture(user.pk, 'account_deleted')
+        logout(self.request)
+        # predictions, scores and memberships cascade; created leagues are handed over
+        user.delete()
+        messages.success(self.request, _("Your account has been deleted. See you on the pitch!"))
+        return redirect('matches:home')
 
 
 class LoginView(auth_views.LoginView):

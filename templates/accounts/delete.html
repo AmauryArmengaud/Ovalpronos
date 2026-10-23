@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Delete my account" %} · Oval'Pronos{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-12 col-sm-10 col-md-7 col-lg-6">
+
+    <h1 class="mb-3">{% trans "Delete my account" %}</h1>
+    <p class="fw-600">{% trans "This is permanent and cannot be undone." %}</p>
+
+    <p class="mb-2">{% trans "What will be deleted:" %}</p>
+    <ul class="mb-3">
+      <li>{% trans "your account and profile (name, email, picture)" %}</li>
+      <li>{% trans "all your predictions and points" %}</li>
+      <li>{% trans "your place in rankings and leagues" %}</li>
+    </ul>
+    <p class="text-muted mb-4">
+      {% trans "Leagues you created are handed over to their oldest member, or deleted if you are alone in them." %}
+    </p>
+
+    <form method="post">
+      {% csrf_token %}
+      <div class="mb-4">
+        <label for="{{ form.password.id_for_label }}" class="form-label fw-500">
+          {% trans "Confirm with your password" %}
+        </label>
+        <input
+          type="password"
+          name="{{ form.password.html_name }}"
+          id="{{ form.password.id_for_label }}"
+          class="form-control form-control-44{% if form.password.errors %} is-invalid{% endif %}"
+          autocomplete="current-password"
+          required
+        >
+        {% for error in form.password.errors %}
+          <div class="invalid-feedback">{{ error }}</div>
+        {% endfor %}
+      </div>
+
+      <div class="d-flex flex-wrap gap-2">
+        <button type="submit" class="btn btn-danger">{% trans "Delete my account permanently" %}</button>
+        <a href="{% url 'accounts:profile' %}" class="btn btn-outline-secondary">{% trans "Cancel" %}</a>
+      </div>
+    </form>
+
+  </div>
+</div>
+{% endblock %}
