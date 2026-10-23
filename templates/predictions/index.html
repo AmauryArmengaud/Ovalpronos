@@ -135,8 +135,8 @@
   function focusInput(input, allowScroll) {
     input.focus({ preventScroll: !allowScroll });
     if (allowScroll) {
-      var card = input.closest('[id^="match-card-"]');
-      if (card) card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      // scroll-margin-bottom on the input ensures Zone C stays above the keyboard
+      input.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }
   }
 
