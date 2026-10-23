@@ -1,11 +1,23 @@
 name: Deploy
 
+# Deploys main only after CI passed on that push. workflow_dispatch is the
+# manual escape hatch (e.g. redeploy after a server-side fix).
 on:
-  push:
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
     branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
 
 jobs:
   deploy:
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'push')
     runs-on: ubuntu-latest
     steps:
       - name: Deploy to server

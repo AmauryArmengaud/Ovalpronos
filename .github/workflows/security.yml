@@ -1,0 +1,32 @@
+name: Security
+
+# Kept separate from CI on purpose: a failure here shows a red check on GitHub
+# but never blocks a deploy (an urgent fix must still be able to ship).
+on:
+  push:
+  pull_request:
+  schedule:
+    - cron: '17 6 * * 1'  # Monday morning: catches vulnerabilities published since the last push
+
+jobs:
+  dependencies:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version-file: .python-version
+      - name: Known vulnerabilities in requirements.txt
+        run: |
+          pip install pip-audit
+          pip-audit -r requirements.txt
+
+  secrets:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # scan the full history, not just the last commit
+      - uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

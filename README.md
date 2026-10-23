@@ -116,7 +116,9 @@ ovalpronos/
 ├── locale/fr/LC_MESSAGES/    # django.po / django.mo
 ├── .github/
 │   ├── workflows/
-│   │   ├── deploy.yml           # Déploiement SSH sur Hetzner (push → ~/deploy.sh)
+│   │   ├── ci.yml               # Tests PostgreSQL à chaque push/PR (bloque le déploiement si rouge)
+│   │   ├── deploy.yml           # Déploiement SSH sur Hetzner, seulement si ci.yml est vert
+│   │   ├── security.yml         # pip-audit + gitleaks (alerte, ne bloque pas)
 │   │   ├── sync_matches.yml     # Sync manuelle d'urgence (workflow_dispatch)
 │   │   ├── update_odds.yml      # Relance Gemini manuelle (workflow_dispatch)
 │   │   └── email_notifications.yml  # Résumés manuels (workflow_dispatch)
@@ -183,7 +185,7 @@ python manage.py sync_matches
 
 ## Déploiement (Hetzner CX22)
 
-Tout push sur `main` déclenche le workflow `deploy.yml` qui SSH sur le serveur et exécute `~/deploy.sh` :
+Tout push sur `main` lance d'abord `ci.yml` (tests). Si c'est vert, `deploy.yml` se connecte en SSH au serveur et exécute `~/deploy.sh`. Si c'est rouge, rien n'est déployé :
 
 ```bash
 cd /home/amaury/Ovalpronos && git pull
