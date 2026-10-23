@@ -178,6 +178,23 @@ Les 10 décisions de la section 10 de la mission, avec ma recommandation. Trois 
 
 ---
 
+### Décisions prises (2026-10-23)
+
+| # | Décision | Conséquence |
+|---|---|---|
+| 1 | `DatabaseCache` PostgreSQL | Pas de Redis |
+| 3 | Sauvegardes **sans aucun coût** | Destination à confirmer parmi les offres gratuites hors Hetzner (Backblaze B2 ou Cloudflare R2, 10 Go gratuits ; DB actuelle bien en dessous) |
+| 11 | Fallback "estimate" **conservé tel quel** | Les contrôles serveur (allowlist `match_id`, overround) s'appliquent quand même. Le risque d'équité reste accepté |
+| 12 | `sync_live_scores.py` et `/api/update-scores/` **conservés** | Ils compensent des scores faux renvoyés par l'API rugby. À durcir, pas à supprimer (voir ci-dessous) |
+| 13 | Correction de `is_hidden` : **oui** | Phase 1b |
+
+### Constat sur la crontab réelle du VPS (2026-10-23)
+
+- La sync live toutes les 10 min n'est **pas** `manage.py sync_if_live` (comme le dit la doc) mais `scripts/sync_live_scores.py` : les scores en direct et **les scores finaux** viennent de Gemini. `sync_if_live` n'est pas planifié.
+- `update_odds.py` est bien appelé depuis `scripts/` : la cron fonctionne, c'est la doc qui est fausse.
+- Conflit à trancher : la sync quotidienne de 07:00 (`sync_matches`, API rugby) réécrit `home_score`/`away_score` et recalcule les points. Si l'API renvoie un score faux pour un match déjà corrigé par Gemini, **c'est le score faux de l'API qui gagne le lendemain matin**. Inversement, `/api/update-scores/` refuse un match déjà `FINISHED`, donc Gemini ne peut pas corriger un score faux posé par l'API.
+- Aucune entrée de sauvegarde dans la crontab de l'utilisateur `amaury`.
+
 ## 6. Prochaine étape proposée
 
 Après tes réponses aux décisions 1, 3, 11, 12 et 13 :
