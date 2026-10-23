@@ -191,13 +191,13 @@ Les 10 décisions de la section 10 de la mission, avec ma recommandation. Trois 
 | 3 bis | Sauvegardes externes **reportées** | Seules les copies locales avant migration existent (#6) |
 | 5 | Créateur de ligue supprimé : **passation au membre le plus ancien** | #8 |
 | 7 | Consentement : **bandeau Accepter / Refuser** | #9 |
-| — | API rugby : **n'écrit plus les scores**, Gemini seule source ; correction Gemini possible 3h après la fin | #2, #4 |
-| — | Invitation de ligue par lien : **adhésion directe conservée** | inchangé |
-| — | Rappels limités aux compétitions des ligues du joueur | #4 |
-| — | Cotes Gemini : **toujours écrasées** chaque mardi | inchangé |
-| — | Push direct sur `main` conservé, mise en ligne seulement si tests verts ; failles = alerte sans blocage ; Dependabot hebdo groupé | #5 |
-| — | Mise en ligne : retour automatique si le site ne répond plus, copie de la base avant migration (5 gardées) | #6 |
-| — | Export des données : sur demande par email | #9 (politique) |
+| · | API rugby : **n'écrit plus les scores**, Gemini seule source ; correction Gemini possible 3h après la fin | #2, #4 |
+| · | Invitation de ligue par lien : **adhésion directe conservée** | inchangé |
+| · | Rappels limités aux compétitions des ligues du joueur | #4 |
+| · | Cotes Gemini : **toujours écrasées** chaque mardi | inchangé |
+| · | Push direct sur `main` conservé, mise en ligne seulement si tests verts ; failles = alerte sans blocage ; Dependabot hebdo groupé | #5 |
+| · | Mise en ligne : retour automatique si le site ne répond plus, copie de la base avant migration (5 gardées) | #6 |
+| · | Export des données : sur demande par email | #9 (politique) |
 
 **Encore ouvertes** : n°4 staging, n°6 comptes non vérifiés, n°8 échec total des cotes, n°9 2FA admin.
 
