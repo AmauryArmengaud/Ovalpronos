@@ -1830,3 +1830,27 @@ main {
   /* Card entrance: skip, show immediately */
   .page-entering .predictions-grid > * { animation: none; opacity: 1; }
 }
+
+/* ─── Consent banner & footer legal links ───────────────────────────────── */
+.consent-banner {
+  background: var(--color-surface-raised);
+  border-radius: var(--radius-md);
+  padding: 0.875rem 1rem;
+  font-size: var(--text-sm);
+  color: var(--color-text);
+}
+.footer-links {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.25rem 1rem;
+  font-size: var(--text-sm);
+}
+.footer-links a {
+  color: var(--color-text-on-primary);
+  opacity: 0.85;
+}
+.footer-links a:hover,
+.footer-links a:focus-visible {
+  opacity: 1;
+}

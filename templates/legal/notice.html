@@ -1,0 +1,42 @@
+{% extends "legal/base_legal.html" %}
+
+{% block title %}Mentions légales · Oval'Pronos{% endblock %}
+
+{% block legal_content %}
+<h1 class="mb-4">Mentions légales</h1>
+
+<h2 class="h5 mt-4">Éditeur du site</h2>
+<p>
+  Le site ovalpronos.com est édité à titre non professionnel par <strong>Amaury LEMAUR-ARMENGAUD</strong>,
+  personne physique, conformément à l'article 6, III, 2 de la loi n° 2004-575 du 21 juin 2004 pour la
+  confiance dans l'économie numérique.
+</p>
+<p>Contact : <a href="mailto:contact@ovalpronos.com">contact@ovalpronos.com</a></p>
+<p>Directeur de la publication : Amaury LEMAUR-ARMENGAUD.</p>
+
+<h2 class="h5 mt-4">Hébergeur</h2>
+<p>
+  Hetzner Online GmbH<br>
+  Industriestr. 25, 91710 Gunzenhausen, Allemagne<br>
+  Téléphone : +49 (0)9831 505-0
+</p>
+
+<h2 class="h5 mt-4">Nature du service</h2>
+<p>
+  Oval'Pronos est un jeu de pronostics sur le rugby, <strong>gratuit et sans aucune mise ni aucun gain
+  d'argent</strong>. Ce n'est pas un site de paris. Les cotes affichées servent uniquement à calculer les
+  points du jeu.
+</p>
+
+<h2 class="h5 mt-4">Propriété intellectuelle</h2>
+<p>
+  Les noms et logos des équipes et des compétitions appartiennent à leurs titulaires respectifs et ne sont
+  utilisés que pour identifier les matchs. Oval'Pronos n'est affilié à aucune équipe, ligue ou fédération.
+</p>
+
+<h2 class="h5 mt-4">Données personnelles</h2>
+<p>
+  Voir la <a href="{% url 'matches:legal_privacy' %}">politique de confidentialité</a> et les
+  <a href="{% url 'matches:legal_terms' %}">conditions générales d'utilisation</a>.
+</p>
+{% endblock %}

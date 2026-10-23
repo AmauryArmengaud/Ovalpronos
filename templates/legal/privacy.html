@@ -1,0 +1,90 @@
+{% extends "legal/base_legal.html" %}
+
+{% block title %}Politique de confidentialité · Oval'Pronos{% endblock %}
+
+{% block legal_content %}
+<h1 class="mb-4">Politique de confidentialité</h1>
+
+<p>
+  Cette page explique quelles données Oval'Pronos collecte, pourquoi, où elles vont et combien de temps
+  elles sont gardées. Le responsable du traitement est Amaury LEMAUR-ARMENGAUD, joignable à
+  <a href="mailto:contact@ovalpronos.com">contact@ovalpronos.com</a>.
+</p>
+
+<h2 class="h5 mt-4">1. Les données collectées</h2>
+<ul>
+  <li><strong>Ton compte</strong> : nom d'utilisateur, adresse email, prénom, nom, mot de passe (stocké chiffré, jamais lisible), et si tu les renseignes : pseudo public, photo de profil, équipe favorite.</li>
+  <li><strong>Ton jeu</strong> : tes pronostics, tes points, les ligues que tu crées ou rejoins.</li>
+  <li><strong>Données techniques</strong> : adresse IP et navigateur dans les journaux du serveur, date de dernière connexion, date du dernier email de rappel.</li>
+  <li><strong>Statistiques de visite</strong>, <em>uniquement si tu les acceptes</em> : pages vues et actions dans le jeu (pronostic enregistré, ligue créée ou rejointe), associées à un identifiant anonyme du type <code>user_123</code>, jamais à ton nom ni à ton email.</li>
+</ul>
+<p>Oval'Pronos ne vend aucune donnée, n'affiche aucune publicité et ne fait aucun profilage commercial.</p>
+
+<h2 class="h5 mt-4">2. Pourquoi, et sur quelle base</h2>
+<ul>
+  <li><strong>Faire fonctionner le jeu</strong> (compte, pronostics, classements, ligues, emails de réinitialisation de mot de passe) : exécution des <a href="{% url 'matches:legal_terms' %}">conditions d'utilisation</a> que tu acceptes en t'inscrivant.</li>
+  <li><strong>T'envoyer les rappels avant les matchs et les résumés de résultats</strong> : intérêt légitime à faire vivre le jeu. Tu peux demander à ne plus les recevoir en écrivant à <a href="mailto:contact@ovalpronos.com">contact@ovalpronos.com</a>.</li>
+  <li><strong>Protéger le site</strong> (anti-robots à l'inscription et à la connexion, limitation des tentatives, journaux, suivi des erreurs techniques) : intérêt légitime à la sécurité du service.</li>
+  <li><strong>Mesurer l'audience pour améliorer le jeu</strong> : ton consentement, que tu peux retirer à tout moment via « Gérer les cookies » en bas de chaque page.</li>
+</ul>
+
+<h2 class="h5 mt-4">3. Qui reçoit des données</h2>
+<table class="table table-sm small">
+  <thead><tr><th>Prestataire</th><th>Rôle</th><th>Données</th><th>Localisation</th></tr></thead>
+  <tbody>
+    <tr><td>Hetzner Online GmbH</td><td>Hébergement du site et de la base de données</td><td>Toutes les données du site</td><td>Allemagne / UE</td></tr>
+    <tr><td>Brevo SAS</td><td>Envoi des emails</td><td>Email, pseudo, contenu des emails</td><td>France / UE</td></tr>
+    <tr><td>Cloudflare (Turnstile)</td><td>Vérification anti-robots à l'inscription et à la connexion</td><td>Adresse IP, caractéristiques du navigateur</td><td>États-Unis*</td></tr>
+    <tr><td>PostHog</td><td>Statistiques (si tu acceptes) et suivi des erreurs techniques</td><td>Identifiant anonyme <code>user_123</code>, pages, actions, type d'erreur</td><td>Hébergé dans l'UE (Francfort), société américaine*</td></tr>
+    <tr><td>Google Fonts, jsDelivr, unpkg</td><td>Polices et bibliothèques techniques chargées par les pages</td><td>Adresse IP, navigateur</td><td>Réseaux mondiaux*</td></tr>
+  </tbody>
+</table>
+<p class="small">
+  * Ces prestataires peuvent traiter des données hors de l'Union européenne. Ces transferts sont encadrés
+  par le cadre de protection des données UE-États-Unis ou par des clauses contractuelles types de la
+  Commission européenne.
+</p>
+<p>
+  Les cotes des matchs sont recherchées automatiquement avec Google Gemini. <strong>Aucune donnée de joueur
+  n'est envoyée à Google</strong> pour cela, uniquement les noms des équipes et les dates des matchs.
+</p>
+
+<h2 class="h5 mt-4">4. Combien de temps</h2>
+<ul>
+  <li><strong>Compte, pronostics, ligues</strong> : tant que ton compte existe. Tu peux le supprimer toi-même à tout moment (Profil → Supprimer mon compte), la suppression est immédiate.</li>
+  <li><strong>Journaux du serveur</strong> : quelques semaines, effacés automatiquement.</li>
+  <li><strong>Copies techniques de la base</strong>, faites avant chaque mise à jour du site : les 5 plus récentes sont gardées, les plus anciennes sont effacées automatiquement.</li>
+  <li><strong>Statistiques de visite</strong> : 25 mois au maximum.</li>
+  <li><strong>Ton choix sur les statistiques</strong> : 13 mois si tu acceptes, 6 mois si tu refuses. La question t'est ensuite reposée.</li>
+</ul>
+
+<h2 class="h5 mt-4">5. Cookies et stockage sur ton appareil</h2>
+<table class="table table-sm small">
+  <thead><tr><th>Nom</th><th>À quoi ça sert</th><th>Durée</th><th>Consentement</th></tr></thead>
+  <tbody>
+    <tr><td><code>sessionid</code></td><td>Te garder connecté</td><td>2 semaines</td><td>Non requis (indispensable)</td></tr>
+    <tr><td><code>csrftoken</code></td><td>Protéger les formulaires contre les attaques</td><td>1 an</td><td>Non requis (indispensable)</td></tr>
+    <tr><td><code>django_language</code></td><td>Retenir la langue que tu as choisie</td><td>Session du navigateur</td><td>Non requis (tu l'as demandé)</td></tr>
+    <tr><td><code>op_analytics</code></td><td>Retenir ton choix sur les statistiques</td><td>13 ou 6 mois</td><td>Non requis (il enregistre ton choix)</td></tr>
+    <tr><td>Cloudflare Turnstile</td><td>Vérification anti-robots, pages de connexion et d'inscription uniquement</td><td>Selon Cloudflare</td><td>Non requis (sécurité)</td></tr>
+    <tr><td><code>ph_…</code> (stockage local)</td><td>Statistiques de visite PostHog</td><td>Jusqu'au retrait du consentement</td><td><strong>Oui</strong>, déposé seulement si tu acceptes</td></tr>
+  </tbody>
+</table>
+<p>Tu peux changer d'avis à tout moment avec le lien <a href="#" role="button" data-consent-open>Gérer les cookies</a>. Si tu refuses, aucune statistique n'est collectée, ni par la page ni par le serveur.</p>
+
+<h2 class="h5 mt-4">6. Tes droits</h2>
+<p>
+  Tu peux accéder à tes données, les corriger (depuis ton profil), les supprimer (bouton « Supprimer mon
+  compte »), en obtenir une copie dans un format lisible, t'opposer à certains traitements ou en demander la
+  limitation. Pour tout ce qui n'est pas faisable depuis ton profil, écris à
+  <a href="mailto:contact@ovalpronos.com">contact@ovalpronos.com</a>. Une réponse t'est apportée dans un
+  délai d'un mois.
+</p>
+<p>
+  Si tu estimes que tes droits ne sont pas respectés, tu peux adresser une réclamation à la CNIL
+  (<a href="https://www.cnil.fr" rel="noopener">cnil.fr</a>).
+</p>
+
+<h2 class="h5 mt-4">7. Mineurs</h2>
+<p>Si tu as moins de 15 ans, demande l'accord d'un de tes parents avant de créer un compte.</p>
+{% endblock %}

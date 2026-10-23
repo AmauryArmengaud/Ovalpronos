@@ -11,10 +11,17 @@ def _get_client():
     return _client
 
 
-def capture(user_pk: int, event: str, properties: dict = None):
+# Set by the consent banner (templates/partials/consent_banner.html) when the visitor accepts
+CONSENT_COOKIE = 'op_analytics'
+
+
+def capture(request, event: str, properties: dict = None):
+    """Server-side analytics event, sent only if the visitor accepted statistics."""
+    if request.COOKIES.get(CONSENT_COOKIE) != 'granted' or not request.user.is_authenticated:
+        return
     try:
         client = _get_client()
         if client:
-            client.capture(f'user_{user_pk}', event, properties or {})
+            client.capture(f'user_{request.user.pk}', event, properties or {})
     except Exception:
         pass

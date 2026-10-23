@@ -36,20 +36,6 @@
   <meta property="og:image:alt" content="{% block og_image_alt %}{% trans "Oval'Pronos — Rugby predictions with friends" %}{% endblock %}">
   <meta property="og:url" content="{{ request.build_absolute_uri }}">
   {% block extra_head %}{% endblock %}
-  {% if POSTHOG_API_KEY %}
-  <script src="https://eu-assets.i.posthog.com/static/array.js"></script>
-  <script>
-    posthog.init('{{ POSTHOG_API_KEY }}', {
-      api_host: 'https://eu.i.posthog.com',
-      persistence: 'localStorage',
-      autocapture: false,
-      capture_pageview: true,
-      {% if user.is_authenticated %}
-      loaded: function(ph) { ph.identify('user_{{ user.pk }}'); }
-      {% endif %}
-    });
-  </script>
-  {% endif %}
 </head>
 <body class="{% block body_class %}{% endblock %}">
 
@@ -160,6 +146,8 @@
 {% endif %}
 
 <!-- Main content -->
+{% include "partials/consent_banner.html" %}
+
 <main id="main-content" class="{% block main_class %}container my-4{% endblock %}">
   {% block content %}{% endblock %}
 </main>
@@ -168,6 +156,12 @@
 <footer class="footer py-3 mt-auto">
   <div class="container text-center">
     <small>{% trans "Tu sais pas plaquer, viens pronostiquer" %} &mdash; Oval'Pronos {% now "Y" %}</small>
+    <nav class="footer-links mt-1" aria-label="{% trans 'Legal' %}">
+      <a href="{% url 'matches:legal_notice' %}">{% trans "Legal notice" %}</a>
+      <a href="{% url 'matches:legal_privacy' %}">{% trans "Privacy" %}</a>
+      <a href="{% url 'matches:legal_terms' %}">{% trans "Terms of use" %}</a>
+      <a href="#" role="button" data-consent-open>{% trans "Manage cookies" %}</a>
+    </nav>
   </div>
 </footer>
 
