@@ -186,32 +186,58 @@ Les 10 décisions de la section 10 de la mission, avec ma recommandation. Trois 
 | 3 | Sauvegardes **sans aucun coût** | Destination à confirmer parmi les offres gratuites hors Hetzner (Backblaze B2 ou Cloudflare R2, 10 Go gratuits ; DB actuelle bien en dessous) |
 | 11 | Fallback "estimate" **conservé tel quel** | Les contrôles serveur (allowlist `match_id`, overround) s'appliquent quand même. Le risque d'équité reste accepté |
 | 12 | `sync_live_scores.py` et `/api/update-scores/` **conservés** | Ils compensent des scores faux renvoyés par l'API rugby. À durcir, pas à supprimer (voir ci-dessous) |
-| 13 | Correction de `is_hidden` : **oui** | Phase 1b |
+| 13 | Correction de `is_hidden` : **oui** | #4 (0 match masqué en prod, aucun effet visible) |
+| 2 | Suivi d'erreurs : **PostHog** (déjà en place), alerte email horaire | #7 |
+| 3 bis | Sauvegardes externes **reportées** | Seules les copies locales avant migration existent (#6) |
+| 5 | Créateur de ligue supprimé : **passation au membre le plus ancien** | #8 |
+| 7 | Consentement : **bandeau Accepter / Refuser** | #9 |
+| — | API rugby : **n'écrit plus les scores**, Gemini seule source ; correction Gemini possible 3h après la fin | #2, #4 |
+| — | Invitation de ligue par lien : **adhésion directe conservée** | inchangé |
+| — | Rappels limités aux compétitions des ligues du joueur | #4 |
+| — | Cotes Gemini : **toujours écrasées** chaque mardi | inchangé |
+| — | Push direct sur `main` conservé, mise en ligne seulement si tests verts ; failles = alerte sans blocage ; Dependabot hebdo groupé | #5 |
+| — | Mise en ligne : retour automatique si le site ne répond plus, copie de la base avant migration (5 gardées) | #6 |
+| — | Export des données : sur demande par email | #9 (politique) |
+
+**Encore ouvertes** : n°4 staging, n°6 comptes non vérifiés, n°8 échec total des cotes, n°9 2FA admin.
 
 ### Constat sur la crontab réelle du VPS (2026-10-23)
 
 - La sync live toutes les 10 min n'est **pas** `manage.py sync_if_live` (comme le dit la doc) mais `scripts/sync_live_scores.py` : les scores en direct et **les scores finaux** viennent de Gemini. `sync_if_live` n'est pas planifié.
 - `update_odds.py` est bien appelé depuis `scripts/` : la cron fonctionne, c'est la doc qui est fausse.
-- Conflit à trancher : la sync quotidienne de 07:00 (`sync_matches`, API rugby) réécrit `home_score`/`away_score` et recalcule les points. Si l'API renvoie un score faux pour un match déjà corrigé par Gemini, **c'est le score faux de l'API qui gagne le lendemain matin**. Inversement, `/api/update-scores/` refuse un match déjà `FINISHED`, donc Gemini ne peut pas corriger un score faux posé par l'API.
+- ~~Conflit à trancher~~ (réglé par #2) : la sync quotidienne de 07:00 (`sync_matches`, API rugby) réécrit `home_score`/`away_score` et recalcule les points. Si l'API renvoie un score faux pour un match déjà corrigé par Gemini, **c'est le score faux de l'API qui gagne le lendemain matin**. Inversement, `/api/update-scores/` refuse un match déjà `FINISHED`, donc Gemini ne peut pas corriger un score faux posé par l'API.
 - Aucune entrée de sauvegarde dans la crontab de l'utilisateur `amaury`.
 
-## 6. Prochaine étape proposée
+## 6. Avancement au 23 octobre 2026 (soir)
 
-Après tes réponses aux décisions 1, 3, 11, 12 et 13 :
+9 PR ouvertes, **aucune mergée**. #1 à #7 testées ensemble sur PostgreSQL 16 : 132 tests OK (couverture 66 % → 78 %), aucun conflit, y compris avec les derniers commits de `main`. #8 et #9 (102 tests OK de leur côté) n'entrent en conflit qu'avec #4 (traductions compilées) : à remettre à jour après le merge de #4.
 
-**Phase 1a (petite PR, faible risque)** : montée de version Django 6.0.8 / Pillow 12.3+ / requests 2.33, migration manquante, `polib` en dépendance de test, réglages `check --deploy` (cookies Secure, redirection SSL, HSTS à 1 jour), `STORAGES` WhiteNoise, correction du `.gitignore` (`docs/**/*.md`, dumps, clés).
+| PR | Contenu | Items |
+|---|---|---|
+| #1 | Ce rapport + `docs/ops/MANUAL_ACTIONS.md` | 40 |
+| #2 | L'API rugby n'écrit plus les scores, suppression de la boucle `/match/{id}` | 39 (quota) |
+| #3 | 0 vulnérabilité, cookies Secure, HSTS, WhiteNoise, migration manquante, `.gitignore` | 1, 6, 36, 38 |
+| #4 | Bugs (`is_hidden`, score > 200, 500 API), allowlist Gemini, limites de tentatives, page 429, test de permissions | 2, 3, 5, 23, 32 |
+| #5 | CI PostgreSQL avant chaque mise en ligne, `security.yml`, Dependabot | 6, 14 |
+| #6 | `deploy.sh` versionné, smoke test, retour automatique, copie avant migration | 9, 12 |
+| #7 | Erreurs 500 → PostHog sans données perso, heartbeats Healthchecks, contrôle quotidien des données | 17, 19, 20 |
+| #8 | Suppression de compte, passation des ligues | 28 |
+| #9 | Mentions légales, confidentialité, CGU, bandeau de consentement | 29, 30 |
 
-**Phase 1b** : test de permissions par parcours du resolver, corrections IDOR et 500 listées en §4 avec tests de régression, rate limiting, invitation de ligue en POST.
+### Statut des 40 items une fois les 9 PR mergées
 
-**Phase 1c** : scripts de sauvegarde, restauration et `deploy.sh` versionné avec rollback, plus `docs/ops/MANUAL_ACTIONS.md`.
+| Statut | Items |
+|---|---|
+| ✅ Fait (code + tests) | 2, 3, 5, 9, 14, 23, 28, 30 |
+| ✅ Fait, action manuelle restante 👤 | 17 (alerte PostHog), 19 (comptes UptimeRobot / Healthchecks), 20 (crontab), 29 (relecture des textes) |
+| 🟡 Partiel | 1 (pas de pre-commit ni procédure de rotation), 6 (SRI des CDN), 10, 11 (pas de tests N+1), 12 (pas de `/healthz/`), 13 (e2e Playwright mobile hors CI), 21 (funnel non documenté), 24 (pas de modèle de repli), 26, 32 (pages 403/400/CSRF), 33, 34, 35 (EXIF/redimensionnement avatars), 36, 37, 38 (CSP), 40 |
+| ⏸ Reporté | 7, 8 (sauvegardes externes et test de restauration) |
+| ❌ À faire | 4 (2FA admin), 15 (staging), 16 (logging, emails encore dans les logs de `tasks.py`), 18, 22, 25, 27 (vérification d'email), 31 (SPF/DKIM/DMARC), 39 (plafonds de dépenses) |
 
-Actions manuelles à faire dès maintenant (lecture seule sur le VPS) :
+### Prochains chantiers proposés
 
-```bash
-crontab -l                                   # chemin réel de update_odds.py, sync_live_scores.py planifié ?
-ls /etc/nginx/sites-enabled/ && sudo nginx -T | grep -E "server_name|location /media|limit_req"
-free -h && df -h /                           # RAM et disque disponibles (décisions 1, 2, 4)
-sudo -u postgres psql ovalpronos -c "select count(*) from matches_match where is_hidden;"
-```
+1. **Emails** : lien de désinscription, vérification d'email, SPF/DKIM/DMARC (items 27, 31, et l'engagement de la politique de confidentialité).
+2. **Confort joueur** : pages d'erreur, accessibilité, SEO, polices et bibliothèques auto-hébergées (items 32 à 37).
+3. **Sauvegardes externes** gratuites, dès que tu as vérifié l'option Backups de Hetzner (items 7, 8).
 
-Et dans la console Hetzner : le service "Backups" est-il activé sur le CX22 ?
+Actions manuelles : voir **`docs/ops/MANUAL_ACTIONS.md`**.
