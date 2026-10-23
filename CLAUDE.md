@@ -257,7 +257,7 @@ Custom Django admin themed with the app's own design system (Bootstrap 5, Barlow
 
 **Production:** Hetzner CX22 VPS (~4€/month) — Gunicorn + self-hosted PostgreSQL. App lives at `/home/amaury/Ovalpronos/`.
 
-**Deploy trigger:** Every push to `main` runs the GitHub Actions `deploy.yml` workflow, which SSHs into the server and executes `~/deploy.sh`:
+**Deploy trigger:** every push to `main` runs `ci.yml` (tests on PostgreSQL, migrations check, `check --deploy`, coverage ≥ 65 %). Only if it passes does `deploy.yml` SSH into the server and execute `~/deploy.sh`. A red CI means nothing is deployed:
 
 ```bash
 cd /home/amaury/Ovalpronos
@@ -280,15 +280,17 @@ sudo systemctl restart gunicorn
 | `SYNC_SECRET_TOKEN` | `sync_matches.yml`, `update_odds.yml`, `email_notifications.yml` | Bearer token for secured API endpoints |
 | `GOOGLE_API_KEY` | `update_odds.yml` | Google AI Studio key — `workflow_dispatch` manual trigger only |
 
-**To deploy manually:** push to `main`, or SSH in and run `~/deploy.sh` directly.
+**To deploy manually:** run `deploy.yml` from the GitHub Actions tab (`workflow_dispatch`, skips CI), or SSH in and run `~/deploy.sh` directly.
 
 ## GitHub Actions Workflows
 
-Seul `deploy.yml` est event-driven. Tous les crons ont été migrés sur le VPS.
+`ci.yml`, `security.yml` et `deploy.yml` sont event-driven. Tous les crons ont été migrés sur le VPS.
 
 | Workflow | Déclencheur | Rôle |
 |---|---|---|
-| `deploy.yml` | Push sur `main` | SSH → `~/deploy.sh` — déploiement prod |
+| `ci.yml` | Chaque push et PR | Tests PostgreSQL, migrations, `check --deploy`, couverture ≥ 65 % |
+| `deploy.yml` | `ci.yml` vert sur `main` (ou manuel) | SSH → `~/deploy.sh`, déploiement prod |
+| `security.yml` | Chaque push et PR, lundi matin | `pip-audit` + gitleaks. Rouge = alerte, ne bloque jamais le déploiement |
 | `sync_matches.yml` | `workflow_dispatch` uniquement | Sync d'urgence manuel — `POST /api/sync-scores/` |
 | `update_odds.yml` | `workflow_dispatch` uniquement | Relance manuelle Gemini — `POST /api/update-odds/` + `POST /api/notify/missing-odds/` |
 | `email_notifications.yml` | `workflow_dispatch` uniquement | Résumés manuels de round — `POST /api/notify/results-summary/` |
