@@ -1,5 +1,5 @@
 # Framework principal
-Django==6.0.6
+Django==6.0.9
 
 # Base de données
 psycopg2-binary==2.9.10
@@ -12,10 +12,10 @@ python-decouple==3.8
 gunicorn==23.0.0
 
 # Requêtes HTTP (appels api-sports.io)
-requests==2.32.3
+requests==2.34.2
 
 # Gemini AI (mise à jour des cotes — update_odds.py)
-google-genai>=1.0.0
+google-genai==2.33.0
 
 # Gestion des assets statiques
 whitenoise==6.8.2
@@ -25,7 +25,7 @@ django-crispy-forms==2.3
 crispy-bootstrap5==2024.10
 
 # Traitement des images (requis pour ImageField)
-Pillow==12.2.0
+Pillow==13.0.0
 
 # Timezone
 pytz==2024.2
@@ -34,4 +34,7 @@ pytz==2024.2
 django-anymail[brevo]==12.0
 
 # Analytics (PostHog EU)
-posthog
+posthog==7.75.10
+
+# Tests (apps/matches/tests_quality.py reads .po files)
+polib==1.2.0
