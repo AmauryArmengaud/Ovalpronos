@@ -26,4 +26,5 @@ jobs:
           host: ${{ secrets.DEPLOY_HOST }}
           username: ${{ secrets.DEPLOY_USER }}
           key: ${{ secrets.DEPLOY_KEY }}
-          script: ~/deploy.sh
+          # deploy exactly the commit CI tested, not whatever main points to now
+          script: ~/deploy.sh ${{ github.event.workflow_run.head_sha || github.sha }}
