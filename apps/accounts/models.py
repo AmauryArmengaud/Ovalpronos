@@ -1,5 +1,7 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
+from django.db.models.signals import post_delete
+from django.dispatch import receiver
 from django.utils.translation import gettext_lazy as _
 
 
@@ -58,3 +60,10 @@ class CustomUser(AbstractUser):
     def get_display_name(self):
         """Retourne le pseudo public, ou le username en fallback."""
         return self.display_name or self.username
+
+
+@receiver(post_delete, sender=CustomUser)
+def _delete_avatar_file(sender, instance, **kwargs):
+    # ImageField never removes its file; a deleted account must not leave a photo behind
+    if instance.avatar:
+        instance.avatar.delete(save=False)
