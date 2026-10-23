@@ -35,3 +35,6 @@ django-anymail[brevo]==12.0
 
 # Analytics (PostHog EU)
 posthog
+
+# Rate limiting (login, password reset, league join, predictions)
+django-ratelimit==4.1.0

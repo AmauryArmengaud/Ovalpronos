@@ -8,15 +8,29 @@ from django.contrib import messages
 from django.contrib.auth import login, views as auth_views
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Count, Q, Sum
-from django.shortcuts import redirect
+from django.shortcuts import redirect, render
 from django.urls import reverse, resolve, Resolver404, reverse_lazy
+from django.utils.decorators import method_decorator
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.views.generic import CreateView, TemplateView, UpdateView
+from django_ratelimit.decorators import ratelimit
 
 from apps.predictions.models import Prediction
 from apps.rankings.services import _assign_ranks
 from .forms import EmailOrUsernameAuthenticationForm, ProfileForm, RegistrationForm
 from .models import CustomUser
+
+
+def post_field_key(field):
+    """Rate-limit key on a POST field. Keyed per account, not per IP: behind nginx
+    REMOTE_ADDR is the proxy, so an IP key would throttle every player at once."""
+    def key(group, request):
+        return request.POST.get(field, '').strip().lower()
+    return key
+
+
+def ratelimited(request, exception):
+    return render(request, '429.html', status=429)
 
 
 def _verify_turnstile(token, remote_ip):
@@ -109,6 +123,7 @@ class ProfileEditView(LoginRequiredMixin, UpdateView):
         return self.request.user
 
 
+@method_decorator(ratelimit(key=post_field_key('username'), rate='10/m', method='POST'), name='post')
 class LoginView(auth_views.LoginView):
     template_name = 'accounts/login.html'
     authentication_form = EmailOrUsernameAuthenticationForm
