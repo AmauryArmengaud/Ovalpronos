@@ -623,10 +623,14 @@ main {
 }
 
 /* ─── Match card ────────────────────────────────────────────────────────── */
-/* scroll-margin-top: clears the fixed header when scrollIntoView is called.
-   scroll-margin-bottom: keeps Zone C above the keyboard on cross-card advance. */
+/* scroll-margin-top: clears the fixed header when scrollIntoView is called. */
 [id^="match-card-"] {
   scroll-margin-top: 72px;
+}
+
+/* scroll-margin-bottom: keeps Zone C above the keyboard on cross-card advance
+   (JS scrolls .match-card-body into view). */
+.match-card-body {
   scroll-margin-bottom: 80px;
 }
 

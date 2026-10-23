@@ -135,10 +135,9 @@
   function focusInput(input, allowScroll) {
     input.focus({ preventScroll: !allowScroll });
     if (allowScroll) {
-      // Scroll the card (not the input) so scroll-margin-bottom on the card applies,
-      // keeping Zone C visible above the keyboard.
       var card = input.closest('[id^="match-card-"]');
-      (card || input).scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      var body = card && card.querySelector('.match-card-body');
+      (body || card || input).scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }
   }
 
