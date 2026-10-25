@@ -9,7 +9,7 @@ dj-database-url==2.3.0
 python-decouple==3.8
 
 # Serveur WSGI pour la production (Render)
-gunicorn==23.0.0
+gunicorn==26.2.0
 
 # Requêtes HTTP (appels api-sports.io)
 requests==2.34.2
