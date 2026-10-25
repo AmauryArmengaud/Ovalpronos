@@ -1,3 +1,4 @@
+import re
 import urllib.request
 import urllib.parse
 import json
@@ -10,6 +11,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Count, Q, Sum
 from django.shortcuts import redirect, render
 from django.urls import reverse, resolve, Resolver404, reverse_lazy
+from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.views.generic import CreateView, FormView, TemplateView, UpdateView
@@ -18,7 +20,7 @@ from django_ratelimit.decorators import ratelimit
 from apps.predictions.models import Prediction
 from apps.rankings.services import _assign_ranks
 from .forms import AccountDeleteForm, EmailOrUsernameAuthenticationForm, ProfileForm, RegistrationForm
-from .models import CustomUser
+from .models import CustomUser, Invitation
 
 
 def post_field_key(field):
@@ -179,11 +181,36 @@ class RegisterView(CreateView):
     template_name = 'accounts/register.html'
     success_url = reverse_lazy('predictions:index')
 
+    def _get_invitation(self):
+        token = self.request.POST.get('invite') or self.request.GET.get('invite')
+        if not token:
+            return None
+        return Invitation.objects.filter(token=token, used_at__isnull=True).first()
+
+    def get_initial(self):
+        initial = super().get_initial()
+        invitation = self._get_invitation()
+        if invitation:
+            initial.update(
+                email=invitation.email,
+                display_name=invitation.pseudo,
+                # usernames reject spaces, unlike the old app's pseudos
+                username=re.sub(r'[^\w.@+-]', '', invitation.pseudo),
+            )
+        return initial
+
     def form_valid(self, form):
         response = super().form_valid(form)
         login(self.request, self.object)
         from ovalpronos.analytics import capture
-        capture(self.request, 'user_registered')
+        invitation = self._get_invitation()
+        if invitation:
+            invitation.used_at = timezone.now()
+            invitation.user = self.object
+            invitation.save(update_fields=['used_at', 'user'])
+            capture(self.request, 'user_registered', {'source': 'invitation', 'cohort': invitation.cohort})
+        else:
+            capture(self.request, 'user_registered')
         next_url = self.request.POST.get('next') or self.request.GET.get('next')
         if next_url and url_has_allowed_host_and_scheme(next_url, allowed_hosts={self.request.get_host()}):
             return redirect(next_url)
@@ -195,6 +222,7 @@ class RegisterView(CreateView):
         next_url = self.request.POST.get('next', '') or self.request.GET.get('next', '')
         ctx['next_url'] = next_url
         ctx['invite_league'] = _get_invite_league(next_url, self.request.get_host())
+        ctx['invitation'] = self._get_invitation()
         return ctx
 
     def post(self, request, *args, **kwargs):

@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from django.db.models import Count
 
-from .models import CustomUser
+from .models import CustomUser, Invitation
 
 
 @admin.register(CustomUser)
@@ -31,3 +31,11 @@ class CustomUserAdmin(UserAdmin):
     @admin.action(description='Désactiver les comptes sélectionnés')
     def deactivate_users(self, request, queryset):
         queryset.exclude(pk=request.user.pk).update(is_active=False)
+
+
+@admin.register(Invitation)
+class InvitationAdmin(admin.ModelAdmin):
+    list_display = ('email', 'pseudo', 'cohort', 'used_at', 'user', 'created_at')
+    list_filter = ('cohort', ('used_at', admin.EmptyFieldListFilter))
+    search_fields = ('email', 'pseudo')
+    readonly_fields = ('token', 'created_at', 'used_at', 'user')

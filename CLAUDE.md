@@ -116,6 +116,7 @@ python manage.py send_results_summary --competition-id=X --round=Y  # Email resu
 # Maintenance commands
 python manage.py deactivate_ended_competitions  # Set is_active=False on competitions past end_date
 python manage.py cleanup_bot_accounts           # Purge fake accounts (--dry-run / --since / --yes)
+python manage.py import_invitations contacts.csv --output tokens.csv  # Relaunch campaign: pre-filled sign-up links for 2023 players, tokens for Brevo
 
 # Run tests (mandatory before deploy)
 python manage.py test apps.predictions.tests apps.matches.tests
@@ -180,6 +181,7 @@ All Django apps live under `apps/`. URL routing (all paths in English):
 ### Key Models
 
 - **`accounts.CustomUser`** — extends AbstractUser; adds `display_name`, `avatar`, `favorite_team` (FK to Team)
+- **`accounts.Invitation`** — single-use sign-up link for 2023 players (`token`, `email`, `pseudo`, `cohort`, `used_at`, `user`); `/accounts/register/?invite=<token>` pre-fills email, username and display name
 - **`matches.Competition`** — has `scoring_system` (`COTES` or `FIXED`), `good_gap_pts` (gap threshold for ×2 tier), `end_date` (used by `deactivate_ended_competitions` command to auto-set `is_active=False`)
 - **`matches.Team`** — has `slug` field; logos are local PNG files at `static/img/teams/<slug>.png`
 - **`matches.Match`** — has `cote_home/cote_draw/cote_away` (integers = bookmaker odds × 10, sourced via Gemini); computed properties `is_locked`, `has_odds`, `result`, `closes_soon`, `time_until_kickoff`

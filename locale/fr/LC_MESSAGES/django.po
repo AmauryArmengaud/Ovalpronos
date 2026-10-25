@@ -2691,3 +2691,12 @@ msgstr "Cette page n'existe qu'en français, qui est sa version faisant foi."
 #, python-format
 msgid "By creating an account, you accept the <a href=\"%(terms_url)s\">terms of use</a> and the <a href=\"%(privacy_url)s\">privacy policy</a>."
 msgstr "En créant un compte, tu acceptes les <a href=\"%(terms_url)s\">CGU</a> et la <a href=\"%(privacy_url)s\">politique de confidentialité</a>."
+
+#: templates/accounts/register.html:26
+#, python-format
+msgid ""
+"Welcome back %(pseudo)s! Your details from the previous version are already "
+"filled in."
+msgstr ""
+"Content de te revoir %(pseudo)s ! Tes infos de l'ancienne version sont déjà "
+"remplies."
