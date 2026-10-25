@@ -13,7 +13,7 @@ Admin : interface Django native thématisée avec le design system de l'app (Boo
 ## Démarrage rapide (développement local)
 
 ### 1. Prérequis
-- Python 3.11+
+- Python 3.14 (version de la prod, utilisée par la CI)
 - Git
 
 ### 2. Cloner et installer

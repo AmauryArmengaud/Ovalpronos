@@ -2,7 +2,7 @@
 Django==6.0.9
 
 # Base de données
-psycopg2-binary==2.9.10
+psycopg2-binary==2.9.13
 dj-database-url==2.3.0
 
 # Variables d'environnement
