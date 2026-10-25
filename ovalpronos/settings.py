@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'anymail',
     'crispy_forms',
     'crispy_bootstrap5',
+    'django_ratelimit',
 
     # Nos apps métier (dans apps/)
     'apps.accounts',
@@ -63,6 +64,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'django_ratelimit.middleware.RatelimitMiddleware',
 ]
 
 ROOT_URLCONF = 'ovalpronos.urls'
@@ -148,6 +150,23 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+# ─── Cache & rate limiting ───────────────────────────────────────────────────
+# DatabaseCache is shared by all Gunicorn workers (LocMemCache is per process,
+# so limits would not hold). Table created by accounts migration 0004.
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.db.DatabaseCache',
+        'LOCATION': 'django_cache',
+    }
+}
+RATELIMIT_VIEW = 'apps.accounts.views.ratelimited'
+# A cache failure must not lock every player out of login
+RATELIMIT_FAIL_OPEN = True
+# DatabaseCache increments are not atomic: concurrent requests may slip a few extra
+# attempts past a limit. Accepted for this traffic instead of running Redis on the VPS
+SILENCED_SYSTEM_CHECKS = ['django_ratelimit.E003', 'django_ratelimit.W001']
 
 
 # ─── Formulaires ─────────────────────────────────────────────────────────────
