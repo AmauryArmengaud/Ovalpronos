@@ -238,10 +238,10 @@ Bootstrap 5 + HTMX. Font: Barlow (Google Fonts). Icons: Tabler Icons (`ti ti-*`)
 
 ### Analytics
 
-PostHog EU (Frankfurt) — GDPR compliant, cookieless (`localStorage` persistence, no cookies set).
+PostHog EU (Frankfurt), **only after the visitor clicks "Accept"** on the consent banner (`partials/consent_banner.html`, choice stored in the `op_analytics` cookie). `capture(request, event, properties)` sends nothing unless that cookie is `granted`. Rationale: ARCHITECTURE.md §11.
 
 - **JS tracking:** snippet in `base.html` loads `eu-assets.i.posthog.com/static/array.js`; fires `$pageview` automatically; identifies authenticated users by `user_{{ user.pk }}` (no PII)
-- **Server-side tracking:** `ovalpronos/analytics.py::capture(user_pk, event, properties)` — lazy-initialises a `Posthog` instance; no-ops silently if `POSTHOG_ENABLED=False` or package absent
+- **Server-side tracking:** `ovalpronos/analytics.py::capture(request, event, properties)`, sends only with the consent cookie; lazy-initialises a `Posthog` instance; no-ops silently if `POSTHOG_ENABLED=False` or package absent
 - **Instrumented events:** `user_registered`, `user_logged_in`, `prediction_saved` (with `match_id`, `competition`, `is_update`), `league_created`, `league_joined`
 - **Context processor:** `ovalpronos/context_processors.py` exposes `POSTHOG_API_KEY` to all templates (empty string when disabled)
 

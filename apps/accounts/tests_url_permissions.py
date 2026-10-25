@@ -10,6 +10,7 @@ from django.urls import URLPattern, URLResolver, get_resolver, resolve
 
 PUBLIC_VIEWS = {
     'matches:home', 'matches:rules',
+    'matches:legal_notice', 'matches:legal_privacy', 'matches:legal_terms',
     'accounts:register', 'accounts:login', 'accounts:logout',
     'accounts:password_reset', 'accounts:password_reset_done',
     'accounts:password_reset_confirm', 'accounts:password_reset_complete',

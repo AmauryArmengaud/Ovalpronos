@@ -168,7 +168,7 @@ class SubmitPredictionView(LoginRequiredMixin, View):
         )
 
         from ovalpronos.analytics import capture
-        capture(request.user.pk, 'prediction_saved', {
+        capture(request, 'prediction_saved', {
             'match_id': match.pk,
             'competition': match.competition.name,
             'is_update': not created,

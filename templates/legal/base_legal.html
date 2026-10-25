@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% load i18n %}
+{# Legal texts are written in French only (binding version), an exception to the i18n rule; page chrome stays translated #}
+
+{% block content %}
+<div class="row justify-content-center">
+  <article class="col-12 col-lg-8 legal-page" lang="fr">
+    {% get_current_language as CURRENT_LANG %}
+    {% if CURRENT_LANG != 'fr' %}
+    <p class="text-muted small" lang="{{ CURRENT_LANG }}">{% trans "This page is only available in French, which is its legally binding version." %}</p>
+    {% endif %}
+    {% block legal_content %}{% endblock %}
+    <p class="text-muted small mt-5">Dernière mise à jour : 23 octobre 2026.</p>
+  </article>
+</div>
+{% endblock %}

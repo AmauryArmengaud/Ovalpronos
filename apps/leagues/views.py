@@ -69,7 +69,7 @@ class LeagueCreateView(LoginRequiredMixin, CreateView):
             _("League created! Your invite code: %(code)s") % {'code': self.object.invite_code}
         )
         from ovalpronos.analytics import capture
-        capture(self.request.user.pk, 'league_created', {'league_id': self.object.pk})
+        capture(self.request, 'league_created', {'league_id': self.object.pk})
         return response
 
 
@@ -99,7 +99,7 @@ class LeagueJoinView(LoginRequiredMixin, View):
             league.members.add(request.user)
             messages.success(request, _("You joined %(name)s!") % {'name': league.name})
             from ovalpronos.analytics import capture
-            capture(request.user.pk, 'league_joined', {'league_id': league.pk})
+            capture(request, 'league_joined', {'league_id': league.pk})
         return redirect('leagues:detail', pk=league.pk)
 
 
@@ -129,7 +129,7 @@ class LeaguePublicInviteView(View):
                 })
             league.members.add(request.user)
             from ovalpronos.analytics import capture
-            capture(request.user.pk, 'league_joined', {'league_id': league.pk, 'via': 'invite_link'})
+            capture(request, 'league_joined', {'league_id': league.pk, 'via': 'invite_link'})
             return redirect('leagues:detail', pk=league.pk)
 
         return render(request, 'leagues/public_invite.html', {
