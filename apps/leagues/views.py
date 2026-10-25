@@ -60,6 +60,12 @@ class LeagueCreateView(LoginRequiredMixin, CreateView):
     template_name = 'leagues/create.html'
     success_url = reverse_lazy('leagues:list')
 
+    def get_initial(self):
+        # ?competition=<code> from a competition landing pre-ticks that competition
+        code = self.request.GET.get('competition')
+        competitions = Competition.objects.filter(is_active=True, code__iexact=code) if code else []
+        return {**super().get_initial(), 'competitions': list(competitions)}
+
     def form_valid(self, form):
         form.instance.creator = self.request.user
         response = super().form_valid(form)

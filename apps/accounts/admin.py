@@ -11,7 +11,7 @@ class CustomUserAdmin(UserAdmin):
     list_filter = ('is_staff', 'is_active', 'favorite_team', 'signup_source')
     search_fields = ('username', 'email', 'display_name')
     fieldsets = UserAdmin.fieldsets + (
-        ('Oval\'Pronos', {'fields': ('display_name', 'avatar', 'favorite_team', 'signup_source', 'signup_campaign')}),
+        ('Oval\'Pronos', {'fields': ('display_name', 'avatar', 'favorite_team', 'signup_source', 'signup_medium', 'signup_campaign', 'signup_content', 'signup_landing_path')}),
     )
     actions = ['activate_users', 'deactivate_users']
 

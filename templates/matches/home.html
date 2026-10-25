@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 {% load i18n %}
 {% load static %}
+{% load account_tags %}
 
 {% block title %}Oval'Pronos — {% trans "Rugby predictions with friends" %}{% endblock %}
 
@@ -19,10 +20,10 @@
         {% trans "Odds reward the bold. Free." %}
       </p>
       <div class="home-hero__ctas">
-        <a href="{% url 'accounts:register' %}{% if utm_qs %}?{{ utm_qs }}{% endif %}" class="btn btn-accent home-hero__cta-primary">
+        <a href="{% auth_url 'accounts:register' %}" class="btn btn-accent home-hero__cta-primary">
           {% trans "Sign up" %}
         </a>
-        <a href="{% url 'accounts:login' %}" class="home-hero__cta-secondary">
+        <a href="{% auth_url 'accounts:login' %}" class="home-hero__cta-secondary">
           {% trans "Log in" %}
         </a>
       </div>
@@ -66,7 +67,7 @@
       <p class="home-section__sub mb-4">
         {% trans "Create a private league, share the code, compare predictions." %}
       </p>
-      <a href="{% url 'accounts:register' %}{% if utm_qs %}?{{ utm_qs }}{% endif %}" class="btn btn-accent home-hero__cta-primary">
+      <a href="{% auth_url 'accounts:register' %}" class="btn btn-accent home-hero__cta-primary">
         {% trans "Sign up" %}
       </a>
     </div>

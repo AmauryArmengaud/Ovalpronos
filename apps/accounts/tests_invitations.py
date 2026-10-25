@@ -113,6 +113,6 @@ class RegisterSignupSourceTest(TestCase):
         self.assertEqual(CustomUser.objects.get(username='Pepito').signup_source, 'league_invite')
 
     @patch('apps.accounts.views._verify_turnstile', return_value=True)
-    def test_direct_signup_has_no_source(self, _mock):
+    def test_direct_signup_is_direct(self, _mock):
         self.client.post(REGISTER_URL, VALID_FORM)
-        self.assertEqual(CustomUser.objects.get(username='Pepito').signup_source, '')
+        self.assertEqual(CustomUser.objects.get(username='Pepito').signup_source, 'direct')

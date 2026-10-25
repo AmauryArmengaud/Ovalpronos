@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load i18n %}
+{% load account_tags %}
 
 {% block title %}{% trans "Log in" %} — Oval'Pronos{% endblock %}
 
@@ -81,7 +82,7 @@
       </p>
       <p class="mb-0">
         {% trans "No account yet?" %}
-        <a href="{% url 'accounts:register' %}{% if next %}?next={{ next }}{% endif %}" class="fw-600 text-decoration-none">
+        <a href="{% auth_url 'accounts:register' next=next %}" class="fw-600 text-decoration-none">
           {% trans "Sign up" %}
         </a>
       </p>

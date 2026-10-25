@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load i18n %}
+{% load account_tags %}
 
 {% block title %}{% trans "Create an account" %} — Oval'Pronos{% endblock %}
 
@@ -31,7 +32,7 @@
       {% csrf_token %}
       {% if next_url %}<input type="hidden" name="next" value="{{ next_url }}">{% endif %}
       {% if invitation %}<input type="hidden" name="invite" value="{{ invitation.token }}">{% endif %}
-      {% for key, value in utm.items %}<input type="hidden" name="{{ key }}" value="{{ value }}">{% endfor %}
+      {% for key, value in attribution.items %}<input type="hidden" name="{{ key }}" value="{{ value }}">{% endfor %}
 
       {# username #}
       <div class="mb-3">
@@ -194,7 +195,7 @@
     <div class="text-center">
       <p class="mb-0">
         {% trans "Already have an account?" %}
-        <a href="{% url 'accounts:login' %}{% if next_url %}?next={{ next_url }}{% endif %}" class="fw-600 text-decoration-none">
+        <a href="{% auth_url 'accounts:login' next=next_url %}" class="fw-600 text-decoration-none">
           {% trans "Log in" %}
         </a>
       </p>

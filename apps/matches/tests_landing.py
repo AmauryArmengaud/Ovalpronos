@@ -30,9 +30,31 @@ class CompetitionLandingViewTest(TestCase):
 
     def test_signup_links_carry_utm(self):
         response = self.client.get(self.url, {'utm_source': 'whatsapp', 'utm_campaign': 'relance_cdn', 'fbclid': 'x'})
-        self.assertContains(response, 'href="/accounts/register/?utm_source=whatsapp&amp;utm_campaign=relance_cdn"', count=2)
+        self.assertContains(
+            response,
+            'href="/accounts/register/?next=%2Fcompetitions%2Fnations%2F&amp;utm_source=whatsapp'
+            '&amp;utm_campaign=relance_cdn&amp;landing=%2Fcompetitions%2Fnations%2F"',
+        )
+        self.assertNotContains(response, 'fbclid=x&amp;')
 
-    def test_logged_in_user_goes_to_predictions(self):
+    def test_logged_in_player_in_a_league_goes_to_predictions(self):
+        from apps.leagues.models import League
         user = get_user_model().objects.create_user(username='u', email='u@test.local', password='x')
+        league = League.objects.create(name='Potes', creator=user)
+        league.members.add(user)
+        league.competitions.add(self.comp)
         self.client.force_login(user)
         self.assertRedirects(self.client.get(self.url), reverse('predictions:index'), fetch_redirect_response=False)
+
+    def test_logged_in_player_without_league_is_sent_to_create_one(self):
+        user = get_user_model().objects.create_user(username='u', email='u@test.local', password='x')
+        self.client.force_login(user)
+        self.assertRedirects(
+            self.client.get(self.url), reverse('leagues:create') + '?competition=NATIONS', fetch_redirect_response=False
+        )
+        form = self.client.get(reverse('leagues:create'), {'competition': 'nations'}).context['form']
+        self.assertEqual(form.initial['competitions'], [self.comp])
+
+    def test_login_link_returns_to_competition(self):
+        response = self.client.get(self.url)
+        self.assertContains(response, 'href="/accounts/login/?next=%2Fcompetitions%2Fnations%2F')

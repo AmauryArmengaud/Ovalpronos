@@ -2729,3 +2729,15 @@ msgstr "Source d'inscription"
 #: apps/accounts/models.py
 msgid "Signup campaign"
 msgstr "Campagne d'inscription"
+
+#: apps/accounts/models.py
+msgid "Signup medium"
+msgstr "Medium d'inscription"
+
+#: apps/accounts/models.py
+msgid "Signup content"
+msgstr "Contenu d'inscription"
+
+#: apps/accounts/models.py
+msgid "Signup landing page"
+msgstr "Page d'arrivée"

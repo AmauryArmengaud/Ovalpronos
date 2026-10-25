@@ -1,5 +1,6 @@
 {% load i18n %}
 {% load static %}
+{% load account_tags %}
 {% get_current_language as CURRENT_LANG %}
 <!DOCTYPE html>
 <html lang="{{ CURRENT_LANG }}">
@@ -80,10 +81,10 @@
           </li>
         {% else %}
           <li class="nav-item">
-            <a class="nav-link nav-link-dark" href="{% url 'accounts:login' %}?next={{ request.path }}">{% trans "Log in" %}</a>
+            <a class="nav-link nav-link-dark" href="{% auth_url 'accounts:login' next=request.path %}">{% trans "Log in" %}</a>
           </li>
           <li class="nav-item">
-            <a class="btn btn-accent btn-navbar" href="{% url 'accounts:register' %}?next={{ request.path }}">{% trans "Sign up" %}</a>
+            <a class="btn btn-accent btn-navbar" href="{% auth_url 'accounts:register' next=request.path %}">{% trans "Sign up" %}</a>
           </li>
         {% endif %}
         <li class="nav-item">
@@ -122,11 +123,11 @@
       <span>{% trans "Profile" %}</span>
     </a>
   {% else %}
-    <a class="mobile-bottom-nav__item" href="{% url 'accounts:login' %}">
+    <a class="mobile-bottom-nav__item" href="{% auth_url 'accounts:login' next=request.path %}">
       <img src="{% static 'img/icons/profile.svg' %}" alt="" class="mobile-bottom-nav__icon">
       <span>{% trans "Log in" %}</span>
     </a>
-    <a class="mobile-bottom-nav__item" href="{% url 'accounts:register' %}">
+    <a class="mobile-bottom-nav__item" href="{% auth_url 'accounts:register' next=request.path %}">
       <img src="{% static 'img/icons/logout.svg' %}" alt="" class="mobile-bottom-nav__icon">
       <span>{% trans "Sign up" %}</span>
     </a>

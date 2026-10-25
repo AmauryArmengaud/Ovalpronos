@@ -1,6 +1,7 @@
 import hmac
 
 from django.shortcuts import redirect
+from django.urls import reverse
 from django.views.generic import TemplateView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.decorators.csrf import csrf_exempt
@@ -22,10 +23,8 @@ class HomeView(TemplateView):
         from apps.matches.models import Competition
         from apps.predictions.services import get_example_points
         ctx = super().get_context_data(**kwargs)
-        from apps.accounts.signup_source import utm_querystring
         ctx['competitions'] = Competition.objects.filter(is_active=True).order_by('name')
         ctx['example'] = get_example_points()
-        ctx['utm_qs'] = utm_querystring(self.request.GET)
         return ctx
 
 
@@ -34,18 +33,22 @@ class CompetitionLandingView(TemplateView):
     template_name = 'matches/competition_landing.html'
 
     def dispatch(self, request, *args, **kwargs):
+        from apps.matches.models import Competition
+        self.competition = Competition.objects.filter(code__iexact=kwargs['code'], is_active=True).first()
+        if self.competition is None:
+            raise Http404
         if request.user.is_authenticated:
-            return redirect('predictions:index')
+            # Login and register links come back here (next=this page): send the player where they can predict
+            if request.user.leagues.filter(competitions=self.competition).exists():
+                return redirect('predictions:index')
+            return redirect(f"{reverse('leagues:create')}?competition={self.competition.code}")
         return super().dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
-        from apps.accounts.signup_source import utm_querystring
-        from apps.matches.models import Competition, Match
+        from apps.matches.models import Match
         from apps.predictions.services import get_example_points
         ctx = super().get_context_data(**kwargs)
-        competition = Competition.objects.filter(code__iexact=self.kwargs['code'], is_active=True).first()
-        if competition is None:
-            raise Http404
+        competition = self.competition
         ctx['competition'] = competition
         ctx['upcoming'] = (
             competition.matches
@@ -54,7 +57,6 @@ class CompetitionLandingView(TemplateView):
             .order_by('datetime')[:6]
         )
         ctx['example'] = get_example_points()
-        ctx['utm_qs'] = utm_querystring(self.request.GET)
         return ctx
 
 
