@@ -34,7 +34,7 @@ Pillow==13.0.0
 pytz==2024.2
 
 # Transactional email (Brevo / SendinBlue)
-django-anymail[brevo]==12.0
+django-anymail[brevo]==15.2
 
 # Analytics (PostHog EU)
 posthog==7.75.10
