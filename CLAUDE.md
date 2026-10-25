@@ -172,6 +172,7 @@ All Django apps live under `apps/`. URL routing (all paths in English):
 | `/rankings/` | `rankings` | Global and league leaderboards |
 | `/leagues/` | `leagues` | Private leagues |
 | `/rules/` | `matches` | Scoring rules page |
+| `/competitions/<code>/` | `matches` | Visitor landing for one active competition (upcoming matches with winner points), for campaigns and social posts |
 | `/api/sync-scores/` | `matches` | Secured score sync endpoint (POST, Bearer token) |
 | `/api/upcoming-matches/` | `matches` | Returns upcoming SCHEDULED matches for next 14 days (GET, Bearer token) |
 | `/api/update-odds/` | `matches` | Writes bookmaker odds to matches (POST, Bearer token) |
@@ -180,7 +181,7 @@ All Django apps live under `apps/`. URL routing (all paths in English):
 
 ### Key Models
 
-- **`accounts.CustomUser`** — extends AbstractUser; adds `display_name`, `avatar`, `favorite_team` (FK to Team)
+- **`accounts.CustomUser`** — extends AbstractUser; adds `display_name`, `avatar`, `favorite_team` (FK to Team), `signup_source` / `signup_campaign` (from `utm_source` / `utm_campaign` carried to the register form by home and landing CTAs, or `league_invite` when signing up from a league invite; stored without analytics consent)
 - **`accounts.Invitation`** — single-use sign-up link for 2023 players (`token`, `email`, `pseudo`, `first_name`, `last_name`, `cohort`, `used_at`, `user`); `/accounts/register/?invite=<token>` pre-fills email, username, first/last name and display name
 - **`matches.Competition`** — has `scoring_system` (`COTES` or `FIXED`), `good_gap_pts` (gap threshold for ×2 tier), `end_date` (used by `deactivate_ended_competitions` command to auto-set `is_active=False`)
 - **`matches.Team`** — has `slug` field; logos are local PNG files at `static/img/teams/<slug>.png`

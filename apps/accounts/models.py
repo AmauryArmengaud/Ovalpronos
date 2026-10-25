@@ -46,6 +46,10 @@ class CustomUser(AbstractUser):
         verbose_name=_("Favourite team")
     )
 
+    # Acquisition source, kept on the account because analytics only run with consent
+    signup_source = models.CharField(max_length=100, blank=True, verbose_name=_("Signup source"))
+    signup_campaign = models.CharField(max_length=100, blank=True, verbose_name=_("Signup campaign"))
+
     last_reminder_sent = models.DateTimeField(
         null=True,
         blank=True,

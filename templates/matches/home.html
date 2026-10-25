@@ -19,7 +19,7 @@
         {% trans "Odds reward the bold. Free." %}
       </p>
       <div class="home-hero__ctas">
-        <a href="{% url 'accounts:register' %}" class="btn btn-accent home-hero__cta-primary">
+        <a href="{% url 'accounts:register' %}{% if utm_qs %}?{{ utm_qs }}{% endif %}" class="btn btn-accent home-hero__cta-primary">
           {% trans "Sign up" %}
         </a>
         <a href="{% url 'accounts:login' %}" class="home-hero__cta-secondary">
@@ -41,37 +41,7 @@
     {% trans "Clermont — Perpignan, Perpignan wins (odds 6.30 = 63 base pts):" %}
   </p>
 
-  <div class="home-example-rows">
-
-    <div class="home-example-row home-example-row--exact">
-      <i class="ti ti-crown home-example-icon" aria-hidden="true"></i>
-      <span class="home-example-label">{% trans "Exact score" %} <span class="home-example-score">17 — 22</span></span>
-      <span class="home-example-pts">{{ example.exact_pts }} pts</span>
-      <span class="home-example-mult">× 3</span>
-    </div>
-
-    <div class="home-example-row home-example-row--gap">
-      <i class="ti ti-target home-example-icon" aria-hidden="true"></i>
-      <span class="home-example-label">{% trans "Good gap" %} <span class="home-example-score">15 — 22</span></span>
-      <span class="home-example-pts">{{ example.gap_pts }} pts</span>
-      <span class="home-example-mult">× 2</span>
-    </div>
-
-    <div class="home-example-row home-example-row--win">
-      <i class="ti ti-check home-example-icon" aria-hidden="true"></i>
-      <span class="home-example-label">{% trans "Correct winner" %} <span class="home-example-score">10 — 20</span></span>
-      <span class="home-example-pts">{{ example.win_pts }} pts</span>
-      <span class="home-example-mult">× 1</span>
-    </div>
-
-    <div class="home-example-row home-example-row--miss">
-      <i class="ti ti-x home-example-icon" aria-hidden="true"></i>
-      <span class="home-example-label">{% trans "Missed" %} <span class="home-example-score">21 — 15</span></span>
-      <span class="home-example-pts">{{ example.miss_pts }} pt</span>
-      <span class="home-example-mult">× 0</span>
-    </div>
-
-  </div>
+  {% include 'partials/scoring_example.html' %}
 </section>
 
 {# ── Competitions ────────────────────────────────────────────────────── #}
@@ -96,7 +66,7 @@
       <p class="home-section__sub mb-4">
         {% trans "Create a private league, share the code, compare predictions." %}
       </p>
-      <a href="{% url 'accounts:register' %}" class="btn btn-accent home-hero__cta-primary">
+      <a href="{% url 'accounts:register' %}{% if utm_qs %}?{{ utm_qs }}{% endif %}" class="btn btn-accent home-hero__cta-primary">
         {% trans "Sign up" %}
       </a>
     </div>

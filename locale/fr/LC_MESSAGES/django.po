@@ -2700,3 +2700,32 @@ msgid ""
 msgstr ""
 "Content de te revoir %(pseudo)s ! Tes infos de l'ancienne version sont déjà "
 "remplies."
+
+#: templates/matches/competition_landing.html
+#, python-format
+msgid "%(name)s: predict every match with your friends"
+msgstr "%(name)s : pronostique chaque match avec tes potes"
+
+#: templates/matches/competition_landing.html
+msgid "Free. A score on every match, points based on the odds: the bold prediction pays off."
+msgstr "Gratuit. Un score sur chaque match, des points selon les cotes : le prono culotté paie."
+
+#: templates/matches/competition_landing.html
+msgid "A score on every match, points based on the odds."
+msgstr "Un score sur chaque match, des points selon les cotes."
+
+#: templates/matches/competition_landing.html
+msgid "Upcoming matches"
+msgstr "Prochains matchs"
+
+#: templates/matches/competition_landing.html
+msgid "Points earned for the correct winner. The underdog pays more."
+msgstr "Points gagnés si tu trouves le vainqueur. L'outsider rapporte plus."
+
+#: apps/accounts/models.py
+msgid "Signup source"
+msgstr "Source d'inscription"
+
+#: apps/accounts/models.py
+msgid "Signup campaign"
+msgstr "Campagne d'inscription"

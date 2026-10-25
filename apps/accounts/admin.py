@@ -8,10 +8,10 @@ from .models import CustomUser, Invitation
 @admin.register(CustomUser)
 class CustomUserAdmin(UserAdmin):
     list_display = ('username', 'email', 'display_name', 'favorite_team', 'is_staff', 'is_active', 'prediction_count', 'date_joined')
-    list_filter = ('is_staff', 'is_active', 'favorite_team')
+    list_filter = ('is_staff', 'is_active', 'favorite_team', 'signup_source')
     search_fields = ('username', 'email', 'display_name')
     fieldsets = UserAdmin.fieldsets + (
-        ('Oval\'Pronos', {'fields': ('display_name', 'avatar', 'favorite_team')}),
+        ('Oval\'Pronos', {'fields': ('display_name', 'avatar', 'favorite_team', 'signup_source', 'signup_campaign')}),
     )
     actions = ['activate_users', 'deactivate_users']
 

@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% load static %}
+{% load match_tags %}
+
+{% block title %}{{ competition.name }} — {% trans "Rugby predictions with friends" %} — Oval'Pronos{% endblock %}
+{% block og_title %}{% blocktrans with name=competition.name %}{{ name }}: predict every match with your friends{% endblocktrans %}{% endblock %}
+{% block og_description %}{% trans "Free. A score on every match, points based on the odds: the bold prediction pays off." %}{% endblock %}
+
+{% block body_class %}home-visitor{% endblock %}
+{% block main_class %}p-0{% endblock %}
+
+{% block content %}
+{% url 'accounts:register' as register_url %}
+
+{# ── Hero ────────────────────────────────────────────────────────────── #}
+<section class="home-hero">
+  <div class="container home-hero__inner">
+    <div class="home-hero__content">
+      <span class="comp-divider-chip comp-divider-chip--dark mb-3 d-inline-block">{{ competition.name }}</span>
+      <h1 class="home-hero__title">{% blocktrans with name=competition.name %}{{ name }}: predict every match with your friends{% endblocktrans %}</h1>
+      <p class="home-hero__sub">
+        {% trans "A score on every match, points based on the odds." %}<br>
+        {% trans "Odds reward the bold. Free." %}
+      </p>
+      <div class="home-hero__ctas">
+        <a href="{{ register_url }}{% if utm_qs %}?{{ utm_qs }}{% endif %}" class="btn btn-accent home-hero__cta-primary">
+          {% trans "Sign up" %}
+        </a>
+        <a href="{% url 'accounts:login' %}" class="home-hero__cta-secondary">
+          {% trans "Log in" %}
+        </a>
+      </div>
+    </div>
+    <img src="{% static 'img/boar-mascot.png' %}" alt="Mascotte Oval'Pronos"
+         class="home-hero__mascot d-none d-lg-block"
+         width="240" height="240">
+  </div>
+</section>
+
+{# ── Upcoming matches: what each winner would earn ───────────────────── #}
+{% if upcoming %}
+<section class="container py-5 home-section">
+  <h2 class="home-section__title mb-2">{% trans "Upcoming matches" %}</h2>
+  <p class="home-section__sub mb-4">{% trans "Points earned for the correct winner. The underdog pays more." %}</p>
+  <ul class="comp-landing-matches list-unstyled mb-0">
+    {% for match in upcoming %}
+    <li class="comp-landing-match">
+      <span class="comp-landing-match__date">{{ match.datetime|date:"D j M · H:i" }}</span>
+      <span class="comp-landing-match__team">
+        {{ match.home_team.short_name|default:match.home_team.name }}
+        {% if match.has_odds %}<span class="comp-landing-match__pts">{{ match.cote_home|format_cote }} pts</span>{% endif %}
+      </span>
+      <span class="comp-landing-match__team comp-landing-match__team--away">
+        {% if match.has_odds %}<span class="comp-landing-match__pts">{{ match.cote_away|format_cote }} pts</span>{% endif %}
+        {{ match.away_team.short_name|default:match.away_team.name }}
+      </span>
+    </li>
+    {% endfor %}
+  </ul>
+</section>
+{% endif %}
+
+{# ── How it works ────────────────────────────────────────────────────── #}
+<section class="home-comps-section py-5">
+  <div class="container">
+    <h2 class="home-section__title mb-2">{% trans "How it works" %}</h2>
+    <p class="home-section__sub mb-4">
+      {% trans "An unlikely winner earns more points." %}
+      {% trans "Clermont — Perpignan, Perpignan wins (odds 6.30 = 63 base pts):" %}
+    </p>
+    {% include 'partials/scoring_example.html' %}
+  </div>
+</section>
+
+{# ── Play with friends ───────────────────────────────────────────────── #}
+<section class="container py-5 home-section">
+  <div class="home-social-row">
+    <div class="home-social-content">
+      <h2 class="home-section__title mb-2">{% trans "Play with friends" %}</h2>
+      <p class="home-section__sub mb-4">
+        {% trans "Create a private league, share the code, compare predictions." %}
+      </p>
+      <a href="{{ register_url }}{% if utm_qs %}?{{ utm_qs }}{% endif %}" class="btn btn-accent home-hero__cta-primary">
+        {% trans "Sign up" %}
+      </a>
+    </div>
+    <img src="{% static 'img/boar-mascot.png' %}" alt="" aria-hidden="true"
+         class="home-social-mascot d-lg-none"
+         width="100" height="100">
+  </div>
+</section>
+
+{% endblock %}

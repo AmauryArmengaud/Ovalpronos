@@ -6,7 +6,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.decorators.csrf import csrf_exempt
 from django.utils import timezone
 from django.views.decorators.http import require_POST, require_GET
-from django.http import JsonResponse
+from django.http import Http404, JsonResponse
 from django.conf import settings
 
 
@@ -22,8 +22,39 @@ class HomeView(TemplateView):
         from apps.matches.models import Competition
         from apps.predictions.services import get_example_points
         ctx = super().get_context_data(**kwargs)
+        from apps.accounts.signup_source import utm_querystring
         ctx['competitions'] = Competition.objects.filter(is_active=True).order_by('name')
         ctx['example'] = get_example_points()
+        ctx['utm_qs'] = utm_querystring(self.request.GET)
+        return ctx
+
+
+class CompetitionLandingView(TemplateView):
+    """Visitor landing page for one competition, linked from campaigns and social posts"""
+    template_name = 'matches/competition_landing.html'
+
+    def dispatch(self, request, *args, **kwargs):
+        if request.user.is_authenticated:
+            return redirect('predictions:index')
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        from apps.accounts.signup_source import utm_querystring
+        from apps.matches.models import Competition, Match
+        from apps.predictions.services import get_example_points
+        ctx = super().get_context_data(**kwargs)
+        competition = Competition.objects.filter(code__iexact=self.kwargs['code'], is_active=True).first()
+        if competition is None:
+            raise Http404
+        ctx['competition'] = competition
+        ctx['upcoming'] = (
+            competition.matches
+            .filter(status=Match.STATUS_SCHEDULED, datetime__gt=timezone.now(), is_hidden=False)
+            .select_related('home_team', 'away_team')
+            .order_by('datetime')[:6]
+        )
+        ctx['example'] = get_example_points()
+        ctx['utm_qs'] = utm_querystring(self.request.GET)
         return ctx
 
 

@@ -21,6 +21,7 @@ from apps.predictions.models import Prediction
 from apps.rankings.services import _assign_ranks
 from .forms import AccountDeleteForm, EmailOrUsernameAuthenticationForm, ProfileForm, RegistrationForm
 from .models import CustomUser, Invitation
+from .signup_source import utm_params
 
 
 def post_field_key(field):
@@ -202,6 +203,12 @@ class RegisterView(CreateView):
         return initial
 
     def form_valid(self, form):
+        utm = utm_params(self.request.POST)
+        next_url = self.request.POST.get('next') or self.request.GET.get('next')
+        if not utm and _get_invite_league(next_url, self.request.get_host()):
+            utm = {'utm_source': 'league_invite'}
+        form.instance.signup_source = utm.get('utm_source', '')
+        form.instance.signup_campaign = utm.get('utm_campaign', '')
         response = super().form_valid(form)
         login(self.request, self.object)
         from ovalpronos.analytics import capture
@@ -213,7 +220,6 @@ class RegisterView(CreateView):
             capture(self.request, 'user_registered', {'source': 'invitation', 'cohort': invitation.cohort})
         else:
             capture(self.request, 'user_registered')
-        next_url = self.request.POST.get('next') or self.request.GET.get('next')
         if next_url and url_has_allowed_host_and_scheme(next_url, allowed_hosts={self.request.get_host()}):
             return redirect(next_url)
         return response
@@ -225,6 +231,7 @@ class RegisterView(CreateView):
         ctx['next_url'] = next_url
         ctx['invite_league'] = _get_invite_league(next_url, self.request.get_host())
         ctx['invitation'] = self._get_invitation()
+        ctx['utm'] = utm_params(self.request.POST or self.request.GET)
         return ctx
 
     def post(self, request, *args, **kwargs):

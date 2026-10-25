@@ -468,6 +468,47 @@ main {
   border-color: rgba(252, 255, 249, 0.20);
 }
 
+/* Competition landing — upcoming matches with the points each winner earns */
+.comp-landing-matches {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.comp-landing-match {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.25rem 1rem;
+  padding: 0.75rem 1rem;
+  background: var(--color-surface-raised);
+  border-radius: var(--radius-md);
+  color: var(--color-text);
+  font-weight: 600;
+}
+
+.comp-landing-match__date {
+  grid-column: 1 / -1;
+  font-size: var(--text-xs);
+  font-weight: 500;
+  color: var(--color-text-secondary);
+  text-transform: capitalize;
+}
+
+.comp-landing-match__team--away {
+  text-align: right;
+}
+
+.comp-landing-match__pts {
+  display: inline-block;
+  margin: 0 0.25rem;
+  padding: 0 0.5rem;
+  border-radius: var(--radius-pill);
+  background: var(--color-accent);
+  color: var(--color-text-on-primary);
+  font-size: var(--text-xs);
+  line-height: 1.6;
+}
+
 /* Invalid state centering */
 .invite-invalid {
   min-height: 60vh;
