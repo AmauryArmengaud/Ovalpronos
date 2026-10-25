@@ -1,0 +1,51 @@
+name: CI
+
+# Runs on every push and PR. deploy.yml only deploys main once this workflow succeeds.
+on:
+  push:
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_PASSWORD: ci
+          POSTGRES_DB: ovalpronos
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd pg_isready --health-interval 5s --health-timeout 5s --health-retries 10
+    env:
+      # Production-like settings; CI-only values, not real secrets
+      SECRET_KEY: ci-only-secret-key-not-used-anywhere-else-0123456789
+      DEBUG: 'False'
+      ALLOWED_HOSTS: ovalpronos.com
+      DATABASE_URL: postgres://postgres:ci@localhost:5432/ovalpronos
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version-file: .python-version
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt coverage polib
+
+      - name: No missing migrations
+        run: python manage.py makemigrations --check --dry-run
+
+      - name: Deploy checklist
+        run: python manage.py check --deploy
+
+      - name: Tests (PostgreSQL)
+        run: coverage run --source=apps,ovalpronos manage.py test apps
+
+      - name: Coverage (minimum 65 %)
+        run: coverage report --fail-under=65
