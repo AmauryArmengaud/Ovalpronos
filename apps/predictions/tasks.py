@@ -38,7 +38,7 @@ def send_deadline_reminders():
     import datetime
     from django.contrib.auth import get_user_model
     from anymail.message import AnymailMessage
-    from apps.matches.models import Match
+    from apps.matches.models import Competition, Match
     from apps.predictions.models import Prediction
 
     User = get_user_model()
@@ -53,6 +53,7 @@ def send_deadline_reminders():
         Match.objects
         .filter(
             status=Match.STATUS_SCHEDULED,
+            is_hidden=False,
             datetime__range=(window_start, window_end),
             cote_home__isnull=False,
             cote_draw__isnull=False,
@@ -70,6 +71,7 @@ def send_deadline_reminders():
         Match.objects
         .filter(
             status=Match.STATUS_SCHEDULED,
+            is_hidden=False,
             datetime__gt=now,
             cote_home__isnull=False,
             cote_draw__isnull=False,
@@ -96,7 +98,16 @@ def send_deadline_reminders():
             .filter(user=user, match_id__in=all_upcoming_ids)
             .values_list('match_id', flat=True)
         )
-        user_matches = [m for m in all_upcoming if m.pk not in predicted_ids]
+        # Same scope as the predictions page: competitions of the user's leagues
+        user_competition_ids = set(
+            Competition.objects
+            .filter(is_active=True, leagues__members=user)
+            .values_list('pk', flat=True)
+        )
+        user_matches = [
+            m for m in all_upcoming
+            if m.pk not in predicted_ids and m.competition_id in user_competition_ids
+        ]
 
         if not user_matches:
             continue

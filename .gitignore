@@ -29,9 +29,17 @@ ENV/
 
 # Django
 db.sqlite3
+*.sqlite3
 media/
 staticfiles/
 *.log
+
+# Database dumps and private keys
+*.sql
+*.dump
+*.pem
+*.key
+.coverage
 
 # IDE
 .idea/
@@ -53,3 +61,4 @@ legacy/
 !ROLLOUT.md
 !README.md
 !docs/*.md
+!docs/**/*.md

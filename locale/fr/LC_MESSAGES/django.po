@@ -2587,6 +2587,14 @@ msgstr ""
 #~ "de 0) est valide pour marquer des points. Pronostiquer n'importe quel "
 #~ "vainqueur compte comme raté."
 
+#: templates/429.html:10
+msgid "Offside! Too many attempts in a row."
+msgstr "Hors-jeu ! Trop de tentatives d'affilée."
+
+#: templates/429.html:11
+msgid "Wait a minute, then try again."
+msgstr "Patiente une minute, puis réessaie."
+
 #: templates/accounts/delete.html:4 templates/accounts/profile.html
 msgid "Delete my account"
 msgstr "Supprimer mon compte"
@@ -2612,8 +2620,12 @@ msgid "your place in rankings and leagues"
 msgstr "ta place dans les classements et les ligues"
 
 #: templates/accounts/delete.html:20
-msgid "Leagues you created are handed over to their oldest member, or deleted if you are alone in them."
-msgstr "Les ligues que tu as créées passent à leur membre le plus ancien, ou sont supprimées si tu y es seul."
+msgid ""
+"Leagues you created are handed over to their oldest member, or deleted if "
+"you are alone in them."
+msgstr ""
+"Les ligues que tu as créées passent à leur membre le plus ancien, ou sont "
+"supprimées si tu y es seul."
 
 #: templates/accounts/delete.html:27
 msgid "Confirm with your password"
