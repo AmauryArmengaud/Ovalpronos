@@ -20,9 +20,17 @@
     </div>
     {% endif %}
 
+    {% if invitation %}
+    <div class="auth-invite-context mb-3">
+      <i class="ti ti-user-check" aria-hidden="true"></i>
+      {% blocktrans with pseudo=invitation.pseudo %}Welcome back {{ pseudo }}! Your details from the previous version are already filled in.{% endblocktrans %}
+    </div>
+    {% endif %}
+
     <form method="post" novalidate>
       {% csrf_token %}
       {% if next_url %}<input type="hidden" name="next" value="{{ next_url }}">{% endif %}
+      {% if invitation %}<input type="hidden" name="invite" value="{{ invitation.token }}">{% endif %}
 
       {# username #}
       <div class="mb-3">

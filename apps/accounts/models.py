@@ -1,3 +1,5 @@
+import secrets
+
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.db.models.signals import post_delete
@@ -60,6 +62,33 @@ class CustomUser(AbstractUser):
     def get_display_name(self):
         """Retourne le pseudo public, ou le username en fallback."""
         return self.display_name or self.username
+
+
+def _new_invitation_token():
+    return secrets.token_urlsafe(16)
+
+
+class Invitation(models.Model):
+    """Pre-filled sign-up link for a player of the 2023 app, sent in the relaunch campaign"""
+
+    token = models.CharField(max_length=32, unique=True, default=_new_invitation_token, editable=False)
+    email = models.EmailField(unique=True)
+    pseudo = models.CharField(max_length=50, blank=True)
+    first_name = models.CharField(max_length=30, blank=True)
+    last_name = models.CharField(max_length=150, blank=True)
+    cohort = models.CharField(max_length=20, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    used_at = models.DateTimeField(null=True, blank=True)
+    user = models.OneToOneField(
+        CustomUser,
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name='invitation',
+    )
+
+    def __str__(self):
+        return self.email
 
 
 @receiver(post_delete, sender=CustomUser)
