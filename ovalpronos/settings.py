@@ -21,6 +21,14 @@ SITE_URL = config('SITE_URL', default='http://localhost:8000')
 # so that request.scheme returns 'https' in production for correct OG image URLs.
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
+# HTTPS-only cookies and HSTS in prod; dev runs on plain http://localhost
+SESSION_COOKIE_SECURE = not DEBUG
+CSRF_COOKIE_SECURE = not DEBUG
+# 1 day while validating, then raise; no includeSubDomains until every subdomain has TLS
+SECURE_HSTS_SECONDS = 0 if DEBUG else 86400
+# SECURE_SSL_REDIRECT left off: the http→https redirect belongs to nginx (certbot), and
+# enabling it here without X-Forwarded-Proto set by nginx would cause a redirect loop
+
 
 # ─── Applications installées ─────────────────────────────────────────────────
 INSTALLED_APPS = [
@@ -126,7 +134,12 @@ LOCALE_PATHS = [BASE_DIR / 'locale']
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [BASE_DIR / 'static']
 STATIC_ROOT = BASE_DIR / 'staticfiles'
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
+# STATICFILES_STORAGE was removed in Django 5.1 and is silently ignored; STORAGES replaces it.
+# No Manifest variant: templates build logo paths from team.slug and a missing PNG would raise
+STORAGES = {
+    'default': {'BACKEND': 'django.core.files.storage.FileSystemStorage'},
+    'staticfiles': {'BACKEND': 'whitenoise.storage.CompressedStaticFilesStorage'},
+}
 # Cache-busting query string for locally-hosted CSS/JS. Increment after any
 # deploy that modifies static assets until ManifestStaticFilesStorage is set up.
 STATIC_VERSION = '4'
