@@ -1,15 +1,15 @@
 # Framework principal
-Django==6.0.9
+Django==6.1.2
 
 # Base de données
 psycopg2-binary==2.9.13
-dj-database-url==2.3.0
+dj-database-url==3.1.2
 
 # Variables d'environnement
 python-decouple==3.8
 
 # Serveur WSGI pour la production (Render)
-gunicorn==23.0.0
+gunicorn==26.2.0
 
 # Requêtes HTTP (appels api-sports.io)
 requests==2.34.2
@@ -18,23 +18,23 @@ requests==2.34.2
 google-genai==2.33.0
 
 # Gestion des assets statiques
-whitenoise==6.8.2
+whitenoise==6.12.0
 
 # Rate limiting (login, password reset, league join, predictions)
 django-ratelimit==4.1.0
 
 # Formulaires améliorés
-django-crispy-forms==2.3
-crispy-bootstrap5==2024.10
+django-crispy-forms==2.7
+crispy-bootstrap5==2026.9
 
 # Traitement des images (requis pour ImageField)
 Pillow==13.0.0
 
 # Timezone
-pytz==2024.2
+pytz==2026.5
 
 # Transactional email (Brevo / SendinBlue)
-django-anymail[brevo]==12.0
+django-anymail[brevo]==15.2
 
 # Analytics (PostHog EU)
 posthog==7.75.10
