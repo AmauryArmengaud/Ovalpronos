@@ -181,7 +181,7 @@ All Django apps live under `apps/`. URL routing (all paths in English):
 ### Key Models
 
 - **`accounts.CustomUser`** — extends AbstractUser; adds `display_name`, `avatar`, `favorite_team` (FK to Team)
-- **`accounts.Invitation`** — single-use sign-up link for 2023 players (`token`, `email`, `pseudo`, `cohort`, `used_at`, `user`); `/accounts/register/?invite=<token>` pre-fills email, username and display name
+- **`accounts.Invitation`** — single-use sign-up link for 2023 players (`token`, `email`, `pseudo`, `first_name`, `last_name`, `cohort`, `used_at`, `user`); `/accounts/register/?invite=<token>` pre-fills email, username, first/last name and display name
 - **`matches.Competition`** — has `scoring_system` (`COTES` or `FIXED`), `good_gap_pts` (gap threshold for ×2 tier), `end_date` (used by `deactivate_ended_competitions` command to auto-set `is_active=False`)
 - **`matches.Team`** — has `slug` field; logos are local PNG files at `static/img/teams/<slug>.png`
 - **`matches.Match`** — has `cote_home/cote_draw/cote_away` (integers = bookmaker odds × 10, sourced via Gemini); computed properties `is_locked`, `has_odds`, `result`, `closes_soon`, `time_until_kickoff`

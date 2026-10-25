@@ -194,6 +194,8 @@ class RegisterView(CreateView):
             initial.update(
                 email=invitation.email,
                 display_name=invitation.pseudo,
+                first_name=invitation.first_name,
+                last_name=invitation.last_name,
                 # usernames reject spaces, unlike the old app's pseudos
                 username=re.sub(r'[^\w.@+-]', '', invitation.pseudo),
             )

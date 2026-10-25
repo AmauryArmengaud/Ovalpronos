@@ -74,6 +74,8 @@ class Invitation(models.Model):
     token = models.CharField(max_length=32, unique=True, default=_new_invitation_token, editable=False)
     email = models.EmailField(unique=True)
     pseudo = models.CharField(max_length=50, blank=True)
+    first_name = models.CharField(max_length=30, blank=True)
+    last_name = models.CharField(max_length=150, blank=True)
     cohort = models.CharField(max_length=20, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     used_at = models.DateTimeField(null=True, blank=True)

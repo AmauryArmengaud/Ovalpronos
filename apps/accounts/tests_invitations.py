@@ -28,7 +28,7 @@ class RegisterInvitationPrefillTest(TestCase):
 
     def setUp(self):
         self.invitation = Invitation.objects.create(
-            email='pepito@test.local', pseudo='Fabien dans la mêlée', cohort='CDM_2023'
+            email='pepito@test.local', pseudo='Fabien dans la mêlée', first_name='Fabien', last_name='Dupont', cohort='CDM_2023'
         )
 
     def test_invite_prefills_email_and_pseudo(self):
@@ -37,6 +37,8 @@ class RegisterInvitationPrefillTest(TestCase):
         self.assertEqual(form.initial['email'], 'pepito@test.local')
         self.assertEqual(form.initial['display_name'], 'Fabien dans la mêlée')
         self.assertEqual(form.initial['username'], 'Fabiendanslamêlée')
+        self.assertEqual(form.initial['first_name'], 'Fabien')
+        self.assertEqual(form.initial['last_name'], 'Dupont')
         self.assertContains(response, self.invitation.token)
 
     def test_unknown_token_shows_empty_form(self):
@@ -66,9 +68,9 @@ class ImportInvitationsCommandTest(TestCase):
         self.output = self.tmp / 'tokens.csv'
         with open(self.contacts, 'w', newline='', encoding='utf-8') as f:
             writer = csv.writer(f)
-            writer.writerow(['EMAIL', 'PSEUDO', 'COHORTE', 'TYPE'])
-            writer.writerow(['Tom@test.local', 'Tom', '6N_2023', 'PERSO'])
-            writer.writerow(['already@test.local', 'Old', 'CDM_2023', 'PERSO'])
+            writer.writerow(['EMAIL', 'PSEUDO', 'PRENOM', 'NOM', 'COHORTE', 'TYPE'])
+            writer.writerow(['Tom@test.local', 'Tom', 'Thomas', 'Montaudran', '6N_2023', 'PERSO'])
+            writer.writerow(['already@test.local', 'Old', 'Jean', 'Old', 'CDM_2023', 'PERSO'])
         CustomUser.objects.create_user(username='already', email='already@test.local', password='x')
 
     def _run(self):
@@ -81,6 +83,7 @@ class ImportInvitationsCommandTest(TestCase):
         invitation = Invitation.objects.get()
         self.assertEqual(invitation.email, 'tom@test.local')
         self.assertEqual(invitation.cohort, '6N_2023')
+        self.assertEqual((invitation.first_name, invitation.last_name), ('Thomas', 'Montaudran'))
         self.assertEqual(rows, [{'EMAIL': 'tom@test.local', 'TOKEN': invitation.token}])
 
     def test_rerun_keeps_tokens(self):

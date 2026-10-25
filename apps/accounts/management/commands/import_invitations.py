@@ -2,7 +2,7 @@
 Commande Django : python manage.py import_invitations
 =====================================================
 Crée une invitation de réinscription préremplie par ancien joueur, à partir
-de l'export de contacts de la campagne (colonnes EMAIL, PSEUDO, COHORTE).
+de l'export de contacts de la campagne (colonnes EMAIL, PSEUDO, PRENOM, NOM, COHORTE).
 
 Écrit un CSV EMAIL,TOKEN à réimporter dans Brevo (attribut TOKEN). Le lien
 envoyé est alors : <site>/accounts/register/?invite={{ contact.TOKEN }}
@@ -25,7 +25,7 @@ class Command(BaseCommand):
     help = "Crée les invitations de réinscription et exporte les tokens pour Brevo"
 
     def add_arguments(self, parser):
-        parser.add_argument('contacts', help="CSV avec les colonnes EMAIL, PSEUDO, COHORTE")
+        parser.add_argument('contacts', help="CSV avec les colonnes EMAIL, PSEUDO, PRENOM, NOM, COHORTE")
         parser.add_argument('--output', required=True, help="CSV EMAIL,TOKEN à importer dans Brevo")
 
     def handle(self, *args, **options):
@@ -43,6 +43,8 @@ class Command(BaseCommand):
                     email=email,
                     defaults={
                         'pseudo': row.get('PSEUDO', '').strip()[:50],
+                        'first_name': row.get('PRENOM', '').strip()[:30],
+                        'last_name': row.get('NOM', '').strip()[:150],
                         'cohort': row.get('COHORTE', '').strip()[:20],
                     },
                 )

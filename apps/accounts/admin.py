@@ -35,7 +35,7 @@ class CustomUserAdmin(UserAdmin):
 
 @admin.register(Invitation)
 class InvitationAdmin(admin.ModelAdmin):
-    list_display = ('email', 'pseudo', 'cohort', 'used_at', 'user', 'created_at')
+    list_display = ('email', 'pseudo', 'first_name', 'last_name', 'cohort', 'used_at', 'user', 'created_at')
     list_filter = ('cohort', ('used_at', admin.EmptyFieldListFilter))
-    search_fields = ('email', 'pseudo')
+    search_fields = ('email', 'pseudo', 'first_name', 'last_name')
     readonly_fields = ('token', 'created_at', 'used_at', 'user')
