@@ -21,6 +21,14 @@ SITE_URL = config('SITE_URL', default='http://localhost:8000')
 # so that request.scheme returns 'https' in production for correct OG image URLs.
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
+# HTTPS-only cookies and HSTS in prod; dev runs on plain http://localhost
+SESSION_COOKIE_SECURE = not DEBUG
+CSRF_COOKIE_SECURE = not DEBUG
+# 1 day while validating, then raise; no includeSubDomains until every subdomain has TLS
+SECURE_HSTS_SECONDS = 0 if DEBUG else 86400
+# SECURE_SSL_REDIRECT left off: the http→https redirect belongs to nginx (certbot), and
+# enabling it here without X-Forwarded-Proto set by nginx would cause a redirect loop
+
 
 # ─── Applications installées ─────────────────────────────────────────────────
 INSTALLED_APPS = [
@@ -36,6 +44,7 @@ INSTALLED_APPS = [
     'anymail',
     'crispy_forms',
     'crispy_bootstrap5',
+    'django_ratelimit',
 
     # Nos apps métier (dans apps/)
     'apps.accounts',
@@ -55,6 +64,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'django_ratelimit.middleware.RatelimitMiddleware',
 ]
 
 ROOT_URLCONF = 'ovalpronos.urls'
@@ -126,15 +136,37 @@ LOCALE_PATHS = [BASE_DIR / 'locale']
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [BASE_DIR / 'static']
 STATIC_ROOT = BASE_DIR / 'staticfiles'
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
+# STATICFILES_STORAGE was removed in Django 5.1 and is silently ignored; STORAGES replaces it.
+# No Manifest variant: templates build logo paths from team.slug and a missing PNG would raise
+STORAGES = {
+    'default': {'BACKEND': 'django.core.files.storage.FileSystemStorage'},
+    'staticfiles': {'BACKEND': 'whitenoise.storage.CompressedStaticFilesStorage'},
+}
 # Cache-busting query string for locally-hosted CSS/JS. Increment after any
 # deploy that modifies static assets until ManifestStaticFilesStorage is set up.
-STATIC_VERSION = '3'
+STATIC_VERSION = '4'
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+# ─── Cache & rate limiting ───────────────────────────────────────────────────
+# DatabaseCache is shared by all Gunicorn workers (LocMemCache is per process,
+# so limits would not hold). Table created by accounts migration 0004.
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.db.DatabaseCache',
+        'LOCATION': 'django_cache',
+    }
+}
+RATELIMIT_VIEW = 'apps.accounts.views.ratelimited'
+# A cache failure must not lock every player out of login
+RATELIMIT_FAIL_OPEN = True
+# DatabaseCache increments are not atomic: concurrent requests may slip a few extra
+# attempts past a limit. Accepted for this traffic instead of running Redis on the VPS
+SILENCED_SYSTEM_CHECKS = ['django_ratelimit.E003', 'django_ratelimit.W001']
 
 
 # ─── Formulaires ─────────────────────────────────────────────────────────────

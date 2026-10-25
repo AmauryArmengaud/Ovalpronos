@@ -135,8 +135,9 @@
   function focusInput(input, allowScroll) {
     input.focus({ preventScroll: !allowScroll });
     if (allowScroll) {
-      // scroll-margin-bottom on the input ensures Zone C stays above the keyboard
-      input.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      var card = input.closest('[id^="match-card-"]');
+      var body = card && card.querySelector('.match-card-body');
+      (body || card || input).scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }
   }
 
@@ -211,6 +212,21 @@
     var input = e.target;
     if (!input.matches('.match-score-input')) return;
     document.body.classList.add('score-input-active');
+
+    // Chrome Android (interactive-widget=resizes-content): the layout viewport shrinks
+    // when the keyboard opens. Scroll the card back into view on each resize frame so
+    // Zone C stays visible above the keyboard. Cleaned up on blur.
+    if (window.visualViewport) {
+      var card = input.closest('[id^="match-card-"]');
+      function trackViewport() {
+        if (card) card.scrollIntoView({ behavior: 'instant', block: 'nearest' });
+      }
+      window.visualViewport.addEventListener('resize', trackViewport);
+      input.addEventListener('blur', function() {
+        window.visualViewport.removeEventListener('resize', trackViewport);
+      }, { once: true });
+    }
+
     if (!input.value) return;
     setTimeout(function() { input.setSelectionRange(0, input.value.length); }, 0);
   });

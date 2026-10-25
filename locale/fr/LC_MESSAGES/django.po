@@ -2586,3 +2586,11 @@ msgstr ""
 #~ "Si le match se termine sur un score nul, seul un pronostic de nul (écart "
 #~ "de 0) est valide pour marquer des points. Pronostiquer n'importe quel "
 #~ "vainqueur compte comme raté."
+
+#: templates/429.html:10
+msgid "Offside! Too many attempts in a row."
+msgstr "Hors-jeu ! Trop de tentatives d'affilée."
+
+#: templates/429.html:11
+msgid "Wait a minute, then try again."
+msgstr "Patiente une minute, puis réessaie."

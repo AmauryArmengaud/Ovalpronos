@@ -209,9 +209,9 @@ Scoring logic: `apps/predictions/services.py::calculate_points()`. Orchestration
 
 ### Data Flow
 
-**Match sync (scores & schedule):** VPS cron (daily 07:00 UTC) → `python manage.py sync_matches` → `sync_competition_matches(code)` → upserts matches → on FINISHED: `_calculate_points_for_match()` → `refresh_user_scores_for_match()`.
+**Match sync (schedule only):** VPS cron (daily 07:00 UTC) → `python manage.py sync_matches` → `sync_competition_matches(code)` → upserts matches (teams, kickoff, round, venue, SCHEDULED/POSTPONED/CANCELLED). It never writes scores or IN_PLAY/FINISHED on an existing match, because RapidAPI scores are sometimes wrong. Exception: a brand-new match (no predictions yet) is imported with the API result. On CANCELLED: `_calculate_points_for_match()`.
 
-**Live sync:** VPS cron (every 10min, 24/7) → `python manage.py sync_if_live` → exits silently if no match in play, otherwise runs `sync_competition_matches()` for all competitions.
+**Live sync (scores):** VPS cron (every 10min, 24/7) → `scripts/sync_live_scores.py` → exits if `/api/has-live-matches/` is false → Gemini with Google Search grounding → `POST /api/update-scores/` → on FINISHED: `_calculate_points_for_match()` → `refresh_user_scores_for_match()`. Only matches IN_PLAY or kicked off within the last 3h are sent to Gemini; a match it misses must be scored in the admin (edit score + status, then "Recalculer les points"). `sync_if_live` is not scheduled.
 
 **Odds update (weekly):** VPS cron (Tuesday 10:00 UTC) → `.github/scripts/update_odds.py` → Gemini 3.6 Flash with Google Search grounding → `POST /api/update-odds/` → `POST /api/notify/missing-odds/`.
 
@@ -307,8 +307,8 @@ Crontab de l'utilisateur `amaury` sur le VPS Hetzner. Logs dans `/home/amaury/lo
 | Schedule | Commande | Rôle |
 |---|---|---|
 | `0 7 * * *` | `python manage.py sync_matches` | Sync quotidien complet |
-| `*/10 * * * *` | `python manage.py sync_if_live` | Sync live — exit silencieux si pas de match |
-| `0 10 * * 2` | `python .github/scripts/update_odds.py` | Mise à jour cotes Gemini (mardi 10h00 UTC) |
+| `*/10 * * * *` | `python scripts/sync_live_scores.py` | Scores live et finaux via Gemini, exit silencieux si pas de match |
+| `0 10 * * 2` | `python scripts/update_odds.py` | Mise à jour cotes Gemini (mardi 10h00 UTC) |
 | `0 10 * * *` | `python manage.py send_deadline_reminders` | Rappels deadline quotidiens (10h00 UTC) |
 
 Logrotate : `/etc/logrotate.d/ovalpronos` — rotation hebdomadaire, 12 semaines, compression.
