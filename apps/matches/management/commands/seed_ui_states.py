@@ -24,9 +24,7 @@ sync_all_competitions() behaviour with this competition:
     _get_fixtures() catches the RequestException, logs it, and returns None.
     sync_competition_matches() then returns early with api_error=True — no Python
     exception raised, no data corruption.
-    The live-sync loop also runs for matches with past datetimes (matches -5, -6),
-    but each _get_match(-N) call returns None and is skipped via 'continue'.
-    Net effect: a few logged API errors, no prod data affected.
+    Net effect: a logged API error, no prod data affected.
 """
 
 from datetime import timedelta
