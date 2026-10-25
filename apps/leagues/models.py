@@ -10,6 +10,32 @@ def _generate_invite_code():
     return ''.join(random.choices(string.ascii_uppercase + string.digits, k=5))
 
 
+def hand_over_or_delete(collector, field, sub_objs, using):
+    """on_delete for League.creator: a league outlives its creator.
+
+    It passes to its oldest remaining member (membership rows are created in
+    join order, so the lowest pk joined first) and is only deleted when the
+    creator was its last member.
+    """
+    membership = League.members.through
+    alone = []
+    for league in sub_objs:
+        heir_id = (
+            membership.objects.using(using)
+            .filter(league_id=league.pk)
+            .exclude(customuser_id=league.creator_id)
+            .order_by('pk')
+            .values_list('customuser_id', flat=True)
+            .first()
+        )
+        if heir_id is None:
+            alone.append(league)
+        else:
+            collector.add_field_update(field, heir_id, [league])
+    if alone:
+        models.CASCADE(collector, field, alone, using)
+
+
 class League(models.Model):
     name = models.CharField(max_length=100, verbose_name=_("Name"))
     invite_code = models.CharField(
@@ -20,7 +46,7 @@ class League(models.Model):
     )
     creator = models.ForeignKey(
         settings.AUTH_USER_MODEL,
-        on_delete=models.CASCADE,
+        on_delete=hand_over_or_delete,
         related_name='created_leagues',
         verbose_name=_("Creator"),
     )

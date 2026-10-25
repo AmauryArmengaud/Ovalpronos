@@ -2594,3 +2594,51 @@ msgstr "Hors-jeu ! Trop de tentatives d'affilée."
 #: templates/429.html:11
 msgid "Wait a minute, then try again."
 msgstr "Patiente une minute, puis réessaie."
+
+#: templates/accounts/delete.html:4 templates/accounts/profile.html
+msgid "Delete my account"
+msgstr "Supprimer mon compte"
+
+#: templates/accounts/delete.html:11
+msgid "This is permanent and cannot be undone."
+msgstr "C'est définitif et irréversible."
+
+#: templates/accounts/delete.html:13
+msgid "What will be deleted:"
+msgstr "Ce qui sera supprimé :"
+
+#: templates/accounts/delete.html:15
+msgid "your account and profile (name, email, picture)"
+msgstr "ton compte et ton profil (nom, email, photo)"
+
+#: templates/accounts/delete.html:16
+msgid "all your predictions and points"
+msgstr "tous tes pronostics et tes points"
+
+#: templates/accounts/delete.html:17
+msgid "your place in rankings and leagues"
+msgstr "ta place dans les classements et les ligues"
+
+#: templates/accounts/delete.html:20
+msgid ""
+"Leagues you created are handed over to their oldest member, or deleted if "
+"you are alone in them."
+msgstr ""
+"Les ligues que tu as créées passent à leur membre le plus ancien, ou sont "
+"supprimées si tu y es seul."
+
+#: templates/accounts/delete.html:27
+msgid "Confirm with your password"
+msgstr "Confirme avec ton mot de passe"
+
+#: templates/accounts/delete.html:44
+msgid "Delete my account permanently"
+msgstr "Supprimer définitivement mon compte"
+
+#: apps/accounts/forms.py
+msgid "Incorrect password."
+msgstr "Mot de passe incorrect."
+
+#: apps/accounts/views.py
+msgid "Your account has been deleted. See you on the pitch!"
+msgstr "Ton compte a été supprimé. À bientôt sur le terrain !"

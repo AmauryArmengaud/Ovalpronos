@@ -56,3 +56,17 @@ class RegistrationForm(UserCreationForm):
     class Meta:
         model = CustomUser
         fields = ('username', 'email', 'first_name', 'last_name', 'display_name', 'password1', 'password2')
+
+
+class AccountDeleteForm(forms.Form):
+    password = forms.CharField(label=_("Password"), widget=forms.PasswordInput)
+
+    def __init__(self, user, *args, **kwargs):
+        self.user = user
+        super().__init__(*args, **kwargs)
+
+    def clean_password(self):
+        password = self.cleaned_data['password']
+        if not self.user.check_password(password):
+            raise forms.ValidationError(_("Incorrect password."))
+        return password
