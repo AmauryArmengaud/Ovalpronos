@@ -1,4 +1,5 @@
 import hmac
+import json
 
 from django.shortcuts import redirect
 from django.urls import reverse
@@ -9,6 +10,7 @@ from django.utils import timezone
 from django.views.decorators.http import require_POST, require_GET
 from django.http import Http404, JsonResponse
 from django.conf import settings
+from django.contrib.auth import get_user_model
 
 
 class HomeView(TemplateView):
@@ -26,6 +28,9 @@ class HomeView(TemplateView):
         ctx['competitions'] = Competition.objects.filter(is_active=True).order_by('name')
         ctx['example'] = get_example_points()
         return ctx
+
+
+SOCIAL_PROOF_MIN_PLAYERS = 20
 
 
 class CompetitionLandingView(TemplateView):
@@ -50,14 +55,46 @@ class CompetitionLandingView(TemplateView):
         ctx = super().get_context_data(**kwargs)
         competition = self.competition
         ctx['competition'] = competition
-        ctx['upcoming'] = (
+        now = timezone.now()
+        upcoming = list(
             competition.matches
-            .filter(status=Match.STATUS_SCHEDULED, datetime__gt=timezone.now(), is_hidden=False)
+            .filter(status=Match.STATUS_SCHEDULED, datetime__gt=now, is_hidden=False)
             .select_related('home_team', 'away_team')
             .order_by('datetime')[:6]
         )
+        ctx['upcoming'] = upcoming
+        if upcoming:
+            ctx['kickoff_days'] = (timezone.localdate(upcoming[0].datetime) - timezone.localdate(now)).days
+            ctx['competition_started'] = competition.matches.filter(datetime__lte=now, is_hidden=False).exists()
+            ctx['events_jsonld'] = _sports_events_jsonld(competition, upcoming)
+        players = get_user_model().objects.filter(leagues__competitions=competition).distinct().count()
+        # Below the threshold a count reads as an empty app: show nothing rather than a weak number
+        if players >= SOCIAL_PROOF_MIN_PLAYERS:
+            ctx['player_count'] = players
+            ctx['league_count'] = competition.leagues.count()
+        ctx['create_league_url'] = f"{reverse('leagues:create')}?competition={competition.code}"
         ctx['example'] = get_example_points()
         return ctx
+
+
+def _sports_events_jsonld(competition, matches):
+    events = []
+    for match in matches:
+        event = {
+            '@type': 'SportsEvent',
+            'name': f"{match.home_team.name} - {match.away_team.name}",
+            'sport': 'Rugby union',
+            'startDate': match.datetime.isoformat(),
+            'eventStatus': 'https://schema.org/EventScheduled',
+            'superEvent': {'@type': 'SportsEvent', 'name': competition.name},
+            'homeTeam': {'@type': 'SportsTeam', 'name': match.home_team.name},
+            'awayTeam': {'@type': 'SportsTeam', 'name': match.away_team.name},
+        }
+        if match.venue:
+            event['location'] = {'@type': 'Place', 'name': match.venue}
+        events.append(event)
+    # '<' escaped so a team or venue name can never close the script element
+    return json.dumps({'@context': 'https://schema.org', '@graph': events}, ensure_ascii=False).replace('<', '\\u003c')
 
 
 class RulesView(TemplateView):

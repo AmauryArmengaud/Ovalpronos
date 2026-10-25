@@ -127,3 +127,21 @@ class RegisterStoresAttributionTest(TestCase):
         self.client.post(REGISTER_URL, {**VALID_FORM, 'invite': invitation.token})
         user = CustomUser.objects.get(username='Pepito')
         self.assertEqual((user.signup_source, user.signup_campaign), ('invitation', 'cdm_2023'))
+
+
+class LightRegisterFormTest(TestCase):
+
+    @patch('apps.accounts.views._verify_turnstile', return_value=True)
+    def test_cold_visitor_signs_up_with_four_fields(self, _mock):
+        response = self.client.get(REGISTER_URL)
+        self.assertNotContains(response, 'name="first_name"')
+        self.assertNotContains(response, 'name="display_name"')
+        data = {k: VALID_FORM[k] for k in ('username', 'email', 'password1', 'password2', 'cf-turnstile-response')}
+        self.client.post(REGISTER_URL, data)
+        self.assertTrue(CustomUser.objects.filter(username='Pepito').exists())
+
+    def test_invitation_still_shows_prefilled_names(self):
+        invitation = Invitation.objects.create(email='p@test.local', pseudo='Fabien', first_name='Fabien', cohort='CDM_2023')
+        response = self.client.get(REGISTER_URL, {'invite': invitation.token})
+        self.assertContains(response, 'name="first_name"')
+        self.assertContains(response, 'value="Fabien"')

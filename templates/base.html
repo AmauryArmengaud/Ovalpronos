@@ -147,7 +147,7 @@
 {% endif %}
 
 <!-- Main content -->
-{% include "partials/consent_banner.html" %}
+{% block consent_banner %}{% include "partials/consent_banner.html" %}{% endblock %}
 
 <main id="main-content" class="{% block main_class %}container my-4{% endblock %}">
   {% block content %}{% endblock %}

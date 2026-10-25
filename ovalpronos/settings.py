@@ -145,7 +145,7 @@ STORAGES = {
 }
 # Cache-busting query string for locally-hosted CSS/JS. Increment after any
 # deploy that modifies static assets until ManifestStaticFilesStorage is set up.
-STATIC_VERSION = '6'
+STATIC_VERSION = '7'
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'

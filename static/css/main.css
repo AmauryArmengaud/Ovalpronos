@@ -503,10 +503,79 @@ main {
   margin: 0 0.25rem;
   padding: 0 0.5rem;
   border-radius: var(--radius-pill);
-  background: var(--color-accent);
+  /* primary, not accent: cream on accent is 3.75:1, below AA at this size */
+  background: var(--color-primary);
   color: var(--color-text-on-primary);
   font-size: var(--text-xs);
   line-height: 1.6;
+}
+
+/* Landing hero: compact on phones so name, promise, button and deadline fit 375×667 */
+.landing-hero {
+  padding: 1.75rem 0 2rem;
+}
+@media (min-width: 992px) {
+  .landing-hero { padding: 4rem 0 5rem; }
+}
+.landing-hero__title {
+  font-size: clamp(2.25rem, 10vw, 5rem);
+  margin-bottom: 0.75rem;
+}
+.landing-hero__promise {
+  font-size: 1.15rem;
+  line-height: 1.45;
+  color: rgba(252, 255, 249, 0.85);
+  margin-bottom: 1.25rem;
+}
+/* 20.4px bold counts as large text for WCAG, where cream on accent (3.75:1) passes AA */
+.landing-page .home-hero__cta-primary,
+.landing-sticky-cta .btn {
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+.landing-urgency,
+.landing-proof {
+  margin: 1rem 0 0;
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: rgba(252, 255, 249, 0.85);
+}
+.landing-proof { margin-top: 0.25rem; }
+
+.landing-faq details {
+  border-bottom: 1px solid var(--color-surface-raised);
+  padding: 0.25rem 0;
+}
+.landing-faq summary {
+  cursor: pointer;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  font-weight: 700;
+  color: var(--color-primary);
+}
+.landing-faq summary:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+.landing-faq p {
+  color: var(--color-text-body);
+  line-height: 1.6;
+}
+
+.landing-sticky-cta {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1030;
+  padding: 0.75rem 1rem calc(0.75rem + env(safe-area-inset-bottom));
+  background: var(--color-primary);
+}
+/* keeps the footer readable above the sticky button */
+@media (max-width: 991.98px) {
+  .landing-page { padding-bottom: 5rem; }
 }
 
 /* Invalid state centering */

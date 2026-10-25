@@ -49,8 +49,8 @@ locale/
 | Field | Type | Notes |
 |---|---|---|
 | `email` | EmailField | unique, login identifier |
-| `first_name` | CharField | required |
-| `last_name` | CharField | required |
+| `first_name` | CharField | optional at sign-up; asked (pre-filled) only on a 2023 invitation |
+| `last_name` | CharField | optional at sign-up; asked (pre-filled) only on a 2023 invitation |
 | `display_name` | CharField(50) | shown in rankings; falls back to username |
 | `favorite_team` | FK → Team | null/blank, set after teams are imported |
 | `avatar` | ImageField | optional, upload_to='avatars/' |

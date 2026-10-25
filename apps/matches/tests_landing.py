@@ -58,3 +58,57 @@ class CompetitionLandingViewTest(TestCase):
     def test_login_link_returns_to_competition(self):
         response = self.client.get(self.url)
         self.assertContains(response, 'href="/accounts/login/?next=%2Fcompetitions%2Fnations%2F')
+
+
+class CompetitionLandingConversionTest(TestCase):
+
+    def setUp(self):
+        self.comp = make_competition(name='Nations Championship', code='NATIONS', is_active=True)
+        self.url = reverse('matches:competition_landing', kwargs={'code': 'NATIONS'})
+
+    def _upcoming(self, days):
+        return make_match(self.comp, make_team(), make_team(), status='SCHEDULED',
+                          datetime=timezone.now() + timedelta(days=days, hours=1), home_score=None, away_score=None)
+
+    def test_deadline_counts_days_to_first_match(self):
+        self._upcoming(12)
+        response = self.client.get(self.url)
+        self.assertEqual(response.context['kickoff_days'], 12)
+        self.assertFalse(response.context['competition_started'])
+        self.assertContains(response, 'landing-urgency')
+
+    def test_no_deadline_without_upcoming_match(self):
+        self.assertNotContains(self.client.get(self.url), 'landing-urgency')
+
+    def test_social_proof_hidden_below_threshold(self):
+        from apps.leagues.models import League
+        from .views import SOCIAL_PROOF_MIN_PLAYERS
+        User = get_user_model()
+        league = League.objects.create(name='Potes', creator=User.objects.create_user('c', 'c@t.local', 'x'))
+        league.competitions.add(self.comp)
+        league.members.add(*[User.objects.create_user(f'p{i}', f'p{i}@t.local', 'x')
+                             for i in range(SOCIAL_PROOF_MIN_PLAYERS - 1)])
+        self.assertNotContains(self.client.get(self.url), 'landing-proof')
+        league.members.add(league.creator)
+        response = self.client.get(self.url)
+        self.assertEqual(response.context['player_count'], SOCIAL_PROOF_MIN_PLAYERS)
+        self.assertContains(response, 'landing-proof')
+
+    def test_create_league_cta_returns_to_prefilled_league_form(self):
+        self.assertContains(
+            self.client.get(self.url),
+            'href="/accounts/register/?next=%2Fleagues%2Fcreate%2F%3Fcompetition%3DNATIONS&amp;landing=',
+        )
+
+    def test_jsonld_lists_upcoming_matches_and_escapes_markup(self):
+        match = self._upcoming(3)
+        match.venue = '</script><b>'
+        match.save()
+        response = self.client.get(self.url)
+        self.assertContains(response, '"@type": "SportsEvent"')
+        self.assertNotContains(response, '</script><b>')
+
+    def test_consent_banner_below_hero(self):
+        html = self.client.get(self.url).content.decode()
+        self.assertEqual(html.count('id="consent-banner"'), 1)
+        self.assertLess(html.index('landing-hero'), html.index('id="consent-banner"'))

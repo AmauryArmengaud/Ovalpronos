@@ -2711,10 +2711,6 @@ msgid "Free. A score on every match, points based on the odds: the bold predicti
 msgstr "Gratuit. Un score sur chaque match, des points selon les cotes : le prono culotté paie."
 
 #: templates/matches/competition_landing.html
-msgid "A score on every match, points based on the odds."
-msgstr "Un score sur chaque match, des points selon les cotes."
-
-#: templates/matches/competition_landing.html
 msgid "Upcoming matches"
 msgstr "Prochains matchs"
 
@@ -2741,3 +2737,108 @@ msgstr "Contenu d'inscription"
 #: apps/accounts/models.py
 msgid "Signup landing page"
 msgstr "Page d'arrivée"
+
+#: templates/matches/competition_landing.html
+msgid "Free predictions with your friends. Back the underdog: it earns more points."
+msgstr "Des pronos gratuits entre potes. Ose l'outsider : il rapporte plus de points."
+
+#: templates/matches/competition_landing.html
+msgid "Make my predictions"
+msgstr "Faire mes pronos"
+
+#: templates/matches/competition_landing.html
+msgid "Already signed up? Log in"
+msgstr "Déjà inscrit ? Se connecter"
+
+#: templates/matches/competition_landing.html
+msgid "Next match"
+msgstr "Prochain match"
+
+#: templates/matches/competition_landing.html
+msgid "First match"
+msgstr "Premier match"
+
+#: templates/matches/competition_landing.html
+msgid "today"
+msgstr "aujourd'hui"
+
+#: templates/matches/competition_landing.html
+msgid "tomorrow"
+msgstr "demain"
+
+#: templates/matches/competition_landing.html
+msgid "predictions close at kick-off"
+msgstr "pronos fermés au coup d'envoi"
+
+#: templates/matches/competition_landing.html
+msgid "Create your league and invite your WhatsApp group"
+msgstr "Crée ta ligue et invite ton groupe WhatsApp"
+
+#: templates/matches/competition_landing.html
+msgid "A leaderboard just for your group. Share the link in the chat, your friends join from it."
+msgstr "Un classement rien que pour vous. Tu partages le lien dans le groupe, tes potes rejoignent en cliquant dessus."
+
+#: templates/matches/competition_landing.html
+msgid "Create my league"
+msgstr "Créer ma ligue"
+
+#: templates/matches/competition_landing.html
+msgid "Questions"
+msgstr "Questions fréquentes"
+
+#: templates/matches/competition_landing.html
+msgid "Is it really free?"
+msgstr "C'est vraiment gratuit ?"
+
+#: templates/matches/competition_landing.html
+msgid "Yes, entirely. No money at stake: the odds are only used to count points."
+msgstr "Oui, entièrement. Aucun argent en jeu : les cotes servent seulement à compter les points."
+
+#: templates/matches/competition_landing.html
+msgid "How much time does it take each week?"
+msgstr "Ça prend combien de temps par semaine ?"
+
+#: templates/matches/competition_landing.html
+msgid "A few minutes per round: one score per match, saved as you type. An email reminds you of the matches you have not predicted yet."
+msgstr "Quelques minutes par journée : un score par match, enregistré dès que tu le saisis. Un email te rappelle les matchs que tu n'as pas encore pronostiqués."
+
+#: templates/matches/competition_landing.html
+msgid "Do I need to know rugby?"
+msgstr "Faut-il s'y connaître en rugby ?"
+
+#: templates/matches/competition_landing.html
+msgid "No. Pick a winner and a score. The odds tell you who the favourite is; backing the underdog earns more, and a long shot can pay off."
+msgstr "Non. Choisis un vainqueur et un score. Les cotes te disent qui est favori ; miser sur l'outsider rapporte plus, et un coup de poker peut payer."
+
+#: templates/matches/competition_landing.html
+msgid "What happens to my data?"
+msgstr "Et mes données ?"
+
+#: templates/matches/competition_landing.html
+msgid "Your email is used for your account and match reminders. No advertising, nothing is sold. Usage statistics only start if you accept them, and you can delete your account at any time from your profile."
+msgstr "Ton email sert à ton compte et aux rappels de matchs. Pas de publicité, rien n'est vendu. La mesure d'audience ne démarre que si tu l'acceptes, et tu peux supprimer ton compte à tout moment depuis ton profil."
+
+#: templates/matches/competition_landing.html
+msgid "Privacy policy"
+msgstr "Politique de confidentialité"
+
+#: templates/matches/competition_landing.html
+#, python-format
+msgid "in %(days)s day"
+msgid_plural "in %(days)s days"
+msgstr[0] "dans %(days)s jour"
+msgstr[1] "dans %(days)s jours"
+
+#: templates/matches/competition_landing.html
+#, python-format
+msgid "%(players)s player already in"
+msgid_plural "%(players)s players already in"
+msgstr[0] "%(players)s joueur déjà inscrit"
+msgstr[1] "%(players)s joueurs déjà inscrits"
+
+#: templates/matches/competition_landing.html
+#, python-format
+msgid "%(leagues)s league"
+msgid_plural "%(leagues)s leagues"
+msgstr[0] "%(leagues)s ligue"
+msgstr[1] "%(leagues)s ligues"
