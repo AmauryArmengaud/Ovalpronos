@@ -17,7 +17,7 @@ apps/
   accounts/              # CustomUser, auth views, profile
   matches/               # Competition, Team, Match, sync service, admin views
   predictions/           # Prediction model, HTMX submission view
-  rankings/              # Ranking views (on-the-fly aggregation)
+  rankings/              # Ranking views (read the UserScore cache)
   leagues/               # League model, create/join/leave flow
 
 templates/
@@ -30,8 +30,9 @@ templates/
   partials/              # HTMX swap targets (match cards, etc.)
 
 static/
-  css/main.css           # CSS variables, global styles
-  js/
+  css/tokens.css         # Design tokens: every colour, shared by the app and the admin
+  css/main.css           # Global styles (references tokens.css)
+  css/admin.css          # Django admin overrides (references tokens.css)
   img/teams/             # <slug>.png — one file per team
 
 locale/
@@ -60,7 +61,7 @@ locale/
 
 | Field | Type | Notes |
 |---|---|---|
-| `external_id` | IntegerField | unique api-sports.io ID |
+| `external_id` | IntegerField | rugby-live-data (RapidAPI) ID, unique with `season` |
 | `name` | CharField | "Top 14" |
 | `code` | CharField | "TOP14" |
 | `season` | CharField | "2024-2025" |
@@ -76,20 +77,20 @@ One competition per code can be `is_active=True` at a time. Rankings filter on t
 
 | Field | Type | Notes |
 |---|---|---|
-| `external_id` | IntegerField | unique api-sports.io ID |
+| `external_id` | IntegerField | unique rugby-live-data (RapidAPI) ID |
 | `name` | CharField | "Stade Toulousain" |
 | `short_name` | CharField | "STA" |
 | `slug` | SlugField | "stade-toulousain" — key for local PNG |
 | `country` | CharField | used for national teams |
 | `logo` | ImageField | optional, upload_to='teams/'; for admin uploads |
 
-Logo resolution for templates: `static/img/teams/<slug>.png`. The static PNG is the rendering source of truth — the `logo` ImageField is for admin-uploaded overrides only (see `migrate_team_logos` command). No external logo URLs.
+Logo resolution: `Team.logo` (uploaded in the admin) when set, otherwise the static PNG `static/img/teams/<slug>.png` (`match_tags.team_logo_url()` in Python). `migrate_team_logos` seeds `Team.logo` from the PNGs. No external logo URLs.
 
 ### `matches.Match`
 
 | Field | Type | Notes |
 |---|---|---|
-| `external_id` | IntegerField | unique api-sports.io ID |
+| `external_id` | IntegerField | unique rugby-live-data (RapidAPI) ID |
 | `competition` | FK → Competition | |
 | `home_team` | FK → Team | |
 | `away_team` | FK → Team | |
@@ -99,9 +100,9 @@ Logo resolution for templates: `static/img/teams/<slug>.png`. The static PNG is 
 | `status` | CharField | SCHEDULED / IN_PLAY / FINISHED / POSTPONED / CANCELLED |
 | `home_score` | IntegerField | null until played |
 | `away_score` | IntegerField | null until played |
-| `cote_home` | IntegerField | null until entered in admin; Unibet odds × 10 |
-| `cote_draw` | IntegerField | null until entered in admin; Unibet odds × 10 |
-| `cote_away` | IntegerField | null until entered in admin; Unibet odds × 10 |
+| `cote_home` | IntegerField | null until set; bookmaker odds × 10 (Gemini, weekly; estimated by the model when no bookmaker odds are found; editable in admin) |
+| `cote_draw` | IntegerField | same |
+| `cote_away` | IntegerField | same |
 
 Computed properties (no DB storage):
 - `is_locked` → `now() >= datetime`
@@ -112,7 +113,7 @@ Computed properties (no DB storage):
 
 **Prediction blocking rule:** if `not match.has_odds`, the match card shows "Odds coming soon" and the form is hidden. The submission view also rejects POSTs when odds are missing.
 
-**CANCELLED handling:** all associated Predictions get `points_earned=0`, `result_type='CANCELLED'`. UserScore `count_cancelled` is incremented.
+**CANCELLED handling:** all associated Predictions get `points_earned=0`, `result_type='CANCELLED'`, then the UserScore cache is refreshed.
 
 ### `matches.LandingView`
 
@@ -150,7 +151,7 @@ Constraint: `unique_together = ('user', 'match')`.
 |---|---|---|
 | `name` | CharField | |
 | `invite_code` | CharField(5) | auto-generated alphanumeric, unique |
-| `creator` | FK → CustomUser | CASCADE — league is deleted if creator deletes account |
+| `creator` | FK → CustomUser | `hand_over_or_delete`: if the creator deletes their account, the league passes to its oldest remaining member; deleted only if the creator was the last member |
 | `members` | M2M → CustomUser | active members (creator is automatically added) |
 | `competitions` | M2M → Competition | required at creation; scopes league leaderboard and prediction display |
 | `created_at` | DateTimeField | auto |
@@ -191,6 +192,8 @@ Preconditions:
   match.has_odds == True
 
 Steps:
+  0. If not has_odds → return None (CANCELLED matches are handled upstream by
+     _calculate_points_for_match(), so a cancelled match without odds still gets 0)
   1. If CANCELLED → return (0, 'CANCELLED')
   2. If not FINISHED → return None
   3. real_gap = home_score - away_score
@@ -226,7 +229,7 @@ FIXED mode (when `competition.scoring_system == 'FIXED'`): same branching logic,
 
 ## 4. Sync Flow
 
-### Current sync flow
+### Schedule sync (rugby-live-data API)
 
 ```
 VPS cron (07:00 UTC daily)
@@ -240,11 +243,25 @@ sync_all_competitions() (apps/matches/services.py)
 sync_competition_matches(code)
   → GET rugby-live-data RapidAPI /fixtures/{comp_id}/{season}
   → for each game: update_or_create Match, Team (within transaction.atomic)
-  → if match just reached FINISHED or CANCELLED:
-      _calculate_points_for_match(match)
+  → writes the calendar only: teams, kickoff, round, venue, SCHEDULED/POSTPONED/CANCELLED.
+    Never writes scores or IN_PLAY/FINISHED on an existing match (API scores are
+    sometimes wrong); a brand-new match with no predictions is imported with the API result
+  → if a match becomes CANCELLED: _calculate_points_for_match(match)
+```
+
+### Score sync (Gemini)
+
+```
+VPS cron (*/10 * * * *, 24/7) → python scripts/sync_live_scores.py
+  → GET /api/has-live-matches/ → exits silently when false
+  → GET /api/live-matches/ (IN_PLAY, kicked off within the last 3h, or FINISHED
+    less than 5h after kickoff so a wrong final score can still be corrected)
+  → Gemini with Google Search grounding → POST /api/update-scores/
+  → on FINISHED: _calculate_points_for_match(match)
+  → a match Gemini misses is scored in the admin (score + status, then "Recalculer les points")
 
 _calculate_points_for_match(match)
-  → if CANCELLED: bulk-set all predictions to (0, 'CANCELLED'), return
+  → if CANCELLED: bulk-set all predictions to (0, 'CANCELLED'), refresh UserScore, return
   → if not has_odds: return early
   → Prediction.objects.filter(match=match)   # ALL predictions, including already-scored ones
   → for each prediction:
@@ -254,14 +271,9 @@ _calculate_points_for_match(match)
   → refresh_user_scores_for_match(match)
 ```
 
-Note: the queryset deliberately omits `points_earned__isnull=True`. Filtering it would cause score corrections (e.g. a match mis-detected as FINISHED by the live sync, then corrected by the next sync) to be silently ignored.
+Note: the queryset deliberately omits `points_earned__isnull=True`. Filtering it would cause score corrections (e.g. a final score corrected after a first FINISHED) to be silently ignored.
 
-Live sync (every 10 min, 24/7):
-```
-VPS cron → python manage.py sync_if_live
-  → exits silently if no match is IN_PLAY or started within last 2h
-  → otherwise calls sync_all_competitions()
-```
+`python manage.py sync_if_live` still exists (API sync only when a match is live) but is not scheduled.
 
 ---
 
@@ -345,12 +357,13 @@ The `next` parameter is handled natively by Django's `LoginView` — no custom l
 
 The admin uses Django's native admin with a custom theme that matches the main app's design system. No third-party admin package.
 
-- `templates/admin/base_site.html` — injects Bootstrap 5, Barlow, Tabler Icons, and `admin.css` (does **not** load `main.css`)
-- `static/css/admin.css` — standalone; duplicates CSS variables from `main.css` in its own `:root` block, then overrides Django admin selectors. **V4 debt:** variable duplication must be unified before white-label (extract to `tokens.css`); when changing a variable in `main.css`, update `admin.css` too.
+- `templates/admin/base_site.html` — injects Barlow, Tabler Icons, `tokens.css` and `admin.css` (does **not** load `main.css` or Bootstrap)
+- `static/css/tokens.css` — the single `:root` holding every colour, shared with the app; a tenant theme replaces it and reaches the admin too
+- `static/css/admin.css` — overrides Django admin selectors, only references variables from `tokens.css`
 - `templates/admin/index.html` — dashboard with 4 metric cards
 - `apps/matches/templatetags/admin_extras.py` — `dashboard_stats` inclusion tag powering the dashboard
 
-**Rule:** admin badge colors must use CSS variable names from `main.css` (e.g. `var(--color-badge-exact)`), not hardcoded hex.
+**Rule:** admin badge colors must use CSS variable names from `tokens.css` (e.g. `var(--color-badge-exact)`), not hardcoded hex.
 
 ### ModelAdmin capabilities
 
@@ -402,9 +415,10 @@ Non-standard ModelAdmin pages use `@staff_member_required` and live in `apps/mat
 Internet → Ionos DNS → Hetzner CX22 → Gunicorn → Django → PostgreSQL (local)
                                                          → WhiteNoise (static files)
 VPS cron (07:00 UTC)  → python manage.py sync_matches
-VPS cron (*/10 * * * *) → python manage.py sync_if_live
-VPS cron (Tue 10:00 UTC) → python .github/scripts/update_odds.py
+VPS cron (*/10 * * * *) → python scripts/sync_live_scores.py
+VPS cron (Tue 10:00 UTC) → python scripts/update_odds.py
 VPS cron (10:00 UTC daily) → python manage.py send_deadline_reminders
+VPS cron (02:30 UTC daily) → python manage.py sync_brevo_contacts
 GitHub Actions push → SSH → ~/deploy.sh (git pull, migrate, collectstatic, restart gunicorn)
 Email: Brevo transactional API (django-anymail)
 SSL: Let's Encrypt (certbot)
@@ -434,10 +448,11 @@ re-initialisation logic.
 **Why `sync_all_competitions()` iterates active DB competitions, not a settings list.**
 The DB is the single source of truth for which competitions are active. Adding a competition is done once via the admin (creating a Competition row and setting `is_active=True`) — no code deploy needed. Before this approach the list lived in `settings.RUGBY_COMPETITIONS`; that constant was removed (Sprint 10.5.3).
 
-**Why `UserScore` is V2, not V1.**
-On-the-fly aggregation from `Prediction` is fast enough at the current user count. Adding
-`UserScore` now would require cache invalidation logic with no measurable benefit. It will
-be introduced when ranking queries become slow (thousands of concurrent users/leagues).
+**Why rankings read a `UserScore` cache.**
+Introduced in Sprint 9: rankings read denormalized rows instead of aggregating every
+`Prediction` on each page view. The cache is invalidated in one place,
+`refresh_user_scores_for_match()`, called after each scoring. Only `rank` is left unwritten:
+the order is computed in Python in `_build_leaderboard()`.
 
 **Why `capture()` swallows all exceptions.**
 Analytics must never cause a 500. The PostHog SDK makes network calls; any transient failure (DNS, timeout, package not yet installed during a deploy window) would otherwise crash views. The try/except in `capture()` ensures analytics is always best-effort.

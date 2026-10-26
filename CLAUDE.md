@@ -77,13 +77,15 @@ Strong success criteria let you loop independently. Weak criteria ("make it work
 
 Before any work on templates, CSS, or JS: read **`docs/REDESIGN.md`**. It documents the L'Ovale
 direction, all numerical decisions, technical constraints (HTMX contract, saved feedback, focus
-restoration, i18n, admin.css debt), step status, and the test checklist.
+restoration, i18n, design tokens), step status, and the test checklist.
+
+Coding conventions (i18n, colours, logos, admin routes, services): **`CONVENTIONS.md`**.
 
 ---
 
 ## Project Overview
 
-**Oval'Pronos** is a Django 5 rugby predictions web app. Users predict match scores for Top 14, Champions Cup, and 6 Nations, then compete in a global ranking or private leagues. Match data is synced from the rugby-live-data RapidAPI via VPS cron jobs.
+**Oval'Pronos** is a Django 6 rugby predictions web app. Users predict match scores for Top 14, Champions Cup, and 6 Nations, then compete in a global ranking or private leagues. The match schedule is synced from the rugby-live-data RapidAPI and scores come from Gemini, both via VPS cron jobs.
 
 **Tagline:** "Tu sais pas plaquer, viens pronostiquer"
 
@@ -104,10 +106,10 @@ python manage.py runserver
 python manage.py makemessages -l fr
 python manage.py compilemessages
 
-# Sync matches from api-sports.io (manual trigger)
+# Sync the match schedule from rugby-live-data / RapidAPI (manual trigger)
 python manage.py sync_matches                  # All competitions
 python manage.py sync_matches --comp TOP14     # Single competition
-python manage.py sync_if_live                  # Sync only if a match is in play (used by VPS cron)
+python manage.py sync_if_live                  # Sync only if a match is in play (not scheduled: live scores come from scripts/sync_live_scores.py)
 
 # Notification commands (also run via VPS cron)
 python manage.py send_deadline_reminders       # Email users with unpredicted matches in next 22-30h
@@ -121,7 +123,7 @@ python manage.py sync_brevo_contacts           # Relaunch campaign: push INSCRIT
 python manage.py report_campaign NATIONS [--since 2026-11-01]  # Landing funnel per source: views, sign-ups, conversion, activated, leagues; sign-ups that entered elsewhere listed apart. Same report in admin: Compétitions > "Campagne"
 
 # Run tests (mandatory before deploy)
-python manage.py test apps.predictions.tests apps.matches.tests
+python manage.py test apps
 
 # Collect static files (production)
 python manage.py collectstatic --no-input
@@ -149,18 +151,16 @@ GOOGLE_API_KEY=<google-ai-studio-key>
 TURNSTILE_SITE_KEY=<site-key>          # Use 1x00000000000000000000AA for local dev (always passes)
 TURNSTILE_SECRET_KEY=<secret-key>      # Use 1x0000000000000000000000000000000AA for local dev
 
-# Email (dev: set EMAIL_BACKEND to console in settings instead)
-EMAIL_HOST=smtp.ionos.fr
-EMAIL_PORT=587
-EMAIL_HOST_USER=noreply@ovalpronos.com
-EMAIL_HOST_PASSWORD=<ionos-password>
+# Email via Brevo (django-anymail). Leave both unset in dev: the console backend is the default
+EMAIL_BACKEND=anymail.backends.brevo.EmailBackend
+BREVO_API_KEY=<brevo-api-key>
 
 # Analytics — PostHog EU (leave unset in dev to avoid polluting prod dataset)
 POSTHOG_API_KEY=<phc_xxx>
 POSTHOG_ENABLED=True
 ```
 
-In development, use `EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'` — emails print to terminal.
+In development, leave `EMAIL_BACKEND` unset: the console backend is the default and emails print to the terminal.
 
 ## Architecture
 
@@ -176,7 +176,12 @@ All Django apps live under `apps/`. URL routing (all paths in English):
 | `/rules/` | `matches` | Scoring rules page |
 | `/competitions/<code>/` | `matches` | Visitor landing for one active competition (upcoming matches with winner points), for campaigns and social posts |
 | `/api/sync-scores/` | `matches` | Secured score sync endpoint (POST, Bearer token) |
-| `/api/upcoming-matches/` | `matches` | Returns upcoming SCHEDULED matches for next 14 days (GET, Bearer token) |
+| `/api/upcoming-matches/` | `matches` | Returns upcoming SCHEDULED/POSTPONED matches for the next 7 days (GET, Bearer token) |
+| `/api/has-live-matches/` | `matches` | Whether a match is in play or kicked off recently (GET, Bearer token), polled by `scripts/sync_live_scores.py` |
+| `/api/live-matches/` | `matches` | Matches to send to Gemini for live scores (GET, Bearer token) |
+| `/api/update-scores/` | `matches` | Writes Gemini scores and statuses, scores FINISHED matches (POST, Bearer token) |
+| `/api/notify/deadline-reminders/` | `matches` | Sends deadline reminder emails (POST, Bearer token) |
+| `/api/notify/results-summary/` | `matches` | Sends a round results summary (POST, Bearer token) |
 | `/api/update-odds/` | `matches` | Writes bookmaker odds to matches (POST, Bearer token) |
 | `/api/notify/missing-odds/` | `matches` | Emails superusers if upcoming matches have no odds (POST, Bearer token) |
 | `/admin/` | Django admin | Staff-only admin interface (see Admin Interface section) |
@@ -186,7 +191,7 @@ All Django apps live under `apps/`. URL routing (all paths in English):
 - **`accounts.CustomUser`** — extends AbstractUser; adds `display_name`, `avatar`, `favorite_team` (FK to Team), `signup_source` / `signup_medium` / `signup_campaign` / `signup_content` / `signup_landing_path` (attribution without cookies: every register/login link is built with `{% auth_url %}`, which carries the UTMs, the first page and a known external Referer in the URL; priority and normalization in `apps/accounts/signup_source.py`)
 - **`accounts.Invitation`** — single-use sign-up link for 2023 players (`token`, `email`, `pseudo`, `first_name`, `last_name`, `cohort`, `used_at`, `user`); `/accounts/register/?invite=<token>` pre-fills email, username, first/last name and display name
 - **`matches.Competition`** — has `scoring_system` (`COTES` or `FIXED`), `good_gap_pts` (gap threshold for ×2 tier), `end_date` (used by `deactivate_ended_competitions` command to auto-set `is_active=False`)
-- **`matches.Team`** — has `slug` field; logos are local PNG files at `static/img/teams/<slug>.png`
+- **`matches.Team`** — has `slug` field; logo = `Team.logo` (admin upload) if set, else the local PNG `static/img/teams/<slug>.png`
 - **`matches.Match`** — has `cote_home/cote_draw/cote_away` (integers = bookmaker odds × 10, sourced via Gemini); computed properties `is_locked`, `has_odds`, `result`, `closes_soon`, `time_until_kickoff`
 - **`predictions.Prediction`** — unique per `(user, match)`; `result_type` field: EXACT / GAP / WIN / MISS / CANCELLED
 - **`leagues.League`** — `invite_code` (5-char, auto-generated), `creator` FK, `members` M2M, `competitions` M2M → Competition (required at creation, scopes the league leaderboard and predictions). `is_active` is a computed property: `True` if any linked competition is active. League detail page has a "Copy link" button that copies the full join URL (`/leagues/join/?code=XXXXX`); the join page pre-fills the code when `?code=` is present.
@@ -219,9 +224,9 @@ Scoring logic: `apps/predictions/services.py::calculate_points()`. Orchestration
 
 **Live sync (scores):** VPS cron (every 10min, 24/7) → `scripts/sync_live_scores.py` → exits if `/api/has-live-matches/` is false → Gemini with Google Search grounding → `POST /api/update-scores/` → on FINISHED: `_calculate_points_for_match()` → `refresh_user_scores_for_match()`. Only matches IN_PLAY or kicked off within the last 3h are sent to Gemini; a match it misses must be scored in the admin (edit score + status, then "Recalculer les points"). `sync_if_live` is not scheduled.
 
-**Odds update (weekly):** VPS cron (Tuesday 10:00 UTC) → `.github/scripts/update_odds.py` → Gemini 3.6 Flash with Google Search grounding → `POST /api/update-odds/` → `POST /api/notify/missing-odds/`.
+**Odds update (weekly):** VPS cron (Tuesday 10:00 UTC) → `scripts/update_odds.py` → Gemini 3.8 Flash with Google Search grounding → `POST /api/update-odds/` → `POST /api/notify/missing-odds/`.
 
-Test script: `.github/scripts/test_odds.py` — runs standalone with `GOOGLE_API_KEY=... python .github/scripts/test_odds.py`, no Django needed.
+Test script: `scripts/test_odds.py` — runs standalone with `GOOGLE_API_KEY=... python scripts/test_odds.py`, no Django needed.
 
 → Full flow diagrams and service call chains: **ARCHITECTURE.md §4**
 
@@ -240,7 +245,7 @@ The predictions page shows matches in chronological order (day → competition �
 
 ## Frontend
 
-Bootstrap 5 + HTMX. Font: Barlow (Google Fonts). Icons: Tabler Icons (`ti ti-*`). All colors use CSS variables defined in `static/css/main.css` — no hardcoded hex values in templates (V4 white-label requirement). Templates in `templates/<app>/`. HTMX partials in `templates/partials/`.
+Bootstrap 5 + HTMX. Font: Barlow (Google Fonts). Icons: Tabler Icons (`ti ti-*`). All colors use CSS variables declared in `static/css/tokens.css`, loaded first by the app and the admin; no literal colour anywhere else (V4 white-label requirement). Templates in `templates/<app>/`. HTMX partials in `templates/partials/`.
 
 ### Analytics
 
@@ -255,7 +260,7 @@ PostHog EU (Frankfurt), **only after the visitor clicks "Accept"** on the consen
 
 ## Admin Interface
 
-Custom Django admin themed with the app's own design system (Bootstrap 5, Barlow, Tabler Icons, `main.css` CSS variables). No third-party admin package. All admin actions reuse service functions from `apps/matches/services.py` — no duplication.
+Custom Django admin themed with the app's own design system (Barlow, Tabler Icons, colour variables from `tokens.css`). No third-party admin package. All admin actions reuse service functions from `apps/matches/services.py` — no duplication.
 
 → Theme files, per-model capabilities, and custom admin views: **ARCHITECTURE.md §9**
 
