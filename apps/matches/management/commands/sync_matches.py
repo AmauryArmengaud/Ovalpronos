@@ -1,12 +1,12 @@
 """
-Commande Django : python manage.py sync_matches
-================================================
-Lance la synchronisation des matchs pour toutes les compétitions actives.
-Cette commande est appelée automatiquement par le cron (toutes les 2h).
+Django command: python manage.py sync_matches
+==============================================
+Syncs the matches of every active competition.
+Run automatically by the VPS cron (daily, 07:00 UTC).
 
-Usage :
-    python manage.py sync_matches                  # Toutes les compétitions
-    python manage.py sync_matches --comp TOP14     # Une seule compétition
+Usage:
+    python manage.py sync_matches                  # All competitions
+    python manage.py sync_matches --comp TOP14     # A single competition
 """
 
 from django.core.management.base import BaseCommand

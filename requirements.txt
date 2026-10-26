@@ -1,33 +1,33 @@
-# Framework principal
+# Main framework
 Django==6.1.2
 
-# Base de données
+# Database
 psycopg2-binary==2.9.13
 dj-database-url==3.1.2
 
-# Variables d'environnement
+# Environment variables
 python-decouple==3.8
 
-# Serveur WSGI pour la production (Render)
+# WSGI server for production
 gunicorn==26.2.0
 
-# Requêtes HTTP (appels api-sports.io)
+# HTTP requests (rugby-live-data via RapidAPI)
 requests==2.34.2
 
-# Gemini AI (mise à jour des cotes — update_odds.py)
+# Gemini AI (odds and live scores: scripts/update_odds.py, scripts/sync_live_scores.py)
 google-genai==2.33.0
 
-# Gestion des assets statiques
+# Static assets
 whitenoise==6.12.0
 
 # Rate limiting (login, password reset, league join, predictions)
 django-ratelimit==4.1.0
 
-# Formulaires améliorés
+# Form rendering
 django-crispy-forms==2.7
 crispy-bootstrap5==2026.9
 
-# Traitement des images (requis pour ImageField)
+# Image processing (required by ImageField)
 Pillow==13.0.0
 
 # Timezone

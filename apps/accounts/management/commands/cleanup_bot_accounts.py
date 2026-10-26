@@ -1,19 +1,19 @@
 """
-Commande Django : python manage.py cleanup_bot_accounts
-========================================================
-Identifie et supprime les comptes suspects créés par des robots.
+Django command: python manage.py cleanup_bot_accounts
+=====================================================
+Finds and deletes suspicious accounts created by bots.
 
-Critères de détection (tous requis simultanément) :
-  - Aucun pronostic soumis
-  - Aucune ligue créée ni rejointe
-  - Non staff / non superuser
+Detection criteria (all required at once):
+  - No prediction submitted
+  - No league created or joined
+  - Not staff / not superuser
 
-Options :
-    --dry-run          Affiche les comptes qui seraient supprimés, sans toucher la base
-    --since YYYY-MM-DD Ne considère que les comptes créés après cette date
-    --yes              Confirme sans prompt interactif (pour les scripts)
+Options:
+    --dry-run          Lists the accounts that would be deleted, without touching the DB
+    --since YYYY-MM-DD Only considers accounts created after this date
+    --yes              Confirms without an interactive prompt (for scripts)
 
-Usage :
+Usage:
     python manage.py cleanup_bot_accounts --dry-run
     python manage.py cleanup_bot_accounts --since 2025-01-01 --dry-run
     python manage.py cleanup_bot_accounts --yes
@@ -51,9 +51,9 @@ class Command(BaseCommand):
             is_staff=False,
             is_superuser=False,
         ).filter(
-            predictions__isnull=True,  # aucun pronostic
+            predictions__isnull=True,  # no prediction
         ).filter(
-            leagues__isnull=True,      # aucune ligue (membre ou créateur)
+            leagues__isnull=True,      # no league (member or creator)
         ).filter(
             created_leagues__isnull=True,
         )

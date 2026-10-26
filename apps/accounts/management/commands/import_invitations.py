@@ -1,16 +1,16 @@
 """
-Commande Django : python manage.py import_invitations
-=====================================================
-Crée une invitation de réinscription préremplie par ancien joueur, à partir
-de l'export de contacts de la campagne (colonnes EMAIL, PSEUDO, PRENOM, NOM, COHORTE).
+Django command: python manage.py import_invitations
+===================================================
+Creates one pre-filled sign-up invitation per former player, from the
+campaign contacts export (columns EMAIL, PSEUDO, PRENOM, NOM, COHORTE).
 
-Écrit un CSV EMAIL,TOKEN à réimporter dans Brevo (attribut TOKEN). Le lien
-envoyé est alors : <site>/accounts/register/?invite={{ contact.TOKEN }}
+Writes an EMAIL,TOKEN CSV to re-import into Brevo (TOKEN attribute). The link
+sent is then: <site>/accounts/register/?invite={{ contact.TOKEN }}
 
-Les emails déjà inscrits sont ignorés. Relançable sans risque : une invitation
-existante garde son token.
+Emails already registered are skipped. Safe to re-run: an existing
+invitation keeps its token.
 
-Usage :
+Usage:
     python manage.py import_invitations contacts.csv --output tokens_brevo.csv
 """
 

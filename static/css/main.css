@@ -625,7 +625,7 @@ main {
   filter: brightness(0) invert(1);
 }
 
-/* Décaler le footer et le main pour laisser la place au bottom nav */
+/* Offset the footer and main so the bottom nav does not cover them */
 @media (max-width: 991.98px) {
   body {
     padding-bottom: 64px;
