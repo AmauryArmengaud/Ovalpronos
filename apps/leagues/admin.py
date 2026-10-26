@@ -1,4 +1,5 @@
 from django.contrib import admin
+from django.utils.translation import gettext_lazy as _, pgettext_lazy
 from .models import League, _generate_invite_code
 
 
@@ -13,11 +14,11 @@ class LeagueAdmin(admin.ModelAdmin):
 
     def member_count(self, obj):
         return obj.members.count()
-    member_count.short_description = 'Members'
+    member_count.short_description = pgettext_lazy("admin column", "Members")
 
-    @admin.action(description='Régénérer le code d\'invitation')
+    @admin.action(description=_("Regenerate invite code"))
     def reset_invite_code(self, request, queryset):
         for league in queryset:
             league.invite_code = _generate_invite_code()
             league.save(update_fields=['invite_code'])
-        self.message_user(request, f"Code régénéré pour {queryset.count()} ligue(s).")
+        self.message_user(request, _("Code regenerated for %(count)s league(s).") % {'count': queryset.count()})

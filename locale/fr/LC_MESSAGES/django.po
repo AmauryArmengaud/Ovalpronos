@@ -2573,9 +2573,6 @@ msgstr ""
 #~ msgid "Actual score"
 #~ msgstr "Score réel"
 
-#~ msgid "Result"
-#~ msgstr "Résultat"
-
 #~ msgid "Draw rule"
 #~ msgstr "Cas du match nul"
 
@@ -2947,3 +2944,181 @@ msgstr "Vue de landing"
 
 msgid "Teams in this competition"
 msgstr "Les équipes de la compétition"
+
+#: apps/matches/admin.py
+msgid "Status (default: upcoming)"
+msgstr "Statut (défaut : à venir)"
+
+#: apps/matches/admin.py
+msgid "All matches"
+msgstr "Tous les matchs"
+
+#: apps/matches/admin.py
+msgid "Upcoming (SCHEDULED)"
+msgstr "À venir (SCHEDULED)"
+
+#: apps/matches/admin.py
+msgid "Finished (FINISHED)"
+msgstr "Terminés (FINISHED)"
+
+#: apps/matches/admin.py
+msgid "No odds"
+msgstr "Sans cotes"
+
+#: apps/matches/admin.py
+#, python-format
+msgid "%(name)s: %(created)s created, %(updated)s updated."
+msgstr "%(name)s : %(created)s créés, %(updated)s mis à jour."
+
+#: apps/matches/admin.py
+#, python-format
+msgid "%(name)s: error, %(error)s"
+msgstr "%(name)s : erreur — %(error)s"
+
+#: apps/matches/admin.py
+msgid "Sync"
+msgstr "Sync"
+
+#: apps/matches/admin.py
+msgid "Sync matches from the API"
+msgstr "Synchroniser les matchs depuis l'API"
+
+#: apps/matches/admin.py
+msgid "Recalculate points (finished matches)"
+msgstr "Recalculer les points (matchs terminés)"
+
+#: apps/matches/admin.py
+#, python-format
+msgid "Recalculation done for %(count)s match(es)."
+msgstr "Recalcul terminé pour %(count)s match(s)."
+
+#: apps/matches/admin.py
+msgid "Fans"
+msgstr "Fans"
+
+#: apps/matches/admin.py
+msgid "Score"
+msgstr "Score"
+
+#: apps/matches/admin.py
+msgctxt "admin column"
+msgid "Odds"
+msgstr "Cotes"
+
+#: apps/matches/admin.py apps/predictions/admin.py
+msgid "Recalculate points"
+msgstr "Recalculer les points"
+
+#: apps/matches/admin.py
+#, python-format
+msgid "Points recalculated for %(count)s finished match(es)."
+msgstr "Points recalculés pour %(count)s match(s) terminé(s)."
+
+#: apps/matches/admin.py apps/rankings/admin.py
+msgid "Refresh the UserScore cache"
+msgstr "Rafraîchir le cache UserScore"
+
+#: apps/matches/admin.py
+#, python-format
+msgid "UserScore cache refreshed for %(count)s match(es)."
+msgstr "Cache UserScore rafraîchi pour %(count)s match(s)."
+
+#: apps/matches/admin.py
+msgid "Hide these matches"
+msgstr "Masquer ces matchs"
+
+#: apps/matches/admin.py
+msgid "Show these matches"
+msgstr "Afficher ces matchs"
+
+#: apps/matches/admin_views.py
+#, python-format
+msgid "Sync done for %(name)s: %(created)s created, %(updated)s updated."
+msgstr "Sync terminée pour %(name)s : %(created)s créés, %(updated)s mis à jour."
+
+#: apps/accounts/admin.py
+msgid "Activate selected accounts"
+msgstr "Activer les comptes sélectionnés"
+
+#: apps/accounts/admin.py
+msgid "Deactivate selected accounts"
+msgstr "Désactiver les comptes sélectionnés"
+
+#: apps/leagues/admin.py
+msgctxt "admin column"
+msgid "Members"
+msgstr "Members"
+
+#: apps/leagues/admin.py
+msgid "Regenerate invite code"
+msgstr "Régénérer le code d'invitation"
+
+#: apps/leagues/admin.py
+#, python-format
+msgid "Code regenerated for %(count)s league(s)."
+msgstr "Code régénéré pour %(count)s ligue(s)."
+
+#: apps/predictions/admin.py
+#, python-format
+msgid "Points recalculated for %(count)s match(es)."
+msgstr "Points recalculés pour %(count)s match(s)."
+
+#: apps/rankings/admin.py
+msgid "Scope"
+msgstr "Portée"
+
+#: apps/rankings/admin.py
+msgctxt "ranking scope"
+msgid "Global"
+msgstr "Global"
+
+#: apps/rankings/admin.py
+#, python-format
+msgid "Competition: %(name)s"
+msgstr "Compétition : %(name)s"
+
+#: apps/rankings/admin.py
+#, python-format
+msgid "League: %(name)s"
+msgstr "Ligue : %(name)s"
+
+#: apps/rankings/admin.py
+#, python-format
+msgid "Cache refreshed for %(count)s entry(ies)."
+msgstr "Cache rafraîchi pour %(count)s entrée(s)."
+
+#: templates/admin/partials/dashboard_stats.html
+msgid "Active players"
+msgstr "Joueurs actifs"
+
+#: templates/admin/partials/dashboard_stats.html
+msgid "Matches this week"
+msgstr "Matchs cette semaine"
+
+#: templates/admin/partials/dashboard_stats.html
+msgid "Matches without odds"
+msgstr "Matchs sans cotes"
+
+#: templates/admin/partials/dashboard_stats.html
+msgid "Unscored predictions"
+msgstr "Pronos non calculés"
+
+#: templates/admin/index.html
+msgid "Dashboard"
+msgstr "Dashboard"
+
+#: templates/admin/base_site.html
+msgid "Admin"
+msgstr "Admin"
+
+#: templates/matches/home.html templates/matches/competition_landing.html
+msgid "Oval'Pronos mascot"
+msgstr "Mascotte Oval'Pronos"
+
+#: templates/matches/rules.html templates/partials/scoring_example.html
+msgid "pt"
+msgstr "pt"
+
+#: apps/predictions/admin.py
+msgid "Result"
+msgstr "Résultat"

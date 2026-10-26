@@ -43,7 +43,7 @@ class CustomUserAdmin(UserAdmin):
             _prediction_count=Count('predictions', distinct=True)
         )
 
-    @admin.display(description='Pronos', ordering='_prediction_count')
+    @admin.display(description=_("Predictions"), ordering='_prediction_count')
     def prediction_count(self, obj):
         return obj._prediction_count
 
@@ -68,11 +68,11 @@ class CustomUserAdmin(UserAdmin):
             ])
         return response
 
-    @admin.action(description='Activer les comptes sélectionnés')
+    @admin.action(description=_("Activate selected accounts"))
     def activate_users(self, request, queryset):
         queryset.update(is_active=True)
 
-    @admin.action(description='Désactiver les comptes sélectionnés')
+    @admin.action(description=_("Deactivate selected accounts"))
     def deactivate_users(self, request, queryset):
         queryset.exclude(pk=request.user.pk).update(is_active=False)
 

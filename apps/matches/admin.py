@@ -3,7 +3,7 @@ from django.db.models import Count
 from django.http import HttpResponseRedirect
 from django.urls import path, reverse
 from django.utils.html import format_html, mark_safe
-from django.utils.translation import gettext_lazy as _
+from django.utils.translation import gettext_lazy as _, pgettext_lazy
 
 from .models import Competition, LandingView, Match, Team
 
@@ -29,15 +29,15 @@ class PredictionInline(admin.TabularInline):
 
 class UpcomingMatchFilter(admin.SimpleListFilter):
     """Pre-select SCHEDULED matches; pass ?upcoming=all to see every status."""
-    title = "Statut (défaut : à venir)"
+    title = _("Status (default: upcoming)")
     parameter_name = "upcoming"
 
     def lookups(self, request, model_admin):
         return [
-            ('all', 'Tous les matchs'),
-            ('scheduled', 'À venir (SCHEDULED)'),
-            ('finished', 'Terminés (FINISHED)'),
-            ('no_odds', 'Sans cotes'),
+            ('all', _("All matches")),
+            ('scheduled', _("Upcoming (SCHEDULED)")),
+            ('finished', _("Finished (FINISHED)")),
+            ('no_odds', _("No odds")),
         ]
 
     def queryset(self, request, queryset):
@@ -73,39 +73,41 @@ class CompetitionAdmin(admin.ModelAdmin):
         comp = Competition.objects.get(pk=pk)
         try:
             r = sync_competition_matches(comp.code)
-            self.message_user(request, f"{comp.name} : {r['created']} créés, {r['updated']} mis à jour.")
+            self.message_user(request, _("%(name)s: %(created)s created, %(updated)s updated.") % {
+                    'name': comp.name, 'created': r['created'], 'updated': r['updated']})
         except Exception as e:
-            self.message_user(request, f"{comp.name} : erreur — {e}", level='error')
+            self.message_user(request, _("%(name)s: error, %(error)s") % {'name': comp.name, 'error': e}, level='error')
         return HttpResponseRedirect(reverse('admin:matches_competition_changelist'))
 
     def get_queryset(self, request):
         return super().get_queryset(request).annotate(_match_count=Count('matches'))
 
-    @admin.display(description='Matchs', ordering='_match_count')
+    @admin.display(description=_("Matches"), ordering='_match_count')
     def match_count(self, obj):
         return obj._match_count
 
     @admin.display(description='')
     def sync_button(self, obj):
         url = reverse('admin:matches_competition_sync', args=[obj.pk])
-        return format_html('<a class="button btn btn-sm btn-outline-primary" href="{}">Sync</a>', url)
+        return format_html('<a class="button btn btn-sm btn-outline-primary" href="{}">{}</a>', url, _("Sync"))
 
     @admin.display(description='')
     def report_button(self, obj):
         url = reverse('admin_campaign_report', args=[obj.pk])
         return format_html('<a class="button btn btn-sm btn-outline-primary" href="{}">{}</a>', url, _("Campaign"))
 
-    @admin.action(description='Synchroniser les matchs depuis l\'API')
+    @admin.action(description=_("Sync matches from the API"))
     def sync_competition_action(self, request, queryset):
         from apps.matches.services import sync_competition_matches
         for comp in queryset:
             try:
                 r = sync_competition_matches(comp.code)
-                self.message_user(request, f"{comp.name} : {r['created']} créés, {r['updated']} mis à jour.")
+                self.message_user(request, _("%(name)s: %(created)s created, %(updated)s updated.") % {
+                    'name': comp.name, 'created': r['created'], 'updated': r['updated']})
             except Exception as e:
-                self.message_user(request, f"{comp.name} : erreur — {e}", level='error')
+                self.message_user(request, _("%(name)s: error, %(error)s") % {'name': comp.name, 'error': e}, level='error')
 
-    @admin.action(description='Recalculer les points (matchs terminés)')
+    @admin.action(description=_("Recalculate points (finished matches)"))
     def recalculate_all_scores_action(self, request, queryset):
         from apps.matches.services import _calculate_points_for_match
         total = 0
@@ -113,7 +115,7 @@ class CompetitionAdmin(admin.ModelAdmin):
             for match in Match.objects.filter(competition=comp, status='FINISHED'):
                 _calculate_points_for_match(match)
                 total += 1
-        self.message_user(request, f"Recalcul terminé pour {total} match(s).")
+        self.message_user(request, _("Recalculation done for %(count)s match(es).") % {'count': total})
 
 
 # ─── Team ─────────────────────────────────────────────────────────────────────
@@ -126,7 +128,7 @@ class TeamAdmin(admin.ModelAdmin):
     def get_queryset(self, request):
         return super().get_queryset(request).annotate(_fan_count=Count('fans'))
 
-    @admin.display(description='Fans', ordering='_fan_count')
+    @admin.display(description=_("Fans"), ordering='_fan_count')
     def fan_count(self, obj):
         return obj._fan_count
 
@@ -134,11 +136,11 @@ class TeamAdmin(admin.ModelAdmin):
 # ─── Match ────────────────────────────────────────────────────────────────────
 
 _STATUS_STYLES = {
-    'SCHEDULED': ('var(--color-primary)', 'var(--color-text-on-primary)', 'À venir'),
-    'IN_PLAY':   ('var(--color-brand-rugby)', 'var(--color-text-on-primary)', 'En cours'),
-    'FINISHED':  ('var(--color-surface-raised)', 'var(--color-text)', 'Terminé'),
-    'POSTPONED': ('#ffc107', '#705500', 'Reporté'),
-    'CANCELLED': ('var(--color-accent)', 'var(--color-text-on-primary)', 'Annulé'),
+    'SCHEDULED': ('var(--color-primary)', 'var(--color-text-on-primary)', _("Upcoming")),
+    'IN_PLAY':   ('var(--color-brand-rugby)', 'var(--color-text-on-primary)', _("In play")),
+    'FINISHED':  ('var(--color-surface-raised)', 'var(--color-text)', _("Finished")),
+    'POSTPONED': ('#ffc107', '#705500', _("Postponed")),
+    'CANCELLED': ('var(--color-accent)', 'var(--color-text-on-primary)', _("Cancelled")),
 }
 
 
@@ -160,7 +162,7 @@ class MatchAdmin(admin.ModelAdmin):
             .annotate(_prediction_count=Count('predictions', distinct=True))
         )
 
-    @admin.display(description='Statut')
+    @admin.display(description=_("Status"))
     def status_badge(self, obj):
         bg, fg, label = _STATUS_STYLES.get(obj.status, ('var(--color-surface-raised)', 'var(--color-text)', obj.status))
         return format_html(
@@ -168,41 +170,41 @@ class MatchAdmin(admin.ModelAdmin):
             bg, fg, label,
         )
 
-    @admin.display(description='Score')
+    @admin.display(description=_("Score"))
     def score_display(self, obj):
         return obj.score_display
 
-    @admin.display(description='Cotes', boolean=False)
+    @admin.display(description=pgettext_lazy("admin column", "Odds"), boolean=False)
     def has_odds_badge(self, obj):
         if obj.has_odds:
             return mark_safe('<span style="color:#28a745">&#10003;</span>')
         return mark_safe('<span style="color:#ffc107">&#9888;</span>')
 
-    @admin.display(description='Pronos', ordering='_prediction_count')
+    @admin.display(description=_("Predictions"), ordering='_prediction_count')
     def prediction_count(self, obj):
         return obj._prediction_count
 
-    @admin.action(description='Recalculer les points')
+    @admin.action(description=_("Recalculate points"))
     def recalculate_points_action(self, request, queryset):
         from apps.matches.services import _calculate_points_for_match
         count = 0
         for match in queryset.filter(status='FINISHED'):
             _calculate_points_for_match(match)
             count += 1
-        self.message_user(request, f"Points recalculés pour {count} match(s) terminé(s).")
+        self.message_user(request, _("Points recalculated for %(count)s finished match(es).") % {'count': count})
 
-    @admin.action(description='Rafraîchir le cache UserScore')
+    @admin.action(description=_("Refresh the UserScore cache"))
     def refresh_scores_action(self, request, queryset):
         from apps.matches.services import refresh_user_scores_for_match
         for match in queryset:
             refresh_user_scores_for_match(match)
-        self.message_user(request, f"Cache UserScore rafraîchi pour {queryset.count()} match(s).")
+        self.message_user(request, _("UserScore cache refreshed for %(count)s match(es).") % {'count': queryset.count()})
 
-    @admin.action(description='Masquer ces matchs')
+    @admin.action(description=_("Hide these matches"))
     def mark_hidden(self, request, queryset):
         queryset.update(is_hidden=True)
 
-    @admin.action(description='Afficher ces matchs')
+    @admin.action(description=_("Show these matches"))
     def mark_visible(self, request, queryset):
         queryset.update(is_hidden=False)
 

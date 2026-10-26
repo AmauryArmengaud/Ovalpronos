@@ -1,7 +1,7 @@
 {% extends "admin/base.html" %}
 {% load static i18n %}
 
-{% block title %}{{ title }} | Oval'Pronos Admin{% endblock %}
+{% block title %}{{ title }} | Oval'Pronos {% trans "Admin" %}{% endblock %}
 
 {% block branding %}
 <a id="site-name" href="{% url 'admin:index' %}" style="display:flex;align-items:center;gap:0.5rem;text-decoration:none;">

@@ -1,4 +1,5 @@
 from django.contrib import admin
+from django.utils.translation import gettext_lazy as _, pgettext_lazy
 
 from .models import UserScore
 
@@ -11,15 +12,15 @@ class UserScoreAdmin(admin.ModelAdmin):
     readonly_fields = ('user', 'competition', 'league', 'points', 'rank', 'prediction_count', 'exact_count', 'gap_count', 'win_count')
     actions = ['refresh_userscore_action']
 
-    @admin.display(description='Portée')
+    @admin.display(description=_("Scope"))
     def scope_label(self, obj):
         if obj.competition is None and obj.league is None:
-            return 'Global'
+            return pgettext_lazy("ranking scope", "Global")
         if obj.competition:
-            return f'Compétition : {obj.competition.name}'
-        return f'Ligue : {obj.league.name}'
+            return _("Competition: %(name)s") % {'name': obj.competition.name}
+        return _("League: %(name)s") % {'name': obj.league.name}
 
-    @admin.action(description='Rafraîchir le cache UserScore')
+    @admin.action(description=_("Refresh the UserScore cache"))
     def refresh_userscore_action(self, request, queryset):
         from apps.matches.services import refresh_user_scores_for_match
         from apps.matches.models import Match
@@ -31,7 +32,7 @@ class UserScoreAdmin(admin.ModelAdmin):
         ).distinct()
         for match in matches:
             refresh_user_scores_for_match(match)
-        self.message_user(request, f"Cache rafraîchi pour {queryset.count()} entrée(s).")
+        self.message_user(request, _("Cache refreshed for %(count)s entry(ies).") % {'count': queryset.count()})
 
     def has_add_permission(self, request):
         return False

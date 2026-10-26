@@ -1,3 +1,4 @@
+{% load i18n %}
 <div class="oval-stat-cards">
 
   <div class="oval-stat-card">
@@ -6,7 +7,7 @@
     </div>
     <div>
       <div class="oval-stat-card__value">{{ users_active }}</div>
-      <div class="oval-stat-card__label">Joueurs actifs</div>
+      <div class="oval-stat-card__label">{% trans "Active players" %}</div>
     </div>
   </div>
 
@@ -16,7 +17,7 @@
     </div>
     <div>
       <div class="oval-stat-card__value">{{ upcoming_matches }}</div>
-      <div class="oval-stat-card__label">Matchs cette semaine</div>
+      <div class="oval-stat-card__label">{% trans "Matches this week" %}</div>
     </div>
   </div>
 
@@ -27,7 +28,7 @@
     </div>
     <div>
       <div class="oval-stat-card__value">{{ matches_no_odds }}</div>
-      <div class="oval-stat-card__label">Matchs sans cotes</div>
+      <div class="oval-stat-card__label">{% trans "Matches without odds" %}</div>
     </div>
   </div>
   </a>
@@ -38,7 +39,7 @@
     </div>
     <div>
       <div class="oval-stat-card__value">{{ unscored_predictions }}</div>
-      <div class="oval-stat-card__label">Pronos non calculés</div>
+      <div class="oval-stat-card__label">{% trans "Unscored predictions" %}</div>
     </div>
   </div>
 

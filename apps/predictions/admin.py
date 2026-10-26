@@ -1,15 +1,16 @@
 from django.contrib import admin
 from django.urls import reverse
 from django.utils.html import format_html
+from django.utils.translation import gettext_lazy as _
 
 from .models import Prediction
 
 _RESULT_STYLES = {
-    'EXACT':     ('var(--color-badge-exact)',  'var(--color-badge-exact-text)', 'Exact'),
-    'GAP':       ('var(--color-badge-gap)',    'var(--color-text-on-primary)',  'Bon écart'),
-    'WIN':       ('var(--color-badge-win)',    'var(--color-badge-win-text)',   'Vainqueur'),
-    'MISS':      ('var(--color-badge-miss)',   'var(--color-badge-miss-text)',  'Raté'),
-    'CANCELLED': ('var(--color-surface-raised)', 'var(--color-text-secondary)', 'Annulé'),
+    'EXACT':     ('var(--color-badge-exact)',  'var(--color-badge-exact-text)', _("Exact")),
+    'GAP':       ('var(--color-badge-gap)',    'var(--color-text-on-primary)',  _("Good gap")),
+    'WIN':       ('var(--color-badge-win)',    'var(--color-badge-win-text)',   _("Winner")),
+    'MISS':      ('var(--color-badge-miss)',   'var(--color-badge-miss-text)',  _("Missed")),
+    'CANCELLED': ('var(--color-surface-raised)', 'var(--color-text-secondary)', _("Cancelled")),
 }
 
 
@@ -25,16 +26,16 @@ class PredictionAdmin(admin.ModelAdmin):
     def get_queryset(self, request):
         return super().get_queryset(request).select_related('user', 'match__home_team', 'match__away_team', 'match__competition')
 
-    @admin.display(description='Match')
+    @admin.display(description=_("Match"))
     def match_link(self, obj):
         url = reverse('admin:matches_match_change', args=[obj.match_id])
         return format_html('<a href="{}">{}</a>', url, obj.match)
 
-    @admin.display(description='Pronostic')
+    @admin.display(description=_("Prediction"))
     def predicted_score(self, obj):
         return f"{obj.predicted_home_score} - {obj.predicted_away_score}"
 
-    @admin.display(description='Résultat')
+    @admin.display(description=_("Result"))
     def result_type_badge(self, obj):
         if not obj.result_type:
             return '—'
@@ -44,7 +45,7 @@ class PredictionAdmin(admin.ModelAdmin):
             bg, fg, label,
         )
 
-    @admin.action(description='Recalculer les points')
+    @admin.action(description=_("Recalculate points"))
     def recalculate_points_action(self, request, queryset):
         from apps.matches.services import _calculate_points_for_match
         matches = queryset.values_list('match', flat=True).distinct()
@@ -53,7 +54,7 @@ class PredictionAdmin(admin.ModelAdmin):
         for match in Match.objects.filter(pk__in=matches, status='FINISHED'):
             _calculate_points_for_match(match)
             count += 1
-        self.message_user(request, f"Points recalculés pour {count} match(s).")
+        self.message_user(request, _("Points recalculated for %(count)s match(es).") % {'count': count})
 
     def has_add_permission(self, request):
         return False
