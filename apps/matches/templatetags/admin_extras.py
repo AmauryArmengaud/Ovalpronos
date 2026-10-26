@@ -26,3 +26,12 @@ def dashboard_stats():
             datetime__lte=now + timedelta(days=7),
         ).count(),
     }
+
+
+@register.filter
+def percent(ratio):
+    """0.0512 -> '5,1 %' (locale-aware), '-' when there is no ratio"""
+    from django.utils.formats import number_format
+    if ratio is None:
+        return '-'
+    return f"{number_format(ratio * 100, 1)} %"

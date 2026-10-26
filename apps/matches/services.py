@@ -320,3 +320,74 @@ def sync_all_competitions():
         r['competition'] = comp.code
         results.append(r)
     return results
+
+
+def campaign_report(competition, since=None):
+    """Sign-up funnel of a competition landing, per source.
+
+    A sign-up belongs to the landing when its first known page is that landing;
+    sign-ups of the period that entered elsewhere are reported apart, without views.
+    `since` defaults to the first recorded landing view (campaign start).
+    Returns {'since', 'landing': {'rows', 'total'}, 'other': {'rows', 'total'}};
+    each row: source, views (None outside the landing), signups, conversion, activated, leagues.
+    """
+    from collections import defaultdict
+    from django.contrib.auth import get_user_model
+    from django.db.models import Exists, OuterRef, Sum
+    from django.urls import reverse
+    from django.utils import timezone
+    from apps.leagues.models import League
+    from apps.predictions.models import Prediction
+
+    if since is None:
+        first_view = competition.landing_views.order_by('day').first()
+        since = first_view.day if first_view else timezone.localdate()
+    start = timezone.make_aware(datetime.combine(since, datetime.min.time()))
+    landing_path = reverse('matches:competition_landing', kwargs={'code': competition.code.lower()})
+
+    views = dict(
+        competition.landing_views.filter(day__gte=since)
+        .values('source').annotate(total=Sum('count')).values_list('source', 'total')
+    )
+    signups = get_user_model().objects.filter(date_joined__gte=start).annotate(
+        activated=Exists(Prediction.objects.filter(user=OuterRef('pk'))),
+    ).values('pk', 'signup_source', 'signup_landing_path', 'activated')
+    league_creators = set(
+        League.objects.filter(competitions=competition, created_at__gte=start).values_list('creator_id', flat=True)
+    )
+
+    funnels = {'landing': defaultdict(lambda: defaultdict(int)), 'other': defaultdict(lambda: defaultdict(int))}
+    for user in signups:
+        funnel = funnels['landing' if user['signup_landing_path'] == landing_path else 'other']
+        stats = funnel[user['signup_source'] or 'direct']
+        stats['signups'] += 1
+        stats['activated'] += user['activated']
+        stats['leagues'] += user['pk'] in league_creators
+    for source in views:
+        funnels['landing'].setdefault(source, defaultdict(int))
+
+    def section(stats_by_source, with_views):
+        rows = [
+            _funnel_row(source, views.get(source, 0) if with_views else None, stats)
+            for source, stats in stats_by_source.items()
+        ]
+        rows.sort(key=lambda row: (-row['signups'], row['source']))
+        totals = defaultdict(int)
+        for row in rows:
+            for key in ('signups', 'activated', 'leagues'):
+                totals[key] += row[key]
+        total_views = sum(views.values()) if with_views else None
+        return {'rows': rows, 'total': _funnel_row('', total_views, totals)}
+
+    return {'since': since, 'landing': section(funnels['landing'], True), 'other': section(funnels['other'], False)}
+
+
+def _funnel_row(source, views, stats):
+    return {
+        'source': source,
+        'views': views,
+        'signups': stats['signups'],
+        'conversion': stats['signups'] / views if views else None,
+        'activated': stats['activated'],
+        'leagues': stats['leagues'],
+    }

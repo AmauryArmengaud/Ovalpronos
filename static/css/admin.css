@@ -702,3 +702,40 @@ a:hover .oval-stat-card {
   padding: 10px 20px;
   text-align: center;
 }
+
+/* ─── Campaign report ──────────────────────────────────────────────────────── */
+.campaign-report-filter {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1.25rem;
+}
+
+/* Wide tables scroll inside the card on phones instead of stretching the page */
+.campaign-report-scroll { overflow-x: auto; }
+
+.campaign-report-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.campaign-report-table th,
+.campaign-report-table td {
+  padding: 8px 12px;
+  white-space: nowrap;
+  text-align: left;
+}
+
+.campaign-report-table .num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.campaign-report-table tfoot th,
+.campaign-report-table tfoot td {
+  /* Django's base.css shrinks tfoot cells to caption size */
+  font-size: inherit;
+  font-weight: 700;
+  border-top: var(--border);
+}

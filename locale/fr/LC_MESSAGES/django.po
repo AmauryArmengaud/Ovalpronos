@@ -2923,3 +2923,24 @@ msgstr "Ligues créées"
 
 msgid "Total"
 msgstr "Total"
+
+msgid "Campaign report"
+msgstr "Rapport de campagne"
+
+msgid "Since"
+msgstr "Depuis le"
+
+msgid "Update"
+msgstr "Actualiser"
+
+msgid "Sign-ups from the landing"
+msgstr "Inscriptions via la landing"
+
+msgid "No data for this period."
+msgstr "Aucune donnée sur cette période."
+
+msgid "Activated: at least one prediction. Views exclude logged-in players and link-preview bots; reloads count."
+msgstr "Activé : au moins un prono. Les vues excluent les joueurs connectés et les robots d'aperçu de lien ; un rechargement compte comme une vue."
+
+msgid "Landing view"
+msgstr "Vue de landing"

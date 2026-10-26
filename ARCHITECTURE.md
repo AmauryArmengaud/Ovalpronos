@@ -125,7 +125,7 @@ Anonymous daily view counter of `/competitions/<code>/`, incremented server-side
 | `source` | CharField(50) | `utm_source` > known Referer > `direct`, normalized like `signup_source` |
 | `count` | PositiveIntegerField | `F('count') + 1`; unique on (competition, day, source) |
 
-Not counted: logged-in players (redirected), HEAD, link-preview fetchers and crawlers (`PREVIEW_BOT_RE`), so pasting a link in a WhatsApp group is not a view. Reloads do count. `campaign_report <code>` reads it.
+Not counted: logged-in players (redirected), HEAD, link-preview fetchers and crawlers (`PREVIEW_BOT_RE`), so pasting a link in a WhatsApp group is not a view. Reloads do count. Read by `apps/matches/services.py::campaign_report()`, shared by the `report_campaign` command and the admin campaign report page.
 
 ### `predictions.Prediction`
 
@@ -356,7 +356,7 @@ The admin uses Django's native admin with a custom theme that matches the main a
 
 | Admin | Key additions |
 |---|---|
-| `CompetitionAdmin` | Sync action, recalculate scores action, match count column, per-row sync button |
+| `CompetitionAdmin` | Sync action, recalculate scores action, match count column, per-row sync button, per-row "Campagne" link to the campaign report |
 | `MatchAdmin` | Status/odds badges, prediction count, `PredictionInline` (read-only), `UpcomingMatchFilter` (default=SCHEDULED), recalculate/refresh/hide actions |
 | `PredictionAdmin` | Result-type badges, match link, recalculate action; no add/change permission |
 | `UserScoreAdmin` | Scope label, cache refresh action; no add/change permission |
@@ -374,6 +374,15 @@ Admin actions call existing service functions directly — no duplication:
 ### Custom admin views
 
 Non-standard ModelAdmin pages use `@staff_member_required` and live in `apps/matches/admin_views.py`. URLs registered in `ovalpronos/urls.py` under the `admin/` prefix.
+
+**Route order:** a custom `admin/...` path must be listed **before** `admin.site.urls`, whose `<path:object_id>/` catch-all otherwise swallows it.
+
+```
+/admin/matches/competition/<id>/campaign-report/?since=YYYY-MM-DD   (name: admin_campaign_report)
+  GET → campaign_report(competition, since) from apps/matches/services.py
+      → templates/admin/matches/campaign_report.html: 4 stat cards (views, landing sign-ups, conversion, activated),
+        one table per source for the landing, one for sign-ups that entered elsewhere
+```
 
 ```
 /admin/matches/competition/<id>/import/

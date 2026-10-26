@@ -3,6 +3,7 @@ from django.db.models import Count
 from django.http import HttpResponseRedirect
 from django.urls import path, reverse
 from django.utils.html import format_html, mark_safe
+from django.utils.translation import gettext_lazy as _
 
 from .models import Competition, LandingView, Match, Team
 
@@ -54,7 +55,7 @@ class UpcomingMatchFilter(admin.SimpleListFilter):
 
 @admin.register(Competition)
 class CompetitionAdmin(admin.ModelAdmin):
-    list_display = ('name', 'code', 'season', 'scoring_system', 'good_gap_pts', 'is_active', 'end_date', 'match_count', 'sync_button')
+    list_display = ('name', 'code', 'report_button', 'season', 'scoring_system', 'good_gap_pts', 'is_active', 'end_date', 'match_count', 'sync_button')
     list_filter = ('is_active', 'season', 'scoring_system')
     list_editable = ('scoring_system', 'good_gap_pts', 'is_active', 'end_date')
     search_fields = ('name', 'code')
@@ -88,6 +89,11 @@ class CompetitionAdmin(admin.ModelAdmin):
     def sync_button(self, obj):
         url = reverse('admin:matches_competition_sync', args=[obj.pk])
         return format_html('<a class="button btn btn-sm btn-outline-primary" href="{}">Sync</a>', url)
+
+    @admin.display(description='')
+    def report_button(self, obj):
+        url = reverse('admin_campaign_report', args=[obj.pk])
+        return format_html('<a class="button btn btn-sm btn-outline-primary" href="{}">{}</a>', url, _("Campaign"))
 
     @admin.action(description='Synchroniser les matchs depuis l\'API')
     def sync_competition_action(self, request, queryset):

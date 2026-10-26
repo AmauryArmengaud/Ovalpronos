@@ -237,7 +237,7 @@ class LandingView(models.Model):
     count = models.PositiveIntegerField(default=0, verbose_name=_("Views"))
 
     class Meta:
-        verbose_name = _("Landing views")
+        verbose_name = _("Landing view")
         verbose_name_plural = _("Landing views")
         ordering = ['-day', 'source']
         constraints = [

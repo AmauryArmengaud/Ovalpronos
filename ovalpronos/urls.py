@@ -2,10 +2,13 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
-from apps.matches.admin_views import CompetitionImportView
+from apps.matches.admin_views import CampaignReportView, CompetitionImportView
 from apps.matches.views import sync_scores_api, notify_deadline_reminders_api, notify_results_summary_api, has_live_matches_api, upcoming_matches_api, update_odds_api, notify_missing_odds_api, live_matches_api, update_scores_api
 
 urlpatterns = [
+    # Before admin.site.urls: its '<path:object_id>/' catch-all would swallow this path
+    path('admin/matches/competition/<int:competition_id>/campaign-report/', CampaignReportView.as_view(),
+         name='admin_campaign_report'),
     path('admin/', admin.site.urls),
     path('admin/matches/competition/<int:competition_id>/import/', CompetitionImportView.as_view()),
     path('', include('apps.matches.urls', namespace='matches')),

@@ -37,7 +37,7 @@ class Migration(migrations.Migration):
                 ),
             ],
             options={
-                "verbose_name": "Landing views",
+                "verbose_name": "Landing view",
                 "verbose_name_plural": "Landing views",
                 "ordering": ["-day", "source"],
                 "constraints": [

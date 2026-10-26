@@ -117,7 +117,7 @@ python manage.py send_results_summary --competition-id=X --round=Y  # Email resu
 python manage.py deactivate_ended_competitions  # Set is_active=False on competitions past end_date
 python manage.py cleanup_bot_accounts           # Purge fake accounts (--dry-run / --since / --yes)
 python manage.py import_invitations contacts.csv --output tokens.csv  # Relaunch campaign: pre-filled sign-up links for 2023 players, tokens for Brevo
-python manage.py campaign_report NATIONS [--since 2026-11-01]  # Landing funnel per source: views, sign-ups, conversion, activated, leagues; sign-ups that entered elsewhere listed apart
+python manage.py report_campaign NATIONS [--since 2026-11-01]  # Landing funnel per source: views, sign-ups, conversion, activated, leagues; sign-ups that entered elsewhere listed apart. Same report in admin: Compétitions > "Campagne"
 
 # Run tests (mandatory before deploy)
 python manage.py test apps.predictions.tests apps.matches.tests
