@@ -1,0 +1,107 @@
+/* ─── Design tokens ────────────────────────────────────────────────────────
+   Single source of every colour, loaded first by base.html and by the admin
+   (admin/base_site.html). A white-label tenant replaces this :root only;
+   main.css and admin.css reference these variables and never declare them.
+   ─────────────────────────────────────────────────────────────────────────── */
+:root {
+  /* Brand */
+  --color-primary:          #2B3467;
+  --color-background:       #FCFFF9;
+  --color-accent:           #EB455F;
+  --color-brand-rugby:      #1a7f37;
+
+  /* Text */
+  --color-text:             #404771;     /* body text — distinct from brand primary */
+  --color-text-on-primary:  #FCFFF9;
+  --color-text-body:        #3d3d3d;     /* prose / feature copy */
+  --color-text-secondary:   rgba(43, 52, 103, 0.75);  /* was 0.55 (~3.2:1) → now ~5.4:1 on cream */
+
+  /* Surfaces */
+  --color-surface-raised:   rgba(43, 52, 103, 0.06);
+  --color-light:            #BAD7E9;     /* legacy — prefer --color-icon-muted for icons */
+  --color-icon-muted:       rgba(43, 52, 103, 0.28);
+  /* Rankings "You" row — primary-tinted, dark text passes 6.9:1 */
+  --color-you-highlight:    rgba(43, 52, 103, 0.12);
+  /* Rankings podium medals */
+  --color-rank-silver:      rgba(43, 52, 103, 0.65);  /* silver-toned — 4.1:1 on cream, passes 3:1 icon minimum */
+  --color-rank-bronze:      rgba(184, 105, 37, 0.75); /* amber — bronze-toned */
+  /* Team logo initials fallback — visible against card background (was 0.06, invisible) */
+  --color-logo-fallback-bg: rgba(43, 52, 103, 0.15);
+  /* Team logo circle background — subtle tint behind all logos (pale logos, shape harmony) */
+  --color-logo-bg:          rgba(43, 52, 103, 0.08);
+
+  /* Result badges — ordered best to worst */
+  --color-badge-exact:      #F5C542;     /* gold — best outcome */
+  --color-badge-exact-text: #5c4500;     /* dark amber — 5.7:1 on badge-exact gold (#F5C542) */
+  --color-badge-gap:        #8B35A8;     /* muted purple — dark enough for bg and text */
+  --color-badge-win:        #A8E063;     /* lime green — badge background */
+  --color-badge-win-text:   #235408;     /* dark green — 5.8:1 on badge-win lime (#A8E063) */
+  --color-badge-win-light:  rgba(168, 224, 99, 0.25);   /* 25% win — light result banner bg */
+  --color-badge-gap-light:  rgba(139, 53, 168, 0.35);   /* 35% gap — medium result banner bg */
+  --color-badge-miss:       rgba(43, 52, 103, 0.10);  /* neutral — subdued, no points */
+  --color-badge-miss-text:  rgba(43, 52, 103, 0.75);  /* ~5.4:1 on cream — matches --color-text-secondary */
+  /* Hero oval motif — cream at 7% opacity on navy background */
+  --color-hero-motif:       rgba(252, 255, 249, 0.07);
+  /* League ended badge — neutral tone, distinct from badge-miss (wrong prediction) */
+  --color-badge-ended-bg:   rgba(43, 52, 103, 0.08);
+  --color-badge-ended-text: rgba(43, 52, 103, 0.75);  /* ~5.4:1 on cream — AA for text */
+
+  /* Type scale */
+  --text-sm:   0.875rem;
+  --text-xs:   0.75rem;
+  --text-2xs:  0.65rem;
+
+  /* Radius scale */
+  --radius-sm:   0.375rem;
+  --radius-md:   0.75rem;
+  --radius-pill: 100rem;
+
+  /* Primary navy, translucent (aNN = NN % opacity, a025 = 2.5 %) */
+  --color-primary-a025:      rgba(43, 52, 103, 0.025);
+  --color-primary-a04:       rgba(43, 52, 103, 0.04);
+  --color-primary-a05:       rgba(43, 52, 103, 0.05);
+  --color-primary-a06:       rgba(43, 52, 103, 0.06);
+  --color-primary-a07:       rgba(43, 52, 103, 0.07);
+  --color-primary-a10:       rgba(43, 52, 103, 0.1);
+  --color-primary-a12:       rgba(43, 52, 103, 0.12);
+  --color-primary-a13:       rgba(43, 52, 103, 0.13);
+  --color-primary-a14:       rgba(43, 52, 103, 0.14);
+  --color-primary-a15:       rgba(43, 52, 103, 0.15);
+  --color-primary-a20:       rgba(43, 52, 103, 0.2);
+  --color-primary-a25:       rgba(43, 52, 103, 0.25);
+  --color-primary-a30:       rgba(43, 52, 103, 0.3);
+  /* Cream text on primary, translucent */
+  --color-text-on-primary-a10:  rgba(252, 255, 249, 0.1);
+  --color-text-on-primary-a20:  rgba(252, 255, 249, 0.2);
+  --color-text-on-primary-a25:  rgba(252, 255, 249, 0.25);
+  --color-text-on-primary-a40:  rgba(252, 255, 249, 0.4);
+  --color-text-on-primary-a45:  rgba(252, 255, 249, 0.45);
+  --color-text-on-primary-a50:  rgba(252, 255, 249, 0.5);
+  --color-text-on-primary-a70:  rgba(252, 255, 249, 0.7);
+  --color-text-on-primary-a75:  rgba(252, 255, 249, 0.75);
+  --color-text-on-primary-a80:  rgba(252, 255, 249, 0.8);
+  --color-text-on-primary-a85:  rgba(252, 255, 249, 0.85);
+  /* Accent, translucent */
+  --color-accent-a07:        rgba(235, 69, 95, 0.07);
+  --color-accent-a10:        rgba(235, 69, 95, 0.1);
+  --color-accent-a15:        rgba(235, 69, 95, 0.15);
+  --color-accent-a20:        rgba(235, 69, 95, 0.2);
+  /* Brand rugby green, translucent */
+  --color-brand-rugby-a08:   rgba(26, 127, 55, 0.08);
+  --color-brand-rugby-a10:   rgba(26, 127, 55, 0.1);
+  --color-brand-rugby-a40:   rgba(26, 127, 55, 0.4);
+  /* White, translucent */
+  --color-white-a10:         rgba(255, 255, 255, 0.1);
+  /* Black, translucent */
+  --color-black-a15:         rgba(0, 0, 0, 0.15);
+
+  /* Plain colours used outside the brand palette */
+  --color-white:             #fff;   /* admin panels and table rows */
+  --color-warning:           #d97706;   /* admin warning messages */
+  --color-warning-light:     #ffc107;   /* admin "postponed" badge and missing-odds icon */
+  --color-warning-light-text:  #705500;   /* text on --color-warning-light */
+  --color-success:           #28a745;   /* admin odds-present tick */
+
+  /* Admin borders */
+  --border:     1px solid rgba(43, 52, 103, 0.12);
+}

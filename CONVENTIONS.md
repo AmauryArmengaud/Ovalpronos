@@ -153,8 +153,13 @@ Available variables (source of truth: the `:root` block of `static/css/tokens.cs
 | `--color-hero-motif` | `rgba(252, 255, 249, 0.07)` | Hero oval motif on navy |
 | `--color-badge-ended-bg` | `rgba(43, 52, 103, 0.08)` | Ended league badge background |
 | `--color-badge-ended-text` | `rgba(43, 52, 103, 0.75)` | Ended league badge text |
+| `--color-white` | `#fff` | Admin panels and table rows |
+| `--color-warning` | `#d97706` | Admin warning messages |
+| `--color-warning-light` | `#ffc107` | Admin "postponed" badge, missing-odds icon |
+| `--color-warning-light-text` | `#705500` | Text on `--color-warning-light` |
+| `--color-success` | `#28a745` | Admin odds-present tick |
 
-Translucent shades (`--color-<base>-aNN`, NN = opacity in %) are listed in `tokens.css` next to their base color.
+Translucent shades (`--color-<base>-aNN`, NN = opacity in %, `a025` = 2.5 %) are listed in `tokens.css` under their base color, together with `--border` (admin borders). `apps/matches/tests_quality.py::StylesheetColorTest` fails if a literal color appears in `main.css` or `admin.css`.
 
 ---
 

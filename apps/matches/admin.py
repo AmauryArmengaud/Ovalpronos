@@ -139,7 +139,7 @@ _STATUS_STYLES = {
     'SCHEDULED': ('var(--color-primary)', 'var(--color-text-on-primary)', _("Upcoming")),
     'IN_PLAY':   ('var(--color-brand-rugby)', 'var(--color-text-on-primary)', _("In play")),
     'FINISHED':  ('var(--color-surface-raised)', 'var(--color-text)', _("Finished")),
-    'POSTPONED': ('#ffc107', '#705500', _("Postponed")),
+    'POSTPONED': ('var(--color-warning-light)', 'var(--color-warning-light-text)', _("Postponed")),
     'CANCELLED': ('var(--color-accent)', 'var(--color-text-on-primary)', _("Cancelled")),
 }
 
@@ -177,8 +177,8 @@ class MatchAdmin(admin.ModelAdmin):
     @admin.display(description=pgettext_lazy("admin column", "Odds"), boolean=False)
     def has_odds_badge(self, obj):
         if obj.has_odds:
-            return mark_safe('<span style="color:#28a745">&#10003;</span>')
-        return mark_safe('<span style="color:#ffc107">&#9888;</span>')
+            return mark_safe('<span style="color:var(--color-success)">&#10003;</span>')
+        return mark_safe('<span style="color:var(--color-warning-light)">&#9888;</span>')
 
     @admin.display(description=_("Predictions"), ordering='_prediction_count')
     def prediction_count(self, obj):
