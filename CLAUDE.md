@@ -118,6 +118,7 @@ python manage.py deactivate_ended_competitions  # Set is_active=False on competi
 python manage.py cleanup_bot_accounts           # Purge fake accounts (--dry-run / --since / --yes)
 python manage.py import_invitations contacts.csv --output tokens.csv  # Relaunch campaign: pre-filled sign-up links for 2023 players, tokens for Brevo
 python manage.py sync_brevo_contacts           # Relaunch campaign: push INSCRIT_V2, LIGUE_NOM, NB_MEMBRES_LIGUE to Brevo (nightly cron + before each send)
+python manage.py report_campaign NATIONS [--since 2026-11-01]  # Landing funnel per source: views, sign-ups, conversion, activated, leagues; sign-ups that entered elsewhere listed apart. Same report in admin: Compétitions > "Campagne"
 
 # Run tests (mandatory before deploy)
 python manage.py test apps.predictions.tests apps.matches.tests
@@ -173,6 +174,7 @@ All Django apps live under `apps/`. URL routing (all paths in English):
 | `/rankings/` | `rankings` | Global and league leaderboards |
 | `/leagues/` | `leagues` | Private leagues |
 | `/rules/` | `matches` | Scoring rules page |
+| `/competitions/<code>/` | `matches` | Visitor landing for one active competition (upcoming matches with winner points), for campaigns and social posts |
 | `/api/sync-scores/` | `matches` | Secured score sync endpoint (POST, Bearer token) |
 | `/api/upcoming-matches/` | `matches` | Returns upcoming SCHEDULED matches for next 14 days (GET, Bearer token) |
 | `/api/update-odds/` | `matches` | Writes bookmaker odds to matches (POST, Bearer token) |
@@ -181,13 +183,14 @@ All Django apps live under `apps/`. URL routing (all paths in English):
 
 ### Key Models
 
-- **`accounts.CustomUser`** — extends AbstractUser; adds `display_name`, `avatar`, `favorite_team` (FK to Team)
+- **`accounts.CustomUser`** — extends AbstractUser; adds `display_name`, `avatar`, `favorite_team` (FK to Team), `signup_source` / `signup_medium` / `signup_campaign` / `signup_content` / `signup_landing_path` (attribution without cookies: every register/login link is built with `{% auth_url %}`, which carries the UTMs, the first page and a known external Referer in the URL; priority and normalization in `apps/accounts/signup_source.py`)
 - **`accounts.Invitation`** — single-use sign-up link for 2023 players (`token`, `email`, `pseudo`, `first_name`, `last_name`, `cohort`, `used_at`, `user`); `/accounts/register/?invite=<token>` pre-fills email, username, first/last name and display name
 - **`matches.Competition`** — has `scoring_system` (`COTES` or `FIXED`), `good_gap_pts` (gap threshold for ×2 tier), `end_date` (used by `deactivate_ended_competitions` command to auto-set `is_active=False`)
 - **`matches.Team`** — has `slug` field; logos are local PNG files at `static/img/teams/<slug>.png`
 - **`matches.Match`** — has `cote_home/cote_draw/cote_away` (integers = bookmaker odds × 10, sourced via Gemini); computed properties `is_locked`, `has_odds`, `result`, `closes_soon`, `time_until_kickoff`
 - **`predictions.Prediction`** — unique per `(user, match)`; `result_type` field: EXACT / GAP / WIN / MISS / CANCELLED
 - **`leagues.League`** — `invite_code` (5-char, auto-generated), `creator` FK, `members` M2M, `competitions` M2M → Competition (required at creation, scopes the league leaderboard and predictions). `is_active` is a computed property: `True` if any linked competition is active. League detail page has a "Copy link" button that copies the full join URL (`/leagues/join/?code=XXXXX`); the join page pre-fills the code when `?code=` is present.
+- **`matches.LandingView`** — anonymous daily view counter of a competition landing per source (no personal data, preview bots excluded)
 - **`rankings.UserScore`** — denormalized score cache; one row per (user, global) and (user, competition); updated by `refresh_user_scores_for_match()` after each match is scored
 
 → Full field tables: **ARCHITECTURE.md §2**
@@ -313,6 +316,7 @@ Crontab de l'utilisateur `amaury` sur le VPS Hetzner. Logs dans `/home/amaury/lo
 | `*/10 * * * *` | `python scripts/sync_live_scores.py` | Scores live et finaux via Gemini, exit silencieux si pas de match |
 | `0 10 * * 2` | `python scripts/update_odds.py` | Mise à jour cotes Gemini (mardi 10h00 UTC) |
 | `0 10 * * *` | `python manage.py send_deadline_reminders` | Rappels deadline quotidiens (10h00 UTC) |
+| `30 2 * * *` | `python manage.py sync_brevo_contacts` | Relance 2023 : `INSCRIT_V2`, `LIGUE_NOM`, `NB_MEMBRES_LIGUE` vers Brevo (log `sync_brevo.log`, check Healthchecks `sync-brevo-contacts`) |
 
 Logrotate : `/etc/logrotate.d/ovalpronos` — rotation hebdomadaire, 12 semaines, compression.
 

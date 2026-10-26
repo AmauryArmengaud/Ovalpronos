@@ -527,6 +527,26 @@ Leaderboard: {% include "rankings/_table.html" %} — zero duplication
 
 ---
 
+### Landing compétition (DONE)
+
+**Route:** `/competitions/<code>/`, campaign entry point (WhatsApp ≈ 90 % mobile, LinkedIn). Reuses the home hero
+with `.landing-hero` (compact padding on phones) and `body.landing-page`.
+
+- Hero, in this order: competition name (h1), one-sentence promise, `Faire mes pronos` CTA, `Déjà inscrit ? Se connecter`,
+  deadline line computed server-side from the next match, social proof only from 20 players (`SOCIAL_PROOF_MIN_PLAYERS`).
+  Measured at 375×667: CTA top at 274 px (was 602 px).
+- The consent banner renders after the hero on this page (`{% block consent_banner %}` in `base.html`); above it,
+  it pushed the CTA below the fold.
+- Landing CTAs are 1.2rem / 700: cream on accent is 3.75:1, which only passes AA as large text. Points pills use
+  primary, not accent, for the same reason.
+- Sticky CTA under 992 px, revealed by an IntersectionObserver once the hero buttons leave the screen; no JS = never shown.
+- FAQ in `<details>`, no JS. JSON-LD `SportsEvent` for the next matches, `<` escaped.
+- Share previews: `Competition.og_image` (1200×630, optional, falls back to `img/og-img.png`); `og:url` and
+  `rel=canonical` drop the query string so campaign links stay one page; `og:locale`, `twitter:card`.
+- Referral loop: the response to a player's very first prediction adds `partials/share_invite.html` (OOB into
+  `#share-invite`): WhatsApp link + Web Share button pointing at the landing with `utm_source=referral`,
+  `utm_campaign=<code>`, `utm_content=<referral_code(user)>` (12-char HMAC of the user id, not reversible).
+
 ### Page d'invitation publique (DONE)
 
 **Route:** `/leagues/invite/<code>/` — GET is public (no login required).

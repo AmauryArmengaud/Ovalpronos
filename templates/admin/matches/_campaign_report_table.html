@@ -1,0 +1,42 @@
+{% load i18n admin_extras %}
+<div class="module campaign-report-scroll">
+  <table class="campaign-report-table">
+    <caption>{{ caption }}</caption>
+    <thead>
+      <tr>
+        <th scope="col">{% trans "Source" %}</th>
+        {% if with_views %}<th scope="col" class="num">{% trans "Views" %}</th>{% endif %}
+        <th scope="col" class="num">{% trans "Sign-ups" %}</th>
+        {% if with_views %}<th scope="col" class="num">{% trans "Conversion" %}</th>{% endif %}
+        <th scope="col" class="num">{% trans "Activated" %}</th>
+        <th scope="col" class="num">{% trans "Leagues created" %}</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for row in section.rows %}
+      <tr>
+        <th scope="row">{{ row.source }}</th>
+        {% if with_views %}<td class="num">{{ row.views }}</td>{% endif %}
+        <td class="num">{{ row.signups }}</td>
+        {% if with_views %}<td class="num">{{ row.conversion|percent }}</td>{% endif %}
+        <td class="num">{{ row.activated }}</td>
+        <td class="num">{{ row.leagues }}</td>
+      </tr>
+      {% empty %}
+      <tr><td colspan="{% if with_views %}6{% else %}4{% endif %}">{% trans "No data for this period." %}</td></tr>
+      {% endfor %}
+    </tbody>
+    {% if section.rows %}
+    <tfoot>
+      <tr>
+        <th scope="row">{% trans "Total" %}</th>
+        {% if with_views %}<td class="num">{{ section.total.views }}</td>{% endif %}
+        <td class="num">{{ section.total.signups }}</td>
+        {% if with_views %}<td class="num">{{ section.total.conversion|percent }}</td>{% endif %}
+        <td class="num">{{ section.total.activated }}</td>
+        <td class="num">{{ section.total.leagues }}</td>
+      </tr>
+    </tfoot>
+    {% endif %}
+  </table>
+</div>

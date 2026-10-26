@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load i18n %}
+{% load account_tags %}
 {% load static %}
 
 {% block title %}
@@ -79,11 +80,11 @@
       </p>
 
       <div class="home-hero__ctas">
-        <a href="{% url 'accounts:register' %}?next={{ request.path }}"
+        <a href="{% auth_url 'accounts:register' next=request.path %}"
            class="btn btn-accent home-hero__cta-primary">
           {% trans "Create my account" %}
         </a>
-        <a href="{% url 'accounts:login' %}?next={{ request.path }}"
+        <a href="{% auth_url 'accounts:login' next=request.path %}"
            class="home-hero__cta-secondary">
           {% trans "I already have an account" %}
         </a>

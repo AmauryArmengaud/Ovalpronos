@@ -91,3 +91,28 @@ class ImportInvitationsCommandTest(TestCase):
         second = self._run()
         self.assertEqual(first, second)
         self.assertEqual(Invitation.objects.count(), 1)
+
+
+class RegisterSignupSourceTest(TestCase):
+
+    @patch('apps.accounts.views._verify_turnstile', return_value=True)
+    def test_utm_stored_on_account(self, _mock):
+        response = self.client.get(REGISTER_URL, {'utm_source': 'whatsapp', 'utm_campaign': 'relance_cdn'})
+        self.assertContains(response, 'name="utm_source" value="whatsapp"')
+        self.client.post(REGISTER_URL, {**VALID_FORM, 'utm_source': 'whatsapp', 'utm_campaign': 'relance_cdn'})
+        user = CustomUser.objects.get(username='Pepito')
+        self.assertEqual((user.signup_source, user.signup_campaign), ('whatsapp', 'relance_cdn'))
+
+    @patch('apps.accounts.views._verify_turnstile', return_value=True)
+    def test_league_invite_without_utm(self, _mock):
+        from apps.leagues.models import League
+        creator = CustomUser.objects.create_user(username='creator', email='c@test.local', password='x')
+        league = League.objects.create(name='Les potes', creator=creator)
+        next_url = reverse('leagues:public_invite', kwargs={'code': league.invite_code})
+        self.client.post(REGISTER_URL, {**VALID_FORM, 'next': next_url})
+        self.assertEqual(CustomUser.objects.get(username='Pepito').signup_source, 'league_invite')
+
+    @patch('apps.accounts.views._verify_turnstile', return_value=True)
+    def test_direct_signup_is_direct(self, _mock):
+        self.client.post(REGISTER_URL, VALID_FORM)
+        self.assertEqual(CustomUser.objects.get(username='Pepito').signup_source, 'direct')

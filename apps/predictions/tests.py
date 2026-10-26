@@ -332,3 +332,40 @@ class SubmitPredictionRetargetTest(TestCase):
         self.assertEqual(resp['HX-Retarget'], f'#match-card-{no_odds.pk}')
         self.assertEqual(resp['HX-Reswap'], 'outerHTML')
         self.assertIn(f'id="match-card-{no_odds.pk}"', resp.content.decode())
+
+
+class FirstPredictionShareInviteTest(TestCase):
+    """The referral share prompt appears with the first prediction only."""
+
+    @classmethod
+    def setUpTestData(cls):
+        from apps.leagues.models import League
+        cls.user = _make_user('share_user')
+        cls.comp = _make_comp('SHARETEST')
+        league = League.objects.create(name='Share League', creator=cls.user)
+        league.competitions.add(cls.comp)
+        league.members.add(cls.user)
+        a, b = _make_team('share-a'), _make_team('share-b')
+        cls.match1 = _make_match(cls.comp, a, b, external_id=-89001)
+        cls.match2 = _make_match(cls.comp, b, a, external_id=-89002)
+
+    def setUp(self):
+        self.client.force_login(self.user)
+
+    def _submit(self, match, h=20, a=10):
+        return self.client.post(
+            reverse('predictions:submit', kwargs={'match_pk': match.pk}),
+            {'score_h': str(h), 'score_a': str(a)},
+        ).content.decode()
+
+    def test_first_prediction_returns_referral_link(self):
+        from apps.accounts.signup_source import referral_code
+        content = self._submit(self.match1)
+        self.assertIn('id="share-invite" hx-swap-oob="true"', content)
+        self.assertIn('/competitions/sharetest/?utm_source=referral&amp;utm_medium=share'
+                      f'&amp;utm_campaign=sharetest&amp;utm_content={referral_code(self.user)}', content)
+
+    def test_updates_and_later_predictions_do_not_repeat_it(self):
+        self._submit(self.match1)
+        self.assertNotIn('share-invite', self._submit(self.match1, 30, 10))
+        self.assertNotIn('share-invite', self._submit(self.match2))

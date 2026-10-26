@@ -49,8 +49,8 @@ locale/
 | Field | Type | Notes |
 |---|---|---|
 | `email` | EmailField | unique, login identifier |
-| `first_name` | CharField | required |
-| `last_name` | CharField | required |
+| `first_name` | CharField | optional at sign-up; asked (pre-filled) only on a 2023 invitation |
+| `last_name` | CharField | optional at sign-up; asked (pre-filled) only on a 2023 invitation |
 | `display_name` | CharField(50) | shown in rankings; falls back to username |
 | `favorite_team` | FK → Team | null/blank, set after teams are imported |
 | `avatar` | ImageField | optional, upload_to='avatars/' |
@@ -66,6 +66,7 @@ locale/
 | `season` | CharField | "2024-2025" |
 | `is_active` | BooleanField | current season flag; set to False by `deactivate_ended_competitions` when past `end_date` |
 | `end_date` | DateField | null/blank; when set, `deactivate_ended_competitions` auto-deactivates |
+| `og_image` | ImageField | blank, upload_to='og/'; 1200×630 share preview of `/competitions/<code>/` |
 | `scoring_system` | CharField | 'COTES' or 'FIXED' |
 | `good_gap_pts` | IntegerField | max gap diff for ×2 tier (default 3) |
 
@@ -112,6 +113,19 @@ Computed properties (no DB storage):
 **Prediction blocking rule:** if `not match.has_odds`, the match card shows "Odds coming soon" and the form is hidden. The submission view also rejects POSTs when odds are missing.
 
 **CANCELLED handling:** all associated Predictions get `points_earned=0`, `result_type='CANCELLED'`. UserScore `count_cancelled` is incremented.
+
+### `matches.LandingView`
+
+Anonymous daily view counter of `/competitions/<code>/`, incremented server-side (no cookie, IP, user agent or user).
+
+| Field | Type | Notes |
+|---|---|---|
+| `competition` | FK → Competition | CASCADE |
+| `day` | DateField | local date |
+| `source` | CharField(50) | `utm_source` > known Referer > `direct`, normalized like `signup_source` |
+| `count` | PositiveIntegerField | `F('count') + 1`; unique on (competition, day, source) |
+
+Not counted: logged-in players (redirected), HEAD, link-preview fetchers and crawlers (`PREVIEW_BOT_RE`), so pasting a link in a WhatsApp group is not a view. Reloads do count. Read by `apps/matches/services.py::campaign_report()`, shared by the `report_campaign` command and the admin campaign report page.
 
 ### `predictions.Prediction`
 
@@ -342,11 +356,12 @@ The admin uses Django's native admin with a custom theme that matches the main a
 
 | Admin | Key additions |
 |---|---|
-| `CompetitionAdmin` | Sync action, recalculate scores action, match count column, per-row sync button |
+| `CompetitionAdmin` | Sync action, recalculate scores action, match count column, per-row sync button, per-row "Campagne" link to the campaign report |
 | `MatchAdmin` | Status/odds badges, prediction count, `PredictionInline` (read-only), `UpcomingMatchFilter` (default=SCHEDULED), recalculate/refresh/hide actions |
 | `PredictionAdmin` | Result-type badges, match link, recalculate action; no add/change permission |
 | `UserScoreAdmin` | Scope label, cache refresh action; no add/change permission |
-| `CustomUserAdmin` | Prediction count, activate/deactivate actions |
+| `CustomUserAdmin` | Prediction count, activate/deactivate actions, attribution columns and filters (source, medium, campaign, content), `ActivatedFilter` (≥ 1 prediction), CSV export of attribution (no email or name) |
+| `LandingViewAdmin` | Read-only daily views per competition and source |
 | `LeagueAdmin` | Regenerate invite code action |
 
 ### Admin service calls
@@ -359,6 +374,15 @@ Admin actions call existing service functions directly — no duplication:
 ### Custom admin views
 
 Non-standard ModelAdmin pages use `@staff_member_required` and live in `apps/matches/admin_views.py`. URLs registered in `ovalpronos/urls.py` under the `admin/` prefix.
+
+**Route order:** a custom `admin/...` path must be listed **before** `admin.site.urls`, whose `<path:object_id>/` catch-all otherwise swallows it.
+
+```
+/admin/matches/competition/<id>/campaign-report/?since=YYYY-MM-DD   (name: admin_campaign_report)
+  GET → campaign_report(competition, since) from apps/matches/services.py
+      → templates/admin/matches/campaign_report.html: 4 stat cards (views, landing sign-ups, conversion, activated),
+        one table per source for the landing, one for sign-ups that entered elsewhere
+```
 
 ```
 /admin/matches/competition/<id>/import/

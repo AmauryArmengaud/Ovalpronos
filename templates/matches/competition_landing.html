@@ -1,0 +1,161 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% load static %}
+{% load match_tags %}
+{% load account_tags %}
+
+{% block title %}{{ competition.name }} — {% trans "Rugby predictions with friends" %} — Oval'Pronos{% endblock %}
+{% block og_title %}{% blocktrans with name=competition.name %}{{ name }}: predict every match with your friends{% endblocktrans %}{% endblock %}
+{% block og_description %}{% trans "Free. A score on every match, points based on the odds: the bold prediction pays off." %}{% endblock %}
+
+{% block og_image_path %}{% if competition.og_image %}{{ competition.og_image.url }}{% else %}{{ block.super }}{% endif %}{% endblock %}
+{% block body_class %}home-visitor landing-page{% endblock %}
+{% block main_class %}p-0{% endblock %}
+{# Rendered after the hero instead: above it, the banner pushes the sign-up button below the fold on phones #}
+{% block consent_banner %}{% endblock %}
+
+{% block extra_head %}
+{% if events_jsonld %}<script type="application/ld+json">{{ events_jsonld|safe }}</script>{% endif %}
+{% endblock %}
+
+{% block content %}
+{% auth_url 'accounts:register' next=request.path as register_url %}
+
+{# ── Hero: name, promise, CTA, deadline. Fits a 375×667 screen ────────── #}
+<section class="home-hero landing-hero">
+  <div class="container home-hero__inner">
+    <div class="home-hero__content">
+      <h1 class="home-hero__title landing-hero__title">{{ competition.name }}</h1>
+      <p class="landing-hero__promise">
+        {% trans "Free predictions with your friends. Back the underdog: it earns more points." %}
+      </p>
+      <div class="home-hero__ctas">
+        <a href="{{ register_url }}" class="btn btn-accent home-hero__cta-primary">
+          {% trans "Make my predictions" %}
+        </a>
+        <a href="{% auth_url 'accounts:login' next=request.path %}" class="home-hero__cta-secondary">
+          {% trans "Already signed up? Log in" %}
+        </a>
+      </div>
+      {% if upcoming %}
+      <p class="landing-urgency">
+        <i class="ti ti-clock" aria-hidden="true"></i>
+        {% if competition_started %}{% trans "Next match" %}{% else %}{% trans "First match" %}{% endif %}
+        {% if kickoff_days == 0 %}{% trans "today" %}{% elif kickoff_days == 1 %}{% trans "tomorrow" %}{% else %}{% blocktrans count days=kickoff_days %}in {{ days }} day{% plural %}in {{ days }} days{% endblocktrans %}{% endif %},
+        {% trans "predictions close at kick-off" %}
+      </p>
+      {% endif %}
+      {% if player_count %}
+      <p class="landing-proof">
+        <i class="ti ti-users" aria-hidden="true"></i>
+        {% blocktrans count players=player_count %}{{ players }} player already in{% plural %}{{ players }} players already in{% endblocktrans %}{% if league_count >= 3 %} · {% blocktrans count leagues=league_count %}{{ leagues }} league{% plural %}{{ leagues }} leagues{% endblocktrans %}{% endif %}
+      </p>
+      {% endif %}
+    </div>
+    <img src="{% static 'img/boar-mascot.png' %}" alt="Mascotte Oval'Pronos"
+         class="home-hero__mascot d-none d-lg-block"
+         width="240" height="240">
+  </div>
+</section>
+
+{% include "partials/consent_banner.html" %}
+
+{# ── Upcoming matches: what each winner would earn ───────────────────── #}
+{% if upcoming %}
+<section class="container py-5 home-section">
+  <h2 class="home-section__title mb-2">{% trans "Upcoming matches" %}</h2>
+  <p class="home-section__sub mb-4">{% trans "Points earned for the correct winner. The underdog pays more." %}</p>
+  <ul class="comp-landing-matches list-unstyled mb-0">
+    {% for match in upcoming %}
+    <li class="comp-landing-match">
+      <span class="comp-landing-match__date">{{ match.datetime|date:"D j M · H:i" }}</span>
+      <span class="comp-landing-match__team">
+        {{ match.home_team.short_name|default:match.home_team.name }}
+        {% if match.has_odds %}<span class="comp-landing-match__pts">{{ match.cote_home|format_cote }} pts</span>{% endif %}
+      </span>
+      <span class="comp-landing-match__team comp-landing-match__team--away">
+        {% if match.has_odds %}<span class="comp-landing-match__pts">{{ match.cote_away|format_cote }} pts</span>{% endif %}
+        {{ match.away_team.short_name|default:match.away_team.name }}
+      </span>
+    </li>
+    {% endfor %}
+  </ul>
+</section>
+{% endif %}
+
+{# ── How it works ────────────────────────────────────────────────────── #}
+<section class="home-comps-section py-5">
+  <div class="container">
+    <h2 class="home-section__title mb-2">{% trans "How it works" %}</h2>
+    <p class="home-section__sub mb-4">
+      {% trans "An unlikely winner earns more points." %}
+      {% trans "Clermont — Perpignan, Perpignan wins (odds 6.30 = 63 base pts):" %}
+    </p>
+    {% include 'partials/scoring_example.html' %}
+  </div>
+</section>
+
+{# ── Leagues: every league created is a WhatsApp group brought in ────── #}
+<section class="container py-5 home-section">
+  <div class="home-social-row">
+    <div class="home-social-content">
+      <h2 class="home-section__title mb-2">{% trans "Create your league and invite your WhatsApp group" %}</h2>
+      <p class="home-section__sub mb-4">
+        {% trans "A leaderboard just for your group. Share the link in the chat, your friends join from it." %}
+      </p>
+      <a href="{% auth_url 'accounts:register' next=create_league_url %}" class="btn btn-accent home-hero__cta-primary">
+        {% trans "Create my league" %}
+      </a>
+    </div>
+    <img src="{% static 'img/boar-mascot.png' %}" alt="" aria-hidden="true"
+         class="home-social-mascot d-lg-none" loading="lazy"
+         width="100" height="100">
+  </div>
+</section>
+
+{# ── FAQ: the four objections heard before signing up ───────────────── #}
+<section class="home-comps-section py-5">
+  <div class="container">
+    <h2 class="home-section__title mb-4">{% trans "Questions" %}</h2>
+    <div class="landing-faq">
+      <details>
+        <summary>{% trans "Is it really free?" %}</summary>
+        <p>{% trans "Yes, entirely. No money at stake: the odds are only used to count points." %}</p>
+      </details>
+      <details>
+        <summary>{% trans "How much time does it take each week?" %}</summary>
+        <p>{% trans "A few minutes per round: one score per match, saved as you type. An email reminds you of the matches you have not predicted yet." %}</p>
+      </details>
+      <details>
+        <summary>{% trans "Do I need to know rugby?" %}</summary>
+        <p>{% trans "No. Pick a winner and a score. The odds tell you who the favourite is; backing the underdog earns more, and a long shot can pay off." %}</p>
+      </details>
+      <details>
+        <summary>{% trans "What happens to my data?" %}</summary>
+        <p>
+          {% trans "Your email is used for your account and match reminders. No advertising, nothing is sold. Usage statistics only start if you accept them, and you can delete your account at any time from your profile." %}
+          <a href="{% url 'matches:legal_privacy' %}">{% trans "Privacy policy" %}</a>
+        </p>
+      </details>
+    </div>
+  </div>
+</section>
+
+{# ── Sticky CTA (phones): shown once the hero button has scrolled away ─ #}
+<div class="landing-sticky-cta d-lg-none" hidden>
+  <a href="{{ register_url }}" class="btn btn-accent w-100">{% trans "Make my predictions" %}</a>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function () {
+  var sticky = document.querySelector('.landing-sticky-cta');
+  var heroCtas = document.querySelector('.landing-hero .home-hero__ctas');
+  if (!sticky || !heroCtas || !('IntersectionObserver' in window)) return;
+  new IntersectionObserver(function (entries) {
+    sticky.hidden = entries[0].isIntersecting;
+  }).observe(heroCtas);
+})();
+</script>
+{% endblock %}

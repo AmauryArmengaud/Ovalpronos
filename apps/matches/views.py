@@ -1,13 +1,17 @@
 import hmac
+import json
+import re
 
 from django.shortcuts import redirect
+from django.urls import reverse
 from django.views.generic import TemplateView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.decorators.csrf import csrf_exempt
 from django.utils import timezone
 from django.views.decorators.http import require_POST, require_GET
-from django.http import JsonResponse
+from django.http import Http404, JsonResponse
 from django.conf import settings
+from django.contrib.auth import get_user_model
 
 
 class HomeView(TemplateView):
@@ -25,6 +29,88 @@ class HomeView(TemplateView):
         ctx['competitions'] = Competition.objects.filter(is_active=True).order_by('name')
         ctx['example'] = get_example_points()
         return ctx
+
+
+SOCIAL_PROOF_MIN_PLAYERS = 20
+
+
+# Link-preview fetchers and crawlers: a link pasted in a WhatsApp group is fetched before anyone opens it
+PREVIEW_BOT_RE = re.compile(
+    r'whatsapp|facebookexternalhit|facebot|linkedinbot|twitterbot|slackbot|telegrambot|discordbot'
+    r'|googlebot|bingbot|applebot|bot\b|crawler|spider|preview',
+    re.IGNORECASE,
+)
+
+
+class CompetitionLandingView(TemplateView):
+    """Visitor landing page for one competition, linked from campaigns and social posts"""
+    template_name = 'matches/competition_landing.html'
+
+    def dispatch(self, request, *args, **kwargs):
+        from apps.matches.models import Competition
+        self.competition = Competition.objects.filter(code__iexact=kwargs['code'], is_active=True).first()
+        if self.competition is None:
+            raise Http404
+        if request.user.is_authenticated:
+            # Login and register links come back here (next=this page): send the player where they can predict
+            if request.user.leagues.filter(competitions=self.competition).exists():
+                return redirect('predictions:index')
+            return redirect(f"{reverse('leagues:create')}?competition={self.competition.code}")
+        return super().dispatch(request, *args, **kwargs)
+
+    def get(self, request, *args, **kwargs):
+        if request.method == 'GET' and not PREVIEW_BOT_RE.search(request.META.get('HTTP_USER_AGENT', '')):
+            from apps.accounts.signup_source import visit_source
+            from apps.matches.models import LandingView
+            LandingView.record(self.competition, visit_source(request))
+        return super().get(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        from apps.matches.models import Match
+        from apps.predictions.services import get_example_points
+        ctx = super().get_context_data(**kwargs)
+        competition = self.competition
+        ctx['competition'] = competition
+        now = timezone.now()
+        upcoming = list(
+            competition.matches
+            .filter(status=Match.STATUS_SCHEDULED, datetime__gt=now, is_hidden=False)
+            .select_related('home_team', 'away_team')
+            .order_by('datetime')[:6]
+        )
+        ctx['upcoming'] = upcoming
+        if upcoming:
+            ctx['kickoff_days'] = (timezone.localdate(upcoming[0].datetime) - timezone.localdate(now)).days
+            ctx['competition_started'] = competition.matches.filter(datetime__lte=now, is_hidden=False).exists()
+            ctx['events_jsonld'] = _sports_events_jsonld(competition, upcoming)
+        players = get_user_model().objects.filter(leagues__competitions=competition).distinct().count()
+        # Below the threshold a count reads as an empty app: show nothing rather than a weak number
+        if players >= SOCIAL_PROOF_MIN_PLAYERS:
+            ctx['player_count'] = players
+            ctx['league_count'] = competition.leagues.count()
+        ctx['create_league_url'] = f"{reverse('leagues:create')}?competition={competition.code}"
+        ctx['example'] = get_example_points()
+        return ctx
+
+
+def _sports_events_jsonld(competition, matches):
+    events = []
+    for match in matches:
+        event = {
+            '@type': 'SportsEvent',
+            'name': f"{match.home_team.name} - {match.away_team.name}",
+            'sport': 'Rugby union',
+            'startDate': match.datetime.isoformat(),
+            'eventStatus': 'https://schema.org/EventScheduled',
+            'superEvent': {'@type': 'SportsEvent', 'name': competition.name},
+            'homeTeam': {'@type': 'SportsTeam', 'name': match.home_team.name},
+            'awayTeam': {'@type': 'SportsTeam', 'name': match.away_team.name},
+        }
+        if match.venue:
+            event['location'] = {'@type': 'Place', 'name': match.venue}
+        events.append(event)
+    # '<' escaped so a team or venue name can never close the script element
+    return json.dumps({'@context': 'https://schema.org', '@graph': events}, ensure_ascii=False).replace('<', '\\u003c')
 
 
 class RulesView(TemplateView):

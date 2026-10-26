@@ -44,8 +44,8 @@ class ProfileForm(forms.ModelForm):
 
 class RegistrationForm(UserCreationForm):
     email = forms.EmailField(required=True, label=_("Email address"))
-    first_name = forms.CharField(max_length=30, required=True, label=_("First name"))
-    last_name = forms.CharField(max_length=150, required=True, label=_("Last name"))
+    first_name = forms.CharField(max_length=30, required=False, label=_("First name"))
+    last_name = forms.CharField(max_length=150, required=False, label=_("Last name"))
     display_name = forms.CharField(
         max_length=50,
         required=False,

@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load i18n %}
+{% load account_tags %}
 
 {% block title %}{% trans "Create an account" %} — Oval'Pronos{% endblock %}
 
@@ -31,6 +32,7 @@
       {% csrf_token %}
       {% if next_url %}<input type="hidden" name="next" value="{{ next_url }}">{% endif %}
       {% if invitation %}<input type="hidden" name="invite" value="{{ invitation.token }}">{% endif %}
+      {% for key, value in attribution.items %}<input type="hidden" name="{{ key }}" value="{{ value }}">{% endfor %}
 
       {# username #}
       <div class="mb-3">
@@ -71,6 +73,8 @@
         {% endfor %}
       </div>
 
+      {# Names and nickname only for 2023 players, where the invitation fills them: a cold visitor gets the 4 fields that create an account #}
+      {% if invitation %}
       {# first_name + last_name — side by side on sm+ #}
       <div class="row g-3 mb-3">
         <div class="col-12 col-sm-6">
@@ -84,7 +88,6 @@
             class="form-control form-control-44{% if form.first_name.errors %} is-invalid{% endif %}"
             value="{{ form.first_name.value|default:'' }}"
             autocomplete="given-name"
-            required
           >
           {% for error in form.first_name.errors %}
             <div class="invalid-feedback">{{ error }}</div>
@@ -101,7 +104,6 @@
             class="form-control form-control-44{% if form.last_name.errors %} is-invalid{% endif %}"
             value="{{ form.last_name.value|default:'' }}"
             autocomplete="family-name"
-            required
           >
           {% for error in form.last_name.errors %}
             <div class="invalid-feedback">{{ error }}</div>
@@ -129,6 +131,8 @@
           <div class="invalid-feedback">{{ error }}</div>
         {% endfor %}
       </div>
+
+      {% endif %}
 
       {# password1 #}
       <div class="mb-3">
@@ -193,7 +197,7 @@
     <div class="text-center">
       <p class="mb-0">
         {% trans "Already have an account?" %}
-        <a href="{% url 'accounts:login' %}{% if next_url %}?next={{ next_url }}{% endif %}" class="fw-600 text-decoration-none">
+        <a href="{% auth_url 'accounts:login' next=next_url %}" class="fw-600 text-decoration-none">
           {% trans "Log in" %}
         </a>
       </p>

@@ -1,5 +1,6 @@
 {% load i18n %}
 {% load static %}
+{% load account_tags %}
 {% get_current_language as CURRENT_LANG %}
 <!DOCTYPE html>
 <html lang="{{ CURRENT_LANG }}">
@@ -34,7 +35,11 @@
   <meta property="og:image:width" content="{% block og_image_width %}1200{% endblock %}">
   <meta property="og:image:height" content="{% block og_image_height %}630{% endblock %}">
   <meta property="og:image:alt" content="{% block og_image_alt %}{% trans "Oval'Pronos — Rugby predictions with friends" %}{% endblock %}">
-  <meta property="og:url" content="{{ request.build_absolute_uri }}">
+  {# Canonical drops the query string: campaign links (UTM, fbclid) must not split one page into many #}
+  <meta property="og:url" content="{{ request.scheme }}://{{ request.get_host }}{{ request.path }}">
+  <link rel="canonical" href="{{ request.scheme }}://{{ request.get_host }}{{ request.path }}">
+  <meta property="og:locale" content="{% if CURRENT_LANG == 'fr' %}fr_FR{% else %}en_GB{% endif %}">
+  <meta name="twitter:card" content="summary_large_image">
   {% block extra_head %}{% endblock %}
 </head>
 <body class="{% block body_class %}{% endblock %}">
@@ -80,10 +85,10 @@
           </li>
         {% else %}
           <li class="nav-item">
-            <a class="nav-link nav-link-dark" href="{% url 'accounts:login' %}?next={{ request.path }}">{% trans "Log in" %}</a>
+            <a class="nav-link nav-link-dark" href="{% auth_url 'accounts:login' next=request.path %}">{% trans "Log in" %}</a>
           </li>
           <li class="nav-item">
-            <a class="btn btn-accent btn-navbar" href="{% url 'accounts:register' %}?next={{ request.path }}">{% trans "Sign up" %}</a>
+            <a class="btn btn-accent btn-navbar" href="{% auth_url 'accounts:register' next=request.path %}">{% trans "Sign up" %}</a>
           </li>
         {% endif %}
         <li class="nav-item">
@@ -122,11 +127,11 @@
       <span>{% trans "Profile" %}</span>
     </a>
   {% else %}
-    <a class="mobile-bottom-nav__item" href="{% url 'accounts:login' %}">
+    <a class="mobile-bottom-nav__item" href="{% auth_url 'accounts:login' next=request.path %}">
       <img src="{% static 'img/icons/profile.svg' %}" alt="" class="mobile-bottom-nav__icon">
       <span>{% trans "Log in" %}</span>
     </a>
-    <a class="mobile-bottom-nav__item" href="{% url 'accounts:register' %}">
+    <a class="mobile-bottom-nav__item" href="{% auth_url 'accounts:register' next=request.path %}">
       <img src="{% static 'img/icons/logout.svg' %}" alt="" class="mobile-bottom-nav__icon">
       <span>{% trans "Sign up" %}</span>
     </a>
@@ -146,7 +151,7 @@
 {% endif %}
 
 <!-- Main content -->
-{% include "partials/consent_banner.html" %}
+{% block consent_banner %}{% include "partials/consent_banner.html" %}{% endblock %}
 
 <main id="main-content" class="{% block main_class %}container my-4{% endblock %}">
   {% block content %}{% endblock %}

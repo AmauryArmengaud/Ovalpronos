@@ -21,6 +21,7 @@ from apps.predictions.models import Prediction
 from apps.rankings.services import _assign_ranks
 from .forms import AccountDeleteForm, EmailOrUsernameAuthenticationForm, ProfileForm, RegistrationForm
 from .models import CustomUser, Invitation
+from .signup_source import clean_params, carried_params, resolve_attribution
 
 
 def post_field_key(field):
@@ -202,10 +203,18 @@ class RegisterView(CreateView):
         return initial
 
     def form_valid(self, form):
+        next_url = self.request.POST.get('next') or self.request.GET.get('next')
+        invitation = self._get_invitation()
+        attribution = resolve_attribution(
+            clean_params(self.request.POST),
+            invitation=invitation,
+            invite_league=_get_invite_league(next_url, self.request.get_host()),
+        )
+        for field, value in attribution.items():
+            setattr(form.instance, field, value)
         response = super().form_valid(form)
         login(self.request, self.object)
         from ovalpronos.analytics import capture
-        invitation = self._get_invitation()
         if invitation:
             invitation.used_at = timezone.now()
             invitation.user = self.object
@@ -213,7 +222,6 @@ class RegisterView(CreateView):
             capture(self.request, 'user_registered', {'source': 'invitation', 'cohort': invitation.cohort})
         else:
             capture(self.request, 'user_registered')
-        next_url = self.request.POST.get('next') or self.request.GET.get('next')
         if next_url and url_has_allowed_host_and_scheme(next_url, allowed_hosts={self.request.get_host()}):
             return redirect(next_url)
         return response
@@ -225,6 +233,8 @@ class RegisterView(CreateView):
         ctx['next_url'] = next_url
         ctx['invite_league'] = _get_invite_league(next_url, self.request.get_host())
         ctx['invitation'] = self._get_invitation()
+        # a failed POST re-renders the form: keep what the first GET carried
+        ctx['attribution'] = clean_params(self.request.POST) if self.request.method == 'POST' else carried_params(self.request)
         return ctx
 
     def post(self, request, *args, **kwargs):
