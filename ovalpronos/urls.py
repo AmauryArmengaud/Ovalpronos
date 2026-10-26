@@ -6,8 +6,9 @@ from apps.matches.admin_views import CompetitionImportView
 from apps.matches.views import sync_scores_api, notify_deadline_reminders_api, notify_results_summary_api, has_live_matches_api, upcoming_matches_api, update_odds_api, notify_missing_odds_api, live_matches_api, update_scores_api
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
+    # Before admin.site.urls: its '<path:object_id>/' catch-all would swallow this path
     path('admin/matches/competition/<int:competition_id>/import/', CompetitionImportView.as_view()),
+    path('admin/', admin.site.urls),
     path('', include('apps.matches.urls', namespace='matches')),
     path('accounts/', include('apps.accounts.urls', namespace='accounts')),
     path('predictions/', include('apps.predictions.urls', namespace='predictions')),
