@@ -9,8 +9,8 @@ urlpatterns = [
     # Before admin.site.urls: its '<path:object_id>/' catch-all would swallow this path
     path('admin/matches/competition/<int:competition_id>/campaign-report/', CampaignReportView.as_view(),
          name='admin_campaign_report'),
-    path('admin/', admin.site.urls),
     path('admin/matches/competition/<int:competition_id>/import/', CompetitionImportView.as_view()),
+    path('admin/', admin.site.urls),
     path('', include('apps.matches.urls', namespace='matches')),
     path('accounts/', include('apps.accounts.urls', namespace='accounts')),
     path('predictions/', include('apps.predictions.urls', namespace='predictions')),
