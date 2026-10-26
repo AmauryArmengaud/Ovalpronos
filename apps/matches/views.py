@@ -88,9 +88,21 @@ class CompetitionLandingView(TemplateView):
         if players >= SOCIAL_PROOF_MIN_PLAYERS:
             ctx['player_count'] = players
             ctx['league_count'] = competition.leagues.count()
+        ctx['team_boars'] = _team_boars(competition)
         ctx['create_league_url'] = f"{reverse('leagues:create')}?competition={competition.code}"
         ctx['example'] = get_example_points()
         return ctx
+
+
+def _team_boars(competition):
+    """(team, logo url) for the competition's teams that have a boar logo; teams without one are left out"""
+    from django.db.models import Q
+    from apps.matches.models import Team
+    from apps.matches.templatetags.match_tags import team_logo_url
+    teams = Team.objects.filter(
+        Q(home_matches__competition=competition) | Q(away_matches__competition=competition)
+    ).distinct().order_by('name')
+    return [(team, url) for team in teams if (url := team_logo_url(team))]
 
 
 def _sports_events_jsonld(competition, matches):

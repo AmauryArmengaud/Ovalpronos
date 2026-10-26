@@ -2944,3 +2944,6 @@ msgstr "Activé : au moins un prono. Les vues excluent les joueurs connectés et
 
 msgid "Landing view"
 msgstr "Vue de landing"
+
+msgid "Teams in this competition"
+msgstr "Les équipes de la compétition"

@@ -494,8 +494,32 @@ main {
   text-transform: capitalize;
 }
 
+.comp-landing-match__team {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.25rem 0.5rem;
+}
 .comp-landing-match__team--away {
+  justify-content: flex-end;
   text-align: right;
+}
+/* Same circle as the match cards, smaller: the list is scanned, not read */
+.landing-team-logo {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: var(--color-logo-bg);
+  font-size: var(--text-xs);
+  font-weight: 700;
+  color: var(--color-primary);
+}
+.landing-team-logo img {
+  object-fit: contain;
 }
 
 .comp-landing-match__pts {
@@ -541,6 +565,27 @@ main {
   color: rgba(252, 255, 249, 0.85);
 }
 .landing-proof { margin-top: 0.25rem; }
+
+/* Team boars on the navy hero: cream circles, the logos' navy strokes vanish on navy */
+.landing-boars {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 1.25rem 0 0;
+  padding: 0;
+}
+.landing-boars__item {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--color-text-on-primary);
+}
+.landing-boars__item img {
+  object-fit: contain;
+}
 
 .landing-faq details {
   border-bottom: 1px solid var(--color-surface-raised);
