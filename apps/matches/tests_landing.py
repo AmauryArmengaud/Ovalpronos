@@ -132,3 +132,33 @@ class CompetitionLandingShareTagsTest(TestCase):
         self.comp.og_image = 'og/nations.png'
         self.comp.save()
         self.assertContains(self.client.get(url), 'content="http://testserver/media/og/nations.png"')
+
+
+class CompetitionLandingBoarsTest(TestCase):
+
+    def setUp(self):
+        self.comp = make_competition(name='Nations Championship', code='NATIONS', is_active=True)
+        self.france, self.fiji = make_team(), make_team()
+        self.france.name, self.france.slug, self.france.short_name = 'France', 'france', 'FRA'
+        self.france.save()
+        self.fiji.name, self.fiji.slug, self.fiji.short_name = 'Fidji', 'fidji', 'FIJ'
+        self.fiji.save()
+        make_match(self.comp, self.france, self.fiji, status='SCHEDULED',
+                   datetime=timezone.now() + timedelta(days=3), home_score=None, away_score=None)
+
+    def test_hero_lists_only_teams_with_a_boar(self):
+        response = self.client.get('/competitions/nations/')
+        self.assertEqual([team for team, _ in response.context['team_boars']], [self.france])
+        self.assertContains(response, 'src="/static/img/teams/france.png" alt="France"')
+
+    def test_match_list_shows_boar_or_initials(self):
+        content = self.client.get('/competitions/nations/').content.decode()
+        self.assertIn('<img src="/static/img/teams/france.png" alt="" width="28" height="28" loading="lazy">', content)
+        self.assertNotIn('img/teams/fidji.png', content)
+        self.assertInHTML('<span class="landing-team-logo" aria-hidden="true">FIJ</span>', content)
+
+    def test_uploaded_logo_wins_over_static_boar(self):
+        self.fiji.logo = 'teams/fidji-upload.png'
+        self.fiji.save()
+        response = self.client.get('/competitions/nations/')
+        self.assertContains(response, '/media/teams/fidji-upload.png')

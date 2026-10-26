@@ -541,6 +541,10 @@ with `.landing-hero` (compact padding on phones) and `body.landing-page`.
   primary, not accent, for the same reason.
 - Sticky CTA under 992 px, revealed by an IntersectionObserver once the hero buttons leave the screen; no JS = never shown.
 - FAQ in `<details>`, no JS. JSON-LD `SportsEvent` for the next matches, `<` escaped.
+- Team boars: the hero lists the competition's teams that have a boar logo (cream 44 px circles, navy strokes vanish
+  on navy), placed after the deadline line so the CTA stays at 274 px on 375×667. Teams without a logo are left out
+  of the hero; in the match list they get initials, as on the match cards. `team_logo_url` (`match_tags`): uploaded
+  `Team.logo`, else `static/img/teams/<slug>.png` if the file exists, else `''`. No `onerror`, the server knows.
 - Share previews: `Competition.og_image` (1200×630, optional, falls back to `img/og-img.png`); `og:url` and
   `rel=canonical` drop the query string so campaign links stay one page; `og:locale`, `twitter:card`.
 - Referral loop: the response to a player's very first prediction adds `partials/share_invite.html` (OOB into

@@ -37,3 +37,14 @@ def round_label(value):
     if not value:
         return value
     return ROUND_LABELS.get(value, value)
+
+
+@register.filter
+def team_logo_url(team):
+    """Uploaded logo, else the team's boar PNG from static, else '' so the caller shows initials"""
+    from django.contrib.staticfiles import finders
+    from django.templatetags.static import static
+    if team.logo:
+        return team.logo.url
+    path = f'img/teams/{team.slug}.png'
+    return static(path) if team.slug and finders.find(path) else ''

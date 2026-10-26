@@ -51,6 +51,16 @@
         {% blocktrans count players=player_count %}{{ players }} player already in{% plural %}{{ players }} players already in{% endblocktrans %}{% if league_count >= 3 %} · {% blocktrans count leagues=league_count %}{{ leagues }} league{% plural %}{{ leagues }} leagues{% endblocktrans %}{% endif %}
       </p>
       {% endif %}
+      {# Below the CTA on purpose: the button must stay above the fold on a 375×667 screen #}
+      {% if team_boars %}
+      <ul class="landing-boars list-unstyled" aria-label="{% trans "Teams in this competition" %}">
+        {% for team, logo in team_boars %}
+        <li class="landing-boars__item">
+          <img src="{{ logo }}" alt="{{ team.name }}" title="{{ team.name }}" width="32" height="32">
+        </li>
+        {% endfor %}
+      </ul>
+      {% endif %}
     </div>
     <img src="{% static 'img/boar-mascot.png' %}" alt="Mascotte Oval'Pronos"
          class="home-hero__mascot d-none d-lg-block"
@@ -70,12 +80,14 @@
     <li class="comp-landing-match">
       <span class="comp-landing-match__date">{{ match.datetime|date:"D j M · H:i" }}</span>
       <span class="comp-landing-match__team">
-        {{ match.home_team.short_name|default:match.home_team.name }}
+        {% include "matches/_landing_team_logo.html" with team=match.home_team %}
+        <span>{{ match.home_team.short_name|default:match.home_team.name }}</span>
         {% if match.has_odds %}<span class="comp-landing-match__pts">{{ match.cote_home|format_cote }} pts</span>{% endif %}
       </span>
       <span class="comp-landing-match__team comp-landing-match__team--away">
         {% if match.has_odds %}<span class="comp-landing-match__pts">{{ match.cote_away|format_cote }} pts</span>{% endif %}
-        {{ match.away_team.short_name|default:match.away_team.name }}
+        <span>{{ match.away_team.short_name|default:match.away_team.name }}</span>
+        {% include "matches/_landing_team_logo.html" with team=match.away_team %}
       </span>
     </li>
     {% endfor %}
