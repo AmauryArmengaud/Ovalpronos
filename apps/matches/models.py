@@ -225,3 +225,32 @@ class Match(models.Model):
             return None
         from django.utils import timezone
         return self.datetime - timezone.now()
+
+
+class LandingView(models.Model):
+    """Anonymous daily view counter of a competition landing, per source: no IP, no user agent, no identifier"""
+    competition = models.ForeignKey(
+        Competition, on_delete=models.CASCADE, related_name='landing_views', verbose_name=_("Competition"),
+    )
+    day = models.DateField(verbose_name=_("Day"))
+    source = models.CharField(max_length=50, verbose_name=_("Source"))
+    count = models.PositiveIntegerField(default=0, verbose_name=_("Views"))
+
+    class Meta:
+        verbose_name = _("Landing views")
+        verbose_name_plural = _("Landing views")
+        ordering = ['-day', 'source']
+        constraints = [
+            models.UniqueConstraint(fields=['competition', 'day', 'source'], name='uniq_landing_view_bucket'),
+        ]
+
+    def __str__(self):
+        return f"{self.competition.code} {self.day} {self.source}: {self.count}"
+
+    @classmethod
+    def record(cls, competition, source):
+        bucket, _created = cls.objects.get_or_create(
+            competition=competition, day=timezone.localdate(), source=source,
+        )
+        # F() keeps concurrent hits from overwriting each other
+        cls.objects.filter(pk=bucket.pk).update(count=models.F('count') + 1)

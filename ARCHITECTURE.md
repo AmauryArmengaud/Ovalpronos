@@ -114,6 +114,19 @@ Computed properties (no DB storage):
 
 **CANCELLED handling:** all associated Predictions get `points_earned=0`, `result_type='CANCELLED'`. UserScore `count_cancelled` is incremented.
 
+### `matches.LandingView`
+
+Anonymous daily view counter of `/competitions/<code>/`, incremented server-side (no cookie, IP, user agent or user).
+
+| Field | Type | Notes |
+|---|---|---|
+| `competition` | FK → Competition | CASCADE |
+| `day` | DateField | local date |
+| `source` | CharField(50) | `utm_source` > known Referer > `direct`, normalized like `signup_source` |
+| `count` | PositiveIntegerField | `F('count') + 1`; unique on (competition, day, source) |
+
+Not counted: logged-in players (redirected), HEAD, link-preview fetchers and crawlers (`PREVIEW_BOT_RE`), so pasting a link in a WhatsApp group is not a view. Reloads do count. `campaign_report <code>` reads it.
+
 ### `predictions.Prediction`
 
 Rename of current `pronostics.Pronostic`. New field: `result_type`.
@@ -347,7 +360,8 @@ The admin uses Django's native admin with a custom theme that matches the main a
 | `MatchAdmin` | Status/odds badges, prediction count, `PredictionInline` (read-only), `UpcomingMatchFilter` (default=SCHEDULED), recalculate/refresh/hide actions |
 | `PredictionAdmin` | Result-type badges, match link, recalculate action; no add/change permission |
 | `UserScoreAdmin` | Scope label, cache refresh action; no add/change permission |
-| `CustomUserAdmin` | Prediction count, activate/deactivate actions |
+| `CustomUserAdmin` | Prediction count, activate/deactivate actions, attribution columns and filters (source, medium, campaign, content), `ActivatedFilter` (≥ 1 prediction), CSV export of attribution (no email or name) |
+| `LandingViewAdmin` | Read-only daily views per competition and source |
 | `LeagueAdmin` | Regenerate invite code action |
 
 ### Admin service calls

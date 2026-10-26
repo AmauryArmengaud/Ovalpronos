@@ -117,6 +117,7 @@ python manage.py send_results_summary --competition-id=X --round=Y  # Email resu
 python manage.py deactivate_ended_competitions  # Set is_active=False on competitions past end_date
 python manage.py cleanup_bot_accounts           # Purge fake accounts (--dry-run / --since / --yes)
 python manage.py import_invitations contacts.csv --output tokens.csv  # Relaunch campaign: pre-filled sign-up links for 2023 players, tokens for Brevo
+python manage.py campaign_report NATIONS [--since 2026-11-01]  # Landing funnel per source: views, sign-ups, conversion, activated, leagues; sign-ups that entered elsewhere listed apart
 
 # Run tests (mandatory before deploy)
 python manage.py test apps.predictions.tests apps.matches.tests
@@ -188,6 +189,7 @@ All Django apps live under `apps/`. URL routing (all paths in English):
 - **`matches.Match`** — has `cote_home/cote_draw/cote_away` (integers = bookmaker odds × 10, sourced via Gemini); computed properties `is_locked`, `has_odds`, `result`, `closes_soon`, `time_until_kickoff`
 - **`predictions.Prediction`** — unique per `(user, match)`; `result_type` field: EXACT / GAP / WIN / MISS / CANCELLED
 - **`leagues.League`** — `invite_code` (5-char, auto-generated), `creator` FK, `members` M2M, `competitions` M2M → Competition (required at creation, scopes the league leaderboard and predictions). `is_active` is a computed property: `True` if any linked competition is active. League detail page has a "Copy link" button that copies the full join URL (`/leagues/join/?code=XXXXX`); the join page pre-fills the code when `?code=` is present.
+- **`matches.LandingView`** — anonymous daily view counter of a competition landing per source (no personal data, preview bots excluded)
 - **`rankings.UserScore`** — denormalized score cache; one row per (user, global) and (user, competition); updated by `refresh_user_scores_for_match()` after each match is scored
 
 → Full field tables: **ARCHITECTURE.md §2**

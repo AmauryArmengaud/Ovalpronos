@@ -1,5 +1,6 @@
 import hmac
 import json
+import re
 
 from django.shortcuts import redirect
 from django.urls import reverse
@@ -33,6 +34,14 @@ class HomeView(TemplateView):
 SOCIAL_PROOF_MIN_PLAYERS = 20
 
 
+# Link-preview fetchers and crawlers: a link pasted in a WhatsApp group is fetched before anyone opens it
+PREVIEW_BOT_RE = re.compile(
+    r'whatsapp|facebookexternalhit|facebot|linkedinbot|twitterbot|slackbot|telegrambot|discordbot'
+    r'|googlebot|bingbot|applebot|bot\b|crawler|spider|preview',
+    re.IGNORECASE,
+)
+
+
 class CompetitionLandingView(TemplateView):
     """Visitor landing page for one competition, linked from campaigns and social posts"""
     template_name = 'matches/competition_landing.html'
@@ -48,6 +57,13 @@ class CompetitionLandingView(TemplateView):
                 return redirect('predictions:index')
             return redirect(f"{reverse('leagues:create')}?competition={self.competition.code}")
         return super().dispatch(request, *args, **kwargs)
+
+    def get(self, request, *args, **kwargs):
+        if request.method == 'GET' and not PREVIEW_BOT_RE.search(request.META.get('HTTP_USER_AGENT', '')):
+            from apps.accounts.signup_source import visit_source
+            from apps.matches.models import LandingView
+            LandingView.record(self.competition, visit_source(request))
+        return super().get(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         from apps.matches.models import Match

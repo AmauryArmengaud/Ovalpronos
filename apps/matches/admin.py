@@ -4,7 +4,7 @@ from django.http import HttpResponseRedirect
 from django.urls import path, reverse
 from django.utils.html import format_html, mark_safe
 
-from .models import Competition, Match, Team
+from .models import Competition, LandingView, Match, Team
 
 
 # ─── Inline ───────────────────────────────────────────────────────────────────
@@ -199,3 +199,18 @@ class MatchAdmin(admin.ModelAdmin):
     @admin.action(description='Afficher ces matchs')
     def mark_visible(self, request, queryset):
         queryset.update(is_hidden=False)
+
+
+# ─── Landing views ────────────────────────────────────────────────────────────
+
+@admin.register(LandingView)
+class LandingViewAdmin(admin.ModelAdmin):
+    list_display = ('day', 'competition', 'source', 'count')
+    list_filter = ('competition', 'source', 'day')
+    date_hierarchy = 'day'
+
+    def has_add_permission(self, request):
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        return False

@@ -1909,11 +1909,11 @@ msgstr ""
 
 #: venv/lib/python3.12/site-packages/django/forms/widgets.py:870
 msgid "Yes"
-msgstr ""
+msgstr "Oui"
 
 #: venv/lib/python3.12/site-packages/django/forms/widgets.py:871
 msgid "No"
-msgstr ""
+msgstr "Non"
 
 #: venv/lib/python3.12/site-packages/django/tasks/base.py:34
 msgctxt "Task"
@@ -2868,3 +2868,58 @@ msgstr "Je fais mes pronos du %(name)s sur Oval'Pronos, viens jouer avec moi :"
 
 msgid "Close"
 msgstr "Fermer"
+
+msgid "Day"
+msgstr "Jour"
+
+msgid "Source"
+msgstr "Source"
+
+msgid "Views"
+msgstr "Vues"
+
+msgid "Landing views"
+msgstr "Vues de landing"
+
+msgid "Activated"
+msgstr "Activé"
+
+msgid "Export sign-up attribution (CSV)"
+msgstr "Exporter la source d'inscription (CSV)"
+
+msgid "ID"
+msgstr "ID"
+
+msgid "Joined"
+msgstr "Inscription"
+
+msgid "Medium"
+msgstr "Medium"
+
+msgid "Campaign"
+msgstr "Campagne"
+
+msgid "Content"
+msgstr "Content"
+
+msgid "Landing page"
+msgstr "Landing"
+
+#, python-format
+msgid "%(name)s campaign since %(date)s"
+msgstr "Campagne %(name)s depuis le %(date)s"
+
+msgid "Outside the landing page"
+msgstr "Hors landing"
+
+msgid "Sign-ups"
+msgstr "Inscriptions"
+
+msgid "Conversion"
+msgstr "Conversion"
+
+msgid "Leagues created"
+msgstr "Ligues créées"
+
+msgid "Total"
+msgstr "Total"

@@ -87,6 +87,12 @@ def carried_params(request):
     return params
 
 
+def visit_source(request):
+    """Source of this page view with the sign-up priority, minus invitations: utm_source > known Referer > direct"""
+    params = carried_params(request)
+    return params.get('utm_source') or params.get('ref') or 'direct'
+
+
 def carried_querystring(request, next_url=None):
     params = carried_params(request)
     if next_url:
