@@ -123,3 +123,21 @@ def resolve_attribution(params, invitation=None, invite_league=None):
         'signup_content': params.get('utm_content', ''),
         'signup_landing_path': params.get('landing', ''),
     }
+
+
+def referral_code(user):
+    """Stable, non-reversible tag for a referrer, carried as utm_content on their share links"""
+    from django.utils.crypto import salted_hmac
+    return salted_hmac('ovalpronos.referral', str(user.pk)).hexdigest()[:12]
+
+
+def referral_url(request, user, competition):
+    from django.urls import reverse
+    path = reverse('matches:competition_landing', kwargs={'code': competition.code.lower()})
+    query = urlencode({
+        'utm_source': 'referral',
+        'utm_medium': 'share',
+        'utm_campaign': normalize_value(competition.code),
+        'utm_content': referral_code(user),
+    })
+    return request.build_absolute_uri(f'{path}?{query}')

@@ -2842,3 +2842,29 @@ msgid "%(leagues)s league"
 msgid_plural "%(leagues)s leagues"
 msgstr[0] "%(leagues)s ligue"
 msgstr[1] "%(leagues)s ligues"
+
+msgid "Share image"
+msgstr "Image de partage"
+
+msgid "1200×630 px, shown in WhatsApp and LinkedIn previews of the competition page. Default image if empty."
+msgstr "1200×630 px, affichée dans les aperçus WhatsApp et LinkedIn de la page compétition. Image par défaut si vide."
+
+msgid "First prediction saved!"
+msgstr "Premier prono enregistré !"
+
+#, python-format
+msgid "It's more fun with friends: invite them to predict %(name)s."
+msgstr "C'est plus drôle entre potes : invite-les à pronostiquer le %(name)s."
+
+msgid "Invite on WhatsApp"
+msgstr "Inviter sur WhatsApp"
+
+msgid "Share the link"
+msgstr "Partager le lien"
+
+#, python-format
+msgid "I'm predicting %(name)s on Oval'Pronos, join me:"
+msgstr "Je fais mes pronos du %(name)s sur Oval'Pronos, viens jouer avec moi :"
+
+msgid "Close"
+msgstr "Fermer"

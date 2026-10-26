@@ -33,6 +33,12 @@ class Competition(models.Model):
         verbose_name=_("End date"),
         help_text=_("Run 'deactivate_ended_competitions' to auto-set is_active=False after this date."),
     )
+    og_image = models.ImageField(
+        upload_to='og/',
+        blank=True,
+        verbose_name=_("Share image"),
+        help_text=_("1200×630 px, shown in WhatsApp and LinkedIn previews of the competition page. Default image if empty."),
+    )
     scoring_system = models.CharField(
         max_length=10,
         default='COTES',

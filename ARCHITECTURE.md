@@ -66,6 +66,7 @@ locale/
 | `season` | CharField | "2024-2025" |
 | `is_active` | BooleanField | current season flag; set to False by `deactivate_ended_competitions` when past `end_date` |
 | `end_date` | DateField | null/blank; when set, `deactivate_ended_competitions` auto-deactivates |
+| `og_image` | ImageField | blank, upload_to='og/'; 1200×630 share preview of `/competitions/<code>/` |
 | `scoring_system` | CharField | 'COTES' or 'FIXED' |
 | `good_gap_pts` | IntegerField | max gap diff for ×2 tier (default 3) |
 

@@ -7,6 +7,7 @@ from django.utils.decorators import method_decorator
 from django.views import View
 from django_ratelimit.decorators import ratelimit
 from django.views.generic import TemplateView
+from django.utils.translation import gettext as _
 
 from django.db.models.functions import TruncDate
 
@@ -188,4 +189,12 @@ class SubmitPredictionView(LoginRequiredMixin, View):
             )
         else:
             progress_html = ''
-        return HttpResponse(card_html + progress_html, content_type='text/html')
+        share_html = ''
+        if created and not Prediction.objects.filter(user=request.user).exclude(pk=prediction.pk).exists():
+            from apps.accounts.signup_source import referral_url
+            share_html = render_to_string('partials/share_invite.html', {
+                'competition': match.competition,
+                'share_url': referral_url(request, request.user, match.competition),
+                'share_text': _("I'm predicting %(name)s on Oval'Pronos, join me:") % {'name': match.competition.name},
+            }, request=request)
+        return HttpResponse(card_html + progress_html + share_html, content_type='text/html')

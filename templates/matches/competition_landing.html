@@ -8,6 +8,7 @@
 {% block og_title %}{% blocktrans with name=competition.name %}{{ name }}: predict every match with your friends{% endblocktrans %}{% endblock %}
 {% block og_description %}{% trans "Free. A score on every match, points based on the odds: the bold prediction pays off." %}{% endblock %}
 
+{% block og_image_path %}{% if competition.og_image %}{{ competition.og_image.url }}{% else %}{{ block.super }}{% endif %}{% endblock %}
 {% block body_class %}home-visitor landing-page{% endblock %}
 {% block main_class %}p-0{% endblock %}
 {# Rendered after the hero instead: above it, the banner pushes the sign-up button below the fold on phones #}

@@ -35,7 +35,11 @@
   <meta property="og:image:width" content="{% block og_image_width %}1200{% endblock %}">
   <meta property="og:image:height" content="{% block og_image_height %}630{% endblock %}">
   <meta property="og:image:alt" content="{% block og_image_alt %}{% trans "Oval'Pronos — Rugby predictions with friends" %}{% endblock %}">
-  <meta property="og:url" content="{{ request.build_absolute_uri }}">
+  {# Canonical drops the query string: campaign links (UTM, fbclid) must not split one page into many #}
+  <meta property="og:url" content="{{ request.scheme }}://{{ request.get_host }}{{ request.path }}">
+  <link rel="canonical" href="{{ request.scheme }}://{{ request.get_host }}{{ request.path }}">
+  <meta property="og:locale" content="{% if CURRENT_LANG == 'fr' %}fr_FR{% else %}en_GB{% endif %}">
+  <meta name="twitter:card" content="summary_large_image">
   {% block extra_head %}{% endblock %}
 </head>
 <body class="{% block body_class %}{% endblock %}">

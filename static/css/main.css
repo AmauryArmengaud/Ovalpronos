@@ -1964,3 +1964,14 @@ main {
 .footer-links a:focus-visible {
   opacity: 1;
 }
+.share-invite {
+  background: var(--color-surface-raised);
+  border-radius: var(--radius-md);
+  padding: 0.875rem 1rem;
+  color: var(--color-text);
+}
+.share-invite-title {
+  font-size: 1rem;
+  font-weight: 700;
+  margin: 0 0 0.25rem;
+}

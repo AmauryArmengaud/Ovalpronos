@@ -112,3 +112,23 @@ class CompetitionLandingConversionTest(TestCase):
         html = self.client.get(self.url).content.decode()
         self.assertEqual(html.count('id="consent-banner"'), 1)
         self.assertLess(html.index('landing-hero'), html.index('id="consent-banner"'))
+
+
+class CompetitionLandingShareTagsTest(TestCase):
+
+    def setUp(self):
+        self.comp = make_competition(name='Nations Championship', code='NATIONS', is_active=True)
+
+    def test_canonical_and_og_url_drop_utm(self):
+        response = self.client.get('/competitions/nations/?utm_source=whatsapp&fbclid=abc')
+        self.assertContains(response, '<link rel="canonical" href="http://testserver/competitions/nations/">')
+        self.assertContains(response, '<meta property="og:url" content="http://testserver/competitions/nations/">')
+        self.assertContains(response, 'og:locale')
+        self.assertContains(response, '<meta name="twitter:card" content="summary_large_image">')
+
+    def test_og_image_falls_back_then_uses_competition_image(self):
+        url = '/competitions/nations/'
+        self.assertContains(self.client.get(url), 'img/og-img.png')
+        self.comp.og_image = 'og/nations.png'
+        self.comp.save()
+        self.assertContains(self.client.get(url), 'content="http://testserver/media/og/nations.png"')

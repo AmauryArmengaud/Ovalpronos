@@ -145,3 +145,14 @@ class LightRegisterFormTest(TestCase):
         response = self.client.get(REGISTER_URL, {'invite': invitation.token})
         self.assertContains(response, 'name="first_name"')
         self.assertContains(response, 'value="Fabien"')
+
+
+class ReferralCodeTests(TestCase):
+    def test_stable_per_user_and_survives_normalization(self):
+        from .signup_source import referral_code
+        u1 = CustomUser.objects.create_user(username='ref1', email='ref1@test.local', password='x')
+        u2 = CustomUser.objects.create_user(username='ref2', email='ref2@test.local', password='x')
+        code = referral_code(u1)
+        self.assertEqual(code, referral_code(u1))
+        self.assertNotEqual(code, referral_code(u2))
+        self.assertEqual(normalize_value(code), code)
