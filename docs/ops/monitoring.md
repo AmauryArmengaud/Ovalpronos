@@ -26,7 +26,7 @@ Aucune donnée personnelle n'est envoyée. PostHog ne reçoit que l'identifiant 
 
 ## 2. Healthchecks.io (10 min)
 
-1. Créer un compte gratuit sur https://healthchecks.io (20 tâches gratuites, il en faut 5).
+1. Créer un compte gratuit sur https://healthchecks.io (20 tâches gratuites, il en faut 6).
 2. Créer ces 5 "checks". Pour chacun : **Add Check**, puis **Edit Schedule** → onglet **Cron**, avec le fuseau **UTC** :
 
 | Nom | Cron | Grace time |
@@ -36,9 +36,10 @@ Aucune donnée personnelle n'est envoyée. PostHog ne reçoit que l'identifiant 
 | `update-odds` | `0 10 * * 2` | 2 hours |
 | `deadline-reminders` | `0 10 * * *` | 1 hour |
 | `business-health` | `0 8 * * *` | 1 hour |
+| `sync-brevo-contacts` | `30 2 * * *` | 1 hour |
 
-3. Chaque check a une adresse de la forme `https://hc-ping.com/xxxxxxxx-xxxx-...`. Garde les 5 sous la main.
-4. Sur le serveur, `crontab -e`, puis remplacer les 4 lignes actuelles par les 6 lignes ci-dessous, en collant chaque adresse à la place de `<URL_...>` :
+3. Chaque check a une adresse de la forme `https://hc-ping.com/xxxxxxxx-xxxx-...`. Garde les 6 sous la main.
+4. Sur le serveur, `crontab -e`, puis remplacer les lignes actuelles par celles ci-dessous, en collant chaque adresse à la place de `<URL_...>` :
 
 ```bash
 SHELL=/bin/bash
@@ -49,6 +50,7 @@ APP="cd /home/amaury/Ovalpronos && set -a && source .env && set +a && source ven
 0 10 * * 2 $W <URL_update-odds> bash -c "$APP && python scripts/update_odds.py" >> /home/amaury/logs/update_odds.log 2>&1
 0 10 * * * $W <URL_deadline-reminders> bash -c "$APP && python manage.py send_deadline_reminders" >> /home/amaury/logs/email_notifications.log 2>&1
 0 8 * * * $W <URL_business-health> bash -c "$APP && python manage.py check_business_health" >> /home/amaury/logs/business_health.log 2>&1
+30 2 * * * $W <URL_sync-brevo-contacts> bash -c "$APP && python manage.py sync_brevo_contacts" >> /home/amaury/logs/sync_brevo.log 2>&1
 ```
 
 Pense à garder une copie de l'ancienne crontab avant : `crontab -l > ~/crontab.backup`.

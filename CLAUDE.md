@@ -316,7 +316,7 @@ Crontab de l'utilisateur `amaury` sur le VPS Hetzner. Logs dans `/home/amaury/lo
 | `*/10 * * * *` | `python scripts/sync_live_scores.py` | Scores live et finaux via Gemini, exit silencieux si pas de match |
 | `0 10 * * 2` | `python scripts/update_odds.py` | Mise à jour cotes Gemini (mardi 10h00 UTC) |
 | `0 10 * * *` | `python manage.py send_deadline_reminders` | Rappels deadline quotidiens (10h00 UTC) |
-| `30 2 * * *` | `python manage.py sync_brevo_contacts` | Relance 2023 : `INSCRIT_V2`, `LIGUE_NOM`, `NB_MEMBRES_LIGUE` vers Brevo (log `sync_brevo.log`) |
+| `30 2 * * *` | `python manage.py sync_brevo_contacts` | Relance 2023 : `INSCRIT_V2`, `LIGUE_NOM`, `NB_MEMBRES_LIGUE` vers Brevo (log `sync_brevo.log`, check Healthchecks `sync-brevo-contacts`) |
 
 Logrotate : `/etc/logrotate.d/ovalpronos` — rotation hebdomadaire, 12 semaines, compression.
 
