@@ -176,7 +176,7 @@ All Django apps live under `apps/`. URL routing (all paths in English):
 | `/rules/` | `matches` | Scoring rules page |
 | `/competitions/<code>/` | `matches` | Visitor landing for one active competition (upcoming matches with winner points), for campaigns and social posts |
 | `/api/sync-scores/` | `matches` | Secured score sync endpoint (POST, Bearer token) |
-| `/api/upcoming-matches/` | `matches` | Returns upcoming SCHEDULED/POSTPONED matches for the next 7 days (GET, Bearer token) |
+| `/api/upcoming-matches/` | `matches` | Returns upcoming SCHEDULED/POSTPONED matches for the next 7 days (GET, Bearer token); `?ids=1,2` returns those matches with no 7-day limit (admin action "Mettre à jour les cotes") |
 | `/api/has-live-matches/` | `matches` | Whether a match is in play or kicked off recently (GET, Bearer token), polled by `scripts/sync_live_scores.py` |
 | `/api/live-matches/` | `matches` | Matches to send to Gemini for live scores (GET, Bearer token) |
 | `/api/update-scores/` | `matches` | Writes Gemini scores and statuses, scores FINISHED matches (POST, Bearer token) |

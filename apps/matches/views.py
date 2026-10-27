@@ -151,17 +151,34 @@ def _check_bearer(request):
     return bool(settings.SYNC_SECRET_TOKEN and hmac.compare_digest(auth_header, expected))
 
 
-def _upcoming_window(now):
-    """Matches sent to Gemini for odds; update_odds_api only accepts these."""
-    import datetime as dt
+def _odds_eligible(now):
+    """Matches whose odds can still be written, whatever the kickoff date."""
     from django.db.models import Q
     from .models import Match
     return Q(
         status__in=[Match.STATUS_SCHEDULED, Match.STATUS_POSTPONED],
         datetime__gt=now,
-        datetime__lte=now + dt.timedelta(days=7),
         is_hidden=False,
     )
+
+
+def _upcoming_window(now):
+    """Matches sent to Gemini for odds by the weekly run; update_odds_api only accepts these."""
+    import datetime as dt
+    from django.db.models import Q
+    return _odds_eligible(now) & Q(datetime__lte=now + dt.timedelta(days=7))
+
+
+def _parse_ids(raw):
+    """'1,2,3' or [1, 2, 3] -> {1, 2, 3}; None if malformed."""
+    if isinstance(raw, str):
+        raw = raw.split(',')
+    if not isinstance(raw, list):
+        return None
+    try:
+        return {int(i) for i in raw}
+    except (TypeError, ValueError):
+        return None
 
 
 def _live_window(now):
@@ -223,11 +240,21 @@ def upcoming_matches_api(request):
     if not _check_bearer(request):
         return JsonResponse({'error': 'Unauthorized'}, status=401)
 
+    from django.db.models import Q
     from .models import Match
+
+    # ?ids=: admin action forcing selected matches, beyond the 7-day window
+    if 'ids' in request.GET:
+        ids = _parse_ids(request.GET['ids'])
+        if ids is None:
+            return JsonResponse({'error': 'ids must be a comma-separated list of integers'}, status=400)
+        scope = Q(_odds_eligible(timezone.now()), pk__in=ids)
+    else:
+        scope = _upcoming_window(timezone.now())
 
     matches = (
         Match.objects
-        .filter(_upcoming_window(timezone.now()))
+        .filter(scope)
         .select_related('home_team', 'away_team', 'competition')
         .order_by('datetime')
     )
@@ -268,7 +295,14 @@ def update_odds_api(request):
     updated = []
     skipped = []
     # web content seen by Gemini is untrusted: only accept the matches it was asked about
-    allowed_ids = set(Match.objects.filter(_upcoming_window(timezone.now())).values_list('pk', flat=True))
+    if 'match_ids' in body:
+        requested = _parse_ids(body['match_ids'])
+        if requested is None:
+            return JsonResponse({'error': 'match_ids must be a list of integers'}, status=400)
+        scope = Match.objects.filter(_odds_eligible(timezone.now()), pk__in=requested)
+    else:
+        scope = Match.objects.filter(_upcoming_window(timezone.now()))
+    allowed_ids = set(scope.values_list('pk', flat=True))
 
     for entry in entries:
         if not isinstance(entry, dict):

@@ -3129,13 +3129,13 @@ msgstr "Mettre à jour les cotes (Gemini)"
 msgid "GOOGLE_API_KEY is not set, odds update not started."
 msgstr "GOOGLE_API_KEY n'est pas configurée, mise à jour des cotes non lancée."
 
-msgid "No match to update: they kick off in more than 7 days, have started or are hidden."
-msgstr "Aucun match à mettre à jour : ils débutent dans plus de 7 jours, ont déjà commencé ou sont masqués."
+msgid "No match to update: they have started or are hidden."
+msgstr "Aucun match à mettre à jour : ils ont déjà commencé ou sont masqués."
 
 #, python-format
 msgid "Odds update started for %(count)s match(es), refresh the page in 1 to 2 minutes."
 msgstr "Mise à jour des cotes lancée pour %(count)s match(s), rafraîchis la page dans 1 à 2 minutes."
 
 #, python-format
-msgid "%(count)s match(es) ignored: they kick off in more than 7 days, have started or are hidden."
-msgstr "%(count)s match(s) ignoré(s) : ils débutent dans plus de 7 jours, ont déjà commencé ou sont masqués."
+msgid "%(count)s match(es) ignored: they have started or are hidden."
+msgstr "%(count)s match(s) ignoré(s) : ils ont déjà commencé ou sont masqués."

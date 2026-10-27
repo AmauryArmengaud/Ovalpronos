@@ -124,12 +124,10 @@ parser.add_argument('--match-ids', type=lambda s: {int(i) for i in s.split(',')}
 args = parser.parse_args()
 
 # Step 1 — fetch upcoming matches
-resp = requests.get(f'{APP_URL}/api/upcoming-matches/', headers=auth_headers, timeout=30)
+params = {'ids': ','.join(map(str, sorted(args.match_ids)))} if args.match_ids else None
+resp = requests.get(f'{APP_URL}/api/upcoming-matches/', headers=auth_headers, params=params, timeout=30)
 resp.raise_for_status()
 matches = resp.json()
-
-if args.match_ids:
-    matches = [m for m in matches if m['match_id'] in args.match_ids]
 
 if not matches:
     print("Aucun match à venir dans les 14 prochains jours.")
@@ -169,7 +167,7 @@ print(f"Cotes prêtes pour {len(odds_list)} match(s).")
 update_resp = requests.post(
     f'{APP_URL}/api/update-odds/',
     headers={**auth_headers, 'Content-Type': 'application/json'},
-    json={'odds': odds_list},
+    json={'odds': odds_list, **({'match_ids': sorted(args.match_ids)} if args.match_ids else {})},
     timeout=30,
 )
 update_resp.raise_for_status()

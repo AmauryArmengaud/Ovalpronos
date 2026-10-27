@@ -30,12 +30,18 @@ class UpdateOddsActionTest(TestCase):
                 'action': 'update_odds_action', '_selected_action': [m.pk for m in matches]})
         return popen
 
-    def test_selected_matches_are_sent_even_with_existing_odds(self):
-        popen = self._run([self.with_odds, self.without, self.far])
+    def test_selected_matches_are_sent_even_with_odds_or_beyond_7_days(self):
+        started = Match.objects.create(
+            external_id=9204, datetime=timezone.now() - dt.timedelta(hours=1),
+            competition=self.far.competition, home_team=self.far.home_team, away_team=self.far.away_team,
+            status=Match.STATUS_SCHEDULED)
+        popen = self._run([self.with_odds, self.without, self.far, started])
         args = popen.call_args.args[0]
         sent = set(map(int, args[args.index('--match-ids') + 1].split(',')))
-        self.assertEqual(sent, {self.with_odds.pk, self.without.pk})
+        self.assertEqual(sent, {self.with_odds.pk, self.without.pk, self.far.pk})
 
     def test_nothing_started_when_no_match_is_eligible(self):
+        self.far.is_hidden = True
+        self.far.save()
         popen = self._run([self.far])
         popen.assert_not_called()

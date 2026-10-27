@@ -72,6 +72,31 @@ class UpdateOddsApiTest(ApiBase):
         self.assertEqual(resp.json()['updated'], [])
         self.assertEqual({s['reason'] for s in resp.json()['skipped']}, {'not_allowed'})
 
+    def test_forced_match_ids_accept_matches_beyond_7_days(self):
+        far = self.make_match(24 * 20)
+        other_far = self.make_match(24 * 20)
+        resp = self.post_json(self.URL, {'odds': [self._odds(far.pk), self._odds(other_far.pk)],
+                                         'match_ids': [far.pk]})
+        self.assertEqual(resp.json()['updated'], [far.pk])
+        self.assertEqual(resp.json()['skipped'][0]['reason'], 'not_allowed')
+
+    def test_forced_match_ids_still_reject_started_matches(self):
+        started = self.make_match(-1)
+        resp = self.post_json(self.URL, {'odds': [self._odds(started.pk)], 'match_ids': [started.pk]})
+        self.assertEqual(resp.json()['updated'], [])
+
+    def test_malformed_match_ids_are_rejected(self):
+        resp = self.post_json(self.URL, {'odds': [], 'match_ids': 'oops'})
+        self.assertEqual(resp.status_code, 400)
+
+    def test_upcoming_matches_with_ids_ignores_the_7_day_window(self):
+        far = self.make_match(24 * 20)
+        near = self.make_match(48)
+        resp = self.client.get(f'/api/upcoming-matches/?ids={far.pk}', **AUTH)
+        self.assertEqual([m['match_id'] for m in resp.json()], [far.pk])
+        self.assertNotIn(near.pk, [m['match_id'] for m in resp.json()])
+        self.assertEqual(self.client.get('/api/upcoming-matches/?ids=x', **AUTH).status_code, 400)
+
     def test_inconsistent_odds_are_rejected(self):
         m = self.make_match(48)
         # 1.0 / 1.0 / 1.0: every outcome "certain", implied probabilities sum to 300 %
