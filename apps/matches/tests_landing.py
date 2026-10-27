@@ -1,3 +1,4 @@
+from django.test import SimpleTestCase
 from datetime import timedelta
 
 from django.contrib.auth import get_user_model
@@ -162,3 +163,25 @@ class CompetitionLandingBoarsTest(TestCase):
         self.fiji.save()
         response = self.client.get('/competitions/nations/')
         self.assertContains(response, '/media/teams/fidji-upload.png')
+
+
+class TeamCodeFilterTests(SimpleTestCase):
+    """Landing rows show a 3-letter code so the odds pill always sits on one clean line"""
+
+    def _team(self, name, short_name=''):
+        from types import SimpleNamespace
+        return SimpleNamespace(name=name, short_name=short_name)
+
+    def test_short_name_wins(self):
+        from apps.matches.templatetags.match_tags import team_code
+        self.assertEqual(team_code(self._team('Stade Toulousain', 'ST')), 'ST')
+
+    def test_nation_code_from_name(self):
+        from apps.matches.templatetags.match_tags import team_code
+        self.assertEqual(team_code(self._team('South Africa')), 'RSA')
+        self.assertEqual(team_code(self._team('New Zealand')), 'NZL')
+        self.assertEqual(team_code(self._team('Fidji')), 'FIJ')
+
+    def test_unknown_team_falls_back_to_three_letters(self):
+        from apps.matches.templatetags.match_tags import team_code
+        self.assertEqual(team_code(self._team('Chile')), 'CHI')

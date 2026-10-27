@@ -461,9 +461,16 @@ main {
 .comp-landing-match__team--away .comp-landing-match__text {
   align-items: flex-end;
 }
+/* 3-letter code (full name in the title): always one line, so the pill below never moves */
 .comp-landing-match__name {
-  line-height: 1.15;
-  overflow-wrap: break-word;
+  font-size: 1.125rem;
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: 0.02em;
+  text-decoration: none;
+  border-bottom: 0;
+  cursor: default;
+  white-space: nowrap;
 }
 /* Same circle as the match cards, smaller: the list is scanned, not read */
 .landing-team-logo {
@@ -486,13 +493,16 @@ main {
 .comp-landing-match__pts {
   display: inline-block;
   margin: 0;
-  padding: 0 0.5rem;
+  padding: 0.125rem 0.5rem;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
   border-radius: var(--radius-pill);
   /* primary, not accent: cream on accent is 3.75:1, below AA at this size */
   background: var(--color-primary);
   color: var(--color-text-on-primary);
   font-size: var(--text-xs);
-  line-height: 1.6;
+  line-height: 1.4;
 }
 
 /* Landing hero: compact on phones so name, promise, button and deadline fit 375×667 */
