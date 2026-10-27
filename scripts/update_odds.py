@@ -1,3 +1,4 @@
+import argparse
 import os
 import sys
 import time
@@ -117,10 +118,18 @@ def _call_gemini(matches, cfg, label):
     return _extract_odds(chat)
 
 
+# --match-ids: admin action forcing a refresh of the selected matches only
+parser = argparse.ArgumentParser()
+parser.add_argument('--match-ids', type=lambda s: {int(i) for i in s.split(',')})
+args = parser.parse_args()
+
 # Step 1 — fetch upcoming matches
 resp = requests.get(f'{APP_URL}/api/upcoming-matches/', headers=auth_headers, timeout=30)
 resp.raise_for_status()
 matches = resp.json()
+
+if args.match_ids:
+    matches = [m for m in matches if m['match_id'] in args.match_ids]
 
 if not matches:
     print("Aucun match à venir dans les 14 prochains jours.")

@@ -152,7 +152,7 @@ class MatchAdmin(admin.ModelAdmin):
     search_fields = ('home_team__name', 'away_team__name', 'venue', 'round')
     date_hierarchy = 'datetime'
     raw_id_fields = ('home_team', 'away_team', 'competition')
-    actions = ['recalculate_points_action', 'refresh_scores_action', 'mark_hidden', 'mark_visible']
+    actions = ['update_odds_action', 'recalculate_points_action', 'refresh_scores_action', 'mark_hidden', 'mark_visible']
     inlines = [PredictionInline]
 
     def get_queryset(self, request):
@@ -183,6 +183,48 @@ class MatchAdmin(admin.ModelAdmin):
     @admin.display(description=_("Predictions"), ordering='_prediction_count')
     def prediction_count(self, obj):
         return obj._prediction_count
+
+    @admin.action(description=_("Update odds (Gemini, matches without odds)"))
+    def update_odds_action(self, request, queryset):
+        import os
+        import subprocess
+        import sys
+        from pathlib import Path
+
+        from decouple import config
+        from django.conf import settings
+        from django.utils import timezone
+
+        from apps.matches.views import _upcoming_window
+
+        ids = list(queryset.filter(_upcoming_window(timezone.now())).values_list('pk', flat=True))
+        ignored = queryset.count() - len(ids)
+
+        google_api_key = config('GOOGLE_API_KEY', default='')
+        if not google_api_key:
+            self.message_user(request, _("GOOGLE_API_KEY is not set, odds update not started."), level='error')
+            return
+        if not ids:
+            self.message_user(request, _("No match to update: they already have odds or kick off in more than 7 days (or have started)."), level='warning')
+            return
+
+        # gunicorn may not export the .env vars the script reads from os.environ
+        env = {
+            **os.environ,
+            'APP_URL': config('APP_URL', default=settings.SITE_URL),
+            'SYNC_SECRET_TOKEN': settings.SYNC_SECRET_TOKEN,
+            'GOOGLE_API_KEY': google_api_key,
+        }
+        log_path = Path.home() / 'logs' / 'update_odds.log'
+        log = open(log_path, 'a') if log_path.parent.is_dir() else subprocess.DEVNULL
+        # detached: Gemini with search takes longer than the gunicorn request timeout
+        subprocess.Popen(
+            [sys.executable, str(settings.BASE_DIR / 'scripts' / 'update_odds.py'), '--match-ids', ','.join(map(str, ids))],
+            cwd=settings.BASE_DIR, env=env, stdout=log, stderr=subprocess.STDOUT, start_new_session=True,
+        )
+        self.message_user(request, _("Odds update started for %(count)s match(es), refresh the page in 1 to 2 minutes.") % {'count': len(ids)})
+        if ignored:
+            self.message_user(request, _("%(count)s match(es) ignored: they already have odds or kick off in more than 7 days (or have started).") % {'count': ignored}, level='warning')
 
     @admin.action(description=_("Recalculate points"))
     def recalculate_points_action(self, request, queryset):

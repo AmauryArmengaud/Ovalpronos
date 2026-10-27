@@ -52,11 +52,25 @@ class UpdateOddsApiTest(ApiBase):
         self.assertEqual(resp.json()['updated'], [m.pk])
         self.assertEqual((m.cote_home, m.cote_draw, m.cote_away), (18, 250, 22))
 
-    def test_existing_odds_are_overwritten(self):
+    def test_existing_odds_are_kept(self):
         m = self.make_match(48, cote_home=20, cote_draw=250, cote_away=20)
-        self.post_json(self.URL, {'odds': [self._odds(m.pk, home=45, away=13)]})
+        resp = self.post_json(self.URL, {'odds': [self._odds(m.pk, home=45, away=13)]})
         m.refresh_from_db()
-        self.assertEqual(m.cote_home, 45)
+        self.assertEqual(m.cote_home, 20)
+        self.assertEqual(resp.json()['skipped'][0]['reason'], 'not_allowed')
+
+    def test_partial_odds_are_completed(self):
+        m = self.make_match(48, cote_home=20)
+        resp = self.post_json(self.URL, {'odds': [self._odds(m.pk)]})
+        self.assertEqual(resp.json()['updated'], [m.pk])
+
+    def test_upcoming_matches_excludes_matches_with_odds(self):
+        with_odds = self.make_match(48, cote_home=20, cote_draw=250, cote_away=20)
+        without = self.make_match(48)
+        resp = self.client.get('/api/upcoming-matches/', **AUTH)
+        ids = {m['match_id'] for m in resp.json()}
+        self.assertIn(without.pk, ids)
+        self.assertNotIn(with_odds.pk, ids)
 
     def test_regression_malformed_entries_do_not_crash(self):
         resp = self.post_json(self.URL, {'odds': ['oops', {'match_id': 'abc'}, None]})
