@@ -81,12 +81,16 @@
       <span class="comp-landing-match__date">{{ match.datetime|date:"D j M · H:i" }}</span>
       <span class="comp-landing-match__team">
         {% include "matches/_landing_team_logo.html" with team=match.home_team %}
-        <span>{{ match.home_team.short_name|default:match.home_team.name }}</span>
-        {% if match.has_odds %}<span class="comp-landing-match__pts">{{ match.cote_home|format_cote }} {% trans "pts" %}</span>{% endif %}
+        <span class="comp-landing-match__text">
+          <span class="comp-landing-match__name">{{ match.home_team.short_name|default:match.home_team.name }}</span>
+          {% if match.has_odds %}<span class="comp-landing-match__pts">{{ match.cote_home|format_cote }} {% trans "pts" %}</span>{% endif %}
+        </span>
       </span>
       <span class="comp-landing-match__team comp-landing-match__team--away">
-        {% if match.has_odds %}<span class="comp-landing-match__pts">{{ match.cote_away|format_cote }} {% trans "pts" %}</span>{% endif %}
-        <span>{{ match.away_team.short_name|default:match.away_team.name }}</span>
+        <span class="comp-landing-match__text">
+          <span class="comp-landing-match__name">{{ match.away_team.short_name|default:match.away_team.name }}</span>
+          {% if match.has_odds %}<span class="comp-landing-match__pts">{{ match.cote_away|format_cote }} {% trans "pts" %}</span>{% endif %}
+        </span>
         {% include "matches/_landing_team_logo.html" with team=match.away_team %}
       </span>
     </li>
