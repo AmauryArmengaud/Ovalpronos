@@ -15,6 +15,41 @@ ROUND_LABELS = {
 }
 
 
+# World Rugby 3-letter codes for national teams. The API sync leaves their
+# short_name empty, so the landing derives the code from the team name.
+NATION_CODES = {
+    'argentina': 'ARG', 'argentine': 'ARG',
+    'australia': 'AUS', 'australie': 'AUS',
+    'england': 'ENG', 'angleterre': 'ENG',
+    'fiji': 'FIJ', 'fidji': 'FIJ',
+    'france': 'FRA',
+    'georgia': 'GEO', 'georgie': 'GEO',
+    'ireland': 'IRL', 'irlande': 'IRL',
+    'italy': 'ITA', 'italie': 'ITA',
+    'japan': 'JPN', 'japon': 'JPN',
+    'new-zealand': 'NZL', 'nouvelle-zelande': 'NZL',
+    'portugal': 'POR',
+    'samoa': 'SAM',
+    'scotland': 'SCO', 'ecosse': 'SCO',
+    'south-africa': 'RSA', 'afrique-du-sud': 'RSA',
+    'spain': 'ESP', 'espagne': 'ESP',
+    'tonga': 'TGA',
+    'uruguay': 'URU',
+    'usa': 'USA', 'united-states': 'USA',
+    'wales': 'WAL', 'pays-de-galles': 'WAL',
+}
+
+
+@register.filter
+def team_code(team):
+    """Short code for tight layouts: short_name, else nation code, else 3 first letters."""
+    from django.utils.text import slugify
+    if team.short_name:
+        return team.short_name
+    key = slugify(team.name)
+    return NATION_CODES.get(key) or key.replace('-', '')[:3].upper()
+
+
 @register.filter
 def format_cote(value):
     """Display a cote integer as-is: 63 → '63'."""
