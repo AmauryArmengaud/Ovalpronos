@@ -1,7 +1,7 @@
 """
-Test script — vérifie que Gemini trouve bien des côtes de paris sportifs.
-Usage : GOOGLE_API_KEY=... python .github/scripts/test_odds.py
-Pas besoin que Django tourne.
+Test script: checks that Gemini does find sports betting odds.
+Usage: GOOGLE_API_KEY=... python scripts/test_odds.py
+Django does not need to be running.
 """
 import os
 import sys
@@ -15,7 +15,7 @@ if not GOOGLE_API_KEY:
     print("Erreur : variable GOOGLE_API_KEY manquante.")
     sys.exit(1)
 
-# Top 14 2026-2027 — Journée 1
+# Top 14 2026-2027, round 1
 TEST_MATCHES = [
     {
         'match_id': 1,

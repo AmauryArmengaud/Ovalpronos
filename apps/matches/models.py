@@ -5,8 +5,8 @@ from django.utils.translation import gettext_lazy as _
 
 class Competition(models.Model):
     """
-    Représente une compétition de rugby (Top 14, Champions Cup, 6 Nations).
-    Les données viennent de api-sports.io / Rugby API.
+    A rugby competition (Top 14, Champions Cup, 6 Nations).
+    Data comes from rugby-live-data (RapidAPI).
     """
 
     external_id = models.IntegerField(verbose_name=_("API ID"))
@@ -62,7 +62,7 @@ class Competition(models.Model):
 
 class Team(models.Model):
     """
-    Représente une équipe de rugby (club ou équipe nationale).
+    A rugby team (club or national team).
     """
 
     external_id = models.IntegerField(
@@ -91,14 +91,14 @@ class Team(models.Model):
 
 class Match(models.Model):
     """
-    Représente un match de rugby.
+    A rugby match.
 
-    Le champ `status` suit le cycle de vie d'un match :
-    - SCHEDULED  : match planifié, les pronos sont ouverts
-    - IN_PLAY    : match en cours, les pronos sont verrouillés
-    - FINISHED   : match terminé, les points sont calculés
-    - POSTPONED  : match reporté (traité comme SCHEDULED)
-    - CANCELLED  : match annulé (pronos remboursés = 0 pts)
+    The `status` field follows the match lifecycle:
+    - SCHEDULED  : scheduled match, predictions are open
+    - IN_PLAY    : match in progress, predictions are locked
+    - FINISHED   : match over, points are calculated
+    - POSTPONED  : postponed match (handled like SCHEDULED)
+    - CANCELLED  : cancelled match (predictions refunded = 0 pts)
     """
 
     STATUS_SCHEDULED = 'SCHEDULED'
@@ -181,14 +181,14 @@ class Match(models.Model):
     @property
     def is_locked(self):
         """
-        Un match est verrouillé si l'heure de coup d'envoi est passée.
-        Cette propriété est vérifiée côté serveur lors de la soumission d'un prono.
+        A match is locked once its kickoff time has passed.
+        Checked server-side when a prediction is submitted.
         """
         return timezone.now() >= self.datetime
 
     @property
     def result(self):
-        """Retourne le résultat : 'home', 'away', 'draw', ou None si pas fini."""
+        """Returns the result: 'home', 'away', 'draw', or None if not finished."""
         if self.home_score is None or self.away_score is None:
             return None
         if self.home_score > self.away_score:
@@ -200,7 +200,7 @@ class Match(models.Model):
 
     @property
     def score_display(self):
-        """Affichage du score pour les templates."""
+        """Score as displayed in templates."""
         if self.home_score is not None and self.away_score is not None:
             return f"{self.home_score} - {self.away_score}"
         return "- : -"

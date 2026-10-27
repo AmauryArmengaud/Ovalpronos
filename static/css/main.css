@@ -1,58 +1,3 @@
-/* ─── CSS Variables ─────────────────────────────────────────────────────── */
-:root {
-  /* Brand */
-  --color-primary:          #2B3467;
-  --color-background:       #FCFFF9;
-  --color-accent:           #EB455F;
-  --color-brand-rugby:      #1a7f37;
-
-  /* Text */
-  --color-text:             #404771;     /* body text — distinct from brand primary */
-  --color-text-on-primary:  #FCFFF9;
-  --color-text-body:        #3d3d3d;     /* prose / feature copy */
-  --color-text-secondary:   rgba(43, 52, 103, 0.75);  /* was 0.55 (~3.2:1) → now ~5.4:1 on cream */
-
-  /* Surfaces */
-  --color-surface-raised:   rgba(43, 52, 103, 0.06);
-  --color-light:            #BAD7E9;     /* legacy — prefer --color-icon-muted for icons */
-  --color-icon-muted:       rgba(43, 52, 103, 0.28);
-  /* Rankings "You" row — primary-tinted, dark text passes 6.9:1 */
-  --color-you-highlight:    rgba(43, 52, 103, 0.12);
-  /* Rankings podium medals */
-  --color-rank-silver:      rgba(43, 52, 103, 0.65);  /* silver-toned — 4.1:1 on cream, passes 3:1 icon minimum */
-  --color-rank-bronze:      rgba(184, 105, 37, 0.75); /* amber — bronze-toned */
-  /* Team logo initials fallback — visible against card background (was 0.06, invisible) */
-  --color-logo-fallback-bg: rgba(43, 52, 103, 0.15);
-  /* Team logo circle background — subtle tint behind all logos (pale logos, shape harmony) */
-  --color-logo-bg:          rgba(43, 52, 103, 0.08);
-
-  /* Result badges — ordered best to worst */
-  --color-badge-exact:      #F5C542;     /* gold — best outcome */
-  --color-badge-exact-text: #5c4500;     /* dark amber — 5.7:1 on badge-exact gold (#F5C542) */
-  --color-badge-gap:        #8B35A8;     /* muted purple — dark enough for bg and text */
-  --color-badge-win:        #A8E063;     /* lime green — badge background */
-  --color-badge-win-text:   #235408;     /* dark green — 5.8:1 on badge-win lime (#A8E063) */
-  --color-badge-win-light:  rgba(168, 224, 99, 0.25);   /* 25% win — light result banner bg */
-  --color-badge-gap-light:  rgba(139, 53, 168, 0.35);   /* 35% gap — medium result banner bg */
-  --color-badge-miss:       rgba(43, 52, 103, 0.10);  /* neutral — subdued, no points */
-  --color-badge-miss-text:  rgba(43, 52, 103, 0.75);  /* ~5.4:1 on cream — matches --color-text-secondary */
-  /* Hero oval motif — cream at 7% opacity on navy background */
-  --color-hero-motif:       rgba(252, 255, 249, 0.07);
-  /* League ended badge — neutral tone, distinct from badge-miss (wrong prediction) */
-  --color-badge-ended-bg:   rgba(43, 52, 103, 0.08);
-  --color-badge-ended-text: rgba(43, 52, 103, 0.75);  /* ~5.4:1 on cream — AA for text */
-
-  /* Type scale */
-  --text-sm:   0.875rem;
-  --text-xs:   0.75rem;
-  --text-2xs:  0.65rem;
-
-  /* Radius scale */
-  --radius-sm:   0.375rem;
-  --radius-md:   0.75rem;
-  --radius-pill: 100rem;
-}
-
 /* ─── Base ──────────────────────────────────────────────────────────────── */
 body {
   background: var(--color-background);
@@ -289,7 +234,7 @@ main {
 
 .home-hero__sub {
   font-size: 1.05rem;
-  color: rgba(252, 255, 249, 0.80);
+  color: var(--color-text-on-primary-a80);
   line-height: 1.7;
   margin-bottom: 2rem;
 }
@@ -308,7 +253,7 @@ main {
 }
 
 .home-hero__cta-secondary {
-  color: rgba(252, 255, 249, 0.80);
+  color: var(--color-text-on-primary-a80);
   font-weight: 600;
   font-size: 0.95rem;
   text-decoration: none;
@@ -453,7 +398,7 @@ main {
   gap: 0.5rem;
   flex-wrap: wrap;
   font-size: var(--text-sm);
-  color: rgba(252, 255, 249, 0.75);
+  color: var(--color-text-on-primary-a75);
   font-weight: 500;
 }
 
@@ -463,9 +408,9 @@ main {
 
 /* Competition chips on dark (navy) background */
 .comp-divider-chip--dark {
-  background: rgba(252, 255, 249, 0.10);
+  background: var(--color-text-on-primary-a10);
   color: var(--color-text-on-primary);
-  border-color: rgba(252, 255, 249, 0.20);
+  border-color: var(--color-text-on-primary-a20);
 }
 
 /* Competition landing — upcoming matches with the points each winner earns */
@@ -548,7 +493,7 @@ main {
 .landing-hero__promise {
   font-size: 1.15rem;
   line-height: 1.45;
-  color: rgba(252, 255, 249, 0.85);
+  color: var(--color-text-on-primary-a85);
   margin-bottom: 1.25rem;
 }
 /* 20.4px bold counts as large text for WCAG, where cream on accent (3.75:1) passes AA */
@@ -562,7 +507,7 @@ main {
   margin: 1rem 0 0;
   font-size: var(--text-sm);
   font-weight: 600;
-  color: rgba(252, 255, 249, 0.85);
+  color: var(--color-text-on-primary-a85);
 }
 .landing-proof { margin-top: 0.25rem; }
 
@@ -649,7 +594,7 @@ main {
   display: flex;
   align-items: stretch;
   z-index: 1030;
-  box-shadow: 0 -2px 12px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 -2px 12px var(--color-black-a15);
 }
 
 .mobile-bottom-nav__item {
@@ -680,7 +625,7 @@ main {
   filter: brightness(0) invert(1);
 }
 
-/* Décaler le footer et le main pour laisser la place au bottom nav */
+/* Offset the footer and main so the bottom nav does not cover them */
 @media (max-width: 991.98px) {
   body {
     padding-bottom: 64px;
@@ -693,7 +638,7 @@ main {
 /* ─── Segment control ───────────────────────────────────────────────────── */
 .segment-control {
   display: inline-flex;
-  background: rgba(43, 52, 103, 0.07);
+  background: var(--color-primary-a07);
   border-radius: var(--radius-md);
   padding: 4px;
   gap: 2px;
@@ -920,23 +865,23 @@ main {
 
 /* Saved state — green tint + inset border when prediction exists */
 .match-score-input--saved {
-  background: rgba(26, 127, 55, 0.08);
-  box-shadow: inset 0 0 0 1px rgba(26, 127, 55, 0.4);
+  background: var(--color-brand-rugby-a08);
+  box-shadow: inset 0 0 0 1px var(--color-brand-rugby-a40);
 }
 
 .match-score-input--saved:focus {
-  background: rgba(43, 52, 103, 0.12);
+  background: var(--color-primary-a12);
   box-shadow: none;
 }
 
 /* After first save, Zone C carries data-state="saved"; apply saved styling to inputs
    without requiring a server-driven class on the inputs themselves (Zone C swap only). */
 .card:has([data-state="saved"]) .match-score-input {
-  background: rgba(26, 127, 55, 0.08);
-  box-shadow: inset 0 0 0 1px rgba(26, 127, 55, 0.4);
+  background: var(--color-brand-rugby-a08);
+  box-shadow: inset 0 0 0 1px var(--color-brand-rugby-a40);
 }
 .card:has([data-state="saved"]) .match-score-input:focus {
-  background: rgba(43, 52, 103, 0.12);
+  background: var(--color-primary-a12);
   box-shadow: none;
 }
 
@@ -950,7 +895,7 @@ main {
 }
 
 .match-score-input:focus {
-  background: rgba(43, 52, 103, 0.12);
+  background: var(--color-primary-a12);
   outline: 2px solid var(--color-primary);
   outline-offset: 2px;
   box-shadow: none;
@@ -999,7 +944,7 @@ main {
 
 /* Odds bar */
 .match-odds-bar {
-  background: rgba(43, 52, 103, 0.10);
+  background: var(--color-primary-a10);
   width: 100%;
   border-radius: var(--radius-sm);
   overflow: hidden;
@@ -1132,14 +1077,14 @@ main {
   font-weight: 600;
   text-decoration: none;
   /* inactive — matches comp-divider-chip on pronos page */
-  background: rgba(43, 52, 103, 0.07);
-  border: 1px solid rgba(43, 52, 103, 0.2);
+  background: var(--color-primary-a07);
+  border: 1px solid var(--color-primary-a20);
   color: var(--color-primary);
   transition: background 0.1s;
   white-space: nowrap;
 }
 .ranking-comp-chip:hover {
-  background: rgba(43, 52, 103, 0.13);
+  background: var(--color-primary-a13);
   color: var(--color-primary);
 }
 .ranking-comp-chip--active {
@@ -1166,8 +1111,8 @@ main {
   align-items: center;
   padding: 0.2rem 0.75rem;
   border-radius: var(--radius-pill);
-  background: rgba(43, 52, 103, 0.07);
-  border: 1px solid rgba(43, 52, 103, 0.2);
+  background: var(--color-primary-a07);
+  border: 1px solid var(--color-primary-a20);
   color: var(--color-primary);
   font-size: var(--text-xs);
   font-weight: 600;
@@ -1178,7 +1123,7 @@ main {
 /* ─── Predictions: no-odds collapse toggle ─────────────────────────────── */
 .btn-no-odds-toggle {
   background: transparent;
-  border: 1px solid rgba(43, 52, 103, 0.25);
+  border: 1px solid var(--color-primary-a25);
   color: var(--color-text-secondary);
   font-size: var(--text-xs);
   font-weight: 500;
@@ -1225,7 +1170,7 @@ main {
 .prediction-progress-track {
   height: 8px;
   border-radius: var(--radius-pill);
-  background: rgba(43, 52, 103, 0.10);
+  background: var(--color-primary-a10);
   overflow: hidden;
 }
 
@@ -1391,7 +1336,7 @@ main {
 }
 
 .ranking-row + .ranking-row {
-  border-top: 1px solid rgba(43, 52, 103, 0.07);
+  border-top: 1px solid var(--color-primary-a07);
 }
 
 .ranking-row--you {
@@ -1534,7 +1479,7 @@ main {
     align-items: center;
     gap: 0.75rem;
     padding: 0 0.75rem 0.375rem;
-    border-bottom: 1px solid rgba(43, 52, 103, 0.12);
+    border-bottom: 1px solid var(--color-primary-a12);
     margin-bottom: 0.25rem;
     font-size: var(--text-xs);
     font-weight: 600;
@@ -1564,7 +1509,7 @@ main {
   z-index: 1020;
   background: var(--color-background);
   border-top: 2px solid var(--color-you-highlight);
-  box-shadow: 0 -2px 8px rgba(43, 52, 103, 0.12);
+  box-shadow: 0 -2px 8px var(--color-primary-a12);
   opacity: 0;
   pointer-events: none;
   transform: translateY(6px);
@@ -1760,8 +1705,8 @@ main {
   min-height: 44px;
   padding: 0 1rem;
   border-radius: var(--radius-pill);
-  background: rgba(43, 52, 103, 0.07);
-  border: 1.5px solid rgba(43, 52, 103, 0.20);
+  background: var(--color-primary-a07);
+  border: 1.5px solid var(--color-primary-a20);
   color: var(--color-text-secondary);
   font-size: var(--text-sm);
   cursor: pointer;
@@ -1789,7 +1734,7 @@ main {
 
 .auth-invite-context {
   background: var(--color-surface-raised);
-  border: 1px solid rgba(43, 52, 103, 0.12);
+  border: 1px solid var(--color-primary-a12);
   border-radius: var(--radius-md);
   padding: 0.625rem 0.875rem;
   font-size: var(--text-sm);

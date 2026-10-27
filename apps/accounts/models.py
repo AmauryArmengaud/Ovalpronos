@@ -9,10 +9,10 @@ from django.utils.translation import gettext_lazy as _
 
 class CustomUser(AbstractUser):
     """
-    Modèle utilisateur étendu.
-    On hérite de AbstractUser (qui gère déjà username, email, password,
+    Extended user model.
+    Inherits from AbstractUser (which already handles username, email, password,
     first_name, last_name, is_active, is_staff, date_joined, etc.)
-    et on ajoute nos champs spécifiques à Oval'Pronos.
+    and adds the fields specific to Oval'Pronos.
     """
 
     # Override email to make it required and unique
@@ -67,7 +67,7 @@ class CustomUser(AbstractUser):
         return self.get_display_name()
 
     def get_display_name(self):
-        """Retourne le pseudo public, ou le username en fallback."""
+        """Returns the public nickname, falling back to the username."""
         return self.display_name or self.username
 
 

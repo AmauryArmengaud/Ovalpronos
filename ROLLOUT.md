@@ -7,13 +7,13 @@ Implementation plan for Oval'Pronos. Current state: **V2 complete** (Sprints 1�
 ## Current State Inventory
 
 ### Done (2026-09-11)
-- PostHog EU analytics — cookieless, GDPR compliant, server-side + JS tracking (Sprint 14)
+- PostHog EU analytics — cookieless, GDPR compliant, server-side + JS tracking (Sprint 14). *Superseded (2026-10): runs only after "Accept" on a consent banner, see ARCHITECTURE.md §11.*
 
 ### Done (2026-09-09)
 - All V1 + V2 sprints complete (Sprints 1–13)
 - Deployed on Hetzner CX22, PostgreSQL self-hosted, Gunicorn + deploy.sh via GitHub Actions
 - All scheduled tasks run on VPS cron — zero GHA minutes for syncs/odds/notifications
-- Automated odds update via Gemini 3.6 Flash every Tuesday 10:00 UTC
+- Automated odds update via Gemini Flash every Tuesday 10:00 UTC (`gemini-3.8-flash` since 2026-10)
 - Email notifications via Brevo (deadline reminders, results summary, missing odds alert)
 - Cloudflare Turnstile CAPTCHA on register + login
 - Private leagues scoped to competitions
@@ -21,7 +21,7 @@ Implementation plan for Oval'Pronos. Current state: **V2 complete** (Sprints 1�
 - `Team.logo_url` dropped — local PNGs at `static/img/teams/<slug>.png` are source of truth
 
 ### On hold / not worth it now
-- `rankings.UserScore` — `rank` field exists in the model but is never written; ranking is computed in Python in `_build_leaderboard()`. Pre-calculating it in DB would only help at scale (thousands of users/leagues). Parked until there's a real need.
+- `rankings.UserScore` — `rank` field exists in the model but is never written; ranking is computed in Python in `_build_leaderboard()`. Pre-calculating it in DB would only help at scale (thousands of users/leagues). Parked until there's a real need. The `UserScore` cache itself is in service since Sprint 9; only `rank` is unused.
 - **iOS Safari — keyboard scroll UX**: Zone C targeted swap fixes Chrome Android (keyboard never closes, no scroll jump). iOS Safari ignores `interactive-widget=resizes-content` and uses `resizes-visual` by default, so the layout viewport doesn't shrink when the keyboard opens. Result: `position:fixed` bottom nav stays at screen bottom (below keyboard), which is correct. The remaining iOS caveat is that programmatic `focus()` post-async may not reopen a dismissed keyboard — not a regression from the current fix (inputs are never destroyed so keyboard stays open). A `visualViewport` listener to scroll the focused card into view on iOS is a potential future improvement.
 
 ---
@@ -99,7 +99,7 @@ Goal: authenticated users can submit predictions. Auto-save via HTMX works.
   5. Finished (real scores + points badge with result_type color)
   6. Cancelled (grey badge)
 - HTMX form: `hx-post`, `hx-trigger="change"`, `hx-swap="outerHTML"`
-- All text via `{% trans %}`. Local SVG logo pattern. CSS variables only.
+- All text via `{% trans %}`. Local PNG logo pattern. CSS variables only.
 - `templates/predictions/index.html`: extends base, renders grouped match cards with tab filter
 
 ---
@@ -150,6 +150,7 @@ Goal: admin can manage matches and cotes. Sync endpoint is secured. GitHub Actio
 
 **5.5 — GitHub Actions workflow**
 - `.github/workflows/sync_matches.yml`: cron every 2h + every 15min Sat/Sun + `workflow_dispatch`
+- *Superseded (Sprint 13): schedule removed, `workflow_dispatch` only; crons run on the VPS.*
 - Required GitHub Secrets: `APP_URL`, `SYNC_SECRET_TOKEN`
 
 ---
@@ -239,7 +240,7 @@ Goal: users can create and join private leagues, compete on a dedicated leaderbo
 Goal: rankings are fast on large datasets. Users get email reminders and result summaries.
 
 **9.1 — UserScore cache**
-- `apps/rankings/models.py`: `UserScore` — `user` FK, `competition` FK (nullable), `league` FK (nullable), `points`, `exact_count`, `gap_count`, `win_count`, `rank`; partial `UniqueConstraint` on `(user, competition, league)`
+- `apps/rankings/models.py`: `UserScore` — `user` FK, `competition` FK (nullable), `league` FK (nullable), `points`, `exact_count`, `gap_count`, `win_count`, `rank`; partial `UniqueConstraint` on `(user, competition, league)` planned. *Not in the model today: only an index exists (see docs/PRODUCTION_READINESS.md §3).*
 - `apps/matches/services.py`: `refresh_user_scores_for_match(match)` — called at end of `_calculate_points_for_match()`, bulk upserts `UserScore` rows
 - `apps/rankings/views.py`: `RankingsView` — read from `UserScore` instead of aggregating `Prediction` directly; use window function for rank
 - Migration
@@ -266,6 +267,7 @@ Goal: staff can manage all data from a polished admin UI matching the app's desi
 **9.5.1 — Custom theme**
 - `templates/admin/base_site.html`: injects Bootstrap 5, Barlow, Tabler Icons, `main.css`, and `admin.css` — no third-party admin package
 - `static/css/admin.css`: Django admin selector overrides using `var(--color-primary)` etc. from `main.css`; no CSS variable redefinitions
+- *Superseded: the admin never loaded `main.css` and `admin.css` kept its own copy of the variables. Since 2026-10 both read `static/css/tokens.css` (see CONVENTIONS.md).*
 
 **9.5.2 — Dashboard**
 - `templates/admin/index.html`: 4 metric cards (active users, upcoming matches, matches sans cotes, unscored predictions)
@@ -301,6 +303,7 @@ Goal: staff can manage all data from a polished admin UI matching the app's desi
 
 **10.5.3 — Sync from settings, not DB** ✓
 - `sync_all_competitions()` now iterates `settings.RUGBY_COMPETITIONS` so new competitions are synced immediately without pre-existing DB rows
+- *Superseded (2026-10-15): iterates active Competition rows in the DB; `settings.RUGBY_COMPETITIONS` was removed.*
 
 **10.5.4 — Predictions page: chronological ordering** ✓
 - Matches sorted by day → competition → kickoff time (instead of competition tab → round)
@@ -351,6 +354,7 @@ Goal: zero GHA minutes for scheduled tasks — all crons on the VPS.
 - `0 7 * * *` → `python manage.py sync_matches` (daily full sync)
 - `*/10 * * * *` → `python manage.py sync_if_live` (live sync, silent when idle)
 - `0 10 * * 2` → `python .github/scripts/update_odds.py` (Tuesday odds update)
+- *Superseded (2026-10): the 10-minute cron runs `scripts/sync_live_scores.py` (scores via Gemini) and `sync_if_live` is no longer scheduled; scripts live in `scripts/`.*
 - `0 10 * * *` → `python manage.py send_deadline_reminders` (daily deadline reminders)
 - Logs in `/home/amaury/logs/`, rotated via `/etc/logrotate.d/ovalpronos`
 
@@ -386,9 +390,11 @@ Goal: cotes filled automatically each week without any manual intervention.
 - `.github/scripts/update_odds.py`: Gemini 3.6 Flash + Google Search grounding + `submit_odds` FunctionDeclaration
 - Fetches matches → sends to Gemini → extracts `submit_odds` call from chat history → normalises protobuf → POSTs to Django
 - `.github/scripts/test_odds.py`: standalone test (no Django needed), hardcoded Top 14 matches
+- *Scripts moved to `scripts/` since.*
 
 **11.3 — GitHub Actions cron** ✓
 - `.github/workflows/update_odds.yml`: every Tuesday 12:00 Paris (`0 10 * * 2`)
+- *Superseded (Sprint 13): schedule removed, `workflow_dispatch` only; the VPS cron runs `scripts/update_odds.py`.*
 - Required secret: `GOOGLE_API_KEY` (Google AI Studio)
 
 **11.4 — Cleanup** ✓
@@ -420,6 +426,8 @@ Goal: track user journeys in a GDPR-compliant way with no budget. No cookie cons
 - `league_joined` (+ `league_id`) — `leagues.LeagueJoinView.post()`
 
 **GDPR compliance:** EU hosting (Frankfurt), no cookies, no PII, no consent banner needed. One-line mention in privacy policy sufficient.
+
+*Superseded (2026-10): `localStorage` also requires consent under French law; PostHog now loads only after "Accept" on the consent banner (ARCHITECTURE.md §11).*
 
 ---
 

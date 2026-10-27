@@ -1,15 +1,15 @@
 """
-Service de synchronisation avec rugby-live-data (RapidAPI)
-===========================================================
-Documentation API : https://rapidapi.com/rugby-live-data-rugby-live-data-default/api/rugby-live-data
+Sync service for rugby-live-data (RapidAPI)
+===========================================
+API documentation: https://rapidapi.com/rugby-live-data-rugby-live-data-default/api/rugby-live-data
 
-Endpoint utilisé :
+Endpoint used:
     GET https://rugby-live-data.p.rapidapi.com/fixtures/{comp_id}/{season}
     Headers:
         x-rapidapi-host: rugby-live-data.p.rapidapi.com
-        x-rapidapi-key: <clé RapidAPI>
+        x-rapidapi-key: <RapidAPI key>
 
-Usage depuis la gestion Django :
+Usage from Django management:
     python manage.py sync_matches
     python manage.py sync_matches --comp TOP14
 """
@@ -42,8 +42,8 @@ STATUS_MAP = {
     'Cancelled':   'CANCELLED',
 }
 
-# Correspondances manuelles : external_id → slug (nom du fichier PNG) + short_name (3 car.)
-# Slug doit correspondre à static/img/teams/<slug>.png
+# Manual mapping: external_id → slug (PNG file name) + short_name (3 chars)
+# Slug must match static/img/teams/<slug>.png
 TEAM_OVERRIDES = {
     6767:  {'slug': 'clermont',   'short_name': 'ASM'},  # ASM Clermont Auvergne
     14567: {'slug': 'bayonne',    'short_name': 'BAY'},  # Aviron Bayonnais
@@ -60,14 +60,14 @@ TEAM_OVERRIDES = {
     131:   {'slug': 'bordeaux',   'short_name': 'UBB', 'name': 'Union Bordeaux-Bègles'},
     14717: {'slug': 'montauban',  'short_name': 'USM'},  # US Montauban
     1322:  {'slug': 'vannes',     'short_name': 'RCV'}, # Racing Club Vannes
-    17:    {'slug': 'tbc',        'short_name': 'TBC'},  # À définir
+    17:    {'slug': 'tbc',        'short_name': 'TBC'},  # To be confirmed
 }
 
 
 def _get_fixtures(comp_id, season):
     """
-    Appelle l'endpoint /fixtures/{comp_id}/{season}.
-    Retourne la liste des fixtures ou None en cas d'erreur.
+    Calls the /fixtures/{comp_id}/{season} endpoint.
+    Returns the list of fixtures, or None on error.
     """
     url = f"{API_BASE_URL}/fixtures/{comp_id}/{season}"
     try:
@@ -82,11 +82,11 @@ def _get_fixtures(comp_id, season):
 
 def sync_competition_matches(competition_code):
     """
-    Synchronise les matchs d'une compétition donnée.
-    Crée ou met à jour les équipes, puis les matchs.
+    Syncs the matches of one competition.
+    Creates or updates the teams, then the matches.
 
     Args:
-        competition_code: code de la Competition en base (ex: 'TOP14')
+        competition_code: code of the Competition in the DB (e.g. 'TOP14')
     """
     from apps.matches.models import Competition, Team, Match
 
@@ -116,7 +116,7 @@ def sync_competition_matches(competition_code):
     with transaction.atomic():
         for game in games:
             try:
-                # Équipes
+                # Teams
                 home_overrides = TEAM_OVERRIDES.get(game['home_id'], {})
                 away_overrides = TEAM_OVERRIDES.get(game['away_id'], {})
 
@@ -137,7 +137,7 @@ def sync_competition_matches(competition_code):
                     },
                 )
 
-                # Statut
+                # Status
                 api_status = game.get('status', 'Not Started')
                 status = STATUS_MAP.get(api_status.title(), 'SCHEDULED')
 
@@ -270,7 +270,7 @@ def refresh_user_scores_for_match(match):
 
 def _calculate_points_for_match(match):
     """
-    Déclenche le calcul des points pour tous les pronostics d'un match terminé.
+    Triggers the points calculation for every prediction of a finished match.
     """
     from apps.predictions.models import Prediction
     from apps.predictions.services import calculate_points
@@ -288,13 +288,13 @@ def _calculate_points_for_match(match):
         logger.info(f"Pas de cotes pour {match} — calcul ignoré")
         return
 
-    # NB : on recalcule TOUJOURS tous les pronostics du match, même ceux déjà
-    # scorés (points_earned non-null). Un match peut être scoré une première
-    # fois avec un score encore provisoire (ex. sync live sur un match mal
-    # détecté comme FINISHED), puis voir son score corrigé plus tard par la
-    # sync suivante. Sans ce recalcul systématique, les points restent figés
-    # sur l'ancien score et ne sont jamais corrigés, y compris via l'action
-    # admin "Recalculer les points".
+    # NB: ALL predictions of the match are recalculated, even those already
+    # scored (points_earned not null). A match can be scored a first time
+    # with a still provisional score (e.g. a live sync on a match wrongly
+    # detected as FINISHED), then have its score corrected by the next sync.
+    # Without this systematic recalculation, points stay frozen on the old
+    # score and are never corrected, including through the admin action
+    # "Recalculer les points".
     predictions = Prediction.objects.filter(match=match)
 
     count = 0

@@ -53,7 +53,7 @@ live states and CTAs only. Brand green (#1a7f37) for positive feedback (saved st
 | `--color-badge-win-light` | `rgba(168,224,99,0.25)` | Light lime tint for WIN result banner background |
 | `--color-badge-gap-light` | `rgba(139,53,168,0.35)` | Medium purple tint for GAP result banner background |
 
-All 7 variables above are also present in `admin.css` (standalone — see §3).
+All variables now live in `static/css/tokens.css` (see §3).
 
 ### CSS variables modified in `:root`
 
@@ -258,26 +258,15 @@ runtime. Add new entries to `ROUND_LABELS` whenever the API introduces a new rou
 
 Email templates (`templates/accounts/emails/`) use inline hex values for palette colors (`#2B3467`,
 `#EB455F`, `#FCFFF9`) — approved exception since mail clients do not support CSS variables. Keep the
-hex values synchronized with the CSS variables in `main.css`.
+hex values synchronized with the CSS variables in `tokens.css`.
 
-### admin.css — standalone, V4 debt
+### Design tokens: `tokens.css` (V4 debt resolved)
 
-`static/css/admin.css` does NOT `@import main.css`. It duplicates the CSS variable declarations
-independently. When you change a variable in `main.css`, you must also update `admin.css` manually.
-
-Changes already synced to `admin.css`:
-- `--color-text-secondary`: 0.55 → 0.75
-- `--color-badge-exact-text`: added (#5c4500)
-- `--color-badge-win-text`: added (#235408)
-- `--color-badge-win-light`: added (rgba lime 0.25)
-- `--color-badge-gap-light`: added (rgba purple 0.35)
-- `--color-logo-bg`: added (rgba 0.08)
-- `--color-badge-miss`: added (rgba 0.10) — background-only
-- `--color-badge-miss-text`: rgba 0.50 → 0.75 — for text/icons expressing a MISS state — ~5.4:1 on cream (AA)
-- `--color-badge-ended-text`: rgba 0.55 → 0.75 — ended league badge text — ~5.4:1 on cream (AA)
-- `--color-rank-silver`: rgba 0.45 → 0.65 — rank 2 medal icon — ~4.1:1 on cream (>3:1 icon minimum)
-
-V4 will consolidate these into a shared token file. Until then: both files must stay in sync.
+Every colour, translucent shade included, is declared once in the `:root` of `static/css/tokens.css`,
+loaded first by `base.html` and by `admin/base_site.html`. `main.css` and `admin.css` only reference
+variables; `admin.css` still does not load `main.css`. The former duplicated `:root` of `admin.css`
+had the same values as `main.css` and was removed. Guard test:
+`apps/matches/tests_quality.py::StylesheetColorTest`. Rules: `CONVENTIONS.md` §CSS Variables.
 
 ### Static file cache-busting
 

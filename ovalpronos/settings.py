@@ -1,9 +1,9 @@
 """
-Oval'Pronos — Configuration Django
------------------------------------
-Utilise python-decouple pour gérer les variables d'environnement.
-En développement : créer un fichier .env à la racine du projet.
-En production (Render) : renseigner les variables dans le dashboard.
+Oval'Pronos — Django settings
+-----------------------------
+Environment variables are read with python-decouple.
+Development: create a .env file at the project root.
+Production (Hetzner VPS): set the variables in the .env file on the server.
 """
 
 from pathlib import Path
@@ -11,7 +11,7 @@ from decouple import config, Csv
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# ─── Sécurité ────────────────────────────────────────────────────────────────
+# ─── Security ────────────────────────────────────────────────────────────────
 SECRET_KEY = config('SECRET_KEY')
 DEBUG = config('DEBUG', default=False, cast=bool)
 ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='localhost,127.0.0.1', cast=Csv())
@@ -30,7 +30,7 @@ SECURE_HSTS_SECONDS = 0 if DEBUG else 86400
 # enabling it here without X-Forwarded-Proto set by nginx would cause a redirect loop
 
 
-# ─── Applications installées ─────────────────────────────────────────────────
+# ─── Installed apps ──────────────────────────────────────────────────────────
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -38,15 +38,15 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'django.contrib.humanize',  # Pour les filtres de template (pluralize, etc.)
+    'django.contrib.humanize',  # Template filters (pluralize, etc.)
 
-    # Packages tiers
+    # Third-party packages
     'anymail',
     'crispy_forms',
     'crispy_bootstrap5',
     'django_ratelimit',
 
-    # Nos apps métier (dans apps/)
+    # Our business apps (in apps/)
     'apps.accounts',
     'apps.matches',
     'apps.predictions',
@@ -56,7 +56,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',  # Sert les fichiers statiques en prod
+    'whitenoise.middleware.WhiteNoiseMiddleware',  # Serves static files in production
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.locale.LocaleMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -73,7 +73,7 @@ ROOT_URLCONF = 'ovalpronos.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / 'templates'],  # Dossier templates global
+        'DIRS': [BASE_DIR / 'templates'],  # Project-wide templates folder
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -91,9 +91,9 @@ TEMPLATES = [
 WSGI_APPLICATION = 'ovalpronos.wsgi.application'
 
 
-# ─── Base de données ─────────────────────────────────────────────────────────
-# En développement : SQLite (zéro config)
-# En production : DATABASE_URL est injectée automatiquement par Render
+# ─── Database ────────────────────────────────────────────────────────────────
+# Development: SQLite (zero config)
+# Production: DATABASE_URL comes from the .env file on the VPS
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
@@ -101,15 +101,15 @@ DATABASES = {
     }
 }
 
-# Si DATABASE_URL est définie (Render / prod), on bascule sur PostgreSQL
+# When DATABASE_URL is set (prod), switch to PostgreSQL
 DATABASE_URL = config('DATABASE_URL', default=None)
 if DATABASE_URL:
     import dj_database_url
     DATABASES['default'] = dj_database_url.parse(DATABASE_URL, conn_max_age=600)
 
 
-# ─── Authentification ────────────────────────────────────────────────────────
-AUTH_USER_MODEL = 'accounts.CustomUser'  # Notre modèle User personnalisé
+# ─── Authentication ──────────────────────────────────────────────────────────
+AUTH_USER_MODEL = 'accounts.CustomUser'  # Custom user model
 AUTHENTICATION_BACKENDS = ['apps.accounts.backends.EmailOrUsernameBackend']
 LOGIN_URL = 'accounts:login'
 LOGIN_REDIRECT_URL = 'matches:home'
@@ -123,17 +123,17 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 
-# ─── Internationalisation ────────────────────────────────────────────────────
+# ─── Internationalization ────────────────────────────────────────────────────
 LANGUAGE_CODE = 'fr-fr'
 TIME_ZONE = 'Europe/Paris'
 USE_I18N = True
-USE_TZ = True  # IMPORTANT : stocke les dates en UTC, affiche en heure locale
+USE_TZ = True  # IMPORTANT: dates are stored in UTC and displayed in local time
 
 LANGUAGES = [('fr', 'Français'), ('en', 'English')]
 LOCALE_PATHS = [BASE_DIR / 'locale']
 
 
-# ─── Fichiers statiques ───────────────────────────────────────────────────────
+# ─── Static files ─────────────────────────────────────────────────────────────
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [BASE_DIR / 'static']
 STATIC_ROOT = BASE_DIR / 'staticfiles'
@@ -145,7 +145,7 @@ STORAGES = {
 }
 # Cache-busting query string for locally-hosted CSS/JS. Increment after any
 # deploy that modifies static assets until ManifestStaticFilesStorage is set up.
-STATIC_VERSION = '10'
+STATIC_VERSION = '11'
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
@@ -170,14 +170,14 @@ RATELIMIT_FAIL_OPEN = True
 SILENCED_SYSTEM_CHECKS = ['django_ratelimit.E003', 'django_ratelimit.W001']
 
 
-# ─── Formulaires ─────────────────────────────────────────────────────────────
+# ─── Forms ───────────────────────────────────────────────────────────────────
 CRISPY_ALLOWED_TEMPLATE_PACKS = 'bootstrap5'
 CRISPY_TEMPLATE_PACK = 'bootstrap5'
 
 
 # ─── Cloudflare Turnstile (CAPTCHA anti-bot) ────────────────────────────────
-# Générer des clés sur https://dash.cloudflare.com/ → Turnstile
-# Les clés de test ci-dessous fonctionnent en dev (toujours valides).
+# Generate keys at https://dash.cloudflare.com/ → Turnstile
+# The test keys below work in dev (they always pass).
 TURNSTILE_SITE_KEY = config('TURNSTILE_SITE_KEY', default='1x00000000000000000000AA')
 TURNSTILE_SECRET_KEY = config('TURNSTILE_SECRET_KEY', default='1x0000000000000000000000000000000AA')
 

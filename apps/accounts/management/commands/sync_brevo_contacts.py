@@ -1,16 +1,16 @@
 """
-Commande Django : python manage.py sync_brevo_contacts
-======================================================
-Pousse vers Brevo l'état des anciens joueurs 2023 pour la campagne de relance :
-  - INSCRIT_V2       : true dès qu'un compte existe avec l'email de l'invitation
-  - LIGUE_NOM        : nom de sa ligue la plus peuplée (vide sans ligue)
-  - NB_MEMBRES_LIGUE : nombre de membres de cette ligue (0 sans ligue)
+Django command: python manage.py sync_brevo_contacts
+====================================================
+Pushes the state of the 2023 former players to Brevo for the relaunch campaign:
+  - INSCRIT_V2       : true as soon as an account exists with the invitation email
+  - LIGUE_NOM        : name of their largest league (empty without a league)
+  - NB_MEMBRES_LIGUE : member count of that league (0 without a league)
 
-Les segments Brevo « Non réinscrits » / « Réinscrits » reposent sur INSCRIT_V2.
-Lancée chaque nuit par le cron du VPS, et à la main avant chaque envoi.
-Les contacts absents de Brevo sont ignorés.
+The Brevo segments « Non réinscrits » / « Réinscrits » rely on INSCRIT_V2.
+Run every night by the VPS cron, and by hand before each send.
+Contacts missing from Brevo are skipped.
 
-Usage :
+Usage:
     python manage.py sync_brevo_contacts
 """
 

@@ -58,28 +58,28 @@
       <div class="home-example-row home-example-row--exact">
         <i class="ti ti-crown home-example-icon" aria-hidden="true"></i>
         <span class="home-example-label">{% trans "Exact score" %} <span class="home-example-score">17 — 22</span></span>
-        <span class="home-example-pts tabular-nums">{{ example.exact_pts }} pts</span>
+        <span class="home-example-pts tabular-nums">{{ example.exact_pts }} {% trans "pts" %}</span>
         <span class="home-example-mult">× 3</span>
       </div>
 
       <div class="home-example-row home-example-row--gap">
         <i class="ti ti-target home-example-icon" aria-hidden="true"></i>
         <span class="home-example-label">{% trans "Good gap" %} <span class="home-example-score">15 — 22</span></span>
-        <span class="home-example-pts tabular-nums">{{ example.gap_pts }} pts</span>
+        <span class="home-example-pts tabular-nums">{{ example.gap_pts }} {% trans "pts" %}</span>
         <span class="home-example-mult">× 2</span>
       </div>
 
       <div class="home-example-row home-example-row--win">
         <i class="ti ti-check home-example-icon" aria-hidden="true"></i>
         <span class="home-example-label">{% trans "Correct winner" %} <span class="home-example-score">14 — 25</span></span>
-        <span class="home-example-pts tabular-nums">{{ example.win_pts }} pts</span>
+        <span class="home-example-pts tabular-nums">{{ example.win_pts }} {% trans "pts" %}</span>
         <span class="home-example-mult">× 1</span>
       </div>
 
       <div class="home-example-row home-example-row--miss">
         <i class="ti ti-x home-example-icon" aria-hidden="true"></i>
         <span class="home-example-label">{% trans "Missed" %} <span class="home-example-score">20 — 10</span></span>
-        <span class="home-example-pts tabular-nums">{{ example.miss_pts }} pt</span>
+        <span class="home-example-pts tabular-nums">{{ example.miss_pts }} {% trans "pt" %}</span>
         <span class="home-example-mult">× 0</span>
       </div>
 
@@ -102,7 +102,7 @@
       {% else %}
         <ul class="text-muted mb-5">
           {% for comp in active_competitions %}
-            <li>{{ comp.name }} — <span class="tabular-nums">{{ comp.good_gap_pts }} pts</span></li>
+            <li>{{ comp.name }} — <span class="tabular-nums">{{ comp.good_gap_pts }} {% trans "pts" %}</span></li>
           {% endfor %}
         </ul>
       {% endif %}
@@ -139,10 +139,10 @@
         {% trans "Some competitions use flat points instead of odds:" %}
         {% for comp in fixed_competitions %}{{ comp.name }}{% if not forloop.last %}, {% endif %}{% endfor %}.
         <br>
-        {% trans "Exact" %}: <span class="tabular-nums fw-semibold">{{ fixed_example.exact_pts }} pts</span> &mdash;
-        {% trans "Good gap" %}: <span class="tabular-nums fw-semibold">{{ fixed_example.gap_pts }} pts</span> &mdash;
-        {% trans "Correct winner" %}: <span class="tabular-nums fw-semibold">{{ fixed_example.win_pts }} pt</span> &mdash;
-        {% trans "Missed" %}: <span class="tabular-nums fw-semibold">{{ fixed_example.miss_pts }} pt</span>.
+        {% trans "Exact" %}: <span class="tabular-nums fw-semibold">{{ fixed_example.exact_pts }} {% trans "pts" %}</span> &mdash;
+        {% trans "Good gap" %}: <span class="tabular-nums fw-semibold">{{ fixed_example.gap_pts }} {% trans "pts" %}</span> &mdash;
+        {% trans "Correct winner" %}: <span class="tabular-nums fw-semibold">{{ fixed_example.win_pts }} {% trans "pt" %}</span> &mdash;
+        {% trans "Missed" %}: <span class="tabular-nums fw-semibold">{{ fixed_example.miss_pts }} {% trans "pt" %}</span>.
       </dd>
       {% endif %}
 

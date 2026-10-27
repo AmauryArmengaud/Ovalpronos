@@ -78,8 +78,8 @@ python manage.py sync_matches --comp TOP14
 ### 6. Tests
 
 ```bash
-# Tests de scoring — obligatoires avant déploiement
-python manage.py test apps.predictions.tests   # 11/11
+# Suite complète, lancée aussi par la CI avant chaque mise en ligne
+python manage.py test apps
 ```
 
 ---
@@ -93,10 +93,10 @@ ovalpronos/
 │   ├── accounts/             # CustomUser, auth views, register/login/reset, admin
 │   ├── matches/              # Competition, Team, Match, sync service, admin + import view
 │   ├── predictions/          # Prediction model, HTMX auto-save, scoring service, tests
-│   ├── rankings/             # RankingsView (on-the-fly aggregation, global + league tabs)
+│   ├── rankings/             # RankingsView (lit le cache UserScore, onglets global + ligues)
 │   └── leagues/              # League model, create/join/leave flow, league leaderboard
 ├── templates/
-│   ├── base.html             # Bootstrap 5, HTMX, Barlow, Tabler Icons, CSS vars
+│   ├── base.html             # Bootstrap 5, HTMX, Barlow, Tabler Icons, tokens.css + main.css
 │   ├── accounts/             # login, register, password reset (×4), email template
 │   ├── matches/              # home (landing), rules
 │   ├── predictions/          # index (tab Upcoming/Live/Past)
@@ -104,14 +104,15 @@ ovalpronos/
 │   ├── leagues/              # list, create, join, detail
 │   ├── partials/             # match_card.html (6 états HTMX)
 │   ├── admin/
-│   │   ├── base_site.html    # Injecte Bootstrap 5, Barlow, Tabler Icons, admin.css (ne charge PAS main.css)
+│   │   ├── base_site.html    # Injecte Barlow, Tabler Icons, tokens.css et admin.css (ne charge PAS main.css)
 │   │   ├── index.html        # Dashboard avec 4 cartes métriques
 │   │   ├── partials/         # dashboard_stats.html (templatetag inclusion)
-│   │   └── matches/          # import.html (déclencheur sync api-sports.io)
+│   │   └── matches/          # import.html (sync rugby-live-data), campaign_report.html
 │   └── 404.html
 ├── static/
-│   ├── css/main.css          # CSS variables — aucune couleur hex en dur
-│   ├── css/admin.css         # Overrides Django admin — standalone, duplique les vars de main.css (dette V4)
+│   ├── css/tokens.css        # Seul :root, toutes les couleurs (app et admin)
+│   ├── css/main.css          # Styles globaux, aucune couleur en dur
+│   ├── css/admin.css         # Overrides Django admin, aucune couleur en dur
 │   └── img/teams/            # <slug>.png — un fichier par équipe
 ├── locale/fr/LC_MESSAGES/    # django.po / django.mo
 ├── .github/
@@ -122,9 +123,11 @@ ovalpronos/
 │   │   ├── sync_matches.yml     # Sync manuelle d'urgence (workflow_dispatch)
 │   │   ├── update_odds.yml      # Relance Gemini manuelle (workflow_dispatch)
 │   │   └── email_notifications.yml  # Résumés manuels (workflow_dispatch)
-│   └── scripts/
-│       ├── update_odds.py       # Gemini Flash + Google Search → POST /api/update-odds/
-│       └── test_odds.py         # Test standalone (GOOGLE_API_KEY=... python test_odds.py)
+├── scripts/
+│   ├── update_odds.py           # Gemini Flash + Google Search → POST /api/update-odds/
+│   ├── sync_live_scores.py      # Scores en direct et finaux via Gemini → POST /api/update-scores/
+│   ├── test_odds.py             # Test standalone (GOOGLE_API_KEY=... python scripts/test_odds.py)
+│   └── ops/                     # deploy.sh, cron_wrap.sh
 ├── requirements.txt
 ```
 
@@ -132,7 +135,7 @@ ovalpronos/
 
 ## Interface d'administration
 
-Accessible à `/admin/` (staff uniquement). Thème : design system de l'app (Bootstrap 5, police Barlow, icônes Tabler, variables CSS de `main.css`) — aucun package tiers.
+Accessible à `/admin/` (staff uniquement). Thème : design system de l'app (police Barlow, icônes Tabler, variables de couleur de `tokens.css`), aucun package tiers.
 
 **Actions disponibles par modèle :**
 
@@ -151,7 +154,7 @@ Accessible à `/admin/` (staff uniquement). Thème : design system de l'app (Boo
 
 ## Barème des points
 
-Mode **COTES** (défaut) — cotes stockées en entiers = cote Unibet × 10 :
+Mode **COTES** (défaut) : cotes stockées en entiers = cote bookmaker × 10 (relevées par Gemini chaque mardi, ou estimées par le modèle à défaut) :
 
 | Résultat | Points |
 |---|---|
@@ -171,10 +174,11 @@ La sync est pilotée par le **cron VPS** — GitHub Actions n'est utilisé qu'en
 
 | Schedule | Commande | Rôle |
 |---|---|---|
-| `0 7 * * *` | `python manage.py sync_matches` | Sync quotidienne complète |
-| `*/10 * * * *` | `python manage.py sync_if_live` | Sync live — exit silencieux si pas de match |
-| `0 10 * * 2` | `python .github/scripts/update_odds.py` | Mise à jour cotes Gemini (mardi) |
+| `0 7 * * *` | `python manage.py sync_matches` | Sync quotidienne du calendrier (l'API n'écrit plus les scores) |
+| `*/10 * * * *` | `python scripts/sync_live_scores.py` | Scores en direct et finaux via Gemini, exit silencieux si pas de match |
+| `0 10 * * 2` | `python scripts/update_odds.py` | Mise à jour cotes Gemini (mardi) |
 | `0 10 * * *` | `python manage.py send_deadline_reminders` | Rappels deadline |
+| `30 2 * * *` | `python manage.py sync_brevo_contacts` | Attributs Brevo de la relance 2023 |
 
 En développement, déclencher manuellement :
 ```bash

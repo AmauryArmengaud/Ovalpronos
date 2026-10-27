@@ -143,3 +143,22 @@ class PoFileQualityTest(SimpleTestCase):
             'Empty msgstr for app-level strings — add French translations:\n'
             + '\n'.join(f'  msgid "{e["msgid"]}"' for e in empty),
         )
+
+
+class StylesheetColorTest(SimpleTestCase):
+    """Only static/css/tokens.css may contain literal colours (white-label theming)."""
+
+    def test_no_literal_colors_outside_tokens(self):
+        pattern = re.compile(r'#[0-9a-fA-F]{3,8}\b|\b(?:rgba?|hsla?)\(|(?<![\w-])(?:white|black)(?![\w-])')
+        violations = []
+        for name in ('main.css', 'admin.css'):
+            content = (BASE_DIR / 'static' / 'css' / name).read_text(encoding='utf-8')
+            for lineno, line in enumerate(content.splitlines(), 1):
+                code = re.sub(r'/\*.*?\*/', '', line)
+                if pattern.search(code):
+                    violations.append(f'  static/css/{name}:{lineno}: {code.strip()[:80]}')
+        self.assertFalse(
+            violations,
+            'Literal colours found — declare a variable in static/css/tokens.css instead.\n'
+            + '\n'.join(violations),
+        )

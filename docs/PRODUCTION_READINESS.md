@@ -109,30 +109,30 @@ La mission décrit les items par phase sans les numéroter. Ils sont regroupés 
 
 ## 3. Incohérences de documentation
 
-| Doc | Affirmation | Réalité dans le code |
-|---|---|---|
-| `CLAUDE.md`, `README.md` (admin), `requirements.txt`, `.env.example`, `Competition` docstring, aide de `sync_matches` | Source api-sports.io, `APISPORTS_KEY` | Source unique : rugby-live-data (RapidAPI). `APISPORTS_KEY` n'est lu nulle part |
-| `ROLLOUT.md` §10.5.3 | `sync_all_competitions()` itère `settings.RUGBY_COMPETITIONS` | Itère la base (`is_active=True`), conforme à l'entrée du 2026-10-15. §10.5.3 est obsolète |
-| `ARCHITECTURE.md` §11 | "Why UserScore is V2, not V1… will be introduced when…" | `UserScore` est utilisé par `RankingsView` et rafraîchi à chaque calcul de points |
-| `ROLLOUT.md` "On hold" | `UserScore` parqué | Seul le champ `rank` est inutilisé, le modèle est en service |
-| `ROLLOUT.md` §9.1, `CONVENTIONS.md` | `UserScore` a des `UniqueConstraint` partielles | Le modèle n'a **aucune** contrainte d'unicité, seulement un index. Des doublons sont possibles en cas d'exécutions concurrentes (sync live + action admin) |
-| `ROLLOUT.md` §3.4 | "Local SVG logo pattern" | Logos PNG |
-| `README.md`, `CLAUDE.md`, `ARCHITECTURE.md` §10 | Scripts dans `.github/scripts/`, cron `python .github/scripts/update_odds.py` | Les scripts sont dans `scripts/`. **À vérifier sur le VPS** : si la crontab suit la doc, la mise à jour des cotes échoue chaque mardi |
-| `CLAUDE.md`, `ROLLOUT.md` | Gemini 3.6 Flash | `update_odds.py` utilise `gemini-3.8-flash`, `sync_live_scores.py` `gemini-3.6-flash` |
-| `ARCHITECTURE.md`, `README.md` | "cote Unibet × 10" | Cotes multi-bookmakers trouvées par recherche, ou **estimées par le modèle** sans source |
-| `CLAUDE.md` | `/api/upcoming-matches/` sur 14 jours | 7 jours |
-| `CLAUDE.md` | "Django 5", email Ionos SMTP | Django 6.0.6, Brevo via anymail |
-| `README.md` | Tests "11/11" | 85 tests, commande `manage.py test apps` |
-| `ARCHITECTURE.md` §9, `README.md` | Vue d'import `/admin/matches/competition/<id>/import/` | **Inaccessible** : l'URL est résolue par le catch-all de l'admin (`RedirectView`), le bouton "Sync" de la liste utilise une autre route. `CompetitionImportView` est du code mort |
-| `ARCHITECTURE.md` §3 | Étape 1 : CANCELLED avant tout | `calculate_points` teste `has_odds` d'abord. Sans effet en pratique car `_calculate_points_for_match` traite CANCELLED en amont |
-| `CONVENTIONS.md` | `admin.css` ne redéfinit jamais les variables | `admin.css` redéfinit `:root` (copie de `main.css`) et contient 12 hex |
-| `CONVENTIONS.md` | Table des couleurs | Valeurs obsolètes (`--color-text` = `#404771`, `--color-badge-gap` = `#8B35A8`, `--color-badge-miss` en rgba, nouvelles variables `*-text`) |
-| `CONVENTIONS.md` | `verbose_name` en français sans `_()` | Tous les modèles utilisent `_("English")`. Le code est cohérent, c'est la convention qui ne l'est plus |
-| `CONVENTIONS.md` | Inputs `home`/`away`, `max="200"` | `score_h`/`score_a`, aucune borne |
-| `ARCHITECTURE.md` §11 | `localStorage` dispense de consentement | Faux en droit français (voir item 30) |
-| `ROLLOUT.md` | `CompressedStaticFilesStorage` | Réglage ignoré par Django 6 (item 36) |
-| `settings.py` | Commentaires "Render" | Hetzner |
-| Aucune doc | `/api/live-matches/`, `/api/update-scores/`, `/api/has-live-matches/`, `scripts/sync_live_scores.py` | Présents et actifs côté serveur |
+| Doc | Affirmation | Réalité dans le code | Statut (26/10) |
+|---|---|---|---|
+| `CLAUDE.md`, `README.md` (admin), `requirements.txt`, `.env.example`, `Competition` docstring, aide de `sync_matches` | Source api-sports.io, `APISPORTS_KEY` | Source unique : rugby-live-data (RapidAPI). `APISPORTS_KEY` n'est lu nulle part | Corrigé (PR conventions) |
+| `ROLLOUT.md` §10.5.3 | `sync_all_competitions()` itère `settings.RUGBY_COMPETITIONS` | Itère la base (`is_active=True`), conforme à l'entrée du 2026-10-15. §10.5.3 est obsolète | Corrigé (PR conventions) |
+| `ARCHITECTURE.md` §11 | "Why UserScore is V2, not V1… will be introduced when…" | `UserScore` est utilisé par `RankingsView` et rafraîchi à chaque calcul de points | Corrigé (PR conventions) |
+| `ROLLOUT.md` "On hold" | `UserScore` parqué | Seul le champ `rank` est inutilisé, le modèle est en service | Corrigé (PR conventions) |
+| `ROLLOUT.md` §9.1, `CONVENTIONS.md` | `UserScore` a des `UniqueConstraint` partielles | Le modèle n'a **aucune** contrainte d'unicité, seulement un index. Des doublons sont possibles en cas d'exécutions concurrentes (sync live + action admin) | Doc corrigée ; contrainte toujours absente, signalée (PR séparée) |
+| `ROLLOUT.md` §3.4 | "Local SVG logo pattern" | Logos PNG | Corrigé (PR conventions) |
+| `README.md`, `CLAUDE.md`, `ARCHITECTURE.md` §10 | Scripts dans `.github/scripts/`, cron `python .github/scripts/update_odds.py` | Les scripts sont dans `scripts/`. **À vérifier sur le VPS** : si la crontab suit la doc, la mise à jour des cotes échoue chaque mardi | Corrigé (PR conventions) |
+| `CLAUDE.md`, `ROLLOUT.md` | Gemini 3.6 Flash | `update_odds.py` utilise `gemini-3.8-flash`, `sync_live_scores.py` `gemini-3.6-flash` | Corrigé (PR conventions) |
+| `ARCHITECTURE.md`, `README.md` | "cote Unibet × 10" | Cotes multi-bookmakers trouvées par recherche, ou **estimées par le modèle** sans source | Corrigé (PR conventions) |
+| `CLAUDE.md` | `/api/upcoming-matches/` sur 14 jours | 7 jours | Doc corrigée ; l'email d'alerte dit encore « 14 prochains jours », signalé |
+| `CLAUDE.md` | "Django 5", email Ionos SMTP | Django 6.0.6, Brevo via anymail | Corrigé (PR conventions) |
+| `README.md` | Tests "11/11" | 85 tests, commande `manage.py test apps` | Corrigé (PR conventions) |
+| `ARCHITECTURE.md` §9, `README.md` | Vue d'import `/admin/matches/competition/<id>/import/` | **Inaccessible** : l'URL est résolue par le catch-all de l'admin (`RedirectView`), le bouton "Sync" de la liste utilise une autre route. `CompetitionImportView` est du code mort | Route réparée par #19 ; page liée nulle part, signalée |
+| `ARCHITECTURE.md` §3 | Étape 1 : CANCELLED avant tout | `calculate_points` teste `has_odds` d'abord. Sans effet en pratique car `_calculate_points_for_match` traite CANCELLED en amont | Corrigé (PR conventions) |
+| `CONVENTIONS.md` | `admin.css` ne redéfinit jamais les variables | `admin.css` redéfinit `:root` (copie de `main.css`) et contient 12 hex | Corrigé (PR conventions) |
+| `CONVENTIONS.md` | Table des couleurs | Valeurs obsolètes (`--color-text` = `#404771`, `--color-badge-gap` = `#8B35A8`, `--color-badge-miss` en rgba, nouvelles variables `*-text`) | Corrigé (PR conventions) |
+| `CONVENTIONS.md` | `verbose_name` en français sans `_()` | Tous les modèles utilisent `_("English")`. Le code est cohérent, c'est la convention qui ne l'est plus | Corrigé (PR conventions) |
+| `CONVENTIONS.md` | Inputs `home`/`away`, `max="200"` | `score_h`/`score_a`, aucune borne | Corrigé (PR conventions) |
+| `ARCHITECTURE.md` §11 | `localStorage` dispense de consentement | Faux en droit français (voir item 30) | Déjà corrigé (#9) |
+| `ROLLOUT.md` | `CompressedStaticFilesStorage` | Réglage ignoré par Django 6 (item 36) | Déjà corrigé (`STORAGES`) |
+| `settings.py` | Commentaires "Render" | Hetzner | Corrigé (PR conventions) |
+| Aucune doc | `/api/live-matches/`, `/api/update-scores/`, `/api/has-live-matches/`, `scripts/sync_live_scores.py` | Présents et actifs côté serveur | Corrigé (PR conventions) |
 
 ---
 

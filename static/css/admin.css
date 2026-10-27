@@ -1,45 +1,8 @@
 /* ─── Oval'Pronos Admin ──────────────────────────────────────────────────────
-   Standalone file — does NOT load main.css or Bootstrap.
-   Variables are copied from main.css so the palette stays in sync.
-   Only overrides Django admin's own selectors.
+   Does NOT load main.css or Bootstrap. Colours come from tokens.css,
+   loaded first by templates/admin/base_site.html; this file only
+   references variables. Only overrides Django admin's own selectors.
    ─────────────────────────────────────────────────────────────────────────── */
-
-/* ─── Design tokens (mirror of main.css :root) ───────────────────────────── */
-:root {
-  --color-primary:          #2B3467;
-  --color-accent:           #EB455F;
-  --color-background:       #FCFFF9;
-  --color-text-on-primary:  #FCFFF9;
-  --color-text:             #404771;
-  --color-text-secondary:   rgba(43, 52, 103, 0.75);  /* synced with main.css — was 0.55 */
-  --color-surface-raised:   rgba(43, 52, 103, 0.06);
-  --color-brand-rugby:      #1a7f37;
-
-  /* Result badges */
-  --color-badge-exact:      #F5C542;
-  --color-badge-exact-text: #5c4500;
-  --color-badge-gap:        #8B35A8;
-  --color-badge-win:        #A8E063;
-  --color-badge-win-text:   #235408;
-  --color-badge-miss:       rgba(43, 52, 103, 0.10);
-  --color-badge-miss-text:  rgba(43, 52, 103, 0.75);  /* synced with main.css — ~5.4:1 on cream */
-  --color-logo-bg:          rgba(43, 52, 103, 0.08);
-  --color-badge-win-light:  rgba(168, 224, 99, 0.25);
-  --color-badge-gap-light:  rgba(139, 53, 168, 0.35);
-  /* Rankings podium medals */
-  --color-rank-silver:      rgba(43, 52, 103, 0.65);  /* synced with main.css — 4.1:1 on cream */
-  --color-rank-bronze:      rgba(184, 105, 37, 0.75);
-  /* League ended badge */
-  --color-badge-ended-bg:   rgba(43, 52, 103, 0.08);
-  --color-badge-ended-text: rgba(43, 52, 103, 0.75);  /* synced with main.css — ~5.4:1 on cream */
-
-  /* Radius */
-  --radius-sm:  0.375rem;
-  --radius-md:  0.75rem;
-
-  /* Borders */
-  --border:     1px solid rgba(43, 52, 103, 0.12);
-}
 
 /* ─── Font ───────────────────────────────────────────────────────────────── */
 * {
@@ -65,7 +28,7 @@ a:hover, a:focus    { color: var(--color-accent); }
   height: 56px;
   display: flex;
   align-items: center;
-  box-shadow: 0 2px 8px rgba(43, 52, 103, 0.3);
+  box-shadow: 0 2px 8px var(--color-primary-a30);
 }
 
 #branding h1,
@@ -79,13 +42,13 @@ a:hover, a:focus    { color: var(--color-accent); }
 
 #user-tools {
   font-size: 0.82rem;
-  color: rgba(252, 255, 249, 0.75);
+  color: var(--color-text-on-primary-a75);
 }
 
 #user-tools a,
 #user-tools a:link,
 #user-tools a:visited {
-  color: rgba(252, 255, 249, 0.75);
+  color: var(--color-text-on-primary-a75);
   text-decoration: none;
   border-bottom: 1px solid transparent;
 }
@@ -132,7 +95,7 @@ div.breadcrumbs a:link {
 .nav-sidebar a,
 .nav-sidebar a:link,
 .nav-sidebar a:visited {
-  color: rgba(252, 255, 249, 0.7);
+  color: var(--color-text-on-primary-a70);
   font-size: 0.85rem;
   padding: 5px 10px;
   border-radius: var(--radius-sm);
@@ -141,7 +104,7 @@ div.breadcrumbs a:link {
 
 .nav-sidebar a:hover {
   color: var(--color-text-on-primary);
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--color-white-a10);
 }
 
 /* App section header in sidebar */
@@ -150,7 +113,7 @@ div.breadcrumbs a:link {
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.06em;
-  color: rgba(252, 255, 249, 0.45) !important;
+  color: var(--color-text-on-primary-a45) !important;
   padding: 14px 10px 4px;
   cursor: default;
 }
@@ -159,7 +122,7 @@ div.breadcrumbs a:link {
 .nav-sidebar .selected a,
 .nav-sidebar .selected a:link {
   color: var(--color-text-on-primary);
-  background: rgba(235, 69, 95, 0.2);
+  background: var(--color-accent-a20);
   font-weight: 600;
 }
 
@@ -172,8 +135,8 @@ div.breadcrumbs a:link {
 
 /* Sidebar search */
 #nav-sidebar input[type="search"] {
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(252, 255, 249, 0.2);
+  background: var(--color-white-a10);
+  border: 1px solid var(--color-text-on-primary-a20);
   border-radius: var(--radius-sm);
   color: var(--color-text-on-primary);
   padding: 5px 8px;
@@ -182,13 +145,13 @@ div.breadcrumbs a:link {
 }
 
 #nav-sidebar input[type="search"]::placeholder {
-  color: rgba(252, 255, 249, 0.4);
+  color: var(--color-text-on-primary-a40);
 }
 
 /* Sidebar toggle button */
 #toggle-nav-sidebar {
   color: var(--color-text-on-primary);
-  border-color: rgba(252, 255, 249, 0.25);
+  border-color: var(--color-text-on-primary-a25);
 }
 
 /* ─── Modules (section cards) ────────────────────────────────────────────── */
@@ -197,8 +160,8 @@ div.breadcrumbs a:link {
   border-radius: var(--radius-md);
   overflow: hidden;
   margin-bottom: 1.25rem;
-  background: #fff;
-  box-shadow: 0 1px 6px rgba(43, 52, 103, 0.07);
+  background: var(--color-white);
+  box-shadow: 0 1px 6px var(--color-primary-a07);
 }
 
 .module h2,
@@ -231,7 +194,7 @@ thead th {
   text-transform: uppercase;
   letter-spacing: 0.05em;
   padding: 9px 12px;
-  border-bottom: 2px solid rgba(43, 52, 103, 0.15);
+  border-bottom: 2px solid var(--color-primary-a15);
   white-space: nowrap;
 }
 
@@ -241,7 +204,7 @@ thead th a:visited {
 }
 
 thead th.sorted {
-  background: rgba(43, 52, 103, 0.1);
+  background: var(--color-primary-a10);
 }
 
 thead th.sorted .text a {
@@ -256,12 +219,12 @@ tbody th {
   vertical-align: middle;
 }
 
-tr.row1           { background: #fff; }
-tr.row2           { background: rgba(43, 52, 103, 0.025); }
+tr.row1           { background: var(--color-white); }
+tr.row2           { background: var(--color-primary-a025); }
 tr:hover td,
-tr:hover th       { background: rgba(43, 52, 103, 0.04); }
+tr:hover th       { background: var(--color-primary-a04); }
 tr.selected td,
-tr.selected th    { background: rgba(235, 69, 95, 0.07) !important; }
+tr.selected th    { background: var(--color-accent-a07) !important; }
 
 /* Checkbox column */
 th.action-checkbox,
@@ -279,7 +242,7 @@ input[type="checkbox"] {
 
 /* ─── Filter sidebar ─────────────────────────────────────────────────────── */
 #changelist-filter {
-  background: #fff;
+  background: var(--color-white);
   border-left: var(--border);
   padding: 0;
 }
@@ -402,7 +365,7 @@ a.button {
   display: inline-block;
   background: var(--color-accent);
   border: 1px solid var(--color-accent);
-  color: #fff !important;
+  color: var(--color-white) !important;
   border-radius: var(--radius-sm);
   padding: 7px 16px;
   font-size: 0.875rem;
@@ -417,14 +380,14 @@ a.button {
 input[type="submit"]:hover,
 input[type="button"]:hover {
   filter: brightness(0.9);
-  color: #fff !important;
+  color: var(--color-white) !important;
 }
 
 /* Secondary / cancel */
 .button.cancel-link,
 a.cancel-link {
   background: transparent !important;
-  border-color: rgba(43, 52, 103, 0.2) !important;
+  border-color: var(--color-primary-a20) !important;
   color: var(--color-text) !important;
 }
 
@@ -438,13 +401,13 @@ a.deletelink,
 
 a.deletelink:hover {
   background: var(--color-accent) !important;
-  color: #fff !important;
+  color: var(--color-white) !important;
 }
 
 /* Close button on popups */
 a.closelink {
   background: transparent !important;
-  border-color: rgba(43, 52, 103, 0.2) !important;
+  border-color: var(--color-primary-a20) !important;
   color: var(--color-text-secondary) !important;
 }
 
@@ -490,7 +453,7 @@ textarea {
   padding: 6px 10px;
   color: var(--color-text);
   font-size: 0.875rem;
-  background: #fff;
+  background: var(--color-white);
   transition: border-color 0.15s, box-shadow 0.15s;
 }
 
@@ -503,7 +466,7 @@ select:focus,
 textarea:focus {
   outline: none;
   border-color: var(--color-primary);
-  box-shadow: 0 0 0 3px rgba(43, 52, 103, 0.1);
+  box-shadow: 0 0 0 3px var(--color-primary-a10);
 }
 
 .help,
@@ -519,12 +482,12 @@ p.help {
   border-radius: var(--radius-md);
   overflow: hidden;
   margin-bottom: 1.25rem;
-  background: #fff;
-  box-shadow: 0 1px 6px rgba(43, 52, 103, 0.06);
+  background: var(--color-white);
+  box-shadow: 0 1px 6px var(--color-primary-a06);
 }
 
 .inline-related h3 {
-  background: rgba(43, 52, 103, 0.05);
+  background: var(--color-primary-a05);
   color: var(--color-primary);
   font-size: 0.8rem;
   font-weight: 700;
@@ -558,7 +521,7 @@ p.help {
 
 .paginator .this-page {
   background: var(--color-accent);
-  color: #fff;
+  color: var(--color-white);
   padding: 3px 8px;
   border-radius: var(--radius-sm);
   font-weight: 700;
@@ -573,17 +536,17 @@ ul.messagelist {
 }
 
 ul.messagelist li {
-  background: #fff;
+  background: var(--color-white);
   border-left: 4px solid var(--color-accent);
   border-radius: var(--radius-sm);
   padding: 9px 14px;
   margin-bottom: 6px;
   font-size: 0.875rem;
-  box-shadow: 0 1px 4px rgba(43, 52, 103, 0.07);
+  box-shadow: 0 1px 4px var(--color-primary-a07);
 }
 
 ul.messagelist li.success { border-left-color: var(--color-brand-rugby); }
-ul.messagelist li.warning { border-left-color: #d97706; }
+ul.messagelist li.warning { border-left-color: var(--color-warning); }
 ul.messagelist li.error   { border-left-color: var(--color-accent); }
 
 /* ─── Date hierarchy ─────────────────────────────────────────────────────── */
@@ -637,14 +600,14 @@ ul.messagelist li.error   { border-left-color: var(--color-accent); }
 }
 
 .oval-stat-card {
-  background: #fff;
+  background: var(--color-white);
   border: var(--border);
   border-radius: var(--radius-md);
   padding: 16px;
   display: flex;
   align-items: center;
   gap: 14px;
-  box-shadow: 0 1px 6px rgba(43, 52, 103, 0.07);
+  box-shadow: 0 1px 6px var(--color-primary-a07);
 }
 
 .oval-stat-card__icon {
@@ -660,9 +623,9 @@ ul.messagelist li.error   { border-left-color: var(--color-accent); }
   color: var(--color-primary);
 }
 
-.oval-stat-card__icon--warn  { background: rgba(235, 69, 95, 0.1);  color: var(--color-accent); }
-.oval-stat-card__icon--alert { background: rgba(235, 69, 95, 0.15); color: var(--color-accent); }
-.oval-stat-card__icon--ok    { background: rgba(26, 127, 55, 0.1);  color: var(--color-brand-rugby); }
+.oval-stat-card__icon--warn  { background: var(--color-accent-a10);  color: var(--color-accent); }
+.oval-stat-card__icon--alert { background: var(--color-accent-a15); color: var(--color-accent); }
+.oval-stat-card__icon--ok    { background: var(--color-brand-rugby-a10);  color: var(--color-brand-rugby); }
 
 .oval-stat-card__value {
   font-size: 1.75rem;
@@ -680,7 +643,7 @@ ul.messagelist li.error   { border-left-color: var(--color-accent); }
 
 a:hover .oval-stat-card {
   border-color: var(--color-primary);
-  box-shadow: 0 2px 10px rgba(43, 52, 103, 0.14);
+  box-shadow: 0 2px 10px var(--color-primary-a14);
   transition: box-shadow 0.15s, border-color 0.15s;
 }
 
@@ -697,7 +660,7 @@ a:hover .oval-stat-card {
 /* ─── Admin footer ───────────────────────────────────────────────────────── */
 #footer {
   background: var(--color-primary);
-  color: rgba(252, 255, 249, 0.5);
+  color: var(--color-text-on-primary-a50);
   font-size: 0.78rem;
   padding: 10px 20px;
   text-align: center;

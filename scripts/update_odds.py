@@ -144,7 +144,7 @@ if not found:
     print("Aucune cote trouvée ou estimée. Aucune mise à jour.")
     sys.exit(0)
 
-# Normalise les cotes en int (Gemini peut renvoyer des floats)
+# Normalise odds to int (Gemini may return floats)
 odds_list = [
     {
         'match_id': int(e['match_id']),

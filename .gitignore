@@ -57,6 +57,7 @@ legacy/
 # Documentation
 *.md
 !CLAUDE.md
+!CONVENTIONS.md
 !ARCHITECTURE.md
 !ROLLOUT.md
 !README.md

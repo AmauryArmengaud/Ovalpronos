@@ -22,7 +22,8 @@ class CompetitionImportView(View):
         r = sync_competition_matches(competition.code)
         messages.success(
             request,
-            f"Sync terminée pour {competition.name} : {r['created']} créés, {r['updated']} mis à jour."
+            _("Sync done for %(name)s: %(created)s created, %(updated)s updated.") % {
+                'name': competition.name, 'created': r['created'], 'updated': r['updated']},
         )
         return redirect(reverse('admin:matches_competition_change', args=[competition_id]))
 

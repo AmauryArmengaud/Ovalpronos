@@ -62,7 +62,7 @@
       </ul>
       {% endif %}
     </div>
-    <img src="{% static 'img/boar-mascot.png' %}" alt="Mascotte Oval'Pronos"
+    <img src="{% static 'img/boar-mascot.png' %}" alt="{% trans "Oval'Pronos mascot" %}"
          class="home-hero__mascot d-none d-lg-block"
          width="240" height="240">
   </div>
@@ -82,10 +82,10 @@
       <span class="comp-landing-match__team">
         {% include "matches/_landing_team_logo.html" with team=match.home_team %}
         <span>{{ match.home_team.short_name|default:match.home_team.name }}</span>
-        {% if match.has_odds %}<span class="comp-landing-match__pts">{{ match.cote_home|format_cote }} pts</span>{% endif %}
+        {% if match.has_odds %}<span class="comp-landing-match__pts">{{ match.cote_home|format_cote }} {% trans "pts" %}</span>{% endif %}
       </span>
       <span class="comp-landing-match__team comp-landing-match__team--away">
-        {% if match.has_odds %}<span class="comp-landing-match__pts">{{ match.cote_away|format_cote }} pts</span>{% endif %}
+        {% if match.has_odds %}<span class="comp-landing-match__pts">{{ match.cote_away|format_cote }} {% trans "pts" %}</span>{% endif %}
         <span>{{ match.away_team.short_name|default:match.away_team.name }}</span>
         {% include "matches/_landing_team_logo.html" with team=match.away_team %}
       </span>

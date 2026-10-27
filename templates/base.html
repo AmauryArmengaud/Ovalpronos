@@ -25,6 +25,7 @@
   <link rel="icon" type="image/png" sizes="32x32" href="{% static 'img/favicon-32x32.png' %}">
   <link rel="apple-touch-icon" sizes="180x180" href="{% static 'img/apple-touch-icon.png' %}">
   <!-- App CSS -->
+  <link rel="stylesheet" href="{% static 'css/tokens.css' %}?{{ STATIC_VERSION }}">
   <link rel="stylesheet" href="{% static 'css/main.css' %}?{{ STATIC_VERSION }}">
   <!-- Open Graph — overridable per page -->
   <meta property="og:type" content="website">
@@ -50,11 +51,11 @@
 <!-- Navbar (desktop) -->
 <nav class="navbar navbar-expand-lg navbar-light">
   <div class="container">
-    <!-- Mobile: logo centré, pas de hamburger -->
+    <!-- Mobile: centred logo, no hamburger -->
     <a class="navbar-brand mx-auto d-lg-none" href="{% url 'matches:home' %}">
       <img src="{% static 'img/logo.svg' %}" alt="Oval'Pronos" height="40">
     </a>
-    <!-- Desktop: logo à gauche -->
+    <!-- Desktop: logo on the left -->
     <a class="navbar-brand d-none d-lg-block" href="{% url 'matches:home' %}">
       <img src="{% static 'img/logo.svg' %}" alt="Oval'Pronos" height="48">
     </a>
