@@ -156,9 +156,7 @@ def _upcoming_window(now):
     import datetime as dt
     from django.db.models import Q
     from .models import Match
-    # odds already set (by Gemini or by hand) are never overwritten
-    missing_odds = Q(cote_home__isnull=True) | Q(cote_draw__isnull=True) | Q(cote_away__isnull=True)
-    return missing_odds & Q(
+    return Q(
         status__in=[Match.STATUS_SCHEDULED, Match.STATUS_POSTPONED],
         datetime__gt=now,
         datetime__lte=now + dt.timedelta(days=7),

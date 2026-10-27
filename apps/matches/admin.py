@@ -184,7 +184,7 @@ class MatchAdmin(admin.ModelAdmin):
     def prediction_count(self, obj):
         return obj._prediction_count
 
-    @admin.action(description=_("Update odds (Gemini, matches without odds)"))
+    @admin.action(description=_("Update odds (Gemini)"))
     def update_odds_action(self, request, queryset):
         import os
         import subprocess
@@ -205,7 +205,7 @@ class MatchAdmin(admin.ModelAdmin):
             self.message_user(request, _("GOOGLE_API_KEY is not set, odds update not started."), level='error')
             return
         if not ids:
-            self.message_user(request, _("No match to update: they already have odds or kick off in more than 7 days (or have started)."), level='warning')
+            self.message_user(request, _("No match to update: they kick off in more than 7 days, have started or are hidden."), level='warning')
             return
 
         # gunicorn may not export the .env vars the script reads from os.environ
@@ -224,7 +224,7 @@ class MatchAdmin(admin.ModelAdmin):
         )
         self.message_user(request, _("Odds update started for %(count)s match(es), refresh the page in 1 to 2 minutes.") % {'count': len(ids)})
         if ignored:
-            self.message_user(request, _("%(count)s match(es) ignored: they already have odds or kick off in more than 7 days (or have started).") % {'count': ignored}, level='warning')
+            self.message_user(request, _("%(count)s match(es) ignored: they kick off in more than 7 days, have started or are hidden.") % {'count': ignored}, level='warning')
 
     @admin.action(description=_("Recalculate points"))
     def recalculate_points_action(self, request, queryset):
