@@ -467,9 +467,6 @@ main {
   font-weight: 700;
   line-height: 1.1;
   letter-spacing: 0.02em;
-  text-decoration: none;
-  border-bottom: 0;
-  cursor: default;
   white-space: nowrap;
 }
 /* Same circle as the match cards, smaller: the list is scanned, not read */
