@@ -163,3 +163,38 @@ class SyncSeveralSeasonsTest(TestCase):
             call_command('sync_matches', stdout=out)
         seasons = sorted(c.args[1] for c in fixtures.call_args_list)
         self.assertEqual(seasons, ['2025', '2026'])
+
+
+class SyncTeamCreationTest(TestCase):
+    """Teams are created by the sync, then never overwritten (admin edits persist)."""
+
+    def setUp(self):
+        Competition.objects.create(
+            external_id=1, name='Test', code='SYNCTEST', country='France', season='2026'
+        )
+
+    def _sync(self, games):
+        with patch('apps.matches.services._get_fixtures', return_value=games), \
+                patch('apps.matches.services.requests.get'):
+            sync_competition_matches('SYNCTEST')
+
+    def test_new_team_is_created_from_api(self):
+        self._sync([_game()])
+        team = Team.objects.get(external_id=9001)
+        self.assertEqual((team.name, team.slug, team.short_name), ('Home FC', 'home-fc', ''))
+
+    def test_new_team_uses_overrides(self):
+        game = _game()
+        game.update({'home': 'Bordeaux', 'home_id': 131})
+        self._sync([game])
+        team = Team.objects.get(external_id=131)
+        self.assertEqual(
+            (team.name, team.slug, team.short_name),
+            ('Union Bordeaux-Bègles', 'bordeaux', 'UBB'),
+        )
+
+    def test_admin_edits_survive_sync(self):
+        Team.objects.create(external_id=9001, slug='custom', name='Custom Name', short_name='CUS')
+        self._sync([_game()])
+        team = Team.objects.get(external_id=9001)
+        self.assertEqual((team.name, team.slug, team.short_name), ('Custom Name', 'custom', 'CUS'))

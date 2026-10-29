@@ -43,6 +43,8 @@ STATUS_MAP = {
 }
 
 # Manual mapping: external_id → slug (PNG file name) + short_name (3 chars)
+# Applied only when a team is first created by the sync. Afterwards the DB row
+# (editable in the Django admin) is the source of truth and is never overwritten.
 # Slug must match static/img/teams/<slug>.png
 TEAM_OVERRIDES = {
     6767:  {'slug': 'clermont',   'short_name': 'ASM'},  # ASM Clermont Auvergne
@@ -62,6 +64,28 @@ TEAM_OVERRIDES = {
     1322:  {'slug': 'vannes',     'short_name': 'RCV'}, # Racing Club Vannes
     17:    {'slug': 'tbc',        'short_name': 'TBC'},  # To be confirmed
 }
+
+
+def _get_or_create_team(external_id, api_name):
+    """
+    Return the Team for this API id, creating it on first sight.
+
+    name / slug / short_name are filled from TEAM_OVERRIDES (fallback: API name)
+    only at creation time. Existing teams are left untouched so that edits made
+    in the Django admin survive subsequent syncs.
+    """
+    from apps.matches.models import Team
+
+    overrides = TEAM_OVERRIDES.get(external_id, {})
+    team, _ = Team.objects.get_or_create(
+        external_id=external_id,
+        defaults={
+            'name': overrides.get('name', api_name),
+            'slug': overrides.get('slug', slugify(api_name)),
+            'short_name': overrides.get('short_name', ''),
+        },
+    )
+    return team
 
 
 def _get_fixtures(comp_id, season):
@@ -140,25 +164,8 @@ def sync_competition_matches(competition):
         for game in games:
             try:
                 # Teams
-                home_overrides = TEAM_OVERRIDES.get(game['home_id'], {})
-                away_overrides = TEAM_OVERRIDES.get(game['away_id'], {})
-
-                home_team, _ = Team.objects.update_or_create(
-                    external_id=game['home_id'],
-                    defaults={
-                        'name': home_overrides.get('name', game['home']),
-                        'slug': home_overrides.get('slug', slugify(game['home'])),
-                        'short_name': home_overrides.get('short_name', ''),
-                    },
-                )
-                away_team, _ = Team.objects.update_or_create(
-                    external_id=game['away_id'],
-                    defaults={
-                        'name': away_overrides.get('name', game['away']),
-                        'slug': away_overrides.get('slug', slugify(game['away'])),
-                        'short_name': away_overrides.get('short_name', ''),
-                    },
-                )
+                home_team = _get_or_create_team(game['home_id'], game['home'])
+                away_team = _get_or_create_team(game['away_id'], game['away'])
 
                 # Status
                 api_status = game.get('status', 'Not Started')
