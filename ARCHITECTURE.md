@@ -80,11 +80,13 @@ One competition per code can be `is_active=True` at a time. Rankings filter on t
 | `external_id` | IntegerField | unique rugby-live-data (RapidAPI) ID |
 | `name` | CharField | "Stade Toulousain" |
 | `short_name` | CharField | "STA" |
-| `slug` | SlugField | "stade-toulousain" — key for local PNG |
+| `slug` | SlugField | "stade-toulousain" — key for the legacy static PNG fallback |
 | `country` | CharField | used for national teams |
 | `logo` | ImageField | optional, upload_to='teams/'; for admin uploads |
 
-Logo resolution: `Team.logo` (uploaded in the admin) when set, otherwise the static PNG `static/img/teams/<slug>.png` (`match_tags.team_logo_url()` in Python). `migrate_team_logos` seeds `Team.logo` from the PNGs. No external logo URLs.
+Logo resolution: `Team.logo` (uploaded in the admin, the normal path) when set, otherwise the legacy static PNG `static/img/teams/<slug>.png`, otherwise initials (`short_name` or first 3 letters of `name`). See `match_tags.team_logo_url()`. `migrate_team_logos` seeds `Team.logo` from the PNGs. No external logo URLs.
+
+The sync creates teams with the API name, `slugify(name)` and an empty `short_name`, then never overwrites them: the admin is the source of truth.
 
 ### `matches.Match`
 

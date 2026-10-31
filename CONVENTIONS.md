@@ -86,18 +86,26 @@ Management command output and log messages are not UI and are not translated.
 
 ## Team Logo Pattern
 
-Use `Team.logo` (uploaded in the admin) when it is set, otherwise fall back to the static PNG `static/img/teams/<team.slug>.png`. Never use external URLs.
+**Logos are uploaded in the Django admin (`Team.logo`).** This is the normal way to give a team its logo. Never use external URLs.
+
+Resolution order, everywhere:
+1. `Team.logo` (admin upload), when set
+2. legacy static PNG `static/img/teams/<team.slug>.png`, when the file exists
+3. initials: `short_name`, else the first 3 letters of `name`, uppercased
+
+Preferred in templates: the `team_logo_url` filter (`apps/matches/templatetags/match_tags.py`), which returns `''` when there is no upload and no PNG, so the template renders initials server-side:
 
 ```html
-{% load static %}
-<img src="{% if team.logo %}{{ team.logo.url }}{% else %}{% static 'img/teams/' %}{{ team.slug }}.png{% endif %}"
-     alt="{{ team.name }}"
-     width="38" height="38">
+{% load match_tags %}
+{% with logo=team|team_logo_url %}
+  {% if logo %}<img src="{{ logo }}" alt="" width="28" height="28" loading="lazy">
+  {% else %}{{ team.short_name|default:team.name|slice:":3"|upper }}{% endif %}
+{% endwith %}
 ```
 
-In Python, `apps/matches/templatetags/match_tags.py::team_logo_url(team)` applies the same order.
+`templates/partials/match_card.html` still inlines the upload/PNG choice and falls back to initials client-side via `onerror` (`.match-team-logo-fallback`). Either way there is never a broken image.
 
-File naming: `static/img/teams/<team.slug>.png`. When the RapidAPI sync sees a team for the first time, it creates it with the API name, `slug = slugify(name)` and an empty `short_name`. After creation the sync never overwrites these fields: set the slug (to match the PNG) and the short name in the Django admin. If neither the upload nor the PNG exists, the browser shows a broken image — add a CSS fallback via `onerror` if needed.
+New teams are created by the RapidAPI sync with the API name, `slug = slugify(name)` and an empty `short_name`. The sync never overwrites these fields afterwards: upload the logo and set the short name in the admin. The slug only matters for the legacy PNG fallback.
 
 ---
 
