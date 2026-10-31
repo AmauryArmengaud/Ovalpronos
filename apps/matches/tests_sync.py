@@ -183,16 +183,6 @@ class SyncTeamCreationTest(TestCase):
         team = Team.objects.get(external_id=9001)
         self.assertEqual((team.name, team.slug, team.short_name), ('Home FC', 'home-fc', ''))
 
-    def test_new_team_uses_overrides(self):
-        game = _game()
-        game.update({'home': 'Bordeaux', 'home_id': 131})
-        self._sync([game])
-        team = Team.objects.get(external_id=131)
-        self.assertEqual(
-            (team.name, team.slug, team.short_name),
-            ('Union Bordeaux-Bègles', 'bordeaux', 'UBB'),
-        )
-
     def test_admin_edits_survive_sync(self):
         Team.objects.create(external_id=9001, slug='custom', name='Custom Name', short_name='CUS')
         self._sync([_game()])

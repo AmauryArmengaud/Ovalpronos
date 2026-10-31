@@ -97,7 +97,7 @@ Use `Team.logo` (uploaded in the admin) when it is set, otherwise fall back to t
 
 In Python, `apps/matches/templatetags/match_tags.py::team_logo_url(team)` applies the same order.
 
-File naming: `static/img/teams/<team.slug>.png`. When the RapidAPI sync sees a team for the first time, it creates it with `name`, `slug` and `short_name` from `TEAM_OVERRIDES` in `services.py` (fallback: API name, `slugify(name)`, empty short name). After creation the sync never overwrites these fields: fix them in the Django admin. If neither the upload nor the PNG exists, the browser shows a broken image — add a CSS fallback via `onerror` if needed.
+File naming: `static/img/teams/<team.slug>.png`. When the RapidAPI sync sees a team for the first time, it creates it with the API name, `slug = slugify(name)` and an empty `short_name`. After creation the sync never overwrites these fields: set the slug (to match the PNG) and the short name in the Django admin. If neither the upload nor the PNG exists, the browser shows a broken image — add a CSS fallback via `onerror` if needed.
 
 ---
 

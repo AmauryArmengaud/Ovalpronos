@@ -42,48 +42,20 @@ STATUS_MAP = {
     'Cancelled':   'CANCELLED',
 }
 
-# Manual mapping: external_id → slug (PNG file name) + short_name (3 chars)
-# Applied only when a team is first created by the sync. Afterwards the DB row
-# (editable in the Django admin) is the source of truth and is never overwritten.
-# Slug must match static/img/teams/<slug>.png
-TEAM_OVERRIDES = {
-    6767:  {'slug': 'clermont',   'short_name': 'ASM'},  # ASM Clermont Auvergne
-    14567: {'slug': 'bayonne',    'short_name': 'BAY'},  # Aviron Bayonnais
-    6167:  {'slug': 'castres',    'short_name': 'CO'},   # Castres Olympique
-    152:   {'slug': 'lyon',       'short_name': 'LOU'},  # Lyon Olympique Universitaire
-    14867: {'slug': 'montpellier','short_name': 'MHR'},  # Montpellier Hérault Rugby
-    134:   {'slug': 'toulon',     'short_name': 'RCT'},  # RC Toulon
-    140:   {'slug': 'racing92',   'short_name': 'R92'},  # Racing 92
-    10367: {'slug': 'pau',        'short_name': 'PAU'},  # Section Paloise
-    4817:  {'slug': 'paris',      'short_name': 'SFP'},  # Stade Français Paris
-    158:   {'slug': 'larochelle', 'short_name': 'SRO'},  # Stade Rochelais
-    7067:  {'slug': 'toulouse',   'short_name': 'ST'},   # Stade Toulousain
-    4967:  {'slug': 'perpignan',  'short_name': 'PER'},  # USAP
-    131:   {'slug': 'bordeaux',   'short_name': 'UBB', 'name': 'Union Bordeaux-Bègles'},
-    14717: {'slug': 'montauban',  'short_name': 'USM'},  # US Montauban
-    1322:  {'slug': 'vannes',     'short_name': 'RCV'}, # Racing Club Vannes
-    17:    {'slug': 'tbc',        'short_name': 'TBC'},  # To be confirmed
-}
-
 
 def _get_or_create_team(external_id, api_name):
     """
     Return the Team for this API id, creating it on first sight.
 
-    name / slug / short_name are filled from TEAM_OVERRIDES (fallback: API name)
-    only at creation time. Existing teams are left untouched so that edits made
-    in the Django admin survive subsequent syncs.
+    name and slug come from the API (slug = slugify(name)) and short_name is left
+    empty, only at creation time. Existing teams are left untouched: the Django
+    admin is the source of truth for name / slug / short_name.
     """
     from apps.matches.models import Team
 
-    overrides = TEAM_OVERRIDES.get(external_id, {})
     team, _ = Team.objects.get_or_create(
         external_id=external_id,
-        defaults={
-            'name': overrides.get('name', api_name),
-            'slug': overrides.get('slug', slugify(api_name)),
-            'short_name': overrides.get('short_name', ''),
-        },
+        defaults={'name': api_name, 'slug': slugify(api_name), 'short_name': ''},
     )
     return team
 
