@@ -42,26 +42,22 @@ STATUS_MAP = {
     'Cancelled':   'CANCELLED',
 }
 
-# Manual mapping: external_id → slug (PNG file name) + short_name (3 chars)
-# Slug must match static/img/teams/<slug>.png
-TEAM_OVERRIDES = {
-    6767:  {'slug': 'clermont',   'short_name': 'ASM'},  # ASM Clermont Auvergne
-    14567: {'slug': 'bayonne',    'short_name': 'BAY'},  # Aviron Bayonnais
-    6167:  {'slug': 'castres',    'short_name': 'CO'},   # Castres Olympique
-    152:   {'slug': 'lyon',       'short_name': 'LOU'},  # Lyon Olympique Universitaire
-    14867: {'slug': 'montpellier','short_name': 'MHR'},  # Montpellier Hérault Rugby
-    134:   {'slug': 'toulon',     'short_name': 'RCT'},  # RC Toulon
-    140:   {'slug': 'racing92',   'short_name': 'R92'},  # Racing 92
-    10367: {'slug': 'pau',        'short_name': 'PAU'},  # Section Paloise
-    4817:  {'slug': 'paris',      'short_name': 'SFP'},  # Stade Français Paris
-    158:   {'slug': 'larochelle', 'short_name': 'SRO'},  # Stade Rochelais
-    7067:  {'slug': 'toulouse',   'short_name': 'ST'},   # Stade Toulousain
-    4967:  {'slug': 'perpignan',  'short_name': 'PER'},  # USAP
-    131:   {'slug': 'bordeaux',   'short_name': 'UBB', 'name': 'Union Bordeaux-Bègles'},
-    14717: {'slug': 'montauban',  'short_name': 'USM'},  # US Montauban
-    1322:  {'slug': 'vannes',     'short_name': 'RCV'}, # Racing Club Vannes
-    17:    {'slug': 'tbc',        'short_name': 'TBC'},  # To be confirmed
-}
+
+def _get_or_create_team(external_id, api_name):
+    """
+    Return the Team for this API id, creating it on first sight.
+
+    name and slug come from the API (slug = slugify(name)) and short_name is left
+    empty, only at creation time. Existing teams are left untouched: the Django
+    admin is the source of truth for name / slug / short_name.
+    """
+    from apps.matches.models import Team
+
+    team, _ = Team.objects.get_or_create(
+        external_id=external_id,
+        defaults={'name': api_name, 'slug': slugify(api_name), 'short_name': ''},
+    )
+    return team
 
 
 def _get_fixtures(comp_id, season):
@@ -140,25 +136,8 @@ def sync_competition_matches(competition):
         for game in games:
             try:
                 # Teams
-                home_overrides = TEAM_OVERRIDES.get(game['home_id'], {})
-                away_overrides = TEAM_OVERRIDES.get(game['away_id'], {})
-
-                home_team, _ = Team.objects.update_or_create(
-                    external_id=game['home_id'],
-                    defaults={
-                        'name': home_overrides.get('name', game['home']),
-                        'slug': home_overrides.get('slug', slugify(game['home'])),
-                        'short_name': home_overrides.get('short_name', ''),
-                    },
-                )
-                away_team, _ = Team.objects.update_or_create(
-                    external_id=game['away_id'],
-                    defaults={
-                        'name': away_overrides.get('name', game['away']),
-                        'slug': away_overrides.get('slug', slugify(game['away'])),
-                        'short_name': away_overrides.get('short_name', ''),
-                    },
-                )
+                home_team = _get_or_create_team(game['home_id'], game['home'])
+                away_team = _get_or_create_team(game['away_id'], game['away'])
 
                 # Status
                 api_status = game.get('status', 'Not Started')
