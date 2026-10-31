@@ -23,7 +23,7 @@ class CompetitionImportRouteTest(TestCase):
         self.assertTemplateUsed(self.client.get(self.url), 'admin/matches/import.html')
         with patch('apps.matches.admin_views.sync_competition_matches', return_value={'created': 2, 'updated': 3}) as sync:
             response = self.client.post(self.url)
-        sync.assert_called_once_with('TOP14')
+        sync.assert_called_once_with(self.comp)
         self.assertRedirects(response, f'/admin/matches/competition/{self.comp.pk}/change/', fetch_redirect_response=False)
 
     def test_players_are_sent_to_admin_login(self):

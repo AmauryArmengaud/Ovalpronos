@@ -19,7 +19,7 @@ class CompetitionImportView(View):
 
     def post(self, request, competition_id):
         competition = get_object_or_404(Competition, pk=competition_id)
-        r = sync_competition_matches(competition.code)
+        r = sync_competition_matches(competition)
         messages.success(
             request,
             _("Sync done for %(name)s: %(created)s created, %(updated)s updated.") % {

@@ -112,3 +112,54 @@ class SyncDoesNotWriteScoresTest(TestCase):
         past = (timezone.now() - dt.timedelta(hours=1)).isoformat()
         _, http_get = self._sync([_game(date=past)])
         http_get.assert_not_called()
+
+
+class SyncSeveralSeasonsTest(TestCase):
+    """A code is shared by every season: the sync must not crash on duplicates."""
+
+    def setUp(self):
+        self.old = Competition.objects.create(
+            external_id=1, name='Top 14', code='SYNCTEST', country='France', season='2025', is_active=False
+        )
+        self.new = Competition.objects.create(
+            external_id=1, name='Top 14', code='SYNCTEST', country='France', season='2026'
+        )
+
+    def _sync(self, arg):
+        with patch('apps.matches.services._get_fixtures', return_value=[_game()]) as fixtures, \
+                patch('apps.matches.services.requests.get'):
+            result = sync_competition_matches(arg)
+        return result, fixtures
+
+    def test_code_resolves_to_active_season(self):
+        result, fixtures = self._sync('SYNCTEST')
+        fixtures.assert_called_once_with(1, '2026')
+        self.assertEqual(Match.objects.get(external_id=1001).competition, self.new)
+        self.assertEqual(result['created'], 1)
+
+    def test_two_active_seasons_use_latest(self):
+        self.old.is_active = True
+        self.old.save()
+        _, fixtures = self._sync('SYNCTEST')
+        fixtures.assert_called_once_with(1, '2026')
+
+    def test_instance_is_synced_even_if_inactive(self):
+        _, fixtures = self._sync(self.old)
+        fixtures.assert_called_once_with(1, '2025')
+
+    def test_unknown_code_returns_empty_result(self):
+        result, fixtures = self._sync('NOPE')
+        fixtures.assert_not_called()
+        self.assertEqual(result['created'], 0)
+
+    def test_sync_matches_command_handles_duplicate_codes(self):
+        from io import StringIO
+        from django.core.management import call_command
+        self.old.is_active = True
+        self.old.save()
+        out = StringIO()
+        with patch('apps.matches.services._get_fixtures', return_value=[]) as fixtures, \
+                patch('apps.matches.services.requests.get'):
+            call_command('sync_matches', stdout=out)
+        seasons = sorted(c.args[1] for c in fixtures.call_args_list)
+        self.assertEqual(seasons, ['2025', '2026'])

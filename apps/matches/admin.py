@@ -72,7 +72,7 @@ class CompetitionAdmin(admin.ModelAdmin):
         from apps.matches.services import sync_competition_matches
         comp = Competition.objects.get(pk=pk)
         try:
-            r = sync_competition_matches(comp.code)
+            r = sync_competition_matches(comp)
             self.message_user(request, _("%(name)s: %(created)s created, %(updated)s updated.") % {
                     'name': comp.name, 'created': r['created'], 'updated': r['updated']})
         except Exception as e:
@@ -101,7 +101,7 @@ class CompetitionAdmin(admin.ModelAdmin):
         from apps.matches.services import sync_competition_matches
         for comp in queryset:
             try:
-                r = sync_competition_matches(comp.code)
+                r = sync_competition_matches(comp)
                 self.message_user(request, _("%(name)s: %(created)s created, %(updated)s updated.") % {
                     'name': comp.name, 'created': r['created'], 'updated': r['updated']})
             except Exception as e:

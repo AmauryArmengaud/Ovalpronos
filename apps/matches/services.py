@@ -80,21 +80,44 @@ def _get_fixtures(comp_id, season):
         return None
 
 
-def sync_competition_matches(competition_code):
+def _resolve_competition(code):
+    """
+    Active Competition for this code, or None.
+
+    A code is shared by every season of a competition (one row per season),
+    so the lookup is restricted to active rows. If several seasons are active
+    at once, the most recent one wins and a warning is logged.
+    """
+    from apps.matches.models import Competition
+
+    candidates = list(Competition.objects.filter(code=code, is_active=True).order_by('-season', '-pk'))
+    if not candidates:
+        logger.error(f"Aucune compétition active pour le code : {code}")
+        return None
+    if len(candidates) > 1:
+        logger.warning(
+            f"{len(candidates)} compétitions actives pour le code {code} "
+            f"({', '.join(c.season for c in candidates)}) : sync de {candidates[0].season}"
+        )
+    return candidates[0]
+
+
+def sync_competition_matches(competition):
     """
     Syncs the matches of one competition.
     Creates or updates the teams, then the matches.
 
     Args:
-        competition_code: code of the Competition in the DB (e.g. 'TOP14')
+        competition: a Competition instance (preferred), or a code (e.g. 'TOP14'),
+            resolved to the active season of that code
     """
-    from apps.matches.models import Competition, Team, Match
+    from apps.matches.models import Team, Match
 
-    try:
-        competition = Competition.objects.get(code=competition_code)
-    except Competition.DoesNotExist:
-        logger.error(f"Compétition inconnue : {competition_code}")
-        return {'created': 0, 'updated': 0, 'changes': [], 'points_calculated': 0}
+    if isinstance(competition, str):
+        competition = _resolve_competition(competition)
+        if competition is None:
+            return {'created': 0, 'updated': 0, 'changes': [], 'points_calculated': 0}
+    competition_code = competition.code
 
     games = _get_fixtures(competition.external_id, competition.season)
     if games is None:
@@ -316,7 +339,7 @@ def sync_all_competitions():
     from apps.matches.models import Competition
     results = []
     for comp in Competition.objects.filter(is_active=True):
-        r = sync_competition_matches(comp.code)
+        r = sync_competition_matches(comp)
         r['competition'] = comp.code
         results.append(r)
     return results
