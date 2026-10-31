@@ -28,17 +28,20 @@ class Command(BaseCommand):
         comp_code = options.get('comp')
 
         from apps.matches.models import Competition
+        # Competition rows, not codes: a code is shared by every season of a competition
+        competitions = Competition.objects.filter(is_active=True)
         if comp_code:
-            competitions = [comp_code]
-        else:
-            competitions = list(Competition.objects.filter(is_active=True).values_list('code', flat=True))
+            competitions = competitions.filter(code=comp_code)
+            if not competitions:
+                self.stderr.write(self.style.ERROR(f"Aucune compétition active pour le code {comp_code}"))
+                return
 
         total_created = 0
         total_updated = 0
 
-        for code in competitions:
-            self.stdout.write(f"  → Synchronisation {code}...", ending='')
-            r = sync_competition_matches(code)
+        for comp in competitions:
+            self.stdout.write(f"  → Synchronisation {comp.code} ({comp.season})...", ending='')
+            r = sync_competition_matches(comp)
             total_created += r['created']
             total_updated += r['updated']
             self.stdout.write(

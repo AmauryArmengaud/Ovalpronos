@@ -24,8 +24,9 @@ class Command(BaseCommand):
             return
 
         from apps.matches.models import Competition
-        for code in Competition.objects.filter(is_active=True).values_list('code', flat=True):
-            r = sync_competition_matches(code)
+        for comp in Competition.objects.filter(is_active=True):
+            code = comp.code
+            r = sync_competition_matches(comp)
             self.stdout.write(f"[{code}] {r['created']} créés, {r['updated']} mis à jour")
             for change in r['changes']:
                 self.stdout.write(f"  {change}")
