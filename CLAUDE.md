@@ -220,7 +220,7 @@ Scoring logic: `apps/predictions/services.py::calculate_points()`. Orchestration
 
 ### Data Flow
 
-**Match sync (schedule only):** VPS cron (daily 07:00 UTC) → `python manage.py sync_matches` → `sync_competition_matches(code)` → upserts matches (teams, kickoff, round, venue, SCHEDULED/POSTPONED/CANCELLED). It never writes scores or IN_PLAY/FINISHED on an existing match, because RapidAPI scores are sometimes wrong. Exception: a brand-new match (no predictions yet) is imported with the API result. On CANCELLED: `_calculate_points_for_match()`.
+**Match sync (schedule only):** VPS cron (daily 07:00 UTC) → `python manage.py sync_matches` → `sync_competition_matches(competition)` for each active Competition row (a code such as TOP14 is shared by every season, so never look a competition up by code alone) → creates new teams once (API name, `slugify(name)`, empty `short_name`; existing teams are never overwritten, the admin is the source of truth) → upserts matches (kickoff, round, venue, SCHEDULED/POSTPONED/CANCELLED). It never writes scores or IN_PLAY/FINISHED on an existing match, because RapidAPI scores are sometimes wrong. Exception: a brand-new match (no predictions yet) is imported with the API result. On CANCELLED: `_calculate_points_for_match()`.
 
 **Live sync (scores):** VPS cron (every 10min, 24/7) → `scripts/sync_live_scores.py` → exits if `/api/has-live-matches/` is false → Gemini with Google Search grounding → `POST /api/update-scores/` → on FINISHED: `_calculate_points_for_match()` → `refresh_user_scores_for_match()`. Only matches IN_PLAY or kicked off within the last 3h are sent to Gemini; a match it misses must be scored in the admin (edit score + status, then "Recalculer les points"). `sync_if_live` is not scheduled.
 
