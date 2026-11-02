@@ -19,24 +19,23 @@ class RateLimitBase(TestCase):
         cache.clear()
 
 
-@patch('apps.accounts.views._verify_turnstile', return_value=True)
 class LoginRateLimitTest(RateLimitBase):
     def _login(self, username):
         return self.client.post(reverse('accounts:login'), {'username': username, 'password': 'wrong'})
 
-    def test_eleventh_attempt_on_same_account_is_blocked(self, _):
+    def test_eleventh_attempt_on_same_account_is_blocked(self):
         for _i in range(10):
             self.assertNotEqual(self._login('victim').status_code, 429)
         resp = self._login('victim')
         self.assertEqual(resp.status_code, 429)
         self.assertContains(resp, '429', status_code=429)
 
-    def test_case_variants_share_the_same_limit(self, _):
+    def test_case_variants_share_the_same_limit(self):
         for i in range(10):
             self._login('Victim@Test.local' if i % 2 else 'victim@test.local')
         self.assertEqual(self._login('VICTIM@test.local').status_code, 429)
 
-    def test_other_accounts_are_not_affected(self, _):
+    def test_other_accounts_are_not_affected(self):
         for _i in range(11):
             self._login('victim')
         self.assertNotEqual(self._login('someone-else').status_code, 429)
@@ -89,3 +88,19 @@ class PredictionRateLimitTest(RateLimitBase):
         for i in range(60):
             self.assertEqual(self.client.post(url, {'score_h': str(i), 'score_a': '3'}).status_code, 200)
         self.assertEqual(self.client.post(url, {'score_h': '1', 'score_a': '3'}).status_code, 429)
+
+
+class LoginWithoutCaptchaTest(RateLimitBase):
+    """Login must not depend on Turnstile: the token raced the submit and locked players out."""
+
+    def test_login_succeeds_without_turnstile_token(self):
+        User.objects.create_user(username='player', password='s3cret-pass', email='p@test.local')
+        with patch('apps.accounts.views._verify_turnstile') as verify:
+            resp = self.client.post(reverse('accounts:login'), {'username': 'player', 'password': 's3cret-pass'})
+        verify.assert_not_called()
+        self.assertEqual(resp.status_code, 302)
+        self.assertIn('_auth_user_id', self.client.session)
+
+    def test_login_page_does_not_load_turnstile(self):
+        resp = self.client.get(reverse('accounts:login'))
+        self.assertNotContains(resp, 'challenges.cloudflare.com')
