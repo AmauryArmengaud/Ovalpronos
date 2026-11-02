@@ -152,7 +152,6 @@ class LoginView(auth_views.LoginView):
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
-        ctx['turnstile_site_key'] = settings.TURNSTILE_SITE_KEY
         next_url = self.request.GET.get('next', '')
         ctx['invite_league'] = _get_invite_league(next_url, self.request.get_host())
         return ctx
@@ -162,18 +161,6 @@ class LoginView(auth_views.LoginView):
         from ovalpronos.analytics import capture
         capture(self.request, 'user_logged_in')
         return response
-
-    def post(self, request, *args, **kwargs):
-        token = request.POST.get('cf-turnstile-response', '')
-        try:
-            ok = _verify_turnstile(token, request.META.get('REMOTE_ADDR', ''))
-        except Exception:
-            ok = False
-        if not ok:
-            from django.utils.translation import gettext as _
-            messages.error(request, _("CAPTCHA verification failed. Please try again."))
-            return self.form_invalid(self.get_form())
-        return super().post(request, *args, **kwargs)
 
 
 class RegisterView(CreateView):

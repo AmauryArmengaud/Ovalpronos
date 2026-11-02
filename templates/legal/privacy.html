@@ -34,7 +34,7 @@
   <tbody>
     <tr><td>Hetzner Online GmbH</td><td>Hébergement du site et de la base de données</td><td>Toutes les données du site</td><td>Allemagne / UE</td></tr>
     <tr><td>Brevo SAS</td><td>Envoi des emails</td><td>Email, pseudo, contenu des emails</td><td>France / UE</td></tr>
-    <tr><td>Cloudflare (Turnstile)</td><td>Vérification anti-robots à l'inscription et à la connexion</td><td>Adresse IP, caractéristiques du navigateur</td><td>États-Unis*</td></tr>
+    <tr><td>Cloudflare (Turnstile)</td><td>Vérification anti-robots à l'inscription</td><td>Adresse IP, caractéristiques du navigateur</td><td>États-Unis*</td></tr>
     <tr><td>PostHog</td><td>Statistiques (si tu acceptes) et suivi des erreurs techniques</td><td>Identifiant anonyme <code>user_123</code>, pages, actions, type d'erreur</td><td>Hébergé dans l'UE (Francfort), société américaine*</td></tr>
     <tr><td>Google Fonts, jsDelivr, unpkg</td><td>Polices et bibliothèques techniques chargées par les pages</td><td>Adresse IP, navigateur</td><td>Réseaux mondiaux*</td></tr>
   </tbody>
@@ -66,7 +66,7 @@
     <tr><td><code>csrftoken</code></td><td>Protéger les formulaires contre les attaques</td><td>1 an</td><td>Non requis (indispensable)</td></tr>
     <tr><td><code>django_language</code></td><td>Retenir la langue que tu as choisie</td><td>Session du navigateur</td><td>Non requis (tu l'as demandé)</td></tr>
     <tr><td><code>op_analytics</code></td><td>Retenir ton choix sur les statistiques</td><td>13 ou 6 mois</td><td>Non requis (il enregistre ton choix)</td></tr>
-    <tr><td>Cloudflare Turnstile</td><td>Vérification anti-robots, pages de connexion et d'inscription uniquement</td><td>Selon Cloudflare</td><td>Non requis (sécurité)</td></tr>
+    <tr><td>Cloudflare Turnstile</td><td>Vérification anti-robots, page d'inscription uniquement</td><td>Selon Cloudflare</td><td>Non requis (sécurité)</td></tr>
     <tr><td><code>ph_…</code> (stockage local)</td><td>Statistiques de visite PostHog</td><td>Jusqu'au retrait du consentement</td><td><strong>Oui</strong>, déposé seulement si tu acceptes</td></tr>
   </tbody>
 </table>
