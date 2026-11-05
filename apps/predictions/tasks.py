@@ -25,6 +25,15 @@ def _format_kickoff(dt):
     return f"{day} {local_dt.day} {month} à {local_dt.strftime('%Hh%M')}"
 
 
+def _team_logo_absolute_url(team, site_url):
+    """Same logo as the site (uploaded, else static PNG), falling back to the app logo"""
+    from django.templatetags.static import static
+    from apps.matches.templatetags.match_tags import team_logo_url
+    url = team_logo_url(team) or static('img/logo.png')
+    # mail clients cannot resolve relative URLs
+    return url if url.startswith('http') else f"{site_url}{url}"
+
+
 def send_deadline_reminders():
     """
     Send a weekly prediction reminder via Brevo template #1.
@@ -116,8 +125,8 @@ def send_deadline_reminders():
             {
                 'home': m.home_team.name,
                 'away': m.away_team.name,
-                'home_logo': f"{site_url}/static/img/teams/{m.home_team.slug}.png",
-                'away_logo': f"{site_url}/static/img/teams/{m.away_team.slug}.png",
+                'home_logo': _team_logo_absolute_url(m.home_team, site_url),
+                'away_logo': _team_logo_absolute_url(m.away_team, site_url),
                 'kickoff': _format_kickoff(m.datetime),
                 'competition': m.competition.name,
             }
@@ -215,7 +224,7 @@ def send_results_summary(competition_id=None, round_label=None):
         )
 
         for user in users_with_predictions:
-            user_predictions = (
+            user_predictions = list(
                 Prediction.objects
                 .filter(user=user, match_id__in=match_ids)
                 .select_related('match__home_team', 'match__away_team')
@@ -224,6 +233,9 @@ def send_results_summary(competition_id=None, round_label=None):
             round_points = sum(p.points_earned or 0 for p in user_predictions)
 
             site_url = getattr(settings, 'SITE_URL', '').rstrip('/')
+            for p in user_predictions:
+                p.home_logo = _team_logo_absolute_url(p.match.home_team, site_url)
+                p.away_logo = _team_logo_absolute_url(p.match.away_team, site_url)
             context = {
                 'user': user,
                 'competition_name': competition_name,

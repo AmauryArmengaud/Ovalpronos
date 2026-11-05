@@ -29,9 +29,11 @@
     {% for p in predictions %}
     <tr style="border-bottom:1px solid #e8eaf0;">
       <td style="padding:10px 0;font-size:13px;color:#2B3467;font-family:'Barlow',Arial,sans-serif;font-weight:600;">
+        <img src="{{ p.home_logo }}" alt="" width="20" height="20" style="vertical-align:middle;border:0;">
         {{ p.match.home_team.short_name|default:p.match.home_team.name }}
         {{ p.predicted_home_score }}–{{ p.predicted_away_score }}
         {{ p.match.away_team.short_name|default:p.match.away_team.name }}
+        <img src="{{ p.away_logo }}" alt="" width="20" height="20" style="vertical-align:middle;border:0;">
         <br>
         <span style="font-weight:400;font-size:12px;color:#595c7a;">
           {% trans "Final" %}&nbsp;: {{ p.match.home_score }}–{{ p.match.away_score }}
