@@ -3,7 +3,7 @@ import datetime as dt
 
 from django.contrib.auth import get_user_model
 from django.core import mail
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from django.urls import reverse
 from django.utils import timezone
 
@@ -109,3 +109,40 @@ class DeadlineReminderScopeTest(HardeningBase):
         self.make_match(hours=30)
         send_deadline_reminders()
         self.assertEqual([m.to for m in mail.outbox], [['hard@test.local']])
+
+
+@override_settings(SITE_URL='https://ovalpronos.com')
+class EmailTeamLogoTest(HardeningBase):
+    """Regression: admin-uploaded logos (Nations Championship) were missing from emails"""
+
+    def _reminder_logos(self):
+        self.make_match(hours=30)
+        send_deadline_reminders()
+        listed = mail.outbox[0].merge_global_data['matches'][0]
+        return listed['home_logo'], listed['away_logo']
+
+    def test_regression_uploaded_logo_used_in_reminder(self):
+        Team.objects.filter(pk=self.home.pk).update(logo='teams/france.png')
+        home_logo, _ = self._reminder_logos()
+        self.assertEqual(home_logo, 'https://ovalpronos.com/media/teams/france.png')
+
+    def test_static_png_used_when_no_upload(self):
+        Team.objects.filter(pk=self.home.pk).update(slug='bayonne')
+        home_logo, _ = self._reminder_logos()
+        self.assertTrue(home_logo.startswith('https://ovalpronos.com/static/img/teams/bayonne'))
+
+    def test_app_logo_when_team_has_no_logo(self):
+        _, away_logo = self._reminder_logos()
+        self.assertTrue(away_logo.startswith('https://ovalpronos.com/static/img/logo'))
+
+    def test_results_summary_shows_uploaded_logo(self):
+        from apps.predictions.tasks import send_results_summary
+        Team.objects.filter(pk=self.home.pk).update(logo='teams/france.png')
+        match = self.make_match(hours=-5, round='1', status=Match.STATUS_FINISHED, home_score=20, away_score=10)
+        Prediction.objects.create(
+            user=self.user, match=match, predicted_home_score=20, predicted_away_score=10,
+            points_earned=54, result_type='EXACT',
+        )
+        send_results_summary(competition_id=self.comp.pk, round_label='1')
+        html = next(c for c, ct in mail.outbox[0].alternatives if ct == 'text/html')
+        self.assertIn('https://ovalpronos.com/media/teams/france.png', html)
